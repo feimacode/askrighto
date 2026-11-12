@@ -88,6 +88,9 @@ data rights problem to clear first.
 
 ### Energy plans
 
+The three changes below are proposed in `openspec/changes/` and wait for review. Build order:
+`add-mcp-server-core`, then `add-energy-plan-data`, then `add-energy-plan-tools`.
+
 | Item | Detail | Change id |
 | --- | --- | --- |
 | Data | AER energy product reference data (CDR APIs, no auth), covering Energy Made Easy and Victorian Energy Compare plans. CDR Rule 2.6 says data holders cannot restrict use. Use the API only; the Energy Made Easy site bans scraping and commercial use [D] | `add-energy-plan-data` |
