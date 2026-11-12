@@ -3,8 +3,8 @@ schema: spec-driven
 # Project context: constraints an agent cannot infer from the code.
 context: |
   Ask Righto (askrighto.com.au) is one hosted, stateless remote MCP server that helps
-  Australians with everyday "local life" decisions (uni course choice, private health
-  insurance, energy plans, fuel prices). It is packaged three ways: a Claude directory
+  Australians with everyday "local life" decisions (energy plans first, then uni course choice, private health
+  insurance, fuel prices). It is packaged three ways: a Claude directory
   connector plus plugin bundle, an OpenAI/ChatGPT plugin, and a Google Gemini
   Connected Apps registration.
   - Grounding: every fact a tool returns (ATAR, price, premium, prerequisite) comes from

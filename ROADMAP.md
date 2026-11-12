@@ -43,7 +43,7 @@ proposal is checked against them.
 
 ## Phase 0: Foundations (now)
 
-### Project setup (done in this commit)
+### Project setup (done)
 
 - [x] Repo initialised with OpenSpec (`openspec/`, Claude Code and Codex skills)
 - [x] Project context and rules in `openspec/config.yaml`
@@ -66,30 +66,36 @@ proposal is checked against them.
 - [ ] Ask VTAC, then UAC, for written permission to reuse course facts (drafts can be prepared on request; nothing has been sent) [R]
 - [ ] Check VCAA terms for the scaling and school availability data the previous pilot ingested [F]
 - [ ] Legal view: private health insurance comparison as factual information, and any referral revenue [F, D]
-- [ ] Legal view: obligations for energy plan comparison (accuracy, commission disclosure) [D]
+- [ ] Legal view: obligations for energy plan comparison (accuracy, commission disclosure). Now first in line, since energy is Phase 1 [D]
 
 ---
 
-## Phase 1: MCP server core and VIC uni course choice
+## Phase 1: MCP server core and energy plan comparison
 
-Goal: a working Ask Righto server that helps a VCE student or parent find uni courses that fit,
-running in Claude and ChatGPT developer mode. Estimate: 3 to 5 weeks part-time (judgement from
-the code reviewed, not measured) [F].
+Goal: a working Ask Righto server that compares electricity and gas plans for an Australian
+household, running in Claude and ChatGPT developer mode. Energy goes first (Iven, 13 Nov 2026):
+its data is open under the Consumer Data Right, no licence is needed to compare, and it has no
+data rights problem to clear first.
+
+### Server core
 
 | Item | Detail | Change id |
 | --- | --- | --- |
 | Server skeleton | TypeScript remote MCP server over HTTP (`/mcp`, `/healthz`), stateless, rate limited, access log without arguments, following Inkview's server shape [I] | `add-mcp-server-core` |
 | Grounded result envelope | Every tool returns the value, `source` (name, URL), `asOf` date, and an explicit `found: false` instead of a guess [F] | `add-mcp-server-core` |
-| Port the recommendation engine | From `vce-subject-planner/apps/api/src/recommendation/`: intake, prerequisites, candidates, ranking, preference list, offer rounds, SEAS, early entry. Pure functions become MCP tools nearly one to one [F] | `add-vic-course-tools` |
-| Port the tool schemas | Convert `tools.ts` OpenAI function schemas to MCP tools with annotations; drop the in-app LLM call, since the host model narrates [F] | `add-vic-course-tools` |
-| VIC course fact store | Rebuild course ATARs and prerequisites as our own-worded facts with official links, using the hand-built `vic-university-atar-catalog.csv` pattern. Do not ship the scraped VTAC CSV. University PDF course guides (Monash, Sydney) were the cleanest source in testing [R] | `add-vic-course-data` |
-| CRICOS as course list lead | CRICOS on data.gov.au (CC BY) for course names, providers and campuses. Misses domestic-only courses and has no ATARs. The dataset file itself is not yet tested [R] | `add-vic-course-data` |
-| Normalise ATAR labels | Unis publish lowest ATAR, lowest selection rank, guaranteed ATAR or entry threshold, for different years. Store the label and year with each figure [R] | `add-vic-course-data` |
-| Live lookup fallback | For courses not in the store: give the host the official page link, let the host's own web search read it, always with the source link and a "check the official page" note. Live lookup alone answered only 7 of 20 test courses fully, so it is a fallback, not the main source [R] | `add-course-live-lookup` |
-| Data refresh | Re-key facts each admissions year; record the as-of date. Reuse the previous pilot's Python ingesters only where the source licence allows | `add-vic-course-data` |
-| Inkview widgets | Render a course shortlist and a course comparison with `@feimacode/inkview-sdk` (`registerInkview`, `inkview.table`, `inkview.comparison`), with a markdown fallback for text-only hosts [I] | `add-course-widgets` |
 | Host guidance skill | A short skill that tells the host model to quote only tool results and show sources [F] | `add-host-guidance` |
 | Tests | Unit tests for the engine, an MCP smoke test, and tests that every tool returns `source` and `asOf` | each change |
+
+### Energy plans
+
+| Item | Detail | Change id |
+| --- | --- | --- |
+| Data | AER energy product reference data (CDR APIs, no auth), covering Energy Made Easy and Victorian Energy Compare plans. CDR Rule 2.6 says data holders cannot restrict use. Use the API only; the Energy Made Easy site bans scraping and commercial use [D] | `add-energy-plan-data` |
+| Plan model | Plan data is messy (about 1,700 distinct plan shapes per community research); model tariffs carefully and test against prior art (Rewiring Australia, Plaintext-Lab) [D] | `add-energy-plan-data` |
+| Tools and widgets | Estimate a bill from usage and compare plans, with source and as-of date | `add-energy-plan-tools` |
+| Scope of the first release | Electricity first, then gas. Inputs: postcode or distributor, usage (kWh or a bill), solar and controlled load. Output: estimated yearly cost per plan, with the plan link, source and as-of date. Factual comparison only: no switching, no commissions | `add-energy-plan-tools` |
+| Legal view | Obligations for energy plan comparison (accuracy, commission disclosure). No licence requirement turned up, but nobody has given a legal view yet [D] | — |
+| Checks before building | Confirm Rule 2.6 is unchanged in the current CDR Rules (only the Feb 2020 version was read); live-test the APIs (the research container's network blocked them) [D] | — |
 
 ---
 
@@ -114,7 +120,26 @@ the code reviewed, not measured) [F].
 
 ---
 
-## Phase 4: Uni course choice for NSW (HSC) and QLD (QCE)
+## Phase 4: Uni course choice for VIC (VCE)
+
+Goal: help a VCE student or parent find uni courses that fit. Estimate: 3 to 5 weeks part-time
+for a VIC-only server (judgement from the code reviewed, not measured) [F]. The server core from
+Phase 1 is reused.
+
+| Item | Detail | Change id |
+| --- | --- | --- |
+| Port the recommendation engine | From `vce-subject-planner/apps/api/src/recommendation/`: intake, prerequisites, candidates, ranking, preference list, offer rounds, SEAS, early entry. Pure functions become MCP tools nearly one to one [F] | `add-vic-course-tools` |
+| Port the tool schemas | Convert `tools.ts` OpenAI function schemas to MCP tools with annotations; drop the in-app LLM call, since the host model narrates [F] | `add-vic-course-tools` |
+| VIC course fact store | Rebuild course ATARs and prerequisites as our own-worded facts with official links, using the hand-built `vic-university-atar-catalog.csv` pattern. Do not ship the scraped VTAC CSV. University PDF course guides (Monash, Sydney) were the cleanest source in testing [R] | `add-vic-course-data` |
+| CRICOS as course list lead | CRICOS on data.gov.au (CC BY) for course names, providers and campuses. Misses domestic-only courses and has no ATARs. The dataset file itself is not yet tested [R] | `add-vic-course-data` |
+| Normalise ATAR labels | Unis publish lowest ATAR, lowest selection rank, guaranteed ATAR or entry threshold, for different years. Store the label and year with each figure [R] | `add-vic-course-data` |
+| Live lookup fallback | For courses not in the store: give the host the official page link, let the host's own web search read it, always with the source link and a "check the official page" note. Live lookup alone answered only 7 of 20 test courses fully, so it is a fallback, not the main source [R] | `add-course-live-lookup` |
+| Data refresh | Re-key facts each admissions year; record the as-of date. Reuse the previous pilot's Python ingesters only where the source licence allows | `add-vic-course-data` |
+| Inkview widgets | Render a course shortlist and a course comparison with `@feimacode/inkview-sdk` (`registerInkview`, `inkview.table`, `inkview.comparison`), with a markdown fallback for text-only hosts [I] | `add-course-widgets` |
+
+---
+
+## Phase 5: Uni course choice for NSW (HSC) and QLD (QCE)
 
 | Item | Detail | Change id |
 | --- | --- | --- |
@@ -127,7 +152,7 @@ Multi-state content work is the main effort driver; the earlier study put nation
 
 ---
 
-## Phase 5: Private health insurance comparison
+## Phase 6: Private health insurance comparison
 
 | Item | Detail | Change id |
 | --- | --- | --- |
@@ -136,17 +161,6 @@ Multi-state content work is the main effort driver; the earlier study put nation
 | Widgets | Cover comparison table through Inkview [F, I] | `add-health-cover-tools` |
 | Compliance | Claude lists insurance as high risk: human-in-the-loop and direct disclosure to consumers; health data flag on submission; no binding or purchase in-app [F] | `add-health-cover-tools` |
 | Gate | Legal view from Phase 0 before public listing | — |
-
----
-
-## Phase 6: Energy plan comparison
-
-| Item | Detail | Change id |
-| --- | --- | --- |
-| Data | AER energy product reference data (CDR APIs, no auth), covering Energy Made Easy and Victorian Energy Compare plans. CDR Rule 2.6 says data holders cannot restrict use. Use the API only; the Energy Made Easy site bans scraping and commercial use [D] | `add-energy-plan-data` |
-| Plan model | Plan data is messy (about 1,700 distinct plan shapes per community research); model tariffs carefully and test against prior art (Rewiring Australia, Plaintext-Lab) [D] | `add-energy-plan-data` |
-| Tools and widgets | Estimate a bill from usage and compare plans, with source and as-of date | `add-energy-plan-tools` |
-| Checks | Confirm Rule 2.6 is unchanged in the current CDR Rules (only the Feb 2020 version was read); live-test the APIs (the research container's network blocked them) [D] | — |
 
 ---
 
@@ -176,16 +190,15 @@ Multi-state content work is the main effort driver; the earlier study put nation
 
 ---
 
+## Decisions made
+
+- **Energy plans are the first vertical** (Iven, 13 Nov 2026), ahead of uni course choice. Health insurance and fuel follow the course phases.
+- **The repo is public** (Iven, 13 Nov 2026), so the Claude plugin bundle can ship from it.
+
 ## Open decisions for Iven
 
-1. **Second vertical: health insurance or energy?** The feasibility report put private health
-   insurance second; the open data study recommended energy plans next because its data is
-   richer and needs no licence. This roadmap follows the feasibility order (health, then energy).
-   Swap Phases 5 and 6 if you prefer energy.
-2. **Revenue:** run the pilot as a demand test with no revenue, or plan a paid tier on
+1. **Revenue:** run the pilot as a demand test with no revenue, or plan a paid tier on
    askrighto.com.au from the start [F].
-3. **Public repo:** the Claude plugin bundle must come from a public GitHub repo. Either make
-   `feimacode/askrighto` public or keep a separate public plugin repo [F].
 
 ## Not yet read
 

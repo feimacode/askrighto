@@ -2,8 +2,8 @@
 
 Everyday Aussie decisions, backed by public data. askrighto.com.au
 
-One hosted MCP server for the Claude directory, ChatGPT and Gemini. Starts with choosing a
-uni course after Year 12.
+One hosted MCP server for the Claude directory, ChatGPT and Gemini. Starts with comparing
+electricity and gas plans; uni course choice comes next.
 
 - Plan: [ROADMAP.md](ROADMAP.md)
 - Working rules for people and agents: [AGENTS.md](AGENTS.md)
