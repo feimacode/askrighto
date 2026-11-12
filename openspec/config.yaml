@@ -1,0 +1,35 @@
+schema: spec-driven
+
+# Project context: constraints an agent cannot infer from the code.
+context: |
+  Ask Righto (askrighto.com.au) is one hosted, stateless remote MCP server that helps
+  Australians with everyday "local life" decisions (uni course choice, private health
+  insurance, energy plans, fuel prices). It is packaged three ways: a Claude directory
+  connector plus plugin bundle, an OpenAI/ChatGPT plugin, and a Google Gemini
+  Connected Apps registration.
+  - Grounding: every fact a tool returns (ATAR, price, premium, prerequisite) comes from
+    a data lookup and carries its source URL and as-of date. Tools return an explicit
+    not-found instead of a guess. The host model narrates; the server never free-generates facts.
+  - Data: only open or publicly reusable data (CC BY, CDR product data, or written
+    permission). No purchased data. No scraping of sites whose terms forbid it
+    (VTAC, UAC, QTAC, TISC, Energy Made Easy, privatehealth.gov.au site).
+    Course facts are re-keyed in our own words with a link to the official page.
+  - Privacy: no accounts, no stored conversations, no user profiles (Claude directory
+    rule; ChatGPT users can be 13 to 17; Children's Online Privacy Code from 10 Dec 2026).
+  - Money: no ads, sponsored content or paid placement inside any host app.
+  - Regulated advice: factual comparison only. No car, home or travel insurance and no
+    credit product comparison without a legal view or licensed partner (AFSL/ACL).
+  - Tools are read-only with title, readOnlyHint, destructiveHint and openWorldHint set,
+    verb-first names and flat input schemas (the strictest of the three hosts' rules).
+  - The previous pilot repos (vce-subject-planner, vce-parents-helper,
+    vce-subject-planner-ideas) are reference only; port code, never import from them.
+
+rules:
+  proposal:
+    - Name the data source, its licence and its refresh cadence for any new data
+    - State which hosts (Claude, ChatGPT, Gemini) the change affects
+    - State what is out of scope
+  design:
+    - Show how each tool result carries source URL and as-of date
+  tasks:
+    - Include a task to check the data licence is still current before shipping
