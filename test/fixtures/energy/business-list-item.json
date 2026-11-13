@@ -1,0 +1,1 @@
+{ "planId": "AGL-SYN-BIZ", "displayName": "Synthetic Business", "fuelType": "ELECTRICITY", "type": "MARKET", "customerType": "BUSINESS", "lastUpdated": "2026-11-01T00:00:00Z", "geography": { "includedPostcodes": ["3000"], "distributors": ["CitiPower"] } }
