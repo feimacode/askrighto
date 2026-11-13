@@ -164,11 +164,11 @@ d("sync and store", () => {
     expect(results.filter((x) => x === undefined).length + results.filter((x) => x !== undefined).length).toBe(2);
     // Run strictly concurrently with the lock held by a third connection.
     const holder = await db.pool.connect();
-    await holder.query("SELECT pg_advisory_lock(hashtext('askrighto:energy-sync'))");
+    await holder.query(`SELECT pg_advisory_lock(hashtext('${schema}:energy-sync'))`);
     try {
       expect(await sync()).toBeUndefined();
     } finally {
-      await holder.query("SELECT pg_advisory_unlock(hashtext('askrighto:energy-sync'))");
+      await holder.query(`SELECT pg_advisory_unlock(hashtext('${schema}:energy-sync'))`);
       holder.release();
     }
   });

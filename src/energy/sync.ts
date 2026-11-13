@@ -64,7 +64,8 @@ export interface SyncOptions {
   gstBasis?: GstBasis;
 }
 
-const LOCK_KEY = "askrighto:energy-sync";
+/** Advisory locks are per database, so the key includes the schema: two schemas never block each other. */
+const lockKey = (schema: string) => `${schema}:energy-sync`;
 
 export async function syncRetailer(o: SyncOptions, r: Retailer): Promise<RetailerResult> {
   const now = o.now?.() ?? new Date();
@@ -167,7 +168,7 @@ async function mapLimit<T>(items: T[], limit: number, fn: (x: T) => Promise<void
 export async function runSync(o: SyncOptions): Promise<SyncReport | undefined> {
   const lockConn = await o.db.pool.connect();
   try {
-    const got = (await lockConn.query("SELECT pg_try_advisory_lock(hashtext($1)) AS ok", [LOCK_KEY])).rows[0].ok as boolean;
+    const got = (await lockConn.query("SELECT pg_try_advisory_lock(hashtext($1)) AS ok", [lockKey(o.db.schema)])).rows[0].ok as boolean;
     if (!got) {
       o.log?.("another instance is syncing; skipping");
       return undefined;
@@ -175,7 +176,7 @@ export async function runSync(o: SyncOptions): Promise<SyncReport | undefined> {
     try {
       return await doSync(o);
     } finally {
-      await lockConn.query("SELECT pg_advisory_unlock(hashtext($1))", [LOCK_KEY]);
+      await lockConn.query("SELECT pg_advisory_unlock(hashtext($1))", [lockKey(o.db.schema)]);
     }
   } finally {
     lockConn.release();
