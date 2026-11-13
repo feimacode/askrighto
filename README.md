@@ -26,4 +26,7 @@ Settings (all optional): `PORT`, `HOST`, `ASKRIGHTO_PUBLIC_URL`, `ASKRIGHTO_BODY
 `ASKRIGHTO_ALLOWED_HOSTS` (comma-separated host names, e.g. `askrighto.com.au`), `ASKRIGHTO_TRUST_PROXY`,
 `ASKRIGHTO_CLIENT_IP_HEADER` (e.g. `cf-connecting-ip`), `ASKRIGHTO_LOG=off`. The access log never records tool arguments.
 
+Try asking (see [docs/energy-estimates.md](docs/energy-estimates.md)): "What energy plans are available at 3000?",
+"Compare electricity plans at 3000 on CitiPower, I used 1,000 kWh over 90 days."
+
 Adding a tool: [docs/adding-a-tool.md](docs/adding-a-tool.md).

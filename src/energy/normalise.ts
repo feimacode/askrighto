@@ -15,6 +15,7 @@ import type {
   Fee,
   FeedIn,
   FuelType,
+  GstBasis,
   Incentive,
   NormalisedPlan,
   PlanType,
@@ -180,13 +181,13 @@ function eligibility(v: unknown): Eligibility[] {
   }));
 }
 
-export function normaliseContract(c: Obj, why: string[], label: string): Contract {
+export function normaliseContract(c: Obj, why: string[], label: string, gst: GstBasis = GST_BASIS): Contract {
   const pricingModel = str(c.pricingModel) ?? "UNKNOWN";
   if (!PRICING_MODELS.has(pricingModel)) why.push(`pricingModel:${pricingModel}`);
   if (pricingModel === "QUOTA") why.push(`${label}:quota_pricing`);
   return {
     pricingModel,
-    gstBasis: GST_BASIS,
+    gstBasis: gst,
     ...(typeof c.isFixed === "boolean" ? { isFixed: c.isFixed } : {}),
     tariffPeriods: tariffPeriods(c.tariffPeriod, why),
     controlledLoads: controlledLoads(c.controlledLoad, why),
@@ -248,7 +249,7 @@ export function isResidential(item: { customerType?: string }): boolean {
  * Normalises one plan. `item` supplies geography and dates from the list when the detail
  * payload lacks them. The hash covers the detail payload only.
  */
-export function normalisePlan(retailerSlug: string, item: ListItem, detail: unknown): NormalisedPlan {
+export function normalisePlan(retailerSlug: string, item: ListItem, detail: unknown, gst: GstBasis = GST_BASIS): NormalisedPlan {
   const d = isObj(detail) ? detail : {};
   const why: string[] = [];
   const fuelType = str(d.fuelType) ?? item.fuelType ?? "UNKNOWN";
@@ -256,8 +257,8 @@ export function normalisePlan(retailerSlug: string, item: ListItem, detail: unkn
   if (!FUELS.has(fuelType)) why.push(`fuelType:${fuelType}`);
   if (!PLAN_TYPES.has(planType)) why.push(`planType:${planType}`);
 
-  const elec = isObj(d.electricityContract) ? normaliseContract(d.electricityContract, why, "electricity") : undefined;
-  const gas = isObj(d.gasContract) ? normaliseContract(d.gasContract, why, "gas") : undefined;
+  const elec = isObj(d.electricityContract) ? normaliseContract(d.electricityContract, why, "electricity", gst) : undefined;
+  const gas = isObj(d.gasContract) ? normaliseContract(d.gasContract, why, "gas", gst) : undefined;
   if (!elec && !gas) why.push("missing_contract");
   if ((fuelType === "ELECTRICITY" && !elec) || (fuelType === "GAS" && !gas) || (fuelType === "DUAL" && !(elec && gas))) {
     if (elec || gas) why.push("contract_missing_for_fuel");

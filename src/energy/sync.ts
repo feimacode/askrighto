@@ -4,6 +4,7 @@
  * changes for that retailer in one transaction. One sync runs at a time, guarded by a
  * PostgreSQL advisory lock. Nothing is invented: a failed retailer keeps its stored plans.
  */
+import type { GstBasis } from "./types.js";
 import type { CdrClient } from "./cdr-client.js";
 import type { Db } from "./db.js";
 import { isResidential, normalisePlan, readListItem, type ListItem } from "./normalise.js";
@@ -59,6 +60,8 @@ export interface SyncOptions {
   /** How many retailers are processed at once. The limiter still paces requests per retailer. */
   parallelRetailers?: number;
   log?: (msg: string) => void;
+  /** Tests only: production uses the confirmed value in gst.ts. */
+  gstBasis?: GstBasis;
 }
 
 const LOCK_KEY = "askrighto:energy-sync";
@@ -110,7 +113,7 @@ export async function syncRetailer(o: SyncOptions, r: Retailer): Promise<Retaile
       await c.query("BEGIN");
       await upsertRetailer(c, r.slug, r.brandName, r.active);
       for (const x of results) {
-        const n = normalisePlan(r.slug, x.it, x.detail);
+        const n = normalisePlan(r.slug, x.it, x.detail, o.gstBasis);
         const prev = stored.get(x.it.planId);
         if (x.recheck) {
           if (prev && prev.detailHash === n.detailHash) {

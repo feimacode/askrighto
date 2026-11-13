@@ -24,6 +24,7 @@
     "url": "git+https://github.com/feimacode/askrighto.git"
   },
   "devDependencies": {
+    "@feimacode/inkview-sdk": "^0.2.0",
     "@modelcontextprotocol/client": "^2.4.0",
     "@modelcontextprotocol/express": "^2.0.2",
     "@modelcontextprotocol/node": "^2.1.2",
