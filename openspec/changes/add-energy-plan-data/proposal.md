@@ -14,7 +14,7 @@ The copy lives in the shared Azure PostgreSQL instance the team already runs, no
 - Add a normalised plan model for residential electricity and gas plans: retailer, plan type, postcodes and distributors, supply charges, usage rates (single rate, block, time of use), controlled load, solar feed-in, discounts, fees, incentives, eligibility, contract terms, and the plan's own link.
 - Keep the source's own detail payload beside the normalised fields, so nothing is reworded or lost.
 - Store everything in PostgreSQL under its own schema (`askrighto`) in the shared database, with versioned SQL migrations, a small connection pool and a postcode index.
-- Make the sync gentle on the source: a global request-rate cap, low concurrency, `Retry-After` handling, an overnight schedule, and a report of calls, throttled responses and elapsed time.
+- Make the sync gentle on the source: a request-rate cap for each retailer (retailers apply their own limits behind the AER's routing host), low concurrency, `Retry-After` handling, an overnight schedule, and a report of calls, throttled responses and elapsed time per retailer.
 - Let one instance sync at a time using a database lock, so several server instances can run safely.
 - Add a readiness endpoint that reports whether the database is reachable and holds energy data.
 - Register the dataset in the data source registry with publisher, reuse basis, coverage and last refresh time.

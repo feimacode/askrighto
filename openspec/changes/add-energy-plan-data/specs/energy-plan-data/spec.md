@@ -66,7 +66,7 @@ Every day the sync SHALL re-fetch and compare the detail of the plans that have 
 - **THEN** every stored plan has a verification time within the last seven days
 
 ### Requirement: Polite use of the source
-The sync SHALL cap its overall request rate, SHALL limit concurrent requests, SHALL send the required version headers, SHALL identify itself with a generic client name and SHALL back off and retry on HTTP 429 and 5xx responses, honouring `Retry-After`, before recording a failure.
+The sync SHALL cap its request rate and concurrency separately for each retailer, SHALL cap total requests in flight, SHALL slow a retailer that signals throttling without slowing the others, SHALL send the required version headers, SHALL identify itself with a generic client name and SHALL back off and retry on HTTP 429 and 5xx responses, honouring `Retry-After`, before recording a failure.
 
 #### Scenario: Source asks the client to slow down
 - **WHEN** the API answers HTTP 429
@@ -74,10 +74,14 @@ The sync SHALL cap its overall request rate, SHALL limit concurrent requests, SH
 
 #### Scenario: Request rate stays under the cap
 - **WHEN** a full first sync runs
-- **THEN** the number of requests in any one second does not exceed the configured cap
+- **THEN** the requests sent to any one retailer in any one second do not exceed the configured per-retailer cap
+
+#### Scenario: One retailer throttles
+- **WHEN** one retailer answers HTTP 429 repeatedly
+- **THEN** its request rate is reduced and its sync may be marked failed, while the other retailers sync at their normal rate
 
 ### Requirement: Sync report
-Each sync SHALL produce a report with the number of requests made, requests throttled or failed, elapsed time, plans added, changed, silently changed and removed, plans per retailer, plans per pricing model, plans not fully understood by reason, and the size of the stored data.
+Each sync SHALL produce a report with the number of requests made, requests throttled or failed (in total and for each retailer), elapsed time, plans added, changed, silently changed and removed, plans per retailer, plans per pricing model, plans not fully understood by reason, and the size of the stored data.
 
 #### Scenario: Operator reads the report
 - **WHEN** a sync finishes
