@@ -16,10 +16,15 @@ Status: pilot, pre-alpha. The server core runs; energy plan tools are in progres
 ```sh
 npm install
 npm run build          # bundles dist/askrighto.js
-npm run start:stdio    # MCP over stdio
+npm run start:stdio    # developer-only: MCP over stdio, see below
 npm start              # MCP over Streamable HTTP at http://127.0.0.1:3001/mcp (/healthz, /readyz)
 npm test               # build, then unit and end-to-end tests
 ```
+
+**stdio is for development only** (MCP Inspector, local debugging, the end-to-end test). It is not a way
+to use the product: the tools read plans from PostgreSQL, so stdio needs `DATABASE_URL` and a loaded
+database, and end users never run the server themselves. Claude, ChatGPT and Gemini use the hosted
+HTTP endpoint (`/mcp`).
 
 Settings (all optional): `PORT`, `HOST`, `ASKRIGHTO_PUBLIC_URL`, `ASKRIGHTO_BODY_LIMIT` (default 256kb),
 `ASKRIGHTO_RATE_LIMIT` (requests per window per client, default 120), `ASKRIGHTO_RATE_WINDOW_MS` (default 60000),

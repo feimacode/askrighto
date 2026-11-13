@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Ask Righto entry point.
- *   askrighto          stdio (default), for local MCP clients
+ *   askrighto          stdio (default). DEVELOPMENT ONLY: for the MCP Inspector, local debugging and
+ *                      tests. The product is the hosted HTTP endpoint; stdio would need database credentials.
  *   askrighto --http   streamable HTTP on PORT (default 3001), path /mcp
  */
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
@@ -109,7 +110,7 @@ async function main() {
     console.log(`Ask Righto ${VERSION}: everyday Aussie decisions, backed by public data.
 
 Usage:
-  askrighto            run over stdio (what MCP clients spawn)
+  askrighto            run over stdio (development only: Inspector, debugging, tests)
   askrighto --http     run over streamable HTTP on PORT (default 3001), path /mcp
   askrighto migrate    apply database migrations (needs DATABASE_URL)
   askrighto sync-energy [--record DIR] [--retailer SLUG]
