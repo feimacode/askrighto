@@ -1,0 +1,5 @@
+[
+  { "slug": "agl", "brandName": "AGL", "active": true },
+  { "slug": "origin", "brandName": "Origin Energy", "active": true },
+  { "slug": "energyaustralia", "brandName": "EnergyAustralia", "active": true }
+]

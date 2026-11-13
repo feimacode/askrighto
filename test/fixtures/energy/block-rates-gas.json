@@ -1,0 +1,11 @@
+{
+  "planId": "EA-SYN-GAS", "displayName": "Synthetic Gas", "brandName": "EnergyAustralia", "fuelType": "GAS", "type": "MARKET",
+  "customerType": "RESIDENTIAL", "lastUpdated": "2026-11-03T00:00:00Z",
+  "geography": { "distributors": ["AusNet"], "includedPostcodes": ["3000"] },
+  "gasContract": {
+    "pricingModel": "FLEXIBLE",
+    "tariffPeriod": [{ "displayName": "Winter", "startDate": "06-01", "endDate": "08-31", "dailySupplyCharges": "0.80", "rateBlockUType": "singleRate",
+      "singleRate": { "rates": [{ "unitPrice": "0.035", "measureUnit": "MJ", "volume": 1000, "period": "P1M" }, { "unitPrice": "0.030", "measureUnit": "MJ" }] } }],
+    "discounts": [{ "displayName": "Guaranteed", "type": "GUARANTEED", "methodUType": "fixedAmount", "fixedAmount": { "amount": "30.00" } }]
+  }
+}

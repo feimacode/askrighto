@@ -6,6 +6,7 @@
  */
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 import { httpConfig } from "./config.js";
+import { startEnergy } from "./energy/index.js";
 import { runReadiness } from "./core/readiness.js";
 import { createServer } from "./server/create-server.js";
 import { clientKey, describeRpc, logLine, RateLimiter } from "./server/limits.js";
@@ -19,6 +20,7 @@ async function startHttp(): Promise<void> {
   type Response = import("express").Response;
   type NextFunction = import("express").NextFunction;
   const cfg = httpConfig();
+  const energy = await startEnergy();
   const port = parseInt(process.env.PORT ?? "3001", 10);
   const host = process.env.HOST ?? "127.0.0.1";
   const app = createMcpExpressApp({ host: "0.0.0.0", jsonLimit: cfg.bodyLimit });
@@ -94,7 +96,7 @@ async function startHttp(): Promise<void> {
   const httpServer = app.listen(port, host, () => {
     console.log(`Ask Righto ${VERSION} listening on http://${host === "0.0.0.0" ? "localhost" : host}:${port}/mcp`);
   });
-  const shutdown = () => httpServer.close(() => process.exit(0));
+  const shutdown = () => httpServer.close(() => void (energy?.stop() ?? Promise.resolve()).finally(() => process.exit(0)));
   process.on("SIGINT", shutdown);
   process.on("SIGTERM", shutdown);
 }
@@ -108,11 +110,19 @@ async function main() {
 
 Usage:
   askrighto            run over stdio (what MCP clients spawn)
-  askrighto --http     run over streamable HTTP on PORT (default 3001), path /mcp`);
+  askrighto --http     run over streamable HTTP on PORT (default 3001), path /mcp
+  askrighto migrate    apply database migrations (needs DATABASE_URL)
+  askrighto sync-energy [--record DIR] [--retailer SLUG]
+                       load or refresh energy plans; --record saves raw API responses as fixtures`);
+  } else if (args[0] === "migrate") {
+    await (await import("./energy/cli.js")).cliMigrate();
+  } else if (args[0] === "sync-energy") {
+    await (await import("./energy/cli.js")).cliSyncEnergy(args.slice(1));
   } else if (args.includes("--http")) {
     await startHttp();
   } else {
     // stdout carries the protocol, so nothing else may print to it.
+    await startEnergy();
     await createServer().connect(new StdioServerTransport());
   }
 }
