@@ -88,9 +88,14 @@ data rights problem to clear first.
 
 ### Energy plans
 
+The three changes below are proposed in `openspec/changes/` and wait for review. Build order:
+`add-mcp-server-core`, then `add-energy-plan-data`, then `add-energy-plan-tools`.
+
 | Item | Detail | Change id |
 | --- | --- | --- |
 | Data | AER energy product reference data (CDR APIs, no auth), covering Energy Made Easy and Victorian Energy Compare plans. CDR Rule 2.6 says data holders cannot restrict use. Use the API only; the Energy Made Easy site bans scraping and commercial use [D] | `add-energy-plan-data` |
+| Storage | Shared Azure PostgreSQL under its own `askrighto` schema (Iven, 13 Nov 2026), with versioned SQL migrations; `feimacode/feima-api` is the reference for conventions. Holds public plan data only, so the stateless-for-users rule still holds | `add-energy-plan-data` |
+| Delta sync and rate limits | Daily list pass, detail only for changed plans, rolling weekly re-check, a per-retailer rate cap (2 a second, one in flight each) because retailers set their own limits behind the AER's routing host, overnight run. No limit or SLA is published; one retailer is known to allow 10 a second [D] | `add-energy-plan-data` |
 | Plan model | Plan data is messy (about 1,700 distinct plan shapes per community research); model tariffs carefully and test against prior art (Rewiring Australia, Plaintext-Lab) [D] | `add-energy-plan-data` |
 | Tools and widgets | Estimate a bill from usage and compare plans, with source and as-of date | `add-energy-plan-tools` |
 | Scope of the first release | Electricity first, then gas. Inputs: postcode or distributor, usage (kWh or a bill), solar and controlled load. Output: estimated yearly cost per plan, with the plan link, source and as-of date. Factual comparison only: no switching, no commissions | `add-energy-plan-tools` |

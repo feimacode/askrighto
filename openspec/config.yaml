@@ -16,6 +16,9 @@ context: |
     Course facts are re-keyed in our own words with a link to the official page.
   - Privacy: no accounts, no stored conversations, no user profiles (Claude directory
     rule; ChatGPT users can be 13 to 17; Children's Online Privacy Code from 10 Dec 2026).
+  - Data store: public reference data lives in the shared Azure PostgreSQL under the
+    `askrighto` schema (conventions follow feimacode/feima-api). It holds no user data and
+    must be rebuildable from the source. Credentials are secrets, never committed.
   - Money: no ads, sponsored content or paid placement inside any host app.
   - Regulated advice: factual comparison only. No car, home or travel insurance and no
     credit product comparison without a legal view or licensed partner (AFSL/ACL).
