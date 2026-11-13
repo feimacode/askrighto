@@ -14,7 +14,7 @@ With the plan data in place, people still have no way to use it from a chat. Thi
 - Render search and comparison results with Inkview components (table and comparison) in hosts that draw MCP Apps, with a markdown form for text-only hosts.
 - Add a standard notice on every energy result: an estimate from published rates for the stated usage, not advice, and to confirm with the retailer.
 
-Data source: the `energy-plan-data` snapshot of AER Consumer Data Right product reference data. Reuse basis: CDR Rules, rule 2.6. Refresh cadence: daily, inherited from that capability. This change adds no new data source.
+Data source: the `energy-plan-data` store of AER Consumer Data Right product reference data (PostgreSQL). Reuse basis: CDR Rules, rule 2.6. Refresh cadence: daily, inherited from that capability. This change adds no new data source.
 
 Hosts affected: Claude, ChatGPT and Gemini all get the three tools. Inkview components draw in Claude and ChatGPT; Gemini is untested until preview access opens and falls back to text if it does not draw them.
 

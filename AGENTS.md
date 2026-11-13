@@ -14,7 +14,7 @@ See `ROADMAP.md` for the phased plan and where each item came from.
 2. **Open data only.** CC BY, Consumer Data Right product data, or written permission.
    No purchased data and no scraping of sites whose terms forbid it. Course facts are written
    in our own words with a link to the official page.
-3. **Stateless.** No accounts, no stored conversations, no user profiles.
+3. **Stateless for users.** No accounts, no stored conversations, no user profiles. The only database content is public reference data (energy plans first) in the shared Azure PostgreSQL, under its own `askrighto` schema, and it must be rebuildable from the source.
 4. **No ads or sponsored placement** inside any host app.
 5. **Factual comparison, not advice.** General insurance and credit products stay out until
    there is a legal view or a licensed partner.
@@ -36,6 +36,10 @@ The repos `ivenxu/vce-subject-planner`, `ivenxu/vce-parents-helper` and
 `ivenxu/vce-subject-planner-ideas` are a previous, unpublished pilot. Port code from them
 (the recommendation engine and tool schemas in particular), but do not depend on them,
 and do not ship their scraped VTAC, UAC or QTAC CSVs.
+
+## Data store
+
+PostgreSQL (shared Azure instance), `DATABASE_URL` plus `DATABASE_SCHEMA=askrighto`, small connection pool, versioned SQL migrations. `feimacode/feima-api` (Python) is the reference for these conventions; do not copy its code. Credentials are secrets and never go in the repo or the image.
 
 ## Conventions
 

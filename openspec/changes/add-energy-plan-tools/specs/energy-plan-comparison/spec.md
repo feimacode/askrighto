@@ -25,7 +25,7 @@ The `compare_energy_plans` tool SHALL take a postcode, a fuel type and the perso
 Each estimate SHALL be computed from the plan's published supply charge, usage rates, controlled load rates, feed-in tariffs, unconditional discounts and recurring fees, by a fixed calculation that gives the same result for the same inputs and data.
 
 #### Scenario: Same inputs twice
-- **WHEN** the tool is called twice with the same inputs against the same snapshot
+- **WHEN** the tool is called twice with the same inputs against the same stored data
 - **THEN** both results are identical
 
 #### Scenario: Single-rate plan
@@ -95,7 +95,7 @@ Estimated plans SHALL be ordered by estimated yearly cost from lowest to highest
 - **THEN** it describes the first plan as the lowest estimate for the stated usage and contains no recommendation
 
 ### Requirement: Assumptions and limits are stated
-Every comparison SHALL state the usage it assumed, that usage was spread evenly across the year, the GST treatment, what was left out (such as one-off fees, sign-up credits, concessions and eligibility restrictions) and the snapshot date.
+Every comparison SHALL state the usage it assumed, that usage was spread evenly across the year, the GST treatment, what was left out (such as one-off fees, sign-up credits, concessions and eligibility restrictions) and the date of the stored data.
 
 #### Scenario: Comparison returned
 - **WHEN** a comparison is returned

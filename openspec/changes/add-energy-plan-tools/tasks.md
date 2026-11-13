@@ -30,7 +30,7 @@
 
 ## 5. Integration and licence checks
 
-- [ ] 5.1 Add MCP smoke tests that call all three tools over HTTP against the fixture snapshot and check annotations, source, as-of date and notice; verify they pass in CI
+- [ ] 5.1 Add MCP smoke tests that call all three tools over HTTP against a PostgreSQL loaded with the fixtures and check annotations, source, as-of date and notice; verify they pass in CI
 - [ ] 5.2 Connect the local server to Claude and ChatGPT developer mode through a tunnel and run five prompts (search, detail, compare with yearly usage, compare with a time-of-use split, "which should I pick?"); record screenshots and any host misbehaviour in the pull request
 - [ ] 5.3 Confirm the data change's licence check (rule 2.6, AER page) is still current and that `gstBasis` is confirmed, not `UNKNOWN`, before merging; note both in the pull request
 

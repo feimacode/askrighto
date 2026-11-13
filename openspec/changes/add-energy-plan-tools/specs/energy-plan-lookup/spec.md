@@ -68,6 +68,13 @@ Any discount, incentive or fee shown SHALL be shown with its published condition
 - **WHEN** a plan has a discount that applies only when bills are paid on time
 - **THEN** the discount is listed separately with that condition and the usage rates are shown without it
 
+### Requirement: Data outage is reported plainly
+When the stored plan data cannot be reached, each energy tool SHALL return `found: false` with reason `data_unavailable` and a message saying energy data is temporarily unavailable, and SHALL NOT return any plan figures.
+
+#### Scenario: Database is down
+- **WHEN** an energy tool is called while the plan store is unreachable
+- **THEN** the result says energy data is temporarily unavailable and contains no plan or price figures
+
 ### Requirement: Energy results carry a standard notice
 Every energy tool result SHALL include a notice that the figures come from published plan data for general information, are not a recommendation, and should be confirmed with the retailer before switching.
 

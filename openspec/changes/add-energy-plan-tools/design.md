@@ -2,7 +2,7 @@
 
 ## Context
 
-`add-mcp-server-core` supplies `defineTool`, the `Grounded<T>` envelope and the flat-schema rule. `add-energy-plan-data` supplies an in-memory store of normalised residential plans with integer money, a per-contract `gstBasis`, an `understood` flag and per-plan `sourceLastUpdated` and `planUrl`. Inkview's SDK (`registerInkview`, `inkview.table`, `inkview.comparison`) draws results in MCP Apps hosts and returns markdown for the rest; its provenance fields are `source.name`, `source.url` and `retrievedAt`. See proposal.md for motivation and the two specs for behaviour.
+`add-mcp-server-core` supplies `defineTool`, the `Grounded<T>` envelope and the flat-schema rule. `add-energy-plan-data` supplies a PostgreSQL-backed store of normalised residential plans with integer money, a per-contract `gstBasis`, an `understood` flag and per-plan `sourceLastUpdated` and `planUrl`. Inkview's SDK (`registerInkview`, `inkview.table`, `inkview.comparison`) draws results in MCP Apps hosts and returns markdown for the rest; its provenance fields are `source.name`, `source.url` and `retrievedAt`. See proposal.md for motivation and the two specs for behaviour.
 
 ## Goals / Non-Goals
 
@@ -60,6 +60,8 @@ Yearly usage is spread evenly by day. Block thresholds are applied per the block
 **9. Standard notice and wording live in one module.** The notice text, the "lowest estimate for the usage you gave" phrasing and the list of omissions are constants, tested for presence in every energy result, so later edits cannot drop them.
 
 **10. Server instructions for hosts.** Add: search first when the user has not named plans; ask for kWh and days from a recent bill before comparing; ask which distributor is on the bill when told there are several; never state a price that is not in a tool result; say "lowest estimate", not "best".
+
+**11. Data outages surface as a clear answer.** When the store reports `data_unavailable`, every energy tool returns it unchanged as `found: false` with the plain message that energy data is temporarily unavailable, and the host is told not to estimate from memory.
 
 ## Risks / Trade-offs
 
