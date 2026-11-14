@@ -17,8 +17,10 @@ file and the commands `migrate` and `sync-energy`.
 
 ## First deploy
 
-1. **Database** (once, admin): the `askrighto` role and schema exist on the shared instance
-   (see `docs/local-database.md` and the SQL in the project thread).
+1. **Database** (once, admin): on the Australia East server `feimacode.postgres.database.azure.com`,
+   create the `askrighto` role and database (the app creates its own `askrighto` schema when it
+   migrates). The server is private to the VM's VNet, so run the admin `psql` from the VM, not from a
+   laptop or cloud sandbox. Same pattern as `easystudy_dev` in feima-infra `docs/AZURE_AU_MIGRATION.md`.
 2. **Secret**: in feima-infra, `ansible-vault edit inventory/group_vars/global_prod/vault.yml` and add
    `vault_askrighto_database_url` (see `vault.yml.example`).
 3. **DNS**: point `mcp.askrighto.com.au` (or the domain in `group_vars/global_prod/main.yml`) at the
