@@ -23,7 +23,7 @@ file and the commands `migrate` and `sync-energy`.
    laptop or cloud sandbox. Same pattern as `easystudy_dev` in feima-infra `docs/AZURE_AU_MIGRATION.md`.
 2. **Secret**: in feima-infra, `ansible-vault edit inventory/group_vars/global_prod/vault.yml` and add
    `vault_askrighto_database_url` (see `vault.yml.example`).
-3. **DNS**: point `mcp.askrighto.com.au` (or the domain in `group_vars/global_prod/main.yml`) at the
+3. **DNS**: point `askrighto.feimacode.com` (internal test domain, set in `group_vars/global_prod/main.yml`; switch to askrighto.com.au later) at the
    VM through Cloudflare, like `inkview.feimacode.com`. Cloudflare terminates TLS.
 4. **Deploy**: `ansible-playbook playbooks/deploy-askrighto.yml -l global_prod`. It pulls the image,
    applies migrations (only inside the `askrighto` schema), starts the container, registers the
