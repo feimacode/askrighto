@@ -25,7 +25,7 @@ file and the commands `migrate` and `sync-energy`.
    `vault_askrighto_database_url` (see `vault.yml.example`).
 3. **DNS**: point `askrighto.feimacode.com` (internal test domain, set in `group_vars/global_prod/main.yml`; switch to askrighto.com.au later) at the
    VM through Cloudflare, like `inkview.feimacode.com`. Cloudflare terminates TLS.
-4. **Deploy**: `ansible-playbook playbooks/deploy-askrighto.yml -l global_prod`. It pulls the image,
+4. **Deploy**: `ansible-playbook playbooks/deploy-askrighto.yml -l global-au-prod`. It pulls the image,
    applies migrations (only inside the `askrighto` schema), starts the container, registers the
    Traefik route and checks health.
 5. **First plan load** (once; the server never starts it by itself):
@@ -41,7 +41,7 @@ After the first load the daily refresh runs inside the server at 02:30 Australia
 ## Roll back
 
 Stateless server, so redeploy an older tag:
-`ansible-playbook playbooks/deploy-askrighto.yml -l global_prod -e askrighto_version=sha-<commit>`.
+`ansible-playbook playbooks/deploy-askrighto.yml -l global-au-prod -e askrighto_version=sha-<commit>`.
 Migrations are additive; there are no down migrations. To start the data over, drop the `askrighto`
 schema and repeat steps 4 and 5.
 
