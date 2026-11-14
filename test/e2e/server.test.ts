@@ -11,8 +11,17 @@ const URL_BASE = `http://127.0.0.1:${PORT}`;
 let proc: ChildProcess;
 let logs = "";
 
+/** The environment for a spawned server, without anything from the developer's own shell (a DATABASE_URL would switch the energy module on and change what these tests see). */
+function cleanEnv(): Record<string, string> {
+  const env: Record<string, string> = {};
+  for (const [k, v] of Object.entries(process.env)) {
+    if (v !== undefined && !/^(DATABASE_|ASKRIGHTO_|TEST_DATABASE_URL)/.test(k)) env[k] = v;
+  }
+  return env;
+}
+
 async function start(env: Record<string, string>): Promise<ChildProcess> {
-  const p = spawn(process.execPath, [BUNDLE, "--http"], { env: { ...process.env, PORT, HOST: "127.0.0.1", ...env }, stdio: ["ignore", "pipe", "pipe"] });
+  const p = spawn(process.execPath, [BUNDLE, "--http"], { env: { ...cleanEnv(), PORT, HOST: "127.0.0.1", ...env }, stdio: ["ignore", "pipe", "pipe"] });
   p.stderr!.on("data", (d) => (logs += String(d)));
   await new Promise<void>((ok, bad) => {
     p.stdout!.on("data", (d) => String(d).includes("listening") && ok());
@@ -81,7 +90,7 @@ describe("rate limit and host allow-list", () => {
   it("answers 429 with Retry-After beyond the limit, and rejects other hosts", async () => {
     const p2Port = String(5100 + Math.floor(Math.random() * 500));
     const p = spawn(process.execPath, [BUNDLE, "--http"], {
-      env: { ...process.env, PORT: p2Port, HOST: "127.0.0.1", ASKRIGHTO_RATE_LIMIT: "3", ASKRIGHTO_ALLOWED_HOSTS: "127.0.0.1", ASKRIGHTO_LOG: "off" },
+      env: { ...cleanEnv(), PORT: p2Port, HOST: "127.0.0.1", ASKRIGHTO_RATE_LIMIT: "3", ASKRIGHTO_ALLOWED_HOSTS: "127.0.0.1", ASKRIGHTO_LOG: "off" },
       stdio: ["ignore", "pipe", "inherit"],
     });
     try {
@@ -113,7 +122,7 @@ describe("rate limit and host allow-list", () => {
 describe("stdio", () => {
   it("serves the same tools over stdio", async () => {
     const client = new Client({ name: "e2e-stdio", version: "0" });
-    await client.connect(new StdioClientTransport({ command: process.execPath, args: [BUNDLE] }));
+    await client.connect(new StdioClientTransport({ command: process.execPath, args: [BUNDLE], env: cleanEnv() }));
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name)).toContain("list_data_sources");
     const res = await client.callTool({ name: "list_data_sources", arguments: {} });
