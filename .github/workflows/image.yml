@@ -44,7 +44,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Smoke test the pushed image (no database: liveness must work, readiness must say why not)
+      - name: Smoke test the pushed image (no database, liveness must work and readiness must say why not)
         run: |
           ref="$(echo '${{ steps.meta.outputs.tags }}' | head -1)"
           docker run -d --name askrighto -p 8080:8080 "$ref"
