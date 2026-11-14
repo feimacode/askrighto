@@ -1,0 +1,6 @@
+{
+  "planId": "AGL-SYN-ODD", "displayName": "Synthetic Odd Plan", "brandName": "AGL", "fuelType": "ELECTRICITY", "type": "MARKET",
+  "customerType": "RESIDENTIAL", "lastUpdated": "2026-11-04T00:00:00Z",
+  "geography": { "distributors": ["CitiPower"], "includedPostcodes": ["3000"] },
+  "electricityContract": { "pricingModel": "SPACE_BANDS", "tariffPeriod": [{ "displayName": "Year", "rateBlockUType": "mysteryRates" }] }
+}

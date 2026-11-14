@@ -1,0 +1,14 @@
+{
+  "planId": "AGL-SYN-SINGLE", "displayName": "Synthetic Saver", "brandName": "AGL", "fuelType": "ELECTRICITY", "type": "MARKET",
+  "customerType": "RESIDENTIAL", "effectiveFrom": "2025-01-01T00:00:00Z", "lastUpdated": "2026-11-01T00:00:00Z",
+  "geography": { "distributors": ["CitiPower"], "includedPostcodes": ["3000", "3001"] },
+  "additionalInformation": { "overviewUri": "https://example.test/plan/single" },
+  "electricityContract": {
+    "pricingModel": "SINGLE_RATE", "isFixed": false, "billFrequency": ["P1M"], "paymentOption": ["DIRECT_DEBIT"],
+    "tariffPeriod": [{ "type": "ENVIRONMENTAL", "displayName": "Year", "startDate": "01-01", "endDate": "12-31",
+      "dailySupplyCharges": "1.1000", "rateBlockUType": "singleRate",
+      "singleRate": { "displayName": "Usage", "rates": [{ "unitPrice": "0.28", "measureUnit": "KWH" }] } }],
+    "discounts": [{ "displayName": "Pay on time", "type": "CONDITIONAL", "category": "PAY_ON_TIME", "methodUType": "percentOfBill", "percentOfBill": { "rate": "0.05" } }],
+    "fees": [{ "type": "EXIT", "term": "FIXED", "amount": "50.00" }]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "planId": "ORG-SYN-TOU", "displayName": "Synthetic Time of Use", "brandName": "Origin Energy", "fuelType": "ELECTRICITY", "type": "MARKET",
+  "customerType": "RESIDENTIAL", "lastUpdated": "2026-11-02T00:00:00Z",
+  "geography": { "distributors": ["Jemena"], "includedPostcodes": ["3000"] },
+  "electricityContract": {
+    "pricingModel": "TIME_OF_USE_CONT_LOAD",
+    "tariffPeriod": [{ "displayName": "Year", "dailySupplyCharges": "0.95", "rateBlockUType": "timeOfUseRates",
+      "timeOfUseRates": [
+        { "type": "PEAK", "rates": [{ "unitPrice": "0.45", "measureUnit": "KWH" }], "timeOfUse": [{ "days": ["MON","TUE","WED","THU","FRI"], "startTime": "1500", "endTime": "2100" }] },
+        { "type": "OFF_PEAK", "rates": [{ "unitPrice": "0.18", "measureUnit": "KWH" }], "timeOfUse": [{ "days": ["MON","TUE","WED","THU","FRI","SAT","SUN"], "startTime": "2100", "endTime": "0700" }] }
+      ] }],
+    "controlledLoad": [{ "displayName": "CL1", "rateBlockUType": "singleRate", "dailySupplyCharges": "0.10", "singleRate": { "rates": [{ "unitPrice": "0.15", "measureUnit": "KWH" }] } }],
+    "solarFeedInTariff": [{ "displayName": "FiT", "scheme": "CURRENT", "payerType": "RETAILER", "tariffUType": "singleTariff", "singleTariff": { "rates": [{ "unitPrice": "0.05", "measureUnit": "KWH" }] } }]
+  }
+}
