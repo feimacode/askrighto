@@ -38,10 +38,13 @@ const PRICING_MODELS = new Set([
 const FUELS = new Set(["ELECTRICITY", "GAS", "DUAL"]);
 const PLAN_TYPES = new Set(["STANDING", "MARKET", "REGULATED"]);
 
-const isObj = (v: unknown): v is Obj => !!v && typeof v === "object" && !Array.isArray(v);
+const isObj = (v: unknown): v is Obj =>
+  !!v && typeof v === "object" && !Array.isArray(v);
 const arr = (v: unknown): Obj[] => (Array.isArray(v) ? v.filter(isObj) : []);
-const str = (v: unknown): string | undefined => (typeof v === "string" && v ? v : undefined);
-const strs = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
+const str = (v: unknown): string | undefined =>
+  typeof v === "string" && v ? v : undefined;
+const strs = (v: unknown): string[] =>
+  Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
 
 function rates(v: unknown, why: string[]): Rate[] {
   const out: Rate[] = [];
@@ -89,11 +92,16 @@ function tariffPeriods(v: unknown, why: string[]): TariffPeriod[] {
     const d = supply(t);
     if (d !== undefined) p.dailySupplyCharge = d;
     const u = str(t.rateBlockUType);
-    if (isObj(t.singleRate) && (u === "singleRate" || !u)) p.singleRate = rates(t.singleRate.rates, why);
-    if (Array.isArray(t.timeOfUseRates) && (u === "timeOfUseRates" || !u)) p.timeOfUse = timeOfUse(t.timeOfUseRates, why);
-    if (u === "demandCharges" || Array.isArray(t.demandCharges)) p.hasDemandCharges = true;
-    if (u && !["singleRate", "timeOfUseRates", "demandCharges"].includes(u)) why.push(`rateBlockUType:${u}`);
-    if (!p.singleRate && !p.timeOfUse && !p.hasDemandCharges) why.push("tariffPeriod:no_rates");
+    if (isObj(t.singleRate) && (u === "singleRate" || !u))
+      p.singleRate = rates(t.singleRate.rates, why);
+    if (Array.isArray(t.timeOfUseRates) && (u === "timeOfUseRates" || !u))
+      p.timeOfUse = timeOfUse(t.timeOfUseRates, why);
+    if (u === "demandCharges" || Array.isArray(t.demandCharges))
+      p.hasDemandCharges = true;
+    if (u && !["singleRate", "timeOfUseRates", "demandCharges"].includes(u))
+      why.push(`rateBlockUType:${u}`);
+    if (!p.singleRate && !p.timeOfUse && !p.hasDemandCharges)
+      why.push("tariffPeriod:no_rates");
     return p;
   });
 }
@@ -105,7 +113,8 @@ function controlledLoads(v: unknown, why: string[]): ControlledLoad[] {
     const d = supply(c);
     if (d !== undefined) o.dailySupplyCharge = d;
     if (isObj(c.singleRate)) o.singleRate = rates(c.singleRate.rates, why);
-    if (Array.isArray(c.timeOfUseRates)) o.timeOfUse = timeOfUse(c.timeOfUseRates, why);
+    if (Array.isArray(c.timeOfUseRates))
+      o.timeOfUse = timeOfUse(c.timeOfUseRates, why);
     return o;
   });
 }
@@ -113,7 +122,9 @@ function controlledLoads(v: unknown, why: string[]): ControlledLoad[] {
 function feedIn(v: unknown, why: string[]): FeedIn[] {
   return arr(v).map((f) => {
     const single = isObj(f.singleTariff) ? f.singleTariff : undefined;
-    const varying = isObj(f.timeVaryingTariffs) ? f.timeVaryingTariffs : undefined;
+    const varying = isObj(f.timeVaryingTariffs)
+      ? f.timeVaryingTariffs
+      : undefined;
     if (!single && !varying) why.push("solarFeedIn:unknown_shape");
     return {
       ...(str(f.displayName) ? { displayName: str(f.displayName) } : {}),
@@ -142,7 +153,11 @@ function discounts(v: unknown, why: string[]): Discount[] {
     if (method === "fixedAmount") {
       const a = parseMoney(body?.amount);
       if (a !== undefined) out.amount = a;
-    } else if (method === "percentOfBill" || method === "percentOfUse" || method === "percentOverThreshold") {
+    } else if (
+      method === "percentOfBill" ||
+      method === "percentOfUse" ||
+      method === "percentOverThreshold"
+    ) {
       const r = str(body?.rate);
       if (r) out.percent = r;
     } else if (method) {
@@ -181,9 +196,15 @@ function eligibility(v: unknown): Eligibility[] {
   }));
 }
 
-export function normaliseContract(c: Obj, why: string[], label: string, gst: GstBasis = GST_BASIS): Contract {
+export function normaliseContract(
+  c: Obj,
+  why: string[],
+  label: string,
+  gst: GstBasis = GST_BASIS,
+): Contract {
   const pricingModel = str(c.pricingModel) ?? "UNKNOWN";
-  if (!PRICING_MODELS.has(pricingModel)) why.push(`pricingModel:${pricingModel}`);
+  if (!PRICING_MODELS.has(pricingModel))
+    why.push(`pricingModel:${pricingModel}`);
   if (pricingModel === "QUOTA") why.push(`${label}:quota_pricing`);
   return {
     pricingModel,
@@ -200,7 +221,9 @@ export function normaliseContract(c: Obj, why: string[], label: string, gst: Gst
       ...(str(c.termType) ? { termType: str(c.termType) } : {}),
       billFrequency: strs(c.billFrequency),
       paymentOptions: strs(c.paymentOption),
-      ...(typeof c.coolingOffDays === "number" ? { coolingOffDays: c.coolingOffDays } : {}),
+      ...(typeof c.coolingOffDays === "number"
+        ? { coolingOffDays: c.coolingOffDays }
+        : {}),
     },
   };
 }
@@ -216,7 +239,11 @@ export interface ListItem {
   type?: string;
   displayName?: string;
   brandName?: string;
-  geography: { includedPostcodes: string[]; excludedPostcodes: string[]; distributors: string[] };
+  geography: {
+    includedPostcodes: string[];
+    excludedPostcodes: string[];
+    distributors: string[];
+  };
 }
 
 export function readListItem(p: unknown): ListItem | undefined {
@@ -249,7 +276,12 @@ export function isResidential(item: { customerType?: string }): boolean {
  * Normalises one plan. `item` supplies geography and dates from the list when the detail
  * payload lacks them. The hash covers the detail payload only.
  */
-export function normalisePlan(retailerSlug: string, item: ListItem, detail: unknown, gst: GstBasis = GST_BASIS): NormalisedPlan {
+export function normalisePlan(
+  retailerSlug: string,
+  item: ListItem,
+  detail: unknown,
+  gst: GstBasis = GST_BASIS,
+): NormalisedPlan {
   const d = isObj(detail) ? detail : {};
   const why: string[] = [];
   const fuelType = str(d.fuelType) ?? item.fuelType ?? "UNKNOWN";
@@ -257,10 +289,18 @@ export function normalisePlan(retailerSlug: string, item: ListItem, detail: unkn
   if (!FUELS.has(fuelType)) why.push(`fuelType:${fuelType}`);
   if (!PLAN_TYPES.has(planType)) why.push(`planType:${planType}`);
 
-  const elec = isObj(d.electricityContract) ? normaliseContract(d.electricityContract, why, "electricity", gst) : undefined;
-  const gas = isObj(d.gasContract) ? normaliseContract(d.gasContract, why, "gas", gst) : undefined;
+  const elec = isObj(d.electricityContract)
+    ? normaliseContract(d.electricityContract, why, "electricity", gst)
+    : undefined;
+  const gas = isObj(d.gasContract)
+    ? normaliseContract(d.gasContract, why, "gas", gst)
+    : undefined;
   if (!elec && !gas) why.push("missing_contract");
-  if ((fuelType === "ELECTRICITY" && !elec) || (fuelType === "GAS" && !gas) || (fuelType === "DUAL" && !(elec && gas))) {
+  if (
+    (fuelType === "ELECTRICITY" && !elec) ||
+    (fuelType === "GAS" && !gas) ||
+    (fuelType === "DUAL" && !(elec && gas))
+  ) {
     if (elec || gas) why.push("contract_missing_for_fuel");
   }
 
@@ -268,7 +308,11 @@ export function normalisePlan(retailerSlug: string, item: ListItem, detail: unkn
   const planUrl = str(info.overviewUri) ?? str(d.applicationUri);
   const g = isObj(d.geography) ? d.geography : undefined;
   const geography = g
-    ? { includedPostcodes: strs(g.includedPostcodes), excludedPostcodes: strs(g.excludedPostcodes), distributors: strs(g.distributors) }
+    ? {
+        includedPostcodes: strs(g.includedPostcodes),
+        excludedPostcodes: strs(g.excludedPostcodes),
+        distributors: strs(g.distributors),
+      }
     : item.geography;
   const effectiveFrom = str(d.effectiveFrom) ?? item.effectiveFrom;
   const effectiveTo = str(d.effectiveTo) ?? item.effectiveTo;

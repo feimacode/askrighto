@@ -2,7 +2,13 @@
 import type pg from "pg";
 import { stableHash } from "./hash.js";
 import type { Db } from "./db.js";
-import type { Contract, EnergyPlan, FuelType, NormalisedPlan, PlanType } from "./types.js";
+import type {
+  Contract,
+  EnergyPlan,
+  FuelType,
+  NormalisedPlan,
+  PlanType,
+} from "./types.js";
 
 type Q = Pick<pg.Pool, "query"> | Pick<pg.PoolClient, "query">;
 
@@ -13,19 +19,39 @@ export interface StoredPlanState {
   detailHash: string;
 }
 
-export async function storedState(q: Q, slug: string): Promise<Map<string, StoredPlanState>> {
-  const r = await q.query("SELECT plan_id, source_last_updated, verified_at, detail_hash FROM plans WHERE retailer_slug = $1", [slug]);
+export async function storedState(
+  q: Q,
+  slug: string,
+): Promise<Map<string, StoredPlanState>> {
+  const r = await q.query(
+    "SELECT plan_id, source_last_updated, verified_at, detail_hash FROM plans WHERE retailer_slug = $1",
+    [slug],
+  );
   return new Map(
     r.rows.map((x) => [
       x.plan_id as string,
-      { planId: x.plan_id, sourceLastUpdated: new Date(x.source_last_updated).getTime(), verifiedAt: x.verified_at as Date, detailHash: x.detail_hash },
+      {
+        planId: x.plan_id,
+        sourceLastUpdated: new Date(x.source_last_updated).getTime(),
+        verifiedAt: x.verified_at as Date,
+        detailHash: x.detail_hash,
+      },
     ]),
   );
 }
 
-export async function upsertCoverage(q: Q, g: EnergyPlan["geography"]): Promise<number> {
-  const inc = g.includedPostcodes.map(Number).filter(Number.isInteger).sort((a, b) => a - b);
-  const exc = g.excludedPostcodes.map(Number).filter(Number.isInteger).sort((a, b) => a - b);
+export async function upsertCoverage(
+  q: Q,
+  g: EnergyPlan["geography"],
+): Promise<number> {
+  const inc = g.includedPostcodes
+    .map(Number)
+    .filter(Number.isInteger)
+    .sort((a, b) => a - b);
+  const exc = g.excludedPostcodes
+    .map(Number)
+    .filter(Number.isInteger)
+    .sort((a, b) => a - b);
   const dist = [...g.distributors].sort();
   const hash = stableHash({ inc, exc, dist });
   const r = await q.query(
@@ -38,7 +64,12 @@ export async function upsertCoverage(q: Q, g: EnergyPlan["geography"]): Promise<
   return Number(r.rows[0].id);
 }
 
-export async function upsertPlan(q: Q, n: NormalisedPlan, raw: unknown, now: Date): Promise<void> {
+export async function upsertPlan(
+  q: Q,
+  n: NormalisedPlan,
+  raw: unknown,
+  now: Date,
+): Promise<void> {
   const p = n.plan;
   const coverageId = await upsertCoverage(q, p.geography);
   const contract = { electricity: p.electricity ?? null, gas: p.gas ?? null };
@@ -55,49 +86,80 @@ export async function upsertPlan(q: Q, n: NormalisedPlan, raw: unknown, now: Dat
         verified_at=EXCLUDED.verified_at, understood=EXCLUDED.understood, not_understood=EXCLUDED.not_understood,
         contract=EXCLUDED.contract, raw=EXCLUDED.raw, detail_hash=EXCLUDED.detail_hash`,
     [
-      p.planId, p.retailerSlug, p.brandName, p.displayName, p.fuelType, p.planType, p.customerType,
-      coverageId, p.effectiveFrom ?? null, p.effectiveTo ?? null, p.planUrl ?? null,
-      p.sourceLastUpdated || now.toISOString(), now, p.understood, p.notUnderstood,
-      JSON.stringify(contract), JSON.stringify(raw), n.detailHash,
+      p.planId,
+      p.retailerSlug,
+      p.brandName,
+      p.displayName,
+      p.fuelType,
+      p.planType,
+      p.customerType,
+      coverageId,
+      p.effectiveFrom ?? null,
+      p.effectiveTo ?? null,
+      p.planUrl ?? null,
+      p.sourceLastUpdated || now.toISOString(),
+      now,
+      p.understood,
+      p.notUnderstood,
+      JSON.stringify(contract),
+      JSON.stringify(raw),
+      n.detailHash,
     ],
   );
 }
 
 /** Removes plans the retailer no longer lists. */
 export async function removePlans(q: Q, ids: string[]): Promise<void> {
-  if (ids.length) await q.query("DELETE FROM plans WHERE plan_id = ANY($1)", [ids]);
+  if (ids.length)
+    await q.query("DELETE FROM plans WHERE plan_id = ANY($1)", [ids]);
 }
 
-export async function recordChange(q: Q, planId: string, sourceLastUpdated: string, detailHash: string, silent: boolean, now: Date): Promise<void> {
-  await q.query("INSERT INTO plan_changes (plan_id, changed_at, source_last_updated, detail_hash, silent) VALUES ($1,$2,$3,$4,$5)", [
-    planId,
-    now,
-    sourceLastUpdated || null,
-    detailHash,
-    silent,
-  ]);
+export async function recordChange(
+  q: Q,
+  planId: string,
+  sourceLastUpdated: string,
+  detailHash: string,
+  silent: boolean,
+  now: Date,
+): Promise<void> {
+  await q.query(
+    "INSERT INTO plan_changes (plan_id, changed_at, source_last_updated, detail_hash, silent) VALUES ($1,$2,$3,$4,$5)",
+    [planId, now, sourceLastUpdated || null, detailHash, silent],
+  );
 }
 
-export async function upsertRetailer(q: Q, slug: string, brandName: string, active: boolean): Promise<void> {
+export async function upsertRetailer(
+  q: Q,
+  slug: string,
+  brandName: string,
+  active: boolean,
+): Promise<void> {
   await q.query(
     "INSERT INTO retailers (slug, brand_name, active) VALUES ($1,$2,$3) ON CONFLICT (slug) DO UPDATE SET brand_name=EXCLUDED.brand_name, active=EXCLUDED.active",
     [slug, brandName, active],
   );
 }
 
-export async function markRetailer(q: Q, slug: string, ok: boolean, planCount: number | null, error: string | null, now: Date): Promise<void> {
-  await q.query("UPDATE retailers SET last_sync_at=$2, last_sync_ok=$3, last_plan_count=COALESCE($4, last_plan_count), last_error=$5 WHERE slug=$1", [
-    slug,
-    now,
-    ok,
-    planCount,
-    error,
-  ]);
+export async function markRetailer(
+  q: Q,
+  slug: string,
+  ok: boolean,
+  planCount: number | null,
+  error: string | null,
+  now: Date,
+): Promise<void> {
+  await q.query(
+    "UPDATE retailers SET last_sync_at=$2, last_sync_ok=$3, last_plan_count=COALESCE($4, last_plan_count), last_error=$5 WHERE slug=$1",
+    [slug, now, ok, planCount, error],
+  );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function rowToPlan(r: Record<string, any>): EnergyPlan {
-  const contract = r.contract as { electricity: Contract | null; gas: Contract | null };
+  const contract = r.contract as {
+    electricity: Contract | null;
+    gas: Contract | null;
+  };
   const iso = (d: Date | null) => (d ? new Date(d).toISOString() : undefined);
   return {
     planId: r.plan_id,
@@ -108,8 +170,10 @@ export function rowToPlan(r: Record<string, any>): EnergyPlan {
     planType: r.plan_type as PlanType,
     customerType: "RESIDENTIAL",
     geography: {
-      includedPostcodes: (r.included_postcodes as number[] | undefined)?.map(String) ?? [],
-      excludedPostcodes: (r.excluded_postcodes as number[] | undefined)?.map(String) ?? [],
+      includedPostcodes:
+        (r.included_postcodes as number[] | undefined)?.map(String) ?? [],
+      excludedPostcodes:
+        (r.excluded_postcodes as number[] | undefined)?.map(String) ?? [],
       distributors: r.distributors ?? [],
     },
     ...(r.effective_from ? { effectiveFrom: iso(r.effective_from) } : {}),
@@ -138,7 +202,11 @@ export interface PlanQuery {
 }
 
 /** Plans offered at a postcode today. Excluded postcodes, future plans and expired plans are dropped. */
-export async function plansByPostcode(q: Q, query: PlanQuery, now: Date = new Date()): Promise<EnergyPlan[]> {
+export async function plansByPostcode(
+  q: Q,
+  query: PlanQuery,
+  now: Date = new Date(),
+): Promise<EnergyPlan[]> {
   const pc = Number(query.postcode);
   if (!Number.isInteger(pc)) return [];
   const where = [
@@ -163,7 +231,11 @@ export async function plansByPostcode(q: Q, query: PlanQuery, now: Date = new Da
   return r.rows.map(rowToPlan);
 }
 
-export async function planById(q: Q, planId: string, now: Date = new Date()): Promise<EnergyPlan | undefined> {
+export async function planById(
+  q: Q,
+  planId: string,
+  now: Date = new Date(),
+): Promise<EnergyPlan | undefined> {
   const r = await q.query(
     `SELECT ${PLAN_COLUMNS} FROM plans p JOIN coverage_sets c ON c.id = p.coverage_id
      WHERE p.plan_id = $1 AND (p.effective_from IS NULL OR p.effective_from <= $2) AND (p.effective_to IS NULL OR p.effective_to > $2)`,
@@ -183,7 +255,9 @@ export async function summary(db: Db): Promise<StoreSummary> {
   const [p, rt, f, s] = await Promise.all([
     db.pool.query("SELECT count(*)::int AS n FROM plans"),
     db.pool.query("SELECT count(*)::int AS n FROM retailers WHERE active"),
-    db.pool.query("SELECT slug FROM retailers WHERE active AND last_sync_ok = false ORDER BY slug"),
+    db.pool.query(
+      "SELECT slug FROM retailers WHERE active AND last_sync_ok = false ORDER BY slug",
+    ),
     db.pool.query("SELECT max(finished_at) AS t FROM sync_runs WHERE ok"),
   ]);
   return {

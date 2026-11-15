@@ -16,7 +16,11 @@ export async function cliMigrate(): Promise<void> {
   const db = createDb(cfg);
   try {
     const applied = await migrate(db);
-    console.log(applied.length ? `Applied migrations: ${applied.join(", ")}` : "Schema is up to date");
+    console.log(
+      applied.length
+        ? `Applied migrations: ${applied.join(", ")}`
+        : "Schema is up to date",
+    );
   } finally {
     await db.close();
   }
@@ -51,16 +55,26 @@ export async function cliSyncEnergy(args: string[]): Promise<void> {
       ? (rec) => {
           const dir = join(recordDir, safe(rec.retailer));
           mkdirSync(dir, { recursive: true });
-          writeFileSync(join(dir, `${rec.kind}-${safe(rec.key)}.json`), JSON.stringify(rec.body, null, 2));
+          writeFileSync(
+            join(dir, `${rec.kind}-${safe(rec.key)}.json`),
+            JSON.stringify(rec.body, null, 2),
+          );
         }
       : undefined,
   );
   const db = createDb(cfg);
   try {
     await migrate(db);
-    const retailers = only ? RETAILERS.filter((r) => r.slug === only) : RETAILERS;
+    const retailers = only
+      ? RETAILERS.filter((r) => r.slug === only)
+      : RETAILERS;
     if (!retailers.length) throw new Error(`Unknown retailer: ${only}`);
-    const report = await runSync({ db, client, retailers, log: (m) => console.error(m) });
+    const report = await runSync({
+      db,
+      client,
+      retailers,
+      log: (m) => console.error(m),
+    });
     if (!report) {
       console.log("Another instance holds the sync lock; nothing done.");
       return;

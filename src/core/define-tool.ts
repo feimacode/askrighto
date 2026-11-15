@@ -5,8 +5,10 @@
  */
 import { z } from "zod";
 import type { McpServer, CallToolResult } from "@modelcontextprotocol/server";
-import { renderText, type Grounded } from "./grounded.js";
+import { notFound, renderText, type Grounded } from "./grounded.js";
 import { staleWarnings } from "./registry.js";
+import { attributionFor, availability } from "./rights.js";
+import { recordOutcome } from "./metrics.js";
 
 /** Verbs a tool name may start with. Verb-first names are required by the OpenAI and Google guidelines. */
 export const TOOL_VERBS = ["get", "list", "search", "find", "compare", "estimate", "check", "calculate", "explain"] as const;
@@ -80,7 +82,8 @@ export function validateToolDefinition(def: AnyToolDefinition): void {
 }
 
 /** Registers tools on a server, validating each first. Throws on the first invalid tool. */
-export function registerTools(server: McpServer, defs: readonly AnyToolDefinition[]): void {
+export function registerTools(server: McpServer, defs: readonly AnyToolDefinition[], opts: { route?: string } = {}): void {
+  const route = opts.route ?? "public";
   const seen = new Set<string>();
   for (const def of defs) {
     validateToolDefinition(def);
@@ -102,10 +105,18 @@ export function registerTools(server: McpServer, defs: readonly AnyToolDefinitio
         ...(def.meta ? { _meta: def.meta } : {}),
       },
       async (args: Record<string, unknown>): Promise<CallToolResult> => {
+        const started = Date.now();
         let result: Grounded<unknown>;
         try {
-          result = await def.handler(args);
+          // Rights gate: in production a tool never answers from a dataset whose reuse is not cleared.
+          const blocked = (def.datasets ?? []).map((id) => ({ id, a: availability(id) })).find((x) => !x.a.servable);
+          if (blocked && !blocked.a.servable) {
+            result = notFound("data_unavailable", `This information is not available yet. ${blocked.a.reason}`, { dataset: blocked.id });
+          } else {
+            result = await def.handler(args);
+          }
         } catch (error) {
+          recordOutcome(route, def.name, "error", Date.now() - started);
           // Log the error only, never the arguments (they can hold personal details).
           console.error(`Tool ${def.name} failed:`, error instanceof Error ? error.message : "unknown error");
           return {
@@ -114,9 +125,17 @@ export function registerTools(server: McpServer, defs: readonly AnyToolDefinitio
           };
         }
         if (result.found && def.datasets?.length) {
-          const warnings = [...(result.warnings ?? []), ...staleWarnings(def.datasets)];
-          result = { ...result, ...(warnings.length ? { warnings } : {}) };
+          const devWarnings = def.datasets.flatMap((id) => {
+            const a = availability(id);
+            return a.servable && a.warning ? [a.warning] : [];
+          });
+          const warnings = [...(result.warnings ?? []), ...staleWarnings(def.datasets), ...devWarnings];
+          const attribution = attributionFor(def.datasets);
+          const source = attribution && !result.source.attribution ? { ...result.source, attribution } : result.source;
+          result = { ...result, source, ...(warnings.length ? { warnings } : {}) };
         }
+        const depth = result.found ? (result.data as { depth?: unknown } | null)?.depth : undefined;
+        recordOutcome(route, def.name, result.found ? (typeof depth === "string" ? depth : "found") : result.reason, Date.now() - started);
         const text = renderText(result, (data) => def.render(data, args));
         const extra = def.decorate?.(result, args) ?? {};
         return {

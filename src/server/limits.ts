@@ -16,19 +16,26 @@ export class RateLimiter {
   take(key: string): number {
     if (this.limit <= 0) return 0;
     const t = this.now();
-    if (this.hits.size > 10_000) for (const [k, v] of this.hits) if (v.reset <= t) this.hits.delete(k);
+    if (this.hits.size > 10_000)
+      for (const [k, v] of this.hits) if (v.reset <= t) this.hits.delete(k);
     let e = this.hits.get(key);
     if (!e || e.reset <= t) {
       e = { count: 0, reset: t + this.windowMs };
       this.hits.set(key, e);
     }
     e.count++;
-    return e.count > this.limit ? Math.max(1, Math.ceil((e.reset - t) / 1000)) : 0;
+    return e.count > this.limit
+      ? Math.max(1, Math.ceil((e.reset - t) / 1000))
+      : 0;
   }
 }
 
 /** Rate-limit key: the trusted proxy's client IP header when configured, else the socket / X-Forwarded-For IP. */
-export function clientKey(headers: Record<string, string | string[] | undefined>, ip: string | undefined, header?: string): string {
+export function clientKey(
+  headers: Record<string, string | string[] | undefined>,
+  ip: string | undefined,
+  header?: string,
+): string {
   if (header) {
     const v = headers[header];
     const first = (Array.isArray(v) ? v[0] : v)?.split(",")[0]?.trim();
@@ -44,10 +51,22 @@ export function describeRpc(body: unknown): { rpc?: string; tool?: string } {
   const o = one as Record<string, unknown>;
   const rpc = typeof o.method === "string" ? o.method.slice(0, 60) : undefined;
   const params = o.params as Record<string, unknown> | undefined;
-  const tool = rpc === "tools/call" && typeof params?.name === "string" && /^[\w.-]{1,64}$/.test(params.name) ? params.name : undefined;
+  const tool =
+    rpc === "tools/call" &&
+    typeof params?.name === "string" &&
+    /^[\w.-]{1,64}$/.test(params.name)
+      ? params.name
+      : undefined;
   return { rpc, tool };
 }
 
-export function logLine(f: { method: string; path: string; status: number; ms: number; rpc?: string; tool?: string }): string {
+export function logLine(f: {
+  method: string;
+  path: string;
+  status: number;
+  ms: number;
+  rpc?: string;
+  tool?: string;
+}): string {
   return JSON.stringify({ t: new Date().toISOString(), ...f });
 }
