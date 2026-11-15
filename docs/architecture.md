@@ -92,9 +92,8 @@ per question.
   re-normalise, not a re-download. The copy is rebuildable from the source (rule 3).
 
 Costs of the choice: data is up to a day old (every result carries its as-of date and the
-registry warns when it exceeds `maxAgeHours`), and we hold a copy the AER says it does not
-broadly share, so the copy stays internal behind the tools with no bulk export. This is in the
-planned legal view.
+registry warns when it exceeds `maxAgeHours`), and the copy stays internal behind the tools with
+no bulk export.
 
 ### 4.3 The sync
 
@@ -156,7 +155,7 @@ hints, Google flat schemas) are met.
 | Decision | Chosen because | Gives up |
 | --- | --- | --- |
 | One stateless hosted server for all three directories | One tool schema, one set of reviews | Per-host tuning; features that need a user session |
-| Own database copy of CDR data | Fast, indexed, independent of retailer uptime, rebuildable | Freshness (up to a day), a stored copy to justify legally |
+| Own database copy of CDR data | Fast, indexed, independent of retailer uptime, rebuildable | Freshness (up to a day), a second copy to keep correct |
 | Delta sync plus rolling re-check | A few hundred requests a day, catches silent changes | More logic than a nightly full reload |
 | Per-retailer rate limits, not one global one | Retailers limit individually; one slow retailer must not slow the rest | Needs per-retailer observed limits over time |
 | Integer money, pure calculator | Exact, testable, repeatable | Verbose; no "close enough" shortcuts |
@@ -185,7 +184,7 @@ A vertical is a module plus tools, with no change to the core:
 2. Tools written with `defineTool` and added to `src/tools/index.ts`.
 3. A paragraph of host guidance added through `addInstructions`.
 
-The grounded envelope, registry, rate limits, deploy pipeline and listing work are shared. What
+The grounded envelope, registry, rate limits and deploy pipeline are shared. What
 differs is the data source: energy is a sync from an API, uni courses are own-worded facts with
 links (no admissions centre offers an open licence), health cover is a monthly CC BY file, and
 fuel is a keyed API with a mandatory attribution. The envelope's `licence` and `attribution`
@@ -196,9 +195,8 @@ courses, NSW and QLD courses, health cover, fuel) follows data rights and effort
 
 The server speaks plain MCP over Streamable HTTP, so all three directories point at the same
 URL. Tool names, annotations and flat schemas already follow the strictest rules (OpenAI hints,
-Google flat schemas, no nested inputs). Remaining work is packaging and review rather than code:
-the Claude plugin bundle, the ChatGPT plugin ZIP and test cases, the Gemini Connected Apps
-registration (preview, US developers so far), and the privacy page.
+Google flat schemas, no nested inputs). Remaining work is packaging rather than server code: the Claude plugin bundle, the ChatGPT plugin
+ZIP and the Gemini registration.
 
 ### 6.4 The Inkview UI layer
 
@@ -225,13 +223,9 @@ instance, and reads are indexed. Rollback is re-running the playbook with an ear
 | AGL solar feed-in shapes | 21 of 727 plans `solarFeedIn:unknown_shape` ([#8](https://github.com/feimacode/askrighto/issues/8)) | Those plans lack feed-in figures; more shapes expected from other retailers |
 | Real fixtures | Test fixtures are synthetic; record real ones (`sync:energy -- --record`) | Locks the normaliser to real data |
 | Retailer list | 3 of many seeded; only AGL loaded | Coverage is incomplete until the list is seeded and loaded |
-| Rule 2.6 re-read | Only the 2020 version was read | Reuse basis for the stored copy |
 | Estimate check | Not yet compared with retailer fact sheets | Accuracy claim for estimates |
 | TLS to Azure PostgreSQL | Verifying; untested on the new server | A certificate error would stop the first migrate |
-| Legal view | Not started | Energy comparison obligations, stored copy, health cover |
-| Listings | Claude, ChatGPT and Gemini not submitted | Product reach |
 | Live host tests | Not run through a tunnel; MCP Inspector check pending | Real-world tool behaviour |
-| Domain and trade mark | askrighto.com.au not registered; ASIC name review and sound-alike checks pending | Launch naming |
 
 None of these change the shape of the system. The GST gate and the unknown-shape handling are
 designed so the server says what it does not know and fails safe until the data is confirmed.
