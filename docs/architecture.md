@@ -136,7 +136,7 @@ ordering, so a plan is not ranked on a condition the user may not meet. Wording 
 - **Database**: shared Flexible Server `feimacode.postgres.database.azure.com`, private to the VM's
   VNet, own database and role, schema `askrighto`. The app only touches schemas named `askrighto`
   or `askrighto_*`. Migrations are embedded in the bundle and run by the playbook before the
-  container starts; TLS is verified.
+  container starts; TLS is verified (working on the new server).
 - **Secrets** live in ansible-vault; none are in the repo or image.
 - **Domain**: `askrighto.feimacode.com` for internal testing, then `askrighto.com.au`.
 - **Stdio** mode exists for development (MCP Inspector, local debugging) and is documented as
@@ -224,7 +224,6 @@ instance, and reads are indexed. Rollback is re-running the playbook with an ear
 | Real fixtures | Test fixtures are synthetic; record real ones (`sync:energy -- --record`) | Locks the normaliser to real data |
 | Retailer list | 3 of many seeded; only AGL loaded | Coverage is incomplete until the list is seeded and loaded |
 | Estimate check | Not yet compared with retailer fact sheets | Accuracy claim for estimates |
-| TLS to Azure PostgreSQL | Verifying; untested on the new server | A certificate error would stop the first migrate |
 | Live host tests | Not run through a tunnel; MCP Inspector check pending | Real-world tool behaviour |
 
 None of these change the shape of the system. The GST gate and the unknown-shape handling are
