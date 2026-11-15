@@ -9,9 +9,16 @@ afterEach(async () => {
   mock = undefined;
 });
 
-const mk = (rps = 200) => new CdrClient({ baseUrl: mock!.url, limiter: new RetailerLimiter({ rps, maxInFlight: 8 }), backoffMs: 5 });
+const mk = (rps = 200) =>
+  new CdrClient({
+    baseUrl: mock!.url,
+    limiter: new RetailerLimiter({ rps, maxInFlight: 8 }),
+    backoffMs: 5,
+  });
 const many = (n: number) =>
-  Array.from({ length: n }, (_, i) => ({ detail: { ...fixture("single-rate"), planId: `P${i}` } }));
+  Array.from({ length: n }, (_, i) => ({
+    detail: { ...fixture("single-rate"), planId: `P${i}` },
+  }));
 
 describe("CdrClient", () => {
   it("pages through links.next and sends version headers", async () => {
@@ -25,7 +32,9 @@ describe("CdrClient", () => {
   it("uses version 3 for detail and returns undefined on 404", async () => {
     mock = await startMockCdr({ retailers: { agl: many(1) } });
     const c = mk();
-    expect(((await c.getDetail("agl", "P0")) as { planId: string }).planId).toBe("P0");
+    expect(
+      ((await c.getDetail("agl", "P0")) as { planId: string }).planId,
+    ).toBe("P0");
     expect(mock.log[0]!.v).toBe("3");
     expect(await c.getDetail("agl", "NOPE")).toBeUndefined();
   });
@@ -33,17 +42,27 @@ describe("CdrClient", () => {
   it("retries 429 honouring Retry-After and counts it", async () => {
     mock = await startMockCdr({
       retailers: { agl: many(1) },
-      inject: ({ n }) => (n <= 2 ? { status: 429, headers: { "retry-after": "0" } } : undefined),
+      inject: ({ n }) =>
+        n <= 2 ? { status: 429, headers: { "retry-after": "0" } } : undefined,
     });
     const c = mk();
     await c.listPlans("agl", "CURRENT");
-    expect(c.statsFor("agl")).toMatchObject({ throttled: 2, retried: 2, failed: 0 });
+    expect(c.statsFor("agl")).toMatchObject({
+      throttled: 2,
+      retried: 2,
+      failed: 0,
+    });
   });
 
   it("retries 5xx then gives up with an error", async () => {
-    mock = await startMockCdr({ retailers: { agl: many(1) }, inject: () => ({ status: 503 }) });
+    mock = await startMockCdr({
+      retailers: { agl: many(1) },
+      inject: () => ({ status: 503 }),
+    });
     const c = mk();
-    await expect(c.listPlans("agl", "CURRENT")).rejects.toBeInstanceOf(CdrError);
+    await expect(c.listPlans("agl", "CURRENT")).rejects.toBeInstanceOf(
+      CdrError,
+    );
     expect(c.statsFor("agl").requests).toBe(4); // 1 try + 3 retries
     expect(c.statsFor("agl").failed).toBe(1);
   });
@@ -53,7 +72,14 @@ describe("CdrClient", () => {
     const c = new CdrClient({
       baseUrl: mock.url,
       limiter: new RetailerLimiter({ rps: 200, maxInFlight: 8 }),
-      fetchImpl: async () => new Response(JSON.stringify({ data: { plans: [] }, links: { next: "http://evil.test/x" } }), { status: 200 }),
+      fetchImpl: async () =>
+        new Response(
+          JSON.stringify({
+            data: { plans: [] },
+            links: { next: "http://evil.test/x" },
+          }),
+          { status: 200 },
+        ),
     });
     expect(await c.listPlans("agl", "CURRENT")).toEqual([]);
   });
@@ -64,7 +90,9 @@ describe("RetailerLimiter", () => {
     mock = await startMockCdr({ retailers: { agl: many(1) } });
     const rps = 5;
     const c = mk(rps);
-    await Promise.all(Array.from({ length: 12 }, () => c.getDetail("agl", "P0")));
+    await Promise.all(
+      Array.from({ length: 12 }, () => c.getDetail("agl", "P0")),
+    );
     const times = mock.log.map((l) => l.at).sort((a, b) => a - b);
     for (let i = 0; i + rps < times.length; i++) {
       // any rps+1 consecutive requests must span at least a second (small timer tolerance)
@@ -82,7 +110,8 @@ describe("RetailerLimiter", () => {
 
   it("caps requests in flight overall", async () => {
     const limiter = new RetailerLimiter({ rps: 1000, maxInFlight: 2 });
-    let now = 0, max = 0;
+    let now = 0,
+      max = 0;
     await Promise.all(
       ["a", "b", "c", "d", "e"].map((s) =>
         limiter.run(s, async () => {
