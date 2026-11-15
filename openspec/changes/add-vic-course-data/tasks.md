@@ -8,22 +8,24 @@
 
 ## 2. Store
 
-- [ ] 2.1 Add the migration for `providers`, `courses`, `course_campuses`, `course_entry_figures`, `course_prerequisites`, `cricos_courses` and `course_loads` with the indexes in the design; verify it applies and rolls forward on a fresh schema
-- [ ] 2.2 Implement `courses:load` (validate, replace in one transaction, record commit and counts); verify tests that a failed load leaves the previous set and that a second load of the same commit changes nothing
+- [ ] 2.1 Add the migration for `providers`, `courses` (with `origin` and `depth`), `course_campuses`, `course_entry_figures`, `course_prerequisites`, `cricos_raw` and `course_loads` with the indexes in the design; verify it applies and rolls forward on a fresh schema
+- [ ] 2.2 Implement `courses:load` (merge CRICOS rows with YAML gap rows and curated facts, validate, replace in one transaction, record commit and counts by origin and depth); verify tests that a failed load leaves the previous set and that a second load of the same commit changes nothing
 - [ ] 2.3 Implement the store query functions the tools need (by id, by name and field, by provider, figures by year, prerequisites by applies-to year); verify unit tests against a fixture load
-- [ ] 2.4 Register `vic-courses` and `cricos` datasets and a readiness check; verify `/readyz` reports not ready before the first load and ready after
+- [ ] 2.4 Register the `vic-courses` dataset (index and curated facts, CRICOS attribution on CRICOS fields) and a readiness check; verify `/readyz` reports not ready before the first load and ready after
 
-## 3. CRICOS
+## 3. Index
 
-- [ ] 3.1 Implement the monthly CRICOS download from data.gov.au into `cricos_courses`, with the CC BY attribution on the dataset; verify the dataset file format against a real download (not yet tested) and record a fixture
-- [ ] 3.2 Add the cross-check warnings and the uncurated-courses gap report; verify tests with a fixture mismatch
+- [ ] 3.1 Implement the monthly CRICOS download from data.gov.au into `cricos_raw` and the merge of VIC-provider undergraduate courses into index rows; verify the dataset file format against a real download (not yet tested) and record a fixture
+- [ ] 3.2 Build the official link list (`officialUrl`, `courseSeekerUrl`) for every index row in the YAML files; verify the page checker reports every link's status and the load report lists rows without a link
+- [ ] 3.3 Implement `courses:gap-report` against each university's published course list and add `gap_fill` rows for the domestic-only courses it finds; verify a fixture gap is reported and loads with its `foundAt`
+- [ ] 3.4 Add the CRICOS cross-check warnings (codes and names) and removal of courses that leave CRICOS; verify tests with fixture mismatches
 
 ## 4. Curation
 
 - [ ] 4.1 Implement `courses:check-pages` (rate-limited fetch of cited URLs, redirect and 404 report, 12-word verbatim run check, "check by hand" for script-rendered pages); verify it never writes to the curated files
 - [ ] 4.2 Rebuild the pilot's 109 courses from their official pages into `data/courses/vic/*.yaml`, with figures labelled by kind, intake year and campus and structured prerequisites; verify validation passes, the page checker shows no verbatim runs, and a second person has spot-checked at least one course per university
 - [ ] 4.3 Write the curation guide in `docs/course-data.md` (how to read a course page, which figure is which kind, how to write rules, annual re-check steps); verify a new curator can add one course from it
-- [ ] 4.4 Agree the launch coverage target with Iven and widen coverage by field from the gap report; verify the count in the load report meets the target
+- [ ] 4.4 Agree the launch curation depth with Iven, then curate courses at universities whose pages browser agents cannot read (Melbourne, ACU, La Trobe in the 16 Nov test) and the most-asked courses; verify the load report's curated count meets the agreed depth
 
 ## 5. Licence and release checks
 

@@ -47,12 +47,27 @@ Lets a VCE student or parent find Victorian undergraduate courses, see one cours
 - **WHEN** six course ids are given
 - **THEN** the result has `found: false`, reason `needs_input`, and says at most five can be compared
 
-### Requirement: Not-held courses get links, not facts
-When a course is not in the store, the course tools SHALL return `found: false` with reason `not_in_dataset`, the university's course search link when the university is known, and the VTAC CourseSearch and Course Seeker links, and SHALL NOT return any figure or prerequisite for it.
+### Requirement: Results state their depth
+Every course result SHALL state its depth. A `curated` course SHALL return its stored facts. An `index_only` course SHALL return its index fields, its official university page and Course Seeker links, a reading checklist, and a message that Ask Righto holds no checked facts for it, and SHALL NOT return any entry figure or prerequisite.
 
-#### Scenario: Course not curated yet
-- **WHEN** the host asks for a course the store does not hold
-- **THEN** the result has no data fields, gives the links, and its message says the course is not in Ask Righto's checked data yet
+#### Scenario: Index-only course
+- **WHEN** the host asks for a course that is in the index with depth `index_only`
+- **THEN** the result has depth `index_only`, the course's name, university, campuses and CRICOS code, both links, and the reading checklist, and no figures
+
+#### Scenario: Mixed comparison
+- **WHEN** `compare_courses` is given one curated and one index-only course
+- **THEN** the curated course shows its facts and the index-only course shows `cannot_check` with its links and checklist
+
+#### Scenario: Course not in the index
+- **WHEN** the host asks for a course the index does not hold
+- **THEN** the result has `found: false`, reason `not_in_dataset`, and the university's course search link when the university is known
+
+### Requirement: Guided browsing stays on the user's side
+The server SHALL NOT fetch course pages during a request and SHALL NOT accept or store facts the host read from a page. Host guidance SHALL tell a browsing host to read the university page first and Course Seeker second, never VTAC, to quote only the checklist items with the link and time read, to label them as read by the assistant, and to give the link instead of getting past any bot check.
+
+#### Scenario: Host browses an index-only course
+- **WHEN** a host with a browser agent receives an index-only result
+- **THEN** the guidance it holds directs it to the official page with the checklist, and no request from our server reaches that page
 
 ### Requirement: Figures are presented as past results
 Every course result SHALL label each entry figure with its kind and intake year using fixed wording, and SHALL include the standard course notice that past figures are not cut-offs or predictions, prerequisites are as published for the year shown, the official page decides, and the result is general information, not advice. No course result SHALL contain the words "chance", "you will get in", "best course" or "recommended".

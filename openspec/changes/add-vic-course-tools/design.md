@@ -13,6 +13,7 @@ The pilot's `tools.ts` defined nine OpenAI function schemas (`get_course_details
 - Tools a host model can chain: search, then detail, compare or check.
 - A prerequisite check done by code from structured rules, with a clear "cannot tell" when scores are missing.
 - Wording that makes past figures and published rules hard to misread as predictions or advice.
+- Every course findable, with an honest answer about how much we hold for it.
 
 **Non-Goals:**
 
@@ -27,7 +28,7 @@ The pilot's `tools.ts` defined nine OpenAI function schemas (`get_course_details
 | Tool | Inputs (all scalars or scalar lists) | Reads |
 | --- | --- | --- |
 | `search_courses` | `query?`, `field?`, `university?`, `campus?`, `vceStudies?` (list), `figureAtMost?`, `limit?` (default 20, max 50), `cursor?` | `vic-courses` |
-| `get_course` | `courseId`, `entryYear?` | `vic-courses`, `cricos` |
+| `get_course` | `courseId`, `entryYear?` | `vic-courses` |
 | `compare_courses` | `courseIds` (2 to 5), `entryYear?` | `vic-courses` |
 | `check_course_prerequisites` | `courseIds` (1 to 10), `vceStudies` (list), `studyScores?` (list, same order), `eal?`, `entryYear?` | `vic-courses` |
 | `get_subject_scaling` | `study`, `studyYear?` | `vce-scaling` |
@@ -47,7 +48,13 @@ All are `readOnlyHint: true`, `destructiveHint: false`, `openWorldHint: false`. 
 
 **6. Aggregate and scaling.** `estimate_vce_aggregate` calls the pure function from `add-vce-admissions-data` and returns the aggregate, each study's scaled score (marked if interpolated), its role (primary, increment, not counted) and the reason. Fixed text says an aggregate is not an ATAR and that the ATAR depends on the whole state cohort. Both scaling tools declare `vce-scaling`, so production returns `data_unavailable` until permission clears; their descriptions say the data may not be available yet.
 
-**7. Not in the store: links, not facts.** `get_course` and `search_courses` with no match return `found: false`, reason `not_in_dataset`, with `details` holding the university's course search URL (when the university is known), and the VTAC CourseSearch and Course Seeker home links. Links are fine to give (deep linking is allowed); no fact is read from those sites by us. Host instructions say: you may look the course up with your own web search, but quote the page you read, say it is not from Ask Righto's checked data, and do not mix it into Ask Righto's tables. Alternative: fetch the university page live ourselves. Rejected: 13 of 20 test pages were empty, blocked or partial, and a live fetch would bypass the curation that makes facts trustworthy.
+**7. Two depths: curated facts, or links plus a reading checklist.** Every course result carries `depth`. A `curated` course returns its stored facts. An `index_only` course returns the index fields (name, university, campuses, duration, CRICOS code), `officialUrl`, `courseSeekerUrl`, and a fixed `readingChecklist`: the entry figure and its kind and intake year, VCE prerequisites with minimum study scores and EAL variants, other selection criteria, and the page's last-updated date if shown. Its message says Ask Righto holds no checked facts for this course and the official page decides. `check_course_prerequisites` and `compare_courses` treat an index-only course the same way: they return `cannot_check` for it with the links and checklist, beside results for curated courses.
+
+The host's browser agent (Claude in Chrome, ChatGPT agent mode) may then open the page in the user's session and read it. Host guidance: read the university page first and Course Seeker second; never VTAC; quote what the page says with its link and the time read; say plainly that it was read by the assistant from that page, not from Ask Righto's checked data; and if the page shows a bot check or will not load, give the user the link instead of trying to get past it. A course missing from the index entirely returns `not_in_dataset` with the university's course search link.
+
+Our server never fetches these pages during a request and never receives what the host read. Alternative: a tool that accepts host-read facts (for example prerequisite text) and runs our checker over them. Rejected for now: it would put facts we did not look up into a grounded result, blurring AGENTS.md rule 1; revisit if host-read checks prove useful, with the result labelled as host-supplied. Alternative: fetch pages live from our server. Rejected: a server-side fetch is our own copying, which is what guided browsing exists to avoid, and the 16 Nov test showed bot checks block it anyway.
+
+What browser agents could read (16 Nov 2026 headless test, 18 VIC pages): full facts on 7 (Monash, Deakin, RMIT, Swinburne), partial on 3 (Melbourne, Victoria University), failed on 8 (Cloudflare checks at Melbourne and ACU, La Trobe not rendering). ChatGPT's agent browses from the cloud and will likely meet the same checks; Claude in Chrome uses the user's own browser and is untested. These are the courses `add-vic-course-data` curates first.
 
 **8. Output through Inkview with source attached.** `search_courses`: `inkview.table` (course, university, campus, latest figure with kind and year, prerequisites summary, link). `get_course`: `inkview.entityCard` plus markdown. `compare_courses`: `inkview.comparison` across the same fields. `check_course_prerequisites`: `inkview.table` (course, result, what is missing). Dates: a table (or the SDK's timeline component if available at the pinned version). Each component gets `source: { name, url, retrievedAt }` from the envelope; per-row links carry each fact's own source. Text-only hosts get markdown with the notice and source footer, as energy does.
 
@@ -60,7 +67,7 @@ All are `readOnlyHint: true`, `destructiveHint: false`, `openWorldHint: false`. 
 - Never say a student "will get in" or give odds; say what last year's figure was.
 - Ask which VCE studies the student takes before `check_course_prerequisites`; ask for expected study scores only if the student wants a scored check or an aggregate.
 - An aggregate is not an ATAR; never convert one.
-- If a course is not found, say so, give the links returned, and if you search the web yourself, say the fact is not from Ask Righto.
+- If a course is index-only, give the links; if you can browse, read the official page (university first, then Course Seeker, never VTAC) for the checklist items only, quote them with the link and time read, and say they were read from that page, not from Ask Righto. Never try to get past a bot check.
 - If data is unavailable (for example scaling), say so; do not quote scaling from memory.
 
 ## How results carry source and as-of date
@@ -72,10 +79,13 @@ Every result is built with `found({ data, source, asOf })`. Course results set `
 - [Students read a past lowest selection rank as a guaranteed cut-off] → Kind and year on every figure, fixed labels, the notice, and host guidance; a test checks the label text.
 - [Structured prerequisites drift from the official page] → March and August re-checks, the entry-year warning, and "check the official page" on every result.
 - [Scaling permission never arrives, so the aggregate tools stay unavailable] → They are clearly marked unavailable; the rest of the vertical stands on course facts, dates and schemes.
+- [Index-only answers depend on a browser agent, which many users do not have, and which is slow] → Text-only hosts still get the course, links and checklist; curation targets the courses browsing fails on; results always state their depth.
+- [A host's browser agent copies more than facts, or misreads a page] → Guidance asks for the listed facts only, with the link and time read, labelled as read by the assistant; Ask Righto never stores or republishes what it read.
 - [Host models add advice anyway ("you should pick Chemistry")] → Instructions, neutral wording, and listing test prompts such as "which subjects should I pick?" and "will I get into Monash Medicine?".
 - [Audience includes minors] → No personal details, nothing stored, and the Children's Online Privacy Code check before 10 Dec 2026 from the listing changes.
 
 ## Open Questions
 
 - Whether to port the pilot's subject combination generator later, and under what wording, given the advice concern.
+- Whether to state the guided-browsing source type in AGENTS.md rule 1 (facts read by the user's assistant from an official page, labelled as such), since it is a new kind of answer.
 - Whether Gemini draws Inkview components (presentation only; markdown is always present).

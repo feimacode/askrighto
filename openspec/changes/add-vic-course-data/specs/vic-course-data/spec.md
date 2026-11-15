@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Holds a curated, traceable set of Victorian undergraduate course facts (entry figures, prerequisites, selection criteria, campuses and official links), written in our own words from the universities' own pages, so the course tools can answer from checked facts instead of scraped or guessed ones.
+Holds an index of every Victorian university undergraduate course (CRICOS base plus hand-filled gaps, with official links), and, attached to it, curated facts in our own words (entry figures, prerequisites, selection criteria) for the courses that need them, so the course tools can always find a course and answer from checked facts where they exist instead of scraped or guessed ones.
 
 ## ADDED Requirements
 
@@ -68,15 +68,41 @@ Every curated fact SHALL carry a checked date, and the dataset SHALL warn when i
 - **WHEN** a provider has published figures for a later intake year than the one stored
 - **THEN** the page checker reports the course for update
 
-### Requirement: CRICOS is a cross-check, not the only source
-CRICOS data SHALL be loaded monthly and used to cross-check provider names, course codes and campuses and to report uncurated courses. A course SHALL NOT be shown with entry figures or prerequisites taken from CRICOS, since CRICOS holds none.
+### Requirement: One index covers every course
+The course index SHALL hold one row for every undergraduate course at a Victorian university that is listed in CRICOS or added as a gap fill, and each row SHALL state its origin (`cricos` or `gap_fill`) and its depth (`index_only` or `curated`). Curated facts SHALL attach to an index row and SHALL NOT exist without one.
 
-#### Scenario: Code mismatch
-- **WHEN** a curated course's CRICOS code is not in the CRICOS data or its name differs
-- **THEN** the load report warns and names the course
+#### Scenario: CRICOS course with no curated facts
+- **WHEN** a VIC university bachelor course is in the CRICOS download and has no curated entry
+- **THEN** it is loaded as an index row with depth `index_only`, its CRICOS name, campuses and duration, and its official link where one is listed
+
+#### Scenario: Course gains curated facts
+- **WHEN** curated facts are added to an index-only course's entry and loaded
+- **THEN** the same row becomes depth `curated` and keeps its id
+
+#### Scenario: Course leaves CRICOS
+- **WHEN** a CRICOS course is no longer in the download and has no curated entry
+- **THEN** the next load removes its index row
+
+### Requirement: Gaps in CRICOS are filled by hand and reported
+The system SHALL report courses on a university's own published course list that are missing from the index, and a gap-filled row SHALL record where the course was found and its official link.
+
+#### Scenario: Domestic-only course
+- **WHEN** a university lists a domestic-only course that CRICOS does not hold
+- **THEN** the gap report names it, and once a gap row is added it loads with origin `gap_fill` and its `foundAt` link
+
+#### Scenario: Index row without a link
+- **WHEN** an index row has no official course link
+- **THEN** it is still loaded, the load report lists it, and tools give the university's course search link instead
+
+### Requirement: CRICOS fields carry their licence
+Fields taken from CRICOS SHALL be shown with the CC BY 2.5 AU licence and attribution, and SHALL NOT be presented as entry figures or prerequisites, since CRICOS holds none.
+
+#### Scenario: Name mismatch with a curated entry
+- **WHEN** a curated entry's name differs from its CRICOS course name
+- **THEN** the load report warns and names the course, and the curated name is used only if it has a source
 
 ### Requirement: Dataset is registered and gated
-The `vic-courses` and `cricos` datasets SHALL be registered with publisher, reuse basis, coverage and last load time, and a readiness check SHALL report not ready until a course load has completed.
+The `vic-courses` dataset (index and curated facts) SHALL be registered with publisher, reuse basis, coverage and last load time, and a readiness check SHALL report not ready until a course load has completed.
 
 #### Scenario: Fresh deploy before the first load
 - **WHEN** the server starts and no course load has run
