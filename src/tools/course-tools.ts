@@ -362,12 +362,10 @@ export const getCourse = defineTool({
         tagline: `${v.university}${v.campuses.length ? `, ${v.campuses.join(", ")}` : ""}`,
         description: v.summary ?? v.message,
         facts: [
-          ...(v.entryFigures ?? [])
-            .slice(0, 4)
-            .map((f) => ({
-              label: `${SHORT[f.kind] ?? "Entry figure"} ${f.intakeYear}`,
-              value: `${f.value.toFixed(2)}: ${f.label}`.slice(0, 200),
-            })),
+          ...(v.entryFigures ?? []).slice(0, 4).map((f) => ({
+            label: `${SHORT[f.kind] ?? "Entry figure"} ${f.intakeYear}`,
+            value: `${f.value.toFixed(2)}: ${f.label}`.slice(0, 200),
+          })),
           ...(v.prerequisites
             ? [
                 {

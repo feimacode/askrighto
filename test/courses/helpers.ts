@@ -6,7 +6,8 @@ import { parseProviderFile } from "../../src/courses/validate.js";
 import { createServer } from "../../src/server/create-server.js";
 import { routeSet } from "../../src/verticals.js";
 import { ALL_VERTICALS } from "../../src/server/route.js";
-import { readVceFiles } from "../../src/vce/load.js";
+import { loadStudies } from "../../src/courses/studies.js";
+import { readTables, readVceFiles } from "../../src/vce/load.js";
 import type { VceData } from "../../src/vce/types.js";
 
 export const FIXTURE_YAML = `
@@ -68,9 +69,23 @@ export function fixtureCatalogue(): Catalogue {
   };
 }
 
+/** Real dates, rules and schemes; synthetic scaling and groupings (the real tables are not in the repo). */
 export function fixtureVce(): VceData {
   const f = readVceFiles(`${process.cwd()}/data`);
-  return { ...f.data, loadedAt: new Date("2026-11-10T00:00:00Z") };
+  const errors: string[] = [];
+  const t = readTables(
+    `${process.cwd()}/test/fixtures/vce-data`,
+    ["."],
+    loadStudies(),
+    errors,
+  );
+  if (errors.length) throw new Error(errors.join("; "));
+  return {
+    ...f.data,
+    scaling: t.scaling,
+    groupings: t.groupings,
+    loadedAt: new Date("2026-11-10T00:00:00Z"),
+  };
 }
 
 export function installFixtureRuntime(vce: VceData = fixtureVce()) {
@@ -115,3 +130,13 @@ export async function call(
     text: (res.content as { text: string }[])[0]!.text,
   };
 }
+
+export const COURSES_DATASET_IDS = [
+  "vic-courses",
+  "vce-key-dates",
+  "vtac-preference-rules",
+  "vic-early-entry",
+  "vce-scaling",
+  "vce-study-groupings",
+  "cricos",
+];

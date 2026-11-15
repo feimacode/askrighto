@@ -24,9 +24,7 @@ export function clearReadinessChecks(): void {
 }
 
 /** Runs the checks that belong to no vertical plus those of the given verticals (all when omitted). */
-export async function runReadiness(
-  only?: readonly string[],
-): Promise<{
+export async function runReadiness(only?: readonly string[]): Promise<{
   ok: boolean;
   checks: Record<string, ReadinessResult & { vertical?: string }>;
 }> {

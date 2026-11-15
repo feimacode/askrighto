@@ -173,3 +173,63 @@ describe("outcome counters", () => {
     );
   });
 });
+
+describe("list_data_sources and attribution on results", () => {
+  it("shows a held-back dataset as held back in production, and a CRICOS result carries attribution", async () => {
+    vi.stubEnv("ASKRIGHTO_ENV", "production");
+    const { registerDataSet, clearDataSets } =
+      await import("../src/core/registry.js");
+    const { makeListDataSources } =
+      await import("../src/tools/list-data-sources.js");
+    clearDataSets();
+    registerDataSet({
+      id: "vce-scaling",
+      title: "Scaling",
+      publisher: "VTAC",
+      source: { name: "s", url: "https://example.org", licence: "x" },
+      coverage: "c",
+      refreshedAt: () => undefined,
+      maxAgeHours: 1,
+    });
+    const attr = defineTool({
+      name: "get_cricos_thing",
+      title: "t",
+      description: "d",
+      inputSchema: z.object({}),
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      datasets: ["cricos"],
+      handler: () =>
+        found({
+          data: { n: 1 },
+          source: { name: "s", url: "https://example.org", licence: "l" },
+          asOf: "2026-11-15T00:00:00Z",
+        }),
+      render: () => "x",
+    });
+    const server = createServer([makeListDataSources(), attr]);
+    const client = new Client({ name: "t", version: "0" });
+    const [a, b] = InMemoryTransport.createLinkedPair();
+    await Promise.all([server.connect(a), client.connect(b)]);
+    const list = await client.callTool({
+      name: "list_data_sources",
+      arguments: {},
+    });
+    expect(JSON.stringify(list.structuredContent)).toContain(
+      '"availability":"held_back"',
+    );
+    const res = await client.callTool({
+      name: "get_cricos_thing",
+      arguments: {},
+    });
+    expect(
+      (res.structuredContent as { source: { attribution?: string } }).source
+        .attribution,
+    ).toMatch(/CC BY 2\.5 AU/);
+    expect((res.content as { text: string }[])[0]!.text).toMatch(
+      /CC BY 2\.5 AU/,
+    );
+    clearDataSets();
+  });
+});

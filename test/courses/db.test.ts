@@ -17,7 +17,7 @@ import {
 import { parseProviderFile } from "../../src/courses/validate.js";
 import { createDb, migrate, type Db } from "../../src/energy/db.js";
 import { loadVce, readVceFiles, VceStore } from "../../src/vce/load.js";
-import { FIXTURE_YAML } from "./helpers.js";
+import { FIXTURE_YAML, fixtureVce } from "./helpers.js";
 
 const URL = process.env.TEST_DATABASE_URL;
 const d = URL ? describe : describe.skip;
@@ -81,14 +81,34 @@ d("course store", () => {
     expect(cat.courses.some((c) => c.id === "testu-extra")).toBe(false);
   });
 
+  it("cancels a slow query under the statement timeout", async () => {
+    const slow = createDb({
+      url: URL!,
+      schema,
+      poolMax: 1,
+      statementTimeoutMs: 100,
+    });
+    try {
+      await expect(slow.pool.query("SELECT pg_sleep(2)")).rejects.toThrow(
+        /statement timeout/,
+      );
+    } finally {
+      await slow.close();
+    }
+  });
+
   it("loads VCE data and reads it back", async () => {
-    await loadVce(db, readVceFiles(`${process.cwd()}/data`).data);
+    await loadVce(db, {
+      ...readVceFiles(`${process.cwd()}/data`).data,
+      scaling: fixtureVce().scaling,
+      groupings: fixtureVce().groupings,
+    });
     const v = await new VceStore(db, 0).data();
     expect(
       v.keyDates.find((k) => k.year === 2027)!.dates.length,
     ).toBeGreaterThan(10);
     expect(v.earlyEntry.length).toBeGreaterThan(3);
-    expect(v.scaling[0]!.studies.length).toBeGreaterThan(50);
+    expect(v.scaling[0]!.studies.length).toBeGreaterThan(5);
   });
 
   it("startCourses registers the datasets under the courses vertical and reports ready", async () => {

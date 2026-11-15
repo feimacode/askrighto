@@ -30,3 +30,6 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
+      - run: npm run courses:validate
+      - run: npm run vce:validate
+      - run: npm run release:check

@@ -7,3 +7,4 @@ openspec
 docs
 *.md
 .env*
+data/local

@@ -14,7 +14,7 @@ import { matchStudy } from "../../src/courses/studies.js";
 import { parseProviderFile } from "../../src/courses/validate.js";
 import { computeAggregate, scaledAt } from "../../src/vce/aggregate.js";
 import { readVceFiles } from "../../src/vce/load.js";
-import { FIXTURE_YAML } from "./helpers.js";
+import { FIXTURE_YAML, fixtureVce } from "./helpers.js";
 
 const id = (s: string) => {
   const m = matchStudy(s);
@@ -265,7 +265,7 @@ describe("scaling and aggregate", () => {
     expect(scaledAt(pts, 19)).toBeUndefined();
     expect(scaledAt(pts, 51)).toBeUndefined();
   });
-  const data = readVceFiles(`${process.cwd()}/data`).data;
+  const data = fixtureVce();
   const table = data.scaling[0]!;
   const groups = data.groupings[0]!;
   const run = (list: Array<[string, number]>) =>

@@ -386,13 +386,11 @@ d("serving, registry and outages", () => {
     // Database goes away mid-test: the pool is closed.
     await rt.db.pool.end();
     const res = await withStore((s) =>
-      s
-        .plans({ postcode: "3000" })
-        .then(() => ({
-          found: false as const,
-          reason: "not_in_dataset" as const,
-          message: "unused",
-        })),
+      s.plans({ postcode: "3000" }).then(() => ({
+        found: false as const,
+        reason: "not_in_dataset" as const,
+        message: "unused",
+      })),
     );
     expect(res).toMatchObject({ found: false, reason: "data_unavailable" });
     expect((await runReadiness()).checks["energy-plans"]).toMatchObject({

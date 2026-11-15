@@ -92,7 +92,11 @@ export function matchStudy(
   const partial = cat.studies.filter((s) => {
     const name = norm(s.name);
     const nt = name.split(" ");
-    return name.includes(q) || q.includes(name) || qt.every((t) => nt.some((w) => w.startsWith(t)));
+    return (
+      name.includes(q) ||
+      q.includes(name) ||
+      qt.every((t) => nt.some((w) => w.startsWith(t)))
+    );
   });
   if (partial.length === 1 && q.length >= 4)
     return { ok: true, study: partial[0]! };

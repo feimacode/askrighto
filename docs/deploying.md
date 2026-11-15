@@ -53,3 +53,29 @@ schema and repeat steps 4 and 5.
   certificate error, the Azure CA chain is not in Node's bundle: tell us, and we add it through
   `NODE_EXTRA_CA_CERTS`.
 - The retailer list currently holds only AGL, Origin and EnergyAustralia.
+
+## Internal route, verticals and promotion
+
+One image, one instance, two routes. Which verticals load and which each route serves is set by environment variables, so promoting or rolling back a vertical is a settings change and a redeploy, with no code change.
+
+| Setting | Meaning |
+| --- | --- |
+| `ASKRIGHTO_VERTICALS` | Verticals the process loads. Default `energy`. Example: `energy,courses`. |
+| `ASKRIGHTO_PUBLIC_VERTICALS` | Verticals `/mcp` serves. Must be a subset of the loaded list. Default: all loaded. Example: `energy`. |
+| `ASKRIGHTO_INTERNAL_TOKEN` | At least 43 characters (32 random bytes, base64url). Turns on `/mcp-internal/<token>`, `/readyz-internal/<token>` and `/metrics-internal/<token>`. With no token those paths do not exist (404). |
+| `ASKRIGHTO_ENV=production` | The data rights gate applies on both routes (pending datasets answer `data_unavailable`). `NODE_ENV=production` has the same effect. |
+| `ASKRIGHTO_DATA_DIR` | Where `data/` lives. The image sets `/app/data`. |
+
+Start-up fails on an unknown vertical name, an empty list, or a public vertical that is not loaded. An internal-only vertical that fails to start is marked failed: its tools answer `data_unavailable` on the internal route and `/mcp` keeps working. Its database queries run under a 2 second statement timeout.
+
+**Infra handoff (feima-infra, `askrighto` role):** set `ASKRIGHTO_VERTICALS=energy,courses`, `ASKRIGHTO_PUBLIC_VERTICALS=energy`, `ASKRIGHTO_ENV=production`, and a vault secret `vault_askrighto_internal_token` mapped to `ASKRIGHTO_INTERNAL_TOKEN`. Generate the token with `openssl rand -base64 32 | tr '+/' '-_' | tr -d '='`. After deploy, `/mcp` should list energy tools only and `/mcp-internal/<token>` should list the course tools.
+
+**Token handling:** the token lives in ansible-vault. Rotate it when a tester leaves and at least every 90 days (change the secret, redeploy, send the new URL directly to the named testers). The access log writes `/mcp-internal/***`. The URL never goes in the repo, docs, plugin bundles or listings.
+
+**Loading course data:** run `node askrighto.js migrate`, then `courses:load` (optionally `--cricos FILE.csv`, the CRICOS course list exported to CSV) and `vce:load` from the VM. The scaling and study grouping tables load only from a permitted file; until VTAC's permission is recorded they exist only as git-ignored copies in `data/local/` and stay `data_unavailable` in production.
+
+**Promotion:** a vertical joins `ASKRIGHTO_PUBLIC_VERTICALS` only through a change that records every gate in [promotion-checklist.md](promotion-checklist.md). **Rollback:** remove it from the list and redeploy.
+
+### Tester note (share with the named testers only)
+
+The course tools are a work in progress. Answers may be incomplete: many courses show only links and a reading checklist. After an announced update, disconnect and reconnect the connector so your host reloads the tool list. Report problems to Iven with the question you asked and what you saw (do not include personal details). Do not share the URL.

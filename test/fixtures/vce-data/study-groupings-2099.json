@@ -1,0 +1,23 @@
+{
+  "sourceUrl": "https://example.org/synthetic-groupings",
+  "groups": [
+    {
+      "group": "English studies",
+      "subjects": [
+        "English",
+        "English as an Additional Language",
+        "Literature",
+        "English Language"
+      ]
+    },
+    {
+      "group": "Mathematics studies",
+      "subjects": [
+        "Foundation Mathematics",
+        "General Mathematics",
+        "Mathematical Methods",
+        "Specialist Mathematics"
+      ]
+    }
+  ]
+}

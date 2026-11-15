@@ -39,6 +39,65 @@ function studyIdByName(cat: StudyCatalogue, name: string): string | undefined {
   return cat.studies.find((s) => s.name === n)?.id;
 }
 
+/** Reads scaling-YYYY.json and study-groupings-YYYY.json files from the given sub-folders of dir. */
+export function readTables(
+  dir: string,
+  subdirs: readonly string[],
+  cat: StudyCatalogue,
+  errors: string[],
+): { scaling: ScalingTable[]; groupings: Groupings[] } {
+  const scaling: ScalingTable[] = [];
+  const groupings: Groupings[] = [];
+  for (const sub of subdirs) {
+    const d = join(dir, sub);
+    if (!existsSync(d)) continue;
+    for (const f of readdirSync(d)) {
+      const m = /^(scaling|study-groupings)-(\d{4})\.json$/.exec(f);
+      if (!m) continue;
+      const year = Number(m[2]);
+      const json = JSON.parse(readFileSync(join(d, f), "utf8")) as LocalJson;
+      if (m[1] === "scaling") {
+        const studies: ScalingTable["studies"] = [];
+        for (const s of json.studies as Array<{
+          subject_name: string;
+          scaled_at_raw: Record<string, number>;
+        }>) {
+          const id = studyIdByName(cat, s.subject_name);
+          if (!id) {
+            errors.push(`${f}: unknown study "${s.subject_name}"`);
+            continue;
+          }
+          studies.push({
+            studyId: id,
+            name: s.subject_name,
+            points: Object.entries(s.scaled_at_raw).map(
+              ([r, v]) => [Number(r), Number(v)] as [number, number],
+            ),
+          });
+        }
+        scaling.push({ studyYear: year, sourceUrl: json.sourceUrl, studies });
+      } else {
+        const groupOf: Record<string, string> = {};
+        for (const g of json.groups as Array<{
+          group: string;
+          subjects: string[];
+        }>)
+          for (const n of g.subjects) {
+            const id = studyIdByName(cat, n);
+            if (id) groupOf[id] = g.group;
+          }
+        groupings.push({
+          studyYear: year,
+          sourceUrl: json.sourceUrl,
+          groupOf,
+          englishGroup: "English studies",
+        });
+      }
+    }
+  }
+  return { scaling, groupings };
+}
+
 export function readVceFiles(
   dir: string,
   cat: StudyCatalogue = loadStudies(dir),
@@ -88,55 +147,7 @@ export function readVceFiles(
       errors.push(`early entry ${s.id}: needs sourceUrl and checkedOn`);
   }
 
-  const scaling: ScalingTable[] = [];
-  const groupings: Groupings[] = [];
-  for (const sub of ["vce", "local"]) {
-    const d = join(dir, sub);
-    if (!existsSync(d)) continue;
-    for (const f of readdirSync(d)) {
-      const m = /^(scaling|study-groupings)-(\d{4})\.json$/.exec(f);
-      if (!m) continue;
-      const year = Number(m[2]);
-      const json = JSON.parse(readFileSync(join(d, f), "utf8")) as LocalJson;
-      if (m[1] === "scaling") {
-        const studies: ScalingTable["studies"] = [];
-        for (const s of json.studies as Array<{
-          subject_name: string;
-          scaled_at_raw: Record<string, number>;
-        }>) {
-          const id = studyIdByName(cat, s.subject_name);
-          if (!id) {
-            errors.push(`${f}: unknown study "${s.subject_name}"`);
-            continue;
-          }
-          studies.push({
-            studyId: id,
-            name: s.subject_name,
-            points: Object.entries(s.scaled_at_raw).map(
-              ([r, v]) => [Number(r), Number(v)] as [number, number],
-            ),
-          });
-        }
-        scaling.push({ studyYear: year, sourceUrl: json.sourceUrl, studies });
-      } else {
-        const groupOf: Record<string, string> = {};
-        for (const g of json.groups as Array<{
-          group: string;
-          subjects: string[];
-        }>)
-          for (const n of g.subjects) {
-            const id = studyIdByName(cat, n);
-            if (id) groupOf[id] = g.group;
-          }
-        groupings.push({
-          studyYear: year,
-          sourceUrl: json.sourceUrl,
-          groupOf,
-          englishGroup: "English studies",
-        });
-      }
-    }
-  }
+  const { scaling, groupings } = readTables(dir, ["vce", "local"], cat, errors);
   return {
     data: {
       keyDates,
