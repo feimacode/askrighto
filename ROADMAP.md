@@ -145,7 +145,7 @@ exists.
 
 ### Data permissions and legal views (Iven, can run in parallel)
 
-- [ ] Ask VTAC, then UAC, for written permission to reuse course facts (drafts can be prepared on request; nothing has been sent) [R]
+- [ ] Ask Course Seeker, VTAC, then UAC, for written permission to reuse course facts and VTAC scaling data (drafts are a task in `add-course-data-permissions`; nothing has been sent) [R]
 - [ ] Check VCAA terms for the scaling and school availability data the previous pilot ingested [F]
 - [ ] Legal view: private health insurance comparison as factual information, and any referral revenue [F, D]
 - [ ] Legal view: obligations for energy plan comparison (accuracy, commission disclosure). Now first in line, since energy is Phase 1 [D]
@@ -216,16 +216,29 @@ mid-year subject selection and VTAC preferences opening in August. Estimate: 3 t
 for a VIC-only server (judgement from the code reviewed, not measured) [F]. The server core from
 Phase 1 is reused.
 
+The changes below are proposed in `openspec/changes/` and wait for review (15 Nov 2026). Build
+order: `add-course-data-permissions` (start now: the permission requests have the longest lead
+time), then `add-canary-release`, `add-vic-course-data`, `add-vce-admissions-data` and `add-vic-course-tools`.
+The roadmap's earlier `add-course-live-lookup` and `add-course-widgets` items are folded into
+`add-vic-course-tools`, as energy folded its widgets into its tools change.
+
+**Internal canary first** (Iven, 16 Nov 2026): the course vertical is served only on an internal
+route of the same instance (`add-canary-release`: `/mcp-internal/<token>`, loaded and public vertical
+lists, metadata-only outcome counts) and joins the public `/mcp` only after its promotion gates
+pass: legal view done, rights cleared, curation depth met, host tests passed, Iven's go.
+
 | Item | Detail | Change id |
 | --- | --- | --- |
-| Port the recommendation engine | From `vce-subject-planner/apps/api/src/recommendation/`: intake, prerequisites, candidates, ranking, preference list, offer rounds, SEAS, early entry. Pure functions become MCP tools nearly one to one [F] | `add-vic-course-tools` |
-| Port the tool schemas | Convert `tools.ts` OpenAI function schemas to MCP tools with annotations; drop the in-app LLM call, since the host model narrates [F] | `add-vic-course-tools` |
-| VIC course fact store | Rebuild course ATARs and prerequisites as our own-worded facts with official links, using the hand-built `vic-university-atar-catalog.csv` pattern. Do not ship the scraped VTAC CSV. University PDF course guides (Monash, Sydney) were the cleanest source in testing [R] | `add-vic-course-data` |
-| CRICOS as course list lead | CRICOS on data.gov.au (CC BY) for course names, providers and campuses. Misses domestic-only courses and has no ATARs. The dataset file itself is not yet tested [R] | `add-vic-course-data` |
-| Normalise ATAR labels | Unis publish lowest ATAR, lowest selection rank, guaranteed ATAR or entry threshold, for different years. Store the label and year with each figure [R] | `add-vic-course-data` |
-| Live lookup fallback | For courses not in the store: give the host the official page link, let the host's own web search read it, always with the source link and a "check the official page" note. Live lookup alone answered only 7 of 20 test courses fully, so it is a fallback, not the main source [R] | `add-course-live-lookup` |
-| Data refresh | Re-key facts each admissions year; record the as-of date. Reuse the previous pilot's Python ingesters only where the source licence allows | `add-vic-course-data` |
-| Inkview widgets | Render a course shortlist and a course comparison with `@feimacode/inkview-sdk` (`registerInkview`, `inkview.table`, `inkview.comparison`), with a markdown fallback for text-only hosts [I] | `add-course-widgets` |
+| Data rights register and permissions | A register of every source's reuse basis with evidence; production refuses to serve a dataset whose rights are not cleared; pending data never enters the public repo; drafted requests to Course Seeker, VTAC and VCAA (Iven sends them); a corrections route with a five business day target [R] | `add-course-data-permissions` |
+| One course index with optional curated facts | Every VIC university undergraduate course is one row: CRICOS (data.gov.au, CC BY) is the base, domestic-only courses missing from CRICOS are filled by hand, and each row has our own links to the university page and Course Seeker. Curated own-words facts (figures, prerequisites) attach to a row where we hold them; the rest are index-only (Iven, 16 Nov 2026). Do not ship the scraped VTAC CSV. The CRICOS file itself is not yet tested [R] | `add-vic-course-data` |
+| Normalise ATAR labels | Unis publish lowest ATAR, lowest selection rank, guaranteed ATAR or entry threshold, for different years. Store the kind, intake year and source with each figure [R] | `add-vic-course-data` |
+| Structured prerequisites | Prerequisites as rules over VCE studies and minimum study scores, so code can check them; the pilot's prose matching over- and under-matched | `add-vic-course-data` |
+| Data refresh | Re-check facts every August (new figures) and March (prerequisites); record the checked date per fact. A page checker flags dead links and copied wording | `add-vic-course-data` |
+| Admissions reference data | Key dates (VCAA, VTAC), VTAC preference rules and early entry schemes as own-words facts; the aggregate counting rule ported from the pilot. VTAC scaling and study area groupings are built but held back until VTAC gives written permission | `add-vce-admissions-data` |
+| Port the engine and tool schemas | From `vce-subject-planner`: course search, prerequisite check, aggregate, key dates and early entry become eight MCP tools; the in-app LLM call is dropped, since the host model narrates. Subject combination ranking and preference list helpers are not ported yet [F] | `add-vic-course-tools` |
+| Guided browsing for index-only courses | For courses without curated facts, tools return the official links and a reading checklist, and the host's browser agent reads the page on the user's behalf (Iven, 16 Nov 2026: lowers copyright risk). University page first, then Course Seeker, never VTAC; never get past a bot check. A 16 Nov headless test read full facts from 7 of 18 VIC pages; Cloudflare checks stopped Melbourne and ACU, so those are curated first [R] | `add-vic-course-tools` |
+| Inkview widgets | Course shortlist table, course comparison and course card with `@feimacode/inkview-sdk`, with a markdown fallback for text-only hosts [I] | `add-vic-course-tools` |
+| Later | VTAC preference list and offer-round helpers, SEAS, VCAA school subject availability | `add-vtac-preference-tools` and later |
 
 ---
 
@@ -281,6 +294,7 @@ prior art) before an OpenSpec proposal.
 | Aged care providers and fee estimate | Licence of Star Ratings and provider data; whether published fee rules (Aged Care Act from 1 Nov 2025, Support at Home) are stable enough to calculate from | `add-aged-care-data` |
 | Suburb fit for renters and movers | Licence per state for rents, school zones, crime and transport; which states give enough coverage to launch | `add-suburb-data` |
 | EV versus petrol running cost | Green Vehicle Guide licence; rego and charging cost sources. Reuses energy tariffs and the VIC fuel feed below | `add-vehicle-cost` |
+| International student course finder (later; Iven, 16 Nov 2026) | A separate vertical after domestic courses. CRICOS (CC BY) fits it better than domestic: course codes, providers, campuses, duration and indicative tuition fees. Check which fields the open file really holds; English language requirements may need university pages. No ATAR or VCE prerequisites. Domestic stays first | `add-intl-course-finder` |
 | Concessions and rebates | Which energy and health concessions can be stated as rules with sources; offer as extensions of those verticals rather than a standalone case | — |
 
 ### Fuel price data (demoted)
