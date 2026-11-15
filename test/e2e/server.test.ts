@@ -274,3 +274,78 @@ describe("internal route", () => {
     ).toBe(404);
   });
 });
+
+describe("courses loaded but internal-only", () => {
+  const TOKEN = "k".repeat(20) + "B".repeat(23);
+  let p4: ChildProcess;
+  let base = "";
+  beforeAll(async () => {
+    const port = String(6100 + Math.floor(Math.random() * 300));
+    base = `http://127.0.0.1:${port}`;
+    p4 = spawn(process.execPath, [BUNDLE, "--http"], {
+      env: {
+        ...cleanEnv(),
+        PORT: port,
+        HOST: "127.0.0.1",
+        ASKRIGHTO_VERTICALS: "energy,courses",
+        ASKRIGHTO_PUBLIC_VERTICALS: "energy",
+        ASKRIGHTO_INTERNAL_TOKEN: TOKEN,
+        ASKRIGHTO_ENV: "production",
+      },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    await new Promise<void>((ok, bad) => {
+      p4.stdout!.on("data", (d) => String(d).includes("listening") && ok());
+      p4.on("exit", (c) => bad(new Error(`exited ${c}`)));
+    });
+  });
+  afterAll(() => p4.kill());
+
+  it("shows no course tool, instruction or dataset on /mcp, and rejects a course tool by name", async () => {
+    const client = new Client({ name: "e2e", version: "0" });
+    await client.connect(
+      new StreamableHTTPClientTransport(new URL(`${base}/mcp`)),
+    );
+    const names = (await client.listTools()).tools.map((t) => t.name);
+    expect(names.some((n) => /course|vce|early_entry/.test(n))).toBe(false);
+    expect(client.getInstructions()).not.toMatch(/index_only|search_courses/);
+    const res = await client
+      .callTool({ name: "search_courses", arguments: {} })
+      .catch((e) => e);
+    expect(
+      res instanceof Error || (res as { isError?: boolean }).isError === true,
+    ).toBe(true);
+    await client.close();
+  });
+
+  it("lists the course tools and instructions on the internal route", async () => {
+    const client = new Client({ name: "e2e", version: "0" });
+    await client.connect(
+      new StreamableHTTPClientTransport(
+        new URL(`${base}/mcp-internal/${TOKEN}`),
+      ),
+    );
+    const names = (await client.listTools()).tools.map((t) => t.name);
+    expect(names).toEqual(
+      expect.arrayContaining([
+        "search_courses",
+        "get_course",
+        "compare_courses",
+        "check_course_prerequisites",
+        "get_subject_scaling",
+        "estimate_vce_aggregate",
+        "get_vce_key_dates",
+        "list_early_entry_schemes",
+      ]),
+    );
+    expect(client.getInstructions()).toMatch(/index_only/);
+    const res = await client.callTool({
+      name: "search_courses",
+      arguments: {},
+    });
+    expect(
+      (res.structuredContent as { found?: boolean; reason?: string }).reason,
+    ).toBe("data_unavailable");
+    await client.close();
+  });
+});

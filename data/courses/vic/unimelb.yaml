@@ -1,0 +1,53 @@
+# University of Melbourne: course index rows. Names and links are for the index; facts live only in curated rows.
+# Rows below with origin gap_fill are stand-ins until the CRICOS load (npm run courses:load -- --cricos FILE) supplies
+# official names and codes. Their foundAt is the university's own page.
+provider:
+  id: unimelb
+  cricosProviderCode: "00116K"  # confirm against the CRICOS file on first load
+  name: University of Melbourne
+  coursesUrl: https://study.unimelb.edu.au/find
+  searchUrl: https://study.unimelb.edu.au/find
+  domains: [unimelb.edu.au]
+courses:
+  - id: unimelb-bachelor-of-arts
+    origin: gap_fill
+    name: "Bachelor of Arts"
+    level: bachelor
+    fields: [arts]
+    foundAt: https://study.unimelb.edu.au/find/courses/undergraduate/bachelor-of-arts/
+    officialUrl: https://study.unimelb.edu.au/find/courses/undergraduate/bachelor-of-arts/
+  - id: unimelb-bachelor-of-commerce
+    origin: gap_fill
+    name: "Bachelor of Commerce"
+    level: bachelor
+    fields: [business]
+    foundAt: https://study.unimelb.edu.au/find/courses/undergraduate/bachelor-of-commerce/
+    officialUrl: https://study.unimelb.edu.au/find/courses/undergraduate/bachelor-of-commerce/
+  - id: unimelb-bachelor-of-science
+    origin: gap_fill
+    name: "Bachelor of Science"
+    level: bachelor
+    fields: [science]
+    foundAt: https://study.unimelb.edu.au/find/courses/undergraduate/bachelor-of-science/
+    officialUrl: https://study.unimelb.edu.au/find/courses/undergraduate/bachelor-of-science/
+  - id: unimelb-bachelor-of-biomedicine
+    origin: gap_fill
+    name: "Bachelor of Biomedicine"
+    level: bachelor
+    fields: [biomedicine]
+    foundAt: https://study.unimelb.edu.au/find/courses/undergraduate/bachelor-of-biomedicine/
+    officialUrl: https://study.unimelb.edu.au/find/courses/undergraduate/bachelor-of-biomedicine/
+  - id: unimelb-bachelor-of-design-architecture-pathway
+    origin: gap_fill
+    name: "Bachelor of Design (Architecture pathway)"
+    level: bachelor
+    fields: [architecture]
+    foundAt: https://study.unimelb.edu.au/find/courses/undergraduate/bachelor-of-design/
+    officialUrl: https://study.unimelb.edu.au/find/courses/undergraduate/bachelor-of-design/
+  - id: unimelb-engineering
+    origin: gap_fill
+    name: "Engineering"
+    level: bachelor
+    fields: [engineering]
+    foundAt: https://study.unimelb.edu.au/find/study-areas/engineering/
+    officialUrl: https://study.unimelb.edu.au/find/study-areas/engineering/

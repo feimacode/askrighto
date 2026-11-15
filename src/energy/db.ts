@@ -5,6 +5,8 @@
  */
 import pg from "pg";
 import { sql as m0001 } from "./migrations/0001-init.js";
+import { sql as m0002 } from "./migrations/0002-courses.js";
+import { sql as m0003 } from "./migrations/0003-vce.js";
 
 export interface DbConfig {
   url: string;
@@ -45,7 +47,10 @@ export interface Db {
 }
 
 export function createDb(
-  cfg: Pick<DbConfig, "url" | "schema" | "poolMax"> & { ssl?: boolean },
+  cfg: Pick<DbConfig, "url" | "schema" | "poolMax"> & {
+    ssl?: boolean;
+    statementTimeoutMs?: number;
+  },
 ): Db {
   const schema = assertSchema(cfg.schema);
   const pool = new pg.Pool({
@@ -54,7 +59,7 @@ export function createDb(
     connectionTimeoutMillis: 15_000,
     idleTimeoutMillis: 30_000,
     ...(cfg.ssl ? { ssl: { rejectUnauthorized: true } } : {}),
-    options: `-c search_path=${schema}`,
+    options: `-c search_path=${schema}${cfg.statementTimeoutMs ? ` -c statement_timeout=${Math.floor(cfg.statementTimeoutMs)}` : ""}`,
   });
   // A dropped idle connection must not crash the process.
   pool.on("error", (e) => console.error(`database pool error: ${e.message}`));
@@ -65,7 +70,11 @@ export const MIGRATIONS: ReadonlyArray<{
   version: number;
   name: string;
   sql: string;
-}> = [{ version: 1, name: "init", sql: m0001 }];
+}> = [
+  { version: 1, name: "init", sql: m0001 },
+  { version: 2, name: "courses", sql: m0002 },
+  { version: 3, name: "vce", sql: m0003 },
+];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1]!.version;
 
@@ -117,13 +126,16 @@ export async function migrate(db: Db): Promise<number[]> {
   return applied;
 }
 
-/** True when the schema is at the latest migration. */
-export async function schemaCurrent(db: Db): Promise<boolean> {
+/** True when the schema has reached `required` (default: the latest). Each data module names the version it needs. */
+export async function schemaCurrent(
+  db: Db,
+  required: number = LATEST_VERSION,
+): Promise<boolean> {
   try {
     const r = await db.pool.query<{ v: number | null }>(
       "SELECT max(version) AS v FROM schema_migrations",
     );
-    return (r.rows[0]?.v ?? 0) >= LATEST_VERSION;
+    return (r.rows[0]?.v ?? 0) >= required;
   } catch (e) {
     // Missing table (42P01) or schema (3F000) means migrations have not run; anything else is an outage.
     const code = (e as { code?: string }).code;

@@ -3,18 +3,61 @@ import { defineTool } from "../core/define-tool.js";
 import { found, notFound } from "../core/grounded.js";
 import { ENERGY_DATASET_ID, withStore } from "../energy/index.js";
 import type { EnergyPlan } from "../energy/types.js";
-import { asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, inkview, inkviewResult, inkviewSource, matchRetailer, NOTICE, source, tableMeta } from "./energy-common.js";
+import {
+  asOfFor,
+  badPostcode,
+  checkPostcode,
+  COVERAGE_STATES,
+  inkview,
+  inkviewResult,
+  inkviewSource,
+  matchRetailer,
+  NOTICE,
+  source,
+  tableMeta,
+} from "./energy-common.js";
 
 const input = z.object({
-  postcode: z.string().describe("Four-digit Australian postcode of the property, e.g. 3000"),
-  fuelType: z.enum(["ELECTRICITY", "GAS"]).optional().describe("Only plans that include this fuel (dual fuel plans are included)"),
-  retailer: z.string().optional().describe("Retailer or brand name, e.g. Origin"),
-  distributor: z.string().optional().describe("Distribution network name from the user's bill, e.g. CitiPower"),
-  planType: z.enum(["MARKET", "STANDING", "REGULATED"]).optional().describe("Plan type"),
-  hasSolarFeedIn: z.boolean().optional().describe("Only electricity plans that pay for solar exports"),
-  hasControlledLoad: z.boolean().optional().describe("Only electricity plans with a controlled load rate"),
-  limit: z.number().int().min(1).max(50).optional().describe("Plans per page, default 20, maximum 50"),
-  cursor: z.string().optional().describe("The nextCursor value from the previous page"),
+  postcode: z
+    .string()
+    .describe("Four-digit Australian postcode of the property, e.g. 3000"),
+  fuelType: z
+    .enum(["ELECTRICITY", "GAS"])
+    .optional()
+    .describe(
+      "Only plans that include this fuel (dual fuel plans are included)",
+    ),
+  retailer: z
+    .string()
+    .optional()
+    .describe("Retailer or brand name, e.g. Origin"),
+  distributor: z
+    .string()
+    .optional()
+    .describe("Distribution network name from the user's bill, e.g. CitiPower"),
+  planType: z
+    .enum(["MARKET", "STANDING", "REGULATED"])
+    .optional()
+    .describe("Plan type"),
+  hasSolarFeedIn: z
+    .boolean()
+    .optional()
+    .describe("Only electricity plans that pay for solar exports"),
+  hasControlledLoad: z
+    .boolean()
+    .optional()
+    .describe("Only electricity plans with a controlled load rate"),
+  limit: z
+    .number()
+    .int()
+    .min(1)
+    .max(50)
+    .optional()
+    .describe("Plans per page, default 20, maximum 50"),
+  cursor: z
+    .string()
+    .optional()
+    .describe("The nextCursor value from the previous page"),
 });
 
 interface Row {
@@ -43,7 +86,10 @@ export interface SearchData {
   notice: string;
 }
 
-const tariff = (p: EnergyPlan) => [p.electricity?.pricingModel, p.gas?.pricingModel].filter(Boolean).join(" / ");
+const tariff = (p: EnergyPlan) =>
+  [p.electricity?.pricingModel, p.gas?.pricingModel]
+    .filter(Boolean)
+    .join(" / ");
 
 export const searchEnergyPlans = defineTool({
   name: "search_energy_plans",
@@ -62,38 +108,77 @@ export const searchEnergyPlans = defineTool({
     return withStore<SearchData>(async (store) => {
       const all = await store.plans({ postcode });
       if (all.length === 0) {
-        return notFound("outside_coverage", `No plans are stored for postcode ${postcode}. The data covers ${COVERAGE_STATES}.`, { states: COVERAGE_STATES });
+        return notFound(
+          "outside_coverage",
+          `No plans are stored for postcode ${postcode}. The data covers ${COVERAGE_STATES}.`,
+          { states: COVERAGE_STATES },
+        );
       }
       let plans = all;
       let matchedRetailer: string | undefined;
       if (args.retailer) {
         const m = matchRetailer(all, args.retailer);
-        if (!m) return notFound("not_in_dataset", `No retailer matching "${args.retailer}" has plans at ${postcode}.`);
+        if (!m)
+          return notFound(
+            "not_in_dataset",
+            `No retailer matching "${args.retailer}" has plans at ${postcode}.`,
+          );
         if ("candidates" in m) {
-          return notFound("needs_input", `"${args.retailer}" could match more than one retailer. Ask the user which one they mean.`, { candidates: m.candidates.map((c) => c.brandName) });
+          return notFound(
+            "needs_input",
+            `"${args.retailer}" could match more than one retailer. Ask the user which one they mean.`,
+            { candidates: m.candidates.map((c) => c.brandName) },
+          );
         }
         matchedRetailer = m.brandName;
         plans = plans.filter((p) => p.retailerSlug === m.slug);
       }
-      if (args.fuelType) plans = plans.filter((p) => p.fuelType === args.fuelType || p.fuelType === "DUAL");
-      if (args.planType) plans = plans.filter((p) => p.planType === args.planType);
+      if (args.fuelType)
+        plans = plans.filter(
+          (p) => p.fuelType === args.fuelType || p.fuelType === "DUAL",
+        );
+      if (args.planType)
+        plans = plans.filter((p) => p.planType === args.planType);
       if (args.distributor) {
         const d = args.distributor.toLowerCase();
-        plans = plans.filter((p) => p.geography.distributors.some((x) => x.toLowerCase() === d));
+        plans = plans.filter((p) =>
+          p.geography.distributors.some((x) => x.toLowerCase() === d),
+        );
       }
-      if (args.hasSolarFeedIn) plans = plans.filter((p) => (p.electricity?.solarFeedIn.length ?? 0) > 0);
-      if (args.hasControlledLoad) plans = plans.filter((p) => (p.electricity?.controlledLoads.length ?? 0) > 0);
-      if (plans.length === 0) return notFound("not_in_dataset", `No plans at ${postcode} match those filters.`);
+      if (args.hasSolarFeedIn)
+        plans = plans.filter(
+          (p) => (p.electricity?.solarFeedIn.length ?? 0) > 0,
+        );
+      if (args.hasControlledLoad)
+        plans = plans.filter(
+          (p) => (p.electricity?.controlledLoads.length ?? 0) > 0,
+        );
+      if (plans.length === 0)
+        return notFound(
+          "not_in_dataset",
+          `No plans at ${postcode} match those filters.`,
+        );
 
-      plans = [...plans].sort((a, b) => a.brandName.localeCompare(b.brandName) || a.displayName.localeCompare(b.displayName) || a.planId.localeCompare(b.planId));
+      plans = [...plans].sort(
+        (a, b) =>
+          a.brandName.localeCompare(b.brandName) ||
+          a.displayName.localeCompare(b.displayName) ||
+          a.planId.localeCompare(b.planId),
+      );
 
       // Distributors come from single-fuel plans, since a dual fuel plan lists both fuels' networks.
       const byFuel: Record<string, string[]> = {};
       for (const fuel of ["ELECTRICITY", "GAS"] as const) {
-        const set = new Set(plans.filter((p) => p.fuelType === fuel).flatMap((p) => p.geography.distributors));
+        const set = new Set(
+          plans
+            .filter((p) => p.fuelType === fuel)
+            .flatMap((p) => p.geography.distributors),
+        );
         if (set.size) byFuel[fuel] = [...set].sort();
       }
-      const relevant = args.fuelType ? [args.fuelType] : (["ELECTRICITY", "GAS"] as const);
+      const relevant = args.fuelType
+        ? [args.fuelType]
+        : (["ELECTRICITY", "GAS"] as const);
       const multi = relevant.filter((f) => (byFuel[f]?.length ?? 0) > 1);
       const needsDistributor = !args.distributor && multi.length > 0;
 
@@ -116,12 +201,16 @@ export const searchEnergyPlans = defineTool({
         postcode,
         total: plans.length,
         returned: rows.length,
-        ...(start + limit < plans.length ? { nextCursor: String(start + limit) } : {}),
+        ...(start + limit < plans.length
+          ? { nextCursor: String(start + limit) }
+          : {}),
         ...(matchedRetailer ? { matchedRetailer } : {}),
         distributorsByFuel: byFuel,
         needsDistributor,
         ...(needsDistributor
-          ? { askUser: `This postcode is served by more than one distributor (${multi.map((f) => `${f.toLowerCase()}: ${byFuel[f]!.join(", ")}`).join("; ")}). Ask the user which one is on their bill before comparing costs.` }
+          ? {
+              askUser: `This postcode is served by more than one distributor (${multi.map((f) => `${f.toLowerCase()}: ${byFuel[f]!.join(", ")}`).join("; ")}). Ask the user which one is on their bill before comparing costs.`,
+            }
           : {}),
         plans: rows,
         notice: NOTICE,
@@ -136,11 +225,16 @@ export const searchEnergyPlans = defineTool({
       "| Retailer | Plan | Fuel | Type | Tariff | Distributor | Updated | Plan id |",
       "| --- | --- | --- | --- | --- | --- | --- | --- |",
       ...d.plans.map(
-        (p) => `| ${p.retailer} | ${p.planUrl ? `[${p.planName}](${p.planUrl})` : p.planName} | ${p.fuelType} | ${p.planType} | ${p.tariffType} | ${p.distributors.join(", ")} | ${p.sourceLastUpdated.slice(0, 10)} | ${p.planId} |`,
+        (p) =>
+          `| ${p.retailer} | ${p.planUrl ? `[${p.planName}](${p.planUrl})` : p.planName} | ${p.fuelType} | ${p.planType} | ${p.tariffType} | ${p.distributors.join(", ")} | ${p.sourceLastUpdated.slice(0, 10)} | ${p.planId} |`,
       ),
     ];
     if (d.askUser) lines.push("", d.askUser);
-    if (d.nextCursor) lines.push("", `More plans are available: call again with cursor "${d.nextCursor}".`);
+    if (d.nextCursor)
+      lines.push(
+        "",
+        `More plans are available: call again with cursor "${d.nextCursor}".`,
+      );
     lines.push("", NOTICE);
     return lines.join("\n");
   },
@@ -161,7 +255,11 @@ export const searchEnergyPlans = defineTool({
             { key: "updated", label: "Updated", type: "date" },
             { key: "planId", label: "Plan id" },
           ],
-          rows: r.data.plans.map((p) => ({ ...p, distributors: p.distributors.join(", "), updated: p.sourceLastUpdated.slice(0, 10) })),
+          rows: r.data.plans.map((p) => ({
+            ...p,
+            distributors: p.distributors.join(", "),
+            updated: p.sourceLastUpdated.slice(0, 10),
+          })),
           source: inkviewSource(r),
         },
         { limit: 50 },

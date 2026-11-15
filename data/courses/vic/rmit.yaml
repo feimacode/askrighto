@@ -1,0 +1,133 @@
+# RMIT University: course index rows. Names and links are for the index; facts live only in curated rows.
+# Rows below with origin gap_fill are stand-ins until the CRICOS load (npm run courses:load -- --cricos FILE) supplies
+# official names and codes. Their foundAt is the university's own page.
+provider:
+  id: rmit
+  cricosProviderCode: "00122A"  # confirm against the CRICOS file on first load
+  name: RMIT University
+  coursesUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study
+  searchUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study
+  domains: [rmit.edu.au]
+courses:
+  - id: rmit-bachelor-of-laws
+    origin: gap_fill
+    name: "Bachelor of Laws"
+    level: bachelor
+    fields: [law]
+    foundAt: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-laws-bp335
+    officialUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-laws-bp335
+  - id: rmit-bachelor-of-commerce
+    origin: gap_fill
+    name: "Bachelor of Commerce"
+    level: bachelor
+    fields: [business]
+    foundAt: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-commerce-bp357
+    officialUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-commerce-bp357
+  - id: rmit-bachelor-of-computer-science
+    origin: gap_fill
+    name: "Bachelor of Computer Science"
+    level: bachelor
+    fields: [it]
+    foundAt: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-computer-science-bp094
+    officialUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-computer-science-bp094
+  - id: rmit-bachelor-of-nursing
+    origin: gap_fill
+    name: "Bachelor of Nursing"
+    level: bachelor
+    fields: [nursing]
+    foundAt: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-nursing-bp032
+    officialUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-nursing-bp032
+  - id: rmit-bachelor-of-psychology
+    origin: gap_fill
+    name: "Bachelor of Psychology"
+    level: bachelor
+    fields: [psychology]
+    foundAt: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-psychology-bp154
+    officialUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-psychology-bp154
+  - id: rmit-bachelor-of-education-primary
+    origin: gap_fill
+    name: "Bachelor of Education (Primary)"
+    level: bachelor
+    fields: [education]
+    foundAt: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-education-bp320
+    officialUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-education-bp320
+  - id: rmit-bachelor-of-arts-music-industry
+    origin: gap_fill
+    name: "Bachelor of Arts (Music Industry)"
+    level: bachelor
+    fields: [arts]
+    foundAt: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-music-industry-bp047
+    officialUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-music-industry-bp047
+  - id: rmit-bachelor-of-science
+    origin: gap_fill
+    name: "Bachelor of Science"
+    level: bachelor
+    fields: [science]
+    foundAt: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-science-bp350
+    officialUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-science-bp350
+  - id: rmit-bachelor-of-architectural-design
+    origin: gap_fill
+    name: "Bachelor of Architectural Design"
+    level: bachelor
+    fields: [architecture]
+    foundAt: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-architectural-design-bp250
+    officialUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-architectural-design-bp250
+  - id: rmit-bachelor-of-pharmacy-honours
+    origin: gap_fill
+    name: "Bachelor of Pharmacy (Honours)"
+    level: bachelor
+    fields: [pharmacy]
+    foundAt: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/honours-degrees/bachelor-of-pharmacy-honours-bh102
+    officialUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/honours-degrees/bachelor-of-pharmacy-honours-bh102
+  - id: rmit-bachelor-of-fashion-sustainability
+    origin: gap_fill
+    name: "Bachelor of Fashion (Sustainability)"
+    level: bachelor
+    fields: [other]
+    foundAt: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-fashion-sustainability-bp326
+    officialUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-fashion-sustainability-bp326
+  - id: rmit-bachelor-of-aviation
+    origin: gap_fill
+    name: "Bachelor of Aviation"
+    level: bachelor
+    fields: [other]
+    foundAt: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-aviation-pilot-training-bp345
+    officialUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/bachelor-degrees/bachelor-of-aviation-pilot-training-bp345
+
+  - id: rmit-bachelor-of-engineering-honours
+    name: Bachelor of Engineering (Honours)
+    level: bachelor
+    fields: [engineering]
+    campuses: [melbourne-city]
+    durationYears: 4
+    cricosCode: "0100714"
+    officialUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/honours-degrees/bachelor-of-engineering-honours-bh126
+    summary: >-
+      A broad four-year engineering degree covering science, mathematics, design and professional practice.
+      Students move into a specialised engineering degree after first year.
+    entryFigures:
+      - kind: lowest_selection_rank
+        value: 73.00
+        intakeYear: 2026
+        campus: melbourne-city
+        sourceUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/honours-degrees/bachelor-of-engineering-honours-bh126
+        checkedOn: "2026-11-16"
+      - kind: guaranteed_atar
+        value: 75.00
+        intakeYear: 2027
+        campus: melbourne-city
+        sourceUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/honours-degrees/bachelor-of-engineering-honours-bh126
+        checkedOn: "2026-11-16"
+    prerequisites:
+      appliesToYear: 2027
+      text: English at least 25 (EAL at least 27), and one of General Mathematics, Mathematical Methods or Specialist Mathematics at least 20.
+      rules:
+        - study: english-group
+          minScore: 25
+          ealMinScore: 27
+        - study: any-mathematics
+          minScore: 20
+      sourceUrl: https://www.rmit.edu.au/study-with-us/levels-of-study/undergraduate-study/honours-degrees/bachelor-of-engineering-honours-bh126
+      checkedOn: "2026-11-16"
+    otherCriteria: [{ kind: none }]
+    checkedBy: claude-draft

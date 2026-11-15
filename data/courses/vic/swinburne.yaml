@@ -1,0 +1,95 @@
+# Swinburne University of Technology: course index rows. Names and links are for the index; facts live only in curated rows.
+# Rows below with origin gap_fill are stand-ins until the CRICOS load (npm run courses:load -- --cricos FILE) supplies
+# official names and codes. Their foundAt is the university's own page.
+provider:
+  id: swinburne
+  cricosProviderCode: "00111D"  # confirm against the CRICOS file on first load
+  name: Swinburne University of Technology
+  coursesUrl: https://www.swinburne.edu.au/study/find-a-course/
+  searchUrl: https://www.swinburne.edu.au/study/find-a-course/
+  domains: [swinburne.edu.au]
+courses:
+  - id: swinburne-bachelor-of-law
+    origin: gap_fill
+    name: "Bachelor of Law"
+    level: bachelor
+    fields: [law]
+    foundAt: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-law
+    officialUrl: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-law
+  - id: swinburne-bachelor-of-engineering-honours
+    origin: gap_fill
+    name: "Bachelor of Engineering (Honours)"
+    level: bachelor
+    fields: [engineering]
+    foundAt: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-engineering-honours
+    officialUrl: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-engineering-honours
+  - id: swinburne-bachelor-of-business
+    origin: gap_fill
+    name: "Bachelor of Business"
+    level: bachelor
+    fields: [business]
+    foundAt: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-business
+    officialUrl: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-business
+  - id: swinburne-bachelor-of-computer-science
+    origin: gap_fill
+    name: "Bachelor of Computer Science"
+    level: bachelor
+    fields: [it]
+    foundAt: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-computer-science
+    officialUrl: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-computer-science
+  - id: swinburne-bachelor-of-nursing-first-year-entry
+    origin: gap_fill
+    name: "Bachelor of Nursing (First Year Entry)"
+    level: bachelor
+    fields: [nursing]
+    foundAt: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-nursing
+    officialUrl: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-nursing
+  - id: swinburne-bachelor-of-psychological-sciences
+    origin: gap_fill
+    name: "Bachelor of Psychological Sciences"
+    level: bachelor
+    fields: [psychology]
+    foundAt: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-psychological-sciences
+    officialUrl: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-psychological-sciences
+  - id: swinburne-bachelor-of-primary-teaching
+    origin: gap_fill
+    name: "Bachelor of Primary Teaching"
+    level: bachelor
+    fields: [education]
+    foundAt: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-education-primary
+    officialUrl: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-education-primary
+  - id: swinburne-bachelor-of-arts
+    origin: gap_fill
+    name: "Bachelor of Arts"
+    level: bachelor
+    fields: [arts]
+    foundAt: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-arts
+    officialUrl: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-arts
+  - id: swinburne-bachelor-of-science
+    origin: gap_fill
+    name: "Bachelor of Science"
+    level: bachelor
+    fields: [science]
+    foundAt: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-science
+    officialUrl: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-science
+  - id: swinburne-bachelor-of-architecture
+    origin: gap_fill
+    name: "Bachelor of Architecture"
+    level: bachelor
+    fields: [architecture]
+    foundAt: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-design-architecture
+    officialUrl: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-design-architecture
+  - id: swinburne-bachelor-of-aviation
+    origin: gap_fill
+    name: "Bachelor of Aviation"
+    level: bachelor
+    fields: [other]
+    foundAt: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-aviation
+    officialUrl: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-aviation
+  - id: swinburne-bachelor-of-biomedical-science
+    origin: gap_fill
+    name: "Bachelor of Biomedical Science"
+    level: bachelor
+    fields: [biomedicine]
+    foundAt: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-biomedical-science
+    officialUrl: https://www.swinburne.edu.au/course/undergraduate/bachelor-of-biomedical-science

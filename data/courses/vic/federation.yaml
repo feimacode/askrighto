@@ -1,0 +1,81 @@
+# Federation University Australia: course index rows. Names and links are for the index; facts live only in curated rows.
+# Rows below with origin gap_fill are stand-ins until the CRICOS load (npm run courses:load -- --cricos FILE) supplies
+# official names and codes. Their foundAt is the university's own page.
+provider:
+  id: federation
+  cricosProviderCode: "00103D"  # confirm against the CRICOS file on first load
+  name: Federation University Australia
+  coursesUrl: https://www.federation.edu.au/study
+  searchUrl: https://www.federation.edu.au/study
+  domains: [federation.edu.au]
+courses:
+  - id: federation-bachelor-of-arts
+    origin: gap_fill
+    name: "Bachelor of Arts"
+    level: bachelor
+    fields: [arts]
+    foundAt: https://www.federation.edu.au/courses/dhm5-bachelor-of-arts/
+    officialUrl: https://www.federation.edu.au/courses/dhm5-bachelor-of-arts/
+  - id: federation-bachelor-of-business-accounting
+    origin: gap_fill
+    name: "Bachelor of Business (Accounting)"
+    level: bachelor
+    fields: [business]
+    foundAt: https://www.federation.edu.au/courses/dbu5.acc-bachelor-of-business-accounting
+    officialUrl: https://www.federation.edu.au/courses/dbu5.acc-bachelor-of-business-accounting
+  - id: federation-bachelor-of-engineering-electrical-honours
+    origin: gap_fill
+    name: "Bachelor of Engineering (Electrical) (Honours)"
+    level: bachelor
+    fields: [engineering]
+    foundAt: https://www.federation.edu.au/courses/den8.eie-bachelor-of-engineering-electrical-honours
+    officialUrl: https://www.federation.edu.au/courses/den8.eie-bachelor-of-engineering-electrical-honours
+  - id: federation-bachelor-of-information-technology-cybersecurity
+    origin: gap_fill
+    name: "Bachelor of Information Technology (Cybersecurity)"
+    level: bachelor
+    fields: [it]
+    foundAt: https://www.federation.edu.au/courses/dit5.cs-bachelor-of--information-technology-cybersecurity
+    officialUrl: https://www.federation.edu.au/courses/dit5.cs-bachelor-of--information-technology-cybersecurity
+  - id: federation-bachelor-of-nursing
+    origin: gap_fill
+    name: "Bachelor of Nursing"
+    level: bachelor
+    fields: [nursing]
+    foundAt: https://www.federation.edu.au/courses/dnn5-bachelor-of-nursing/
+    officialUrl: https://www.federation.edu.au/courses/dnn5-bachelor-of-nursing/
+  - id: federation-bachelor-of-psychological-science
+    origin: gap_fill
+    name: "Bachelor of Psychological Science"
+    level: bachelor
+    fields: [psychology]
+    foundAt: https://www.federation.edu.au/courses/dhy5-bachelor-of-psychological-science/
+    officialUrl: https://www.federation.edu.au/courses/dhy5-bachelor-of-psychological-science/
+  - id: federation-bachelor-of-education-primary
+    origin: gap_fill
+    name: "Bachelor of Education (Primary)"
+    level: bachelor
+    fields: [education]
+    foundAt: https://www.federation.edu.au/courses/dtz5-bachelor-of-education-primary/
+    officialUrl: https://www.federation.edu.au/courses/dtz5-bachelor-of-education-primary/
+  - id: federation-bachelor-of-science
+    origin: gap_fill
+    name: "Bachelor of Science"
+    level: bachelor
+    fields: [science]
+    foundAt: https://www.federation.edu.au/courses/dsi5-bachelor-of-science/
+    officialUrl: https://www.federation.edu.au/courses/dsi5-bachelor-of-science/
+  - id: federation-physiotherapy
+    origin: gap_fill
+    name: "Physiotherapy"
+    level: bachelor
+    fields: [health]
+    foundAt: https://www.federation.edu.au/courses/dpy5-bachelor-of-physiotherapy/
+    officialUrl: https://www.federation.edu.au/courses/dpy5-bachelor-of-physiotherapy/
+  - id: federation-speech-pathology-honours
+    origin: gap_fill
+    name: "Speech Pathology (Honours)"
+    level: bachelor
+    fields: [health]
+    foundAt: https://www.federation.edu.au/courses/dst8-bachelor-of-speech-pathology-honours/
+    officialUrl: https://www.federation.edu.au/courses/dst8-bachelor-of-speech-pathology-honours/

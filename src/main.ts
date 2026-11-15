@@ -264,9 +264,24 @@ Usage:
   askrighto --http     run over streamable HTTP on PORT (default 3001), path /mcp
   askrighto migrate    apply database migrations (needs DATABASE_URL)
   askrighto sync-energy [--record DIR] [--retailer SLUG]
-                       load or refresh energy plans; --record saves raw API responses as fixtures`);
+                       load or refresh energy plans; --record saves raw API responses as fixtures
+  askrighto courses:validate | courses:load [--cricos FILE.csv] | courses:check-pages
+  askrighto vce:validate | vce:load
+                       check and load the Victorian course index and VCE admissions data from data/`);
   } else if (args[0] === "migrate") {
     await (await import("./energy/cli.js")).cliMigrate();
+  } else if (args[0]?.startsWith("courses:") || args[0]?.startsWith("vce:")) {
+    const cli = await import("./courses/cli.js");
+    const map: Record<string, () => unknown> = {
+      "courses:validate": () => cli.cliCoursesValidate(),
+      "courses:load": () => cli.cliCoursesLoad(args.slice(1)),
+      "courses:check-pages": () => cli.cliCoursesCheckPages(),
+      "vce:validate": () => cli.cliVceValidate(),
+      "vce:load": () => cli.cliVceLoad(),
+    };
+    const run = map[args[0]];
+    if (!run) throw new Error(`Unknown command ${args[0]}`);
+    await run();
   } else if (args[0] === "sync-energy") {
     await (await import("./energy/cli.js")).cliSyncEnergy(args.slice(1));
   } else if (args.includes("--http")) {

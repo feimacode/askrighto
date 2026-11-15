@@ -11,7 +11,17 @@ import { attributionFor, availability } from "./rights.js";
 import { recordOutcome } from "./metrics.js";
 
 /** Verbs a tool name may start with. Verb-first names are required by the OpenAI and Google guidelines. */
-export const TOOL_VERBS = ["get", "list", "search", "find", "compare", "estimate", "check", "calculate", "explain"] as const;
+export const TOOL_VERBS = [
+  "get",
+  "list",
+  "search",
+  "find",
+  "compare",
+  "estimate",
+  "check",
+  "calculate",
+  "explain",
+] as const;
 
 export interface ToolDefinition<S extends z.ZodObject<z.ZodRawShape>, T> {
   /** snake_case, verb first, e.g. `search_energy_plans`. */
@@ -31,7 +41,10 @@ export interface ToolDefinition<S extends z.ZodObject<z.ZodRawShape>, T> {
   /** Text body for a found result. The source footer and warnings are added for you. */
   render: (data: T, args: z.infer<S>) => string;
   /** Optional extras (for example UI metadata) merged into the tool result. */
-  decorate?: (result: Grounded<T>, args: z.infer<S>) => Partial<CallToolResult> | undefined;
+  decorate?: (
+    result: Grounded<T>,
+    args: z.infer<S>,
+  ) => Partial<CallToolResult> | undefined;
   /** Optional metadata on the tool listing (for example the Inkview resource link). */
   meta?: Record<string, unknown>;
 }
@@ -40,7 +53,9 @@ export interface ToolDefinition<S extends z.ZodObject<z.ZodRawShape>, T> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyToolDefinition = ToolDefinition<any, any>;
 
-export function defineTool<S extends z.ZodObject<z.ZodRawShape>, T>(def: ToolDefinition<S, T>): ToolDefinition<S, T> {
+export function defineTool<S extends z.ZodObject<z.ZodRawShape>, T>(
+  def: ToolDefinition<S, T>,
+): ToolDefinition<S, T> {
   return def;
 }
 
@@ -50,7 +65,9 @@ function isScalarSchema(s: Record<string, unknown>): boolean {
   if (typeof s.type === "string" && SCALARS.has(s.type)) return true;
   if (Array.isArray(s.enum) || "const" in s) return true;
   if (Array.isArray(s.anyOf)) {
-    return (s.anyOf as Record<string, unknown>[]).every((b) => b.type === "null" || isScalarSchema(b));
+    return (s.anyOf as Record<string, unknown>[]).every(
+      (b) => b.type === "null" || isScalarSchema(b),
+    );
   }
   return false;
 }
@@ -60,34 +77,51 @@ export function validateToolDefinition(def: AnyToolDefinition): void {
   const fail = (why: string): never => {
     throw new Error(`Tool "${def.name}": ${why}`);
   };
-  if (!/^[a-z]+(_[a-z0-9]+)+$/.test(def.name)) fail("name must be snake_case with at least two words");
+  if (!/^[a-z]+(_[a-z0-9]+)+$/.test(def.name))
+    fail("name must be snake_case with at least two words");
   const verb = def.name.split("_")[0] as string;
-  if (!(TOOL_VERBS as readonly string[]).includes(verb)) fail(`name must start with a verb (${TOOL_VERBS.join(", ")})`);
+  if (!(TOOL_VERBS as readonly string[]).includes(verb))
+    fail(`name must start with a verb (${TOOL_VERBS.join(", ")})`);
   if (!def.title?.trim()) fail("title is required");
   if (!def.description?.trim()) fail("description is required");
-  if (def.readOnlyHint !== true) fail("readOnlyHint must be true (all tools are read-only)");
+  if (def.readOnlyHint !== true)
+    fail("readOnlyHint must be true (all tools are read-only)");
   if (def.destructiveHint !== false) fail("destructiveHint must be false");
-  if (typeof def.openWorldHint !== "boolean") fail("openWorldHint must be set explicitly");
+  if (typeof def.openWorldHint !== "boolean")
+    fail("openWorldHint must be set explicitly");
 
-  const json = z.toJSONSchema(def.inputSchema) as { type?: string; properties?: Record<string, Record<string, unknown>> };
+  const json = z.toJSONSchema(def.inputSchema) as {
+    type?: string;
+    properties?: Record<string, Record<string, unknown>>;
+  };
   if (json.type !== "object") fail("inputSchema must be an object schema");
   for (const [key, prop] of Object.entries(json.properties ?? {})) {
     if (prop.type === "array") {
       const items = prop.items as Record<string, unknown> | undefined;
-      if (!items || !isScalarSchema(items)) fail(`input "${key}" must be a list of plain values (schemas are kept flat)`);
+      if (!items || !isScalarSchema(items))
+        fail(
+          `input "${key}" must be a list of plain values (schemas are kept flat)`,
+        );
     } else if (!isScalarSchema(prop)) {
-      fail(`input "${key}" must be a plain value, enum, or list of plain values (schemas are kept flat)`);
+      fail(
+        `input "${key}" must be a plain value, enum, or list of plain values (schemas are kept flat)`,
+      );
     }
   }
 }
 
 /** Registers tools on a server, validating each first. Throws on the first invalid tool. */
-export function registerTools(server: McpServer, defs: readonly AnyToolDefinition[], opts: { route?: string } = {}): void {
+export function registerTools(
+  server: McpServer,
+  defs: readonly AnyToolDefinition[],
+  opts: { route?: string } = {},
+): void {
   const route = opts.route ?? "public";
   const seen = new Set<string>();
   for (const def of defs) {
     validateToolDefinition(def);
-    if (seen.has(def.name)) throw new Error(`Tool "${def.name}" is defined twice`);
+    if (seen.has(def.name))
+      throw new Error(`Tool "${def.name}" is defined twice`);
     seen.add(def.name);
 
     server.registerTool(
@@ -109,19 +143,33 @@ export function registerTools(server: McpServer, defs: readonly AnyToolDefinitio
         let result: Grounded<unknown>;
         try {
           // Rights gate: in production a tool never answers from a dataset whose reuse is not cleared.
-          const blocked = (def.datasets ?? []).map((id) => ({ id, a: availability(id) })).find((x) => !x.a.servable);
+          const blocked = (def.datasets ?? [])
+            .map((id) => ({ id, a: availability(id) }))
+            .find((x) => !x.a.servable);
           if (blocked && !blocked.a.servable) {
-            result = notFound("data_unavailable", `This information is not available yet. ${blocked.a.reason}`, { dataset: blocked.id });
+            result = notFound(
+              "data_unavailable",
+              `This information is not available yet. ${blocked.a.reason}`,
+              { dataset: blocked.id },
+            );
           } else {
             result = await def.handler(args);
           }
         } catch (error) {
           recordOutcome(route, def.name, "error", Date.now() - started);
           // Log the error only, never the arguments (they can hold personal details).
-          console.error(`Tool ${def.name} failed:`, error instanceof Error ? error.message : "unknown error");
+          console.error(
+            `Tool ${def.name} failed:`,
+            error instanceof Error ? error.message : "unknown error",
+          );
           return {
             isError: true,
-            content: [{ type: "text", text: "Something went wrong looking that up. No figures were produced." }],
+            content: [
+              {
+                type: "text",
+                text: "Something went wrong looking that up. No figures were produced.",
+              },
+            ],
           };
         }
         if (result.found && def.datasets?.length) {
@@ -129,13 +177,36 @@ export function registerTools(server: McpServer, defs: readonly AnyToolDefinitio
             const a = availability(id);
             return a.servable && a.warning ? [a.warning] : [];
           });
-          const warnings = [...(result.warnings ?? []), ...staleWarnings(def.datasets), ...devWarnings];
+          const warnings = [
+            ...(result.warnings ?? []),
+            ...staleWarnings(def.datasets),
+            ...devWarnings,
+          ];
           const attribution = attributionFor(def.datasets);
-          const source = attribution && !result.source.attribution ? { ...result.source, attribution } : result.source;
-          result = { ...result, source, ...(warnings.length ? { warnings } : {}) };
+          const source =
+            attribution && !result.source.attribution
+              ? { ...result.source, attribution }
+              : result.source;
+          result = {
+            ...result,
+            source,
+            ...(warnings.length ? { warnings } : {}),
+          };
         }
-        const depth = result.found ? (result.data as { depth?: unknown } | null)?.depth : undefined;
-        recordOutcome(route, def.name, result.found ? (typeof depth === "string" ? depth : "found") : result.reason, Date.now() - started);
+        const tag = result.found
+          ? (result.data as { outcome?: unknown; depth?: unknown } | null)
+          : undefined;
+        const label = tag?.outcome ?? tag?.depth;
+        recordOutcome(
+          route,
+          def.name,
+          result.found
+            ? typeof label === "string"
+              ? label
+              : "found"
+            : result.reason,
+          Date.now() - started,
+        );
         const text = renderText(result, (data) => def.render(data, args));
         const extra = def.decorate?.(result, args) ?? {};
         return {

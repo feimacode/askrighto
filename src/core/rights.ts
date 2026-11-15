@@ -5,8 +5,19 @@
  */
 import rightsJson from "./rights.json" with { type: "json" };
 
-export const BASES = ["open_licence", "cdr_rule", "written_permission", "own_words_facts"] as const;
-export const STATUSES = ["cleared", "cleared_pending_legal_view", "pending", "refused", "withdrawn"] as const;
+export const BASES = [
+  "open_licence",
+  "cdr_rule",
+  "written_permission",
+  "own_words_facts",
+] as const;
+export const STATUSES = [
+  "cleared",
+  "cleared_pending_legal_view",
+  "pending",
+  "refused",
+  "withdrawn",
+] as const;
 export type Basis = (typeof BASES)[number];
 export type RightsStatus = (typeof STATUSES)[number];
 
@@ -44,18 +55,24 @@ export function parseRights(raw: unknown): RightsEntry[] {
     const fail = (why: string): never => {
       throw new Error(`rights entry ${i} (${e?.datasetId ?? "?"}): ${why}`);
     };
-    if (!e || typeof e.datasetId !== "string" || !e.datasetId) fail("datasetId is required");
+    if (!e || typeof e.datasetId !== "string" || !e.datasetId)
+      fail("datasetId is required");
     if (seen.has(e.datasetId)) fail("duplicate datasetId");
     seen.add(e.datasetId);
     if (!e.owner) fail("owner is required");
-    if (!(BASES as readonly string[]).includes(e.basis)) fail(`unknown basis "${e.basis}"`);
-    if (!(STATUSES as readonly string[]).includes(e.status)) fail(`unknown status "${e.status}"`);
-    if (!Array.isArray(e.evidence) || e.evidence.length === 0) fail("at least one piece of evidence is required");
+    if (!(BASES as readonly string[]).includes(e.basis))
+      fail(`unknown basis "${e.basis}"`);
+    if (!(STATUSES as readonly string[]).includes(e.status))
+      fail(`unknown status "${e.status}"`);
+    if (!Array.isArray(e.evidence) || e.evidence.length === 0)
+      fail("at least one piece of evidence is required");
     for (const ev of e.evidence) {
       if (!ev.url || !/^https?:\/\//.test(ev.url)) fail("evidence needs a URL");
-      if (!ISO_DATE.test(ev.readOn ?? "")) fail("evidence needs a readOn date (YYYY-MM-DD)");
+      if (!ISO_DATE.test(ev.readOn ?? ""))
+        fail("evidence needs a readOn date (YYYY-MM-DD)");
     }
-    if (!ISO_DATE.test(e.reviewBy ?? "")) fail("reviewBy date (YYYY-MM-DD) is required");
+    if (!ISO_DATE.test(e.reviewBy ?? ""))
+      fail("reviewBy date (YYYY-MM-DD) is required");
     if (!Array.isArray(e.conditions)) fail("conditions must be a list");
     return e;
   });
@@ -69,7 +86,10 @@ export function rightsFor(datasetId: string): RightsEntry | undefined {
   return byId.get(datasetId);
 }
 
-export const SERVABLE: readonly RightsStatus[] = ["cleared", "cleared_pending_legal_view"];
+export const SERVABLE: readonly RightsStatus[] = [
+  "cleared",
+  "cleared_pending_legal_view",
+];
 
 export function isServableStatus(s: RightsStatus): boolean {
   return (SERVABLE as readonly string[]).includes(s);
@@ -81,22 +101,38 @@ export function isProduction(env: NodeJS.ProcessEnv = process.env): boolean {
   return env.NODE_ENV === "production";
 }
 
-export type Availability = { servable: true; warning?: string } | { servable: false; reason: string };
+export type Availability =
+  | { servable: true; warning?: string }
+  | { servable: false; reason: string };
 
 /** Whether tools may serve a dataset's data right now. Development serves it with a warning. */
-export function availability(datasetId: string, env: NodeJS.ProcessEnv = process.env): Availability {
+export function availability(
+  datasetId: string,
+  env: NodeJS.ProcessEnv = process.env,
+): Availability {
   const e = rightsFor(datasetId);
   const ok = e ? isServableStatus(e.status) : false;
   if (ok) return { servable: true };
-  const why = e ? `its reuse status is "${e.status}"` : "it has no entry in the data rights register";
+  const why = e
+    ? `its reuse status is "${e.status}"`
+    : "it has no entry in the data rights register";
   if (isProduction(env)) return { servable: false, reason: why };
-  return { servable: true, warning: `Source "${datasetId}" is not cleared for production (${why}); shown for development only.` };
+  return {
+    servable: true,
+    warning: `Source "${datasetId}" is not cleared for production (${why}); shown for development only.`,
+  };
 }
 
 /** Throws if a dataset about to be registered has no rights entry (production only). */
-export function assertRegistrable(datasetId: string, env: NodeJS.ProcessEnv = process.env): void {
+export function assertRegistrable(
+  datasetId: string,
+  env: NodeJS.ProcessEnv = process.env,
+): void {
   if (rightsFor(datasetId)) return;
-  if (isProduction(env)) throw new Error(`Dataset "${datasetId}" has no entry in the data rights register (src/core/rights.json); refusing to start in production.`);
+  if (isProduction(env))
+    throw new Error(
+      `Dataset "${datasetId}" has no entry in the data rights register (src/core/rights.json); refusing to start in production.`,
+    );
   console.error(`warning: dataset "${datasetId}" has no data rights entry`);
 }
 
@@ -108,6 +144,12 @@ export function overdueReviews(now: Date = new Date()): RightsEntry[] {
 
 /** Attribution text for the given datasets, de-duplicated. */
 export function attributionFor(ids: readonly string[]): string | undefined {
-  const out = [...new Set(ids.map((id) => rightsFor(id)?.attribution).filter((a): a is string => !!a))];
+  const out = [
+    ...new Set(
+      ids
+        .map((id) => rightsFor(id)?.attribution)
+        .filter((a): a is string => !!a),
+    ),
+  ];
   return out.length ? out.join(" ") : undefined;
 }

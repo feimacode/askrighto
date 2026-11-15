@@ -14,6 +14,8 @@ import { nextRunAt } from "./schedule.js";
 import { CachedStore, summary, type StoreSummary } from "./store.js";
 import { runSync, type Retailer } from "./sync.js";
 
+/** Migration the energy tools need; later migrations belong to other verticals. */
+export const ENERGY_REQUIRED_SCHEMA = 1;
 export const ENERGY_DATASET_ID = "energy-plans";
 export const ENERGY_SOURCE = {
   name: "Australian Energy Regulator, energy product reference data (Consumer Data Right)",
@@ -93,7 +95,7 @@ export async function startEnergy(
     "energy-plans",
     async () => {
       try {
-        if (!(await schemaCurrent(db)))
+        if (!(await schemaCurrent(db, ENERGY_REQUIRED_SCHEMA)))
           return { ok: false, reason: "schema_behind" };
         await refresh();
         return snap && snap.plans > 0

@@ -17,7 +17,12 @@
     "start": "node dist/askrighto.js --http",
     "start:stdio": "node dist/askrighto.js",
     "migrate": "npm run build && node dist/askrighto.js migrate",
-    "sync:energy": "npm run build && node dist/askrighto.js sync-energy"
+    "sync:energy": "npm run build && node dist/askrighto.js sync-energy",
+    "courses:validate": "npm run build && node dist/askrighto.js courses:validate",
+    "courses:load": "npm run build && node dist/askrighto.js courses:load",
+    "courses:check-pages": "npm run build && node dist/askrighto.js courses:check-pages",
+    "vce:validate": "npm run build && node dist/askrighto.js vce:validate",
+    "vce:load": "npm run build && node dist/askrighto.js vce:load"
   },
   "repository": {
     "type": "git",
@@ -40,5 +45,8 @@
     "typescript-eslint": "^8.72.2",
     "vitest": "^5.1.0",
     "zod": "^4.6.7"
+  },
+  "dependencies": {
+    "yaml": "^2.9.1"
   }
 }
