@@ -2,7 +2,7 @@
 
 Everyday Aussie decisions, backed by public data. askrighto.com.au
 
-Last updated: 13 November 2026. This file collects every recommendation made so far in the
+Last updated: 15 November 2026. This file collects every recommendation made so far in the
 project's research. Each item names where it came from and, for build work, the OpenSpec
 change id to propose it under (`/openspec-propose <change-id>`).
 
@@ -16,6 +16,9 @@ Sources:
   https://claude.ai/artifact/XRPC7qqi7ssJ3RBHK2FDXM
 - **[N]** Naming thread, 12 to 13 Nov 2026: Ask Righto chosen.
 - **[I]** `feimacode/inkview` repo (UI layer and deploy pattern), read 13 Nov 2026.
+- **[S]** Case scoring, 15 Nov 2026 (Iven's direction: pick complex cases that need aggregated
+  data and are common to a large audience). Data sources named only in [S] are from desk
+  knowledge and have **not** been checked for licence or access yet.
 
 None of the research is legal advice. Items marked "legal view" need a lawyer before launch.
 
@@ -38,6 +41,85 @@ proposal is checked against them.
 | Factual comparison only; no general insurance or credit comparison without a legal view or licensed partner | Comparing them can be financial advice needing an AFSL or credit licence; ASIC sued Choosi in 2025 | F, D |
 | Tools are read-only, with `title`, `readOnlyHint`, `destructiveHint`, `openWorldHint`, verb-first names and flat schemas | Design for the strictest host rules (OpenAI hints, Google flat schemas) | F |
 | UI through Inkview components, deploy the way Inkview deploys | Iven, 12 Nov 2026 | I |
+| Choose cases that are complex, need aggregated data and reach a large audience; skip single-lookup tasks | A host model with web search already handles simple lookups | Iven, 15 Nov 2026; S |
+
+---
+
+## How we pick cases
+
+Iven, 15 Nov 2026: the best cases are **complex** and **need aggregated data**. A host model
+with web search already answers simple lookups well, and single-source price apps already exist.
+Ask Righto earns its place where the answer needs many publishers' data joined, normalised and
+run through a calculation the person cannot easily do alone. That is also where a grounded,
+sourced answer matters most.
+
+Each case is scored 1 to 5 on three criteria:
+
+- **Complexity (Cx):** how many interacting variables, rules and calculations the decision
+  needs. 5 means a computed model (tariffs against usage, tax thresholds against income);
+  1 means a single lookup.
+- **Aggregated data (Agg):** how many publishers or datasets must be combined and normalised.
+  5 means dozens of publishers or several joined datasets; 1 means one source that already
+  presents the answer well.
+- **Audience (Aud):** how many Australian households face the decision, and how often.
+  5 means nearly every household every year.
+
+Data and regulatory status are **gates**, not scores: a high score does not help if the data
+is closed or the comparison needs a licence. Scores are judgement, not measured.
+
+### Scoring table
+
+| # | Case | Cx | Agg | Aud | Total | Data gate | Regulatory gate | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Energy plans (electricity and gas) | 5 | 5 | 5 | **15** | Open: CDR product data, live | Legal view (accuracy, disclosure) | Building, Phase 1 |
+| 2 | Private health insurance, with rebate, MLS and LHC maths | 5 | 5 | 4 | **14** | Open: CC BY 3.0 AU monthly file | Legal view before listing; Claude high-risk category | Phase 5 |
+| 3 | Bank savings, term deposits, home loans | 4 | 5 | 5 | **14** | Open: CDR product data | ACL/AFSL question | Parked |
+| 4 | Uni course research (VCE first) | 5 | 5 | 3 | **13** | No TAC licence; own-worded store | VTAC/UAC permission requested in Phase 0 | **Next**: VIC Phase 4, NSW/QLD Phase 6 |
+| 5 | Home solar and battery payback | 5 | 4 | 3 | **12** | Reuses CDR plans; solar yield and rebate data to check | None known; no installer referrals | Candidate, Phase 7 |
+| 6 | Aged care: providers and fee estimate | 5 | 4 | 3 | **12** | Star Ratings and provider data, licence to check | None known; estimates must defer to Services Australia | Candidate, research first |
+| 7 | Suburb fit for renters and movers | 3 | 5 | 4 | **12** | Many state datasets, licences vary; My School excluded | None known | Candidate, research first |
+| 8 | Mobile and NBN plans | 3 | 4 | 5 | 12 | Blocked: no open plan data (CDR telco rollout paused, to verify) | None known | Blocked |
+| 9 | EV versus petrol running cost | 4 | 4 | 3 | 11 | Green Vehicle Guide, fuel, tariffs, rego; licences to check | Stay off novated leases and finance | Later |
+| 10 | Concessions and rebates finder | 3 | 4 | 4 | 11 | Scattered government pages; heavy curation | Eligibility wording needs care | Fold into energy and health as extensions |
+| 11 | First home buyer grants and stamp duty | 4 | 3 | 3 | 10 | State revenue office rules, curated | Stay off loans (ACL) | Later |
+| 12 | Childcare out-of-pocket (CCS) | 4 | 2 | 3 | 9 | CCS rates public; centre fees blocked (Starting Blocks terms) | None known | Later; weak without fee data |
+| 13 | Fuel prices | 1 | 3 | 5 | 9 | VIC open; QLD, NSW unclear; WA closed | None | **Demoted**: input to case 9 only |
+
+Notes on the new candidates [S]:
+
+- **Solar and battery payback.** Combines the energy plan store (feed-in tariffs, time-of-use
+  rates) with solar yield by location, system and battery prices, and the federal Cheaper Home
+  Batteries discount plus state rebates. Most of the hard work (tariff model, bill estimator)
+  already exists in the energy vertical, so this is the cheapest high-scoring addition.
+- **Aged care.** Families comparing home care and residential providers face means-tested
+  fees under the new Aged Care Act (from 1 Nov 2025), Support at Home, and provider Star
+  Ratings. Very complex and high stakes; data licence and fee-rule sources need a research
+  thread before a proposal.
+- **Suburb fit.** Joins census (ABS, CC BY), rents (state bond data where licensed), school
+  zones (VIC and NSW publish zone data), public transport (GTFS) and crime statistics. Highest
+  data-integration effort of the set, and licences vary by state.
+- **Fuel.** Low complexity, and state apps, PetrolSpy and host web search already answer it.
+  Its open VIC feed is still useful as an input to the EV versus petrol case.
+
+### Recommended order
+
+1. **Energy plans** (Phase 1, building). Finish the GST basis, full retailer list and live
+   host tests before anything new starts.
+2. **Uni course research, VIC first** (Phase 4, next build; Iven, 15 Nov 2026). Reuses the
+   pilot's engine. Aim to be live by July 2027, ahead of mid-year subject selection and VTAC
+   preferences opening in August. Send the data permission requests now, since replies take time.
+3. **Private health insurance** (Phase 5). Same shape as energy: a monthly open file, then a
+   calculation (premium after rebate, MLS break-even, LHC loading). No permission to wait for,
+   and demand runs all year with peaks before the 1 April premium rise and at tax time. Public
+   listing waits for the legal view. NSW and QLD courses (Phase 6) follow, since multi-state
+   content is the larger job.
+4. **Solar and battery payback** (Phase 7). An energy extension that reuses the plan store and
+   estimator, so it can move earlier if courses stall on data permission.
+5. **Aged care, then suburb fit.** Research threads first (data licences, rule sources), then
+   proposals. Neither has a confirmed open data path yet.
+
+Banking stays parked until a legal view; mobile and NBN plans stay blocked until open plan data
+exists.
 
 ---
 
@@ -125,9 +207,12 @@ The three changes below are proposed in `openspec/changes/` and wait for review.
 
 ---
 
-## Phase 4: Uni course choice for VIC (VCE)
+## Phase 4: Uni course research for VIC (VCE)
 
-Goal: help a VCE student or parent find uni courses that fit. Estimate: 3 to 5 weeks part-time
+The next build after energy (Iven, 15 Nov 2026).
+
+Goal: help a VCE student or parent find uni courses that fit. Aim to be live by July 2027, ahead of
+mid-year subject selection and VTAC preferences opening in August. Estimate: 3 to 5 weeks part-time
 for a VIC-only server (judgement from the code reviewed, not measured) [F]. The server core from
 Phase 1 is reused.
 
@@ -144,7 +229,23 @@ Phase 1 is reused.
 
 ---
 
-## Phase 5: Uni course choice for NSW (HSC) and QLD (QCE)
+## Phase 5: Private health insurance comparison
+
+Follows VIC courses and comes before NSW and QLD courses (Iven, 15 Nov 2026): open data with no
+permission to wait for, and the same sync-then-calculate shape as energy.
+
+| Item | Detail | Change id |
+| --- | --- | --- |
+| Data | PrivateHealth.gov.au dataset on data.gov.au, CC BY 3.0 AU, monthly ZIP (latest September 2026). Use the dataset, not the site, whose terms forbid framing or using it to sell [D] | `add-health-cover-data` |
+| Tools | Filter and rank policies by stated cover, excess and premium: factual comparison, not a recommendation [F] | `add-health-cover-tools` |
+| Tax maths | Premium after the government rebate by income tier and age, Medicare Levy Surcharge break-even ("is hospital cover cheaper than the surcharge?"), Lifetime Health Cover loading. Thresholds come from published ATO and Department of Health rates with source and as-of date, re-checked each 1 April and 1 July. This calculation is what makes the case complex, not the policy list [S] | `add-health-cover-tools` |
+| Widgets | Cover comparison table through Inkview [F, I] | `add-health-cover-tools` |
+| Compliance | Claude lists insurance as high risk: human-in-the-loop and direct disclosure to consumers; health data flag on submission; no binding or purchase in-app [F] | `add-health-cover-tools` |
+| Gate | Legal view from Phase 0 before public listing | — |
+
+---
+
+## Phase 6: Uni course research for NSW (HSC) and QLD (QCE)
 
 | Item | Detail | Change id |
 | --- | --- | --- |
@@ -157,27 +258,41 @@ Multi-state content work is the main effort driver; the earlier study put nation
 
 ---
 
-## Phase 6: Private health insurance comparison
+## Phase 7: Home solar and battery payback
+
+Candidate from the case scoring [S]. Reuses the energy plan store and bill estimator; propose
+only after Phase 1 is live with real prices.
 
 | Item | Detail | Change id |
 | --- | --- | --- |
-| Data | PrivateHealth.gov.au dataset on data.gov.au, CC BY 3.0 AU, monthly ZIP (latest September 2026). Use the dataset, not the site, whose terms forbid framing or using it to sell [D] | `add-health-cover-data` |
-| Tools | Filter and rank policies by stated cover, excess and premium: factual comparison, not a recommendation [F] | `add-health-cover-tools` |
-| Widgets | Cover comparison table through Inkview [F, I] | `add-health-cover-tools` |
-| Compliance | Claude lists insurance as high risk: human-in-the-loop and direct disclosure to consumers; health data flag on submission; no binding or purchase in-app [F] | `add-health-cover-tools` |
-| Gate | Legal view from Phase 0 before public listing | — |
+| Inputs | Postcode, roof size or system size, current bill or usage, existing solar, battery size | `add-solar-battery-payback` |
+| Data | Feed-in and time-of-use rates from the energy store; solar yield by location; Cheaper Home Batteries discount and state rebates; typical system and battery prices. Every source other than the energy store needs a licence check first | `add-solar-battery-payback` |
+| Output | Yearly saving and simple payback per plan, with each figure's source and as-of date. No installer referrals or quotes | `add-solar-battery-payback` |
 
 ---
 
-## Phase 7: Fuel prices
+## Candidates needing research first
 
-| Item | Detail | Change id |
+Scored in "How we pick cases". Each gets a research thread (data licences, rule sources,
+prior art) before an OpenSpec proposal.
+
+| Case | What to find out | Suggested change id |
 | --- | --- | --- |
-| VIC | Servo Saver Public API, CC BY 4.0, apply for a key, 24-hour delay, mandatory notice "© State of Victoria accessed via the Victorian Government Service Victoria Platform" [D] | `add-fuel-prices-vic` |
-| QLD | Confirm the licence on data.qld.gov.au (data.gov.au shows "Not Specified") [D] | `add-fuel-prices-qld` |
-| NSW, TAS | Ask API NSW whether the free tier allows commercial use [D] | — |
-| WA | Excluded: FuelWatch reserves all rights [D] | — |
-| Widgets | Inkview map and listings for nearby servos [I] | `add-fuel-prices-vic` |
+| Aged care providers and fee estimate | Licence of Star Ratings and provider data; whether published fee rules (Aged Care Act from 1 Nov 2025, Support at Home) are stable enough to calculate from | `add-aged-care-data` |
+| Suburb fit for renters and movers | Licence per state for rents, school zones, crime and transport; which states give enough coverage to launch | `add-suburb-data` |
+| EV versus petrol running cost | Green Vehicle Guide licence; rego and charging cost sources. Reuses energy tariffs and the VIC fuel feed below | `add-vehicle-cost` |
+| Concessions and rebates | Which energy and health concessions can be stated as rules with sources; offer as extensions of those verticals rather than a standalone case | — |
+
+### Fuel price data (demoted)
+
+Fuel was Phase 7. It is now an input only: a single price lookup is too simple to stand on its
+own, and existing apps and host web search already cover it (Iven, 15 Nov 2026). The data
+findings stay for the EV case:
+
+- VIC: Servo Saver Public API, CC BY 4.0, apply for a key, 24-hour delay, mandatory notice "© State of Victoria accessed via the Victorian Government Service Victoria Platform" [D]
+- QLD: confirm the licence on data.qld.gov.au (data.gov.au shows "Not Specified") [D]
+- NSW, TAS: ask API NSW whether the free tier allows commercial use [D]
+- WA: excluded, FuelWatch reserves all rights [D]
 
 ---
 
@@ -191,18 +306,25 @@ Multi-state content work is the main effort driver; the earlier study put nation
 | School comparison | ACARA My School terms bar commercial comparison lists | Written permission | D |
 | NSW property sales | Free download is CC BY-NC-ND | Paid licence (out: no purchased data) | D |
 | GP and health service finder | Healthdirect NHSD API for approved partners only | Partnership | D |
-| NSW rental bond data ("is this rent fair?") | Page states no licence | Confirm licence | D |
+| NSW rental bond data ("is this rent fair?") | Page states no licence | Confirm licence; now also an input to suburb fit | D |
+| Mobile and NBN plans | No open plan data; the CDR telco rollout is paused (to verify) | Open plan data | S |
+| Super fund comparison | Financial product; AFSL needed | Licensed partner | S |
 
 ---
 
 ## Decisions made
 
-- **Energy plans are the first vertical** (Iven, 13 Nov 2026), ahead of uni course choice. Health insurance and fuel follow the course phases.
+- **Energy plans are the first vertical** (Iven, 13 Nov 2026), ahead of uni course choice.
+- **Pick complex, aggregated-data cases** (Iven, 15 Nov 2026). Order is now energy, VIC uni
+  courses (next build), private health insurance, NSW and QLD courses, then solar and battery.
+  Health insurance moves ahead of NSW and QLD courses and fuel drops from a phase to a data
+  input, changing the 13 Nov order.
 - **The repo is public** (Iven, 13 Nov 2026), so the Claude plugin bundle can ship from it.
 
 ## Open decisions for Iven
 
-1. **Revenue:** run the pilot as a demand test with no revenue, or plan a paid tier on
+1. **Next research thread:** aged care or suburb fit first [S].
+2. **Revenue:** run the pilot as a demand test with no revenue, or plan a paid tier on
    askrighto.com.au from the start [F].
 
 ## Not yet read

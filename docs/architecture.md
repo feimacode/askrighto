@@ -10,8 +10,8 @@ explains how the parts fit and which decisions shaped them.
 
 ## 1. What it has to do
 
-Ask Righto answers everyday Australian questions (energy plans first, then uni courses, health
-cover and fuel) from public data. It ships as **one hosted remote MCP server** that the Claude
+Ask Righto answers everyday Australian questions (energy plans first, then uni courses and
+health cover) from public data. It ships as **one hosted remote MCP server** that the Claude
 directory, the ChatGPT plugin directory and Gemini all connect to. The host's model does the
 talking; our server supplies the facts.
 
@@ -175,7 +175,7 @@ never blocks the others. The full list comes from the AER base URI document and 
 Real data will bring new plan shapes; unknown shapes are kept and flagged, not guessed
 (section 7). Gas and dual fuel are stored; coverage today is NSW, QLD, SA, TAS, VIC and the ACT.
 
-### 6.2 New verticals (uni courses, health cover, fuel)
+### 6.2 New verticals (uni courses, health cover, solar and battery)
 
 A vertical is a module plus tools, with no change to the core:
 
@@ -187,9 +187,10 @@ A vertical is a module plus tools, with no change to the core:
 The grounded envelope, registry, rate limits and deploy pipeline are shared. What
 differs is the data source: energy is a sync from an API, uni courses are own-worded facts with
 links (no admissions centre offers an open licence), health cover is a monthly CC BY file, and
-fuel is a keyed API with a mandatory attribution. The envelope's `licence` and `attribution`
+keyed APIs such as VIC fuel prices carry a mandatory attribution. The envelope's `licence` and `attribution`
 fields exist so each source's reuse terms travel with its facts. The roadmap order (energy, VIC
-courses, NSW and QLD courses, health cover, fuel) follows data rights and effort.
+courses, health cover, NSW and QLD courses, solar and battery) follows the case scoring in
+`ROADMAP.md`: complexity, aggregated data and audience, gated by data rights.
 
 ### 6.3 More directories (ChatGPT, Gemini)
 
@@ -205,7 +206,7 @@ Results can already be drawn as components with `@feimacode/inkview-sdk` (`inkvi
 envelope beside it under `grounded`, so a host that draws components shows the view while any host
 still gets source, date and notice in the text. A component that fails validation is skipped and
 the plain result is returned, so UI trouble never loses an answer. Future verticals reuse this and
-add maps and listings (fuel) or comparisons (courses, cover).
+add comparisons (cover, courses) or maps and listings (suburbs).
 
 ### 6.5 Scale and operations
 
