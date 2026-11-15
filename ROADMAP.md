@@ -294,6 +294,7 @@ prior art) before an OpenSpec proposal.
 | Aged care providers and fee estimate | Licence of Star Ratings and provider data; whether published fee rules (Aged Care Act from 1 Nov 2025, Support at Home) are stable enough to calculate from | `add-aged-care-data` |
 | Suburb fit for renters and movers | Licence per state for rents, school zones, crime and transport; which states give enough coverage to launch | `add-suburb-data` |
 | EV versus petrol running cost | Green Vehicle Guide licence; rego and charging cost sources. Reuses energy tariffs and the VIC fuel feed below | `add-vehicle-cost` |
+| International student course finder (later; Iven, 16 Nov 2026) | A separate vertical after domestic courses. CRICOS (CC BY) fits it better than domestic: course codes, providers, campuses, duration and indicative tuition fees. Check which fields the open file really holds; English language requirements may need university pages. No ATAR or VCE prerequisites. Domestic stays first | `add-intl-course-finder` |
 | Concessions and rebates | Which energy and health concessions can be stated as rules with sources; offer as extensions of those verticals rather than a standalone case | — |
 
 ### Fuel price data (demoted)
