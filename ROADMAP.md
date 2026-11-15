@@ -216,11 +216,16 @@ mid-year subject selection and VTAC preferences opening in August. Estimate: 3 t
 for a VIC-only server (judgement from the code reviewed, not measured) [F]. The server core from
 Phase 1 is reused.
 
-The four changes below are proposed in `openspec/changes/` and wait for review (15 Nov 2026). Build
+The changes below are proposed in `openspec/changes/` and wait for review (15 Nov 2026). Build
 order: `add-course-data-permissions` (start now: the permission requests have the longest lead
-time), then `add-vic-course-data`, then `add-vce-admissions-data`, then `add-vic-course-tools`.
+time), then `add-canary-release`, `add-vic-course-data`, `add-vce-admissions-data` and `add-vic-course-tools`.
 The roadmap's earlier `add-course-live-lookup` and `add-course-widgets` items are folded into
 `add-vic-course-tools`, as energy folded its widgets into its tools change.
+
+**Internal canary first** (Iven, 16 Nov 2026): the course vertical runs only on an internal canary
+instance (`add-canary-release`: vertical flags, a second container on an unlisted hostname behind a
+secret path, metadata-only outcome counts) and reaches the public server only after its promotion
+gates pass: legal view done, rights cleared, curation depth met, host tests passed, Iven's go.
 
 | Item | Detail | Change id |
 | --- | --- | --- |

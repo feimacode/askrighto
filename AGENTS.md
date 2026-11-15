@@ -9,8 +9,14 @@ See `ROADMAP.md` for the phased plan and where each item came from.
 
 ## Non-negotiable rules
 
-1. **Every fact traces to a data lookup.** Tools return the figure, its source URL and its
-   as-of date, or an explicit not-found. The host model narrates; it never invents a number.
+1. **Every fact traces to a data lookup or an official page.** Tools return the figure, its
+   source URL and its as-of date, or an explicit not-found. The host model narrates; it never
+   invents a number. One other source is allowed: where our tools hold no checked facts (for
+   example an index-only course), they may hand the host official links and a reading checklist,
+   and the user's own browsing assistant may read the official page on the user's behalf. Such
+   facts must be quoted with the page link and the time read, labelled as read by the assistant
+   rather than from Ask Righto's data, and never sent back to, stored by or republished by our
+   server. The assistant never gets past a bot check. (Iven, 16 Nov 2026.)
 2. **Open data only.** CC BY, Consumer Data Right product data, or written permission.
    No purchased data and no scraping of sites whose terms forbid it. Course facts are written
    in our own words with a link to the official page.

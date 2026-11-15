@@ -19,7 +19,7 @@ With course facts and admissions data in place, a VCE student or parent still ha
 
 Data sources: the `vic-courses` dataset (CRICOS index plus curated facts) from `add-vic-course-data`, and the `vce-key-dates`, `vtac-preference-rules`, `vic-early-entry`, `vce-scaling` and `vce-study-groupings` datasets from `add-vce-admissions-data`. Reuse bases and refresh cadence are inherited from those changes and the rights register; this change adds no new source.
 
-Hosts affected: Claude, ChatGPT and Gemini all get the eight tools. Inkview components draw in Claude and ChatGPT; Gemini falls back to text until tested. ChatGPT allows users aged 13 to 17, the core audience here, so the tools ask for no personal details and keep study scores to the single call.
+Hosts affected: at first only named testers on the internal canary (Claude and ChatGPT developer mode); after promotion, Claude, ChatGPT and Gemini all get the eight tools. Inkview components draw in Claude and ChatGPT; Gemini falls back to text until tested. ChatGPT allows users aged 13 to 17, the core audience here, so the tools ask for no personal details and keep study scores to the single call.
 
 Out of scope:
 
@@ -47,4 +47,4 @@ None.
 - Ports from `vce-subject-planner/apps/api/src/recommendation/`: the tool schemas in `tools.ts` (converted to MCP tools with annotations; the in-app LLM call is dropped), and the search, early entry and aggregate logic. The pilot's candidate generation and ranking engine is not ported in this change (see design).
 - Server instructions gain a course section.
 - Depends on `add-mcp-server-core`, `add-course-data-permissions`, `add-vic-course-data` and `add-vce-admissions-data`. Reuses the Inkview SDK already added by `add-energy-plan-tools`.
-- The legal view on re-keyed course facts and Claude's and OpenAI's rules for apps used by minors are gates before public listing.
+- Ships behind the `courses` vertical flag and runs only on the internal canary (`add-canary-release`) until its promotion gates pass. The legal view on re-keyed course facts and Claude's and OpenAI's rules for apps used by minors are among those gates.
