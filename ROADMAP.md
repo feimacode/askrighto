@@ -222,10 +222,10 @@ time), then `add-canary-release`, `add-vic-course-data`, `add-vce-admissions-dat
 The roadmap's earlier `add-course-live-lookup` and `add-course-widgets` items are folded into
 `add-vic-course-tools`, as energy folded its widgets into its tools change.
 
-**Internal canary first** (Iven, 16 Nov 2026): the course vertical runs only on an internal canary
-instance (`add-canary-release`: vertical flags, a second container on an unlisted hostname behind a
-secret path, metadata-only outcome counts) and reaches the public server only after its promotion
-gates pass: legal view done, rights cleared, curation depth met, host tests passed, Iven's go.
+**Internal canary first** (Iven, 16 Nov 2026): the course vertical is served only on an internal
+route of the same instance (`add-canary-release`: `/mcp-internal/<token>`, loaded and public vertical
+lists, metadata-only outcome counts) and joins the public `/mcp` only after its promotion gates
+pass: legal view done, rights cleared, curation depth met, host tests passed, Iven's go.
 
 | Item | Detail | Change id |
 | --- | --- | --- |

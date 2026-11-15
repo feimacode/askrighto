@@ -2,76 +2,76 @@
 
 ## Purpose
 
-Lets Ask Righto run a vertical for named testers on an internal canary instance, from the same image as the public server, keeps that instance private and compatible with production, and sets the gates a vertical must pass before the public server serves it.
+Lets Ask Righto serve a vertical to named testers on an internal route of the same instance while the public route does not show it, keeps that route private and the public route safe from it, and sets the gates a vertical must pass before the public route serves it.
 
 ## ADDED Requirements
 
-### Requirement: Instances serve only their enabled verticals
-An instance SHALL register tools, datasets, readiness checks, server instructions and scheduled jobs only for the verticals named in `ASKRIGHTO_VERTICALS`, SHALL default to `energy` when the setting is absent, and SHALL refuse to start on an unknown or empty vertical list.
-
-#### Scenario: Public server without courses
-- **WHEN** an instance starts with `ASKRIGHTO_VERTICALS=energy`
-- **THEN** `tools/list` returns no course tools, `initialize` instructions have no course section, and no course readiness check or load job exists
+### Requirement: Loaded and public vertical lists
+The server SHALL load the verticals named in `ASKRIGHTO_VERTICALS` (default `energy`) and SHALL serve on `/mcp` only those named in `ASKRIGHTO_PUBLIC_VERTICALS`, and SHALL refuse to start on an unknown name, an empty list, or a public vertical that is not loaded.
 
 #### Scenario: Unknown vertical
-- **WHEN** an instance starts with `ASKRIGHTO_VERTICALS=energy,cuorses`
+- **WHEN** the server starts with `ASKRIGHTO_VERTICALS=energy,cuorses`
 - **THEN** start-up fails and names the unknown vertical
 
-### Requirement: Canary is reachable only on a secret path
-When `ASKRIGHTO_MCP_PATH_TOKEN` is set, the instance SHALL serve MCP, readiness and metrics only under paths that include the token, SHALL return 404 for the plain and wrong-token paths, SHALL send `X-Robots-Tag: noindex`, and SHALL NOT write the token to any log.
+#### Scenario: Public vertical not loaded
+- **WHEN** `ASKRIGHTO_PUBLIC_VERTICALS=energy,courses` and `ASKRIGHTO_VERTICALS=energy`
+- **THEN** start-up fails and names `courses`
+
+### Requirement: Public route shows nothing from internal-only verticals
+On `/mcp`, `tools/list`, `tools/call`, `initialize` instructions and `list_data_sources` SHALL include only public verticals.
+
+#### Scenario: Courses loaded but not public
+- **WHEN** courses are loaded but not public and a client connects to `/mcp`
+- **THEN** `tools/list` has no course tools, the instructions have no course section, `list_data_sources` lists no course dataset, and a `tools/call` naming `search_courses` fails as an unknown tool
+
+### Requirement: Internal route is private
+The server SHALL serve the internal route only at `/mcp-internal/<token>` when `ASKRIGHTO_INTERNAL_TOKEN` is set, SHALL return 404 for the plain path, a wrong token, or any internal path when no token is set, SHALL compare tokens in constant time, SHALL send `X-Robots-Tag: noindex` on internal responses, and SHALL NOT write the token to any log.
 
 #### Scenario: Wrong token
-- **WHEN** a client posts to `/mcp` or to `/mcp/<wrong token>` on the canary
+- **WHEN** a client posts to `/mcp-internal` or `/mcp-internal/<wrong token>`
 - **THEN** the response is 404 and the access log shows the path with the token masked
 
-#### Scenario: Health check
-- **WHEN** the playbook requests `/healthz` on the canary
-- **THEN** it gets 200 without the token
+#### Scenario: Tester connects
+- **WHEN** a tester's connector posts to `/mcp-internal/<token>`
+- **THEN** `tools/list` returns the tools of every loaded vertical
 
-### Requirement: Canary uses production rules for data rights
-The canary SHALL run with production data-rights rules, so datasets that are not cleared stay unavailable there.
+### Requirement: Internal-only verticals cannot take the public route down
+An internal-only vertical that fails to start SHALL be marked unavailable on the internal route without stopping the server. Public `/readyz` SHALL reflect public verticals only. Internal-only verticals' database queries SHALL run under a statement timeout.
 
-#### Scenario: Pending scaling data on the canary
-- **WHEN** a tester asks the canary for an aggregate while VTAC scaling is `pending`
-- **THEN** the result is `data_unavailable`, as on the public server
+#### Scenario: Course tables missing
+- **WHEN** the server starts with courses loaded but not public, and the course migration has not run
+- **THEN** the server starts, `/mcp` serves energy, `/readyz` reflects energy only, and course tools on the internal route return `data_unavailable`
 
-### Requirement: Schema stays compatible across instances
-Migrations run by the canary SHALL be additive, and an instance SHALL start when the schema version is equal to or newer than the one it needs.
+#### Scenario: Slow course query
+- **WHEN** a course query runs past the statement timeout
+- **THEN** it is cancelled and that call returns `data_unavailable`, and energy calls are unaffected
 
-#### Scenario: Canary ahead of production
-- **WHEN** the canary has applied an additive course migration that production's image does not know
-- **THEN** production keeps starting and serving energy
+### Requirement: Both routes use production rules for data rights
+In production, the data rights gate SHALL apply on the internal route exactly as on the public route.
 
-#### Scenario: Non-additive migration
-- **WHEN** a migration drops or changes a column an older image reads
-- **THEN** the compatibility test in CI fails
-
-### Requirement: Only one instance runs the energy sync
-The energy sync job SHALL be scheduled only on the instance with `ASKRIGHTO_SYNC=on`.
-
-#### Scenario: Canary start-up
-- **WHEN** the canary starts without `ASKRIGHTO_SYNC=on`
-- **THEN** it schedules no energy sync, and retailers see no extra traffic
+#### Scenario: Pending scaling data on the internal route
+- **WHEN** a tester asks for an aggregate on the internal route while VTAC scaling is `pending`
+- **THEN** the result is `data_unavailable`
 
 ### Requirement: Outcome counts hold no user content
-The canary SHALL count tool outcomes (curated, index-only, cannot-check, not-found, unavailable, needs-input) and latency per tool, and SHALL NOT record arguments, results, course ids, IP addresses or session identifiers.
+The server SHALL count tool outcomes (curated, index-only, cannot-check, not-found, unavailable, needs-input) and latency per tool and route, SHALL expose them only on the token-protected metrics path, and SHALL NOT record arguments, results, course ids, IP addresses or session identifiers.
 
 #### Scenario: After a course lookup
 - **WHEN** a tester calls `get_course` for an index-only course
-- **THEN** the `get_course` index-only counter rises by one and no log line or counter holds the course id or the question
+- **THEN** the internal `get_course` index-only counter rises by one and no counter or log line holds the course id or the question
 
 ### Requirement: Promotion needs recorded gates
-A vertical SHALL be added to the public server's `ASKRIGHTO_VERTICALS` only through a pull request that records:
+A vertical SHALL be added to `ASKRIGHTO_PUBLIC_VERTICALS` only through a change that records:
 - that its datasets' rights are cleared, with no entries awaiting the legal view;
 - that review-by dates are current;
 - that its launch criteria are met;
-- two weeks of canary counters without unexplained failures;
+- two weeks of internal counts without unexplained failures;
 - Iven's explicit approval.
 
 #### Scenario: Legal view outstanding
 - **WHEN** a promotion is proposed while a course dataset is `cleared_pending_legal_view`
-- **THEN** the promotion checklist fails and the vertical stays canary-only
+- **THEN** the promotion checklist fails and courses stay internal-only
 
 #### Scenario: Rollback
 - **WHEN** a promoted vertical misbehaves
-- **THEN** removing it from the public flag and redeploying removes its tools, with no code change
+- **THEN** removing it from `ASKRIGHTO_PUBLIC_VERTICALS` and redeploying removes its tools from `/mcp`, with no code change

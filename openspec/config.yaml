@@ -14,8 +14,8 @@ context: |
     Where tools hold no checked facts they may return official links and a reading checklist
     for the user's own browsing assistant; facts it reads are quoted with link and time,
     labelled as read by the assistant, and never stored or republished by the server.
-  - Release: a new vertical runs on the internal canary instance first and reaches the
-    public server only after its promotion gates pass (see the canary change).
+  - Release: a new vertical is served on the internal route first and reaches the
+    public route only after its promotion gates pass (see the canary change).
   - Data: only open or publicly reusable data (CC BY, CDR product data, or written
     permission). No purchased data. No scraping of sites whose terms forbid it
     (VTAC, UAC, QTAC, TISC, Energy Made Easy, privatehealth.gov.au site).
