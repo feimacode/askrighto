@@ -72,9 +72,9 @@ is closed or the comparison needs a licence. Scores are judgement, not measured.
 | # | Case | Cx | Agg | Aud | Total | Data gate | Regulatory gate | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Energy plans (electricity and gas) | 5 | 5 | 5 | **15** | Open: CDR product data, live | Legal view (accuracy, disclosure) | Building, Phase 1 |
-| 2 | Private health insurance, with rebate, MLS and LHC maths | 5 | 5 | 4 | **14** | Open: CC BY 3.0 AU monthly file | Legal view before listing; Claude high-risk category | Next, Phase 4 |
+| 2 | Private health insurance, with rebate, MLS and LHC maths | 5 | 5 | 4 | **14** | Open: CC BY 3.0 AU monthly file | Legal view before listing; Claude high-risk category | Phase 5 |
 | 3 | Bank savings, term deposits, home loans | 4 | 5 | 5 | **14** | Open: CDR product data | ACL/AFSL question | Parked |
-| 4 | Uni course research (VCE first) | 5 | 5 | 3 | **13** | No TAC licence; own-worded store | VTAC/UAC permission requested in Phase 0 | Phases 5 and 6 |
+| 4 | Uni course research (VCE first) | 5 | 5 | 3 | **13** | No TAC licence; own-worded store | VTAC/UAC permission requested in Phase 0 | **Next**: VIC Phase 4, NSW/QLD Phase 6 |
 | 5 | Home solar and battery payback | 5 | 4 | 3 | **12** | Reuses CDR plans; solar yield and rebate data to check | None known; no installer referrals | Candidate, Phase 7 |
 | 6 | Aged care: providers and fee estimate | 5 | 4 | 3 | **12** | Star Ratings and provider data, licence to check | None known; estimates must defer to Services Australia | Candidate, research first |
 | 7 | Suburb fit for renters and movers | 3 | 5 | 4 | **12** | Many state datasets, licences vary; My School excluded | None known | Candidate, research first |
@@ -105,13 +105,14 @@ Notes on the new candidates [S]:
 
 1. **Energy plans** (Phase 1, building). Finish the GST basis, full retailer list and live
    host tests before anything new starts.
-2. **Private health insurance** (Phase 4). Same shape as energy: a monthly open file, then a
+2. **Uni course research, VIC first** (Phase 4, next build; Iven, 15 Nov 2026). Reuses the
+   pilot's engine. Aim to be live by July 2027, ahead of mid-year subject selection and VTAC
+   preferences opening in August. Send the data permission requests now, since replies take time.
+3. **Private health insurance** (Phase 5). Same shape as energy: a monthly open file, then a
    calculation (premium after rebate, MLS break-even, LHC loading). No permission to wait for,
-   and demand runs all year with peaks before the 1 April premium rise and at tax time. Build
-   can start now; public listing waits for the legal view.
-3. **Uni course research, VIC first** (Phases 5 and 6). Reuses the pilot's engine. Aim to be
-   live by July 2027, ahead of mid-year subject selection and VTAC preferences opening in August. Send the data
-   permission requests now, since replies take time.
+   and demand runs all year with peaks before the 1 April premium rise and at tax time. Public
+   listing waits for the legal view. NSW and QLD courses (Phase 6) follow, since multi-state
+   content is the larger job.
 4. **Solar and battery payback** (Phase 7). An energy extension that reuses the plan store and
    estimator, so it can move earlier if courses stall on data permission.
 5. **Aged care, then suburb fit.** Research threads first (data licences, rule sources), then
@@ -206,23 +207,9 @@ The three changes below are proposed in `openspec/changes/` and wait for review.
 
 ---
 
-## Phase 4: Private health insurance comparison
+## Phase 4: Uni course research for VIC (VCE)
 
-Moved ahead of uni courses (Iven, 15 Nov 2026): open data with no permission to wait for, and
-the same sync-then-calculate shape as energy.
-
-| Item | Detail | Change id |
-| --- | --- | --- |
-| Data | PrivateHealth.gov.au dataset on data.gov.au, CC BY 3.0 AU, monthly ZIP (latest September 2026). Use the dataset, not the site, whose terms forbid framing or using it to sell [D] | `add-health-cover-data` |
-| Tools | Filter and rank policies by stated cover, excess and premium: factual comparison, not a recommendation [F] | `add-health-cover-tools` |
-| Tax maths | Premium after the government rebate by income tier and age, Medicare Levy Surcharge break-even ("is hospital cover cheaper than the surcharge?"), Lifetime Health Cover loading. Thresholds come from published ATO and Department of Health rates with source and as-of date, re-checked each 1 April and 1 July. This calculation is what makes the case complex, not the policy list [S] | `add-health-cover-tools` |
-| Widgets | Cover comparison table through Inkview [F, I] | `add-health-cover-tools` |
-| Compliance | Claude lists insurance as high risk: human-in-the-loop and direct disclosure to consumers; health data flag on submission; no binding or purchase in-app [F] | `add-health-cover-tools` |
-| Gate | Legal view from Phase 0 before public listing | — |
-
----
-
-## Phase 5: Uni course research for VIC (VCE)
+The next build after energy (Iven, 15 Nov 2026).
 
 Goal: help a VCE student or parent find uni courses that fit. Aim to be live by July 2027, ahead of
 mid-year subject selection and VTAC preferences opening in August. Estimate: 3 to 5 weeks part-time
@@ -239,6 +226,22 @@ Phase 1 is reused.
 | Live lookup fallback | For courses not in the store: give the host the official page link, let the host's own web search read it, always with the source link and a "check the official page" note. Live lookup alone answered only 7 of 20 test courses fully, so it is a fallback, not the main source [R] | `add-course-live-lookup` |
 | Data refresh | Re-key facts each admissions year; record the as-of date. Reuse the previous pilot's Python ingesters only where the source licence allows | `add-vic-course-data` |
 | Inkview widgets | Render a course shortlist and a course comparison with `@feimacode/inkview-sdk` (`registerInkview`, `inkview.table`, `inkview.comparison`), with a markdown fallback for text-only hosts [I] | `add-course-widgets` |
+
+---
+
+## Phase 5: Private health insurance comparison
+
+Follows VIC courses and comes before NSW and QLD courses (Iven, 15 Nov 2026): open data with no
+permission to wait for, and the same sync-then-calculate shape as energy.
+
+| Item | Detail | Change id |
+| --- | --- | --- |
+| Data | PrivateHealth.gov.au dataset on data.gov.au, CC BY 3.0 AU, monthly ZIP (latest September 2026). Use the dataset, not the site, whose terms forbid framing or using it to sell [D] | `add-health-cover-data` |
+| Tools | Filter and rank policies by stated cover, excess and premium: factual comparison, not a recommendation [F] | `add-health-cover-tools` |
+| Tax maths | Premium after the government rebate by income tier and age, Medicare Levy Surcharge break-even ("is hospital cover cheaper than the surcharge?"), Lifetime Health Cover loading. Thresholds come from published ATO and Department of Health rates with source and as-of date, re-checked each 1 April and 1 July. This calculation is what makes the case complex, not the policy list [S] | `add-health-cover-tools` |
+| Widgets | Cover comparison table through Inkview [F, I] | `add-health-cover-tools` |
+| Compliance | Claude lists insurance as high risk: human-in-the-loop and direct disclosure to consumers; health data flag on submission; no binding or purchase in-app [F] | `add-health-cover-tools` |
+| Gate | Legal view from Phase 0 before public listing | — |
 
 ---
 
@@ -312,9 +315,10 @@ findings stay for the EV case:
 ## Decisions made
 
 - **Energy plans are the first vertical** (Iven, 13 Nov 2026), ahead of uni course choice.
-- **Pick complex, aggregated-data cases** (Iven, 15 Nov 2026). Order is now energy, private
-  health insurance, uni courses, then solar and battery. This moves health insurance ahead of
-  uni courses and demotes fuel from a phase to a data input, reversing the 13 Nov order.
+- **Pick complex, aggregated-data cases** (Iven, 15 Nov 2026). Order is now energy, VIC uni
+  courses (next build), private health insurance, NSW and QLD courses, then solar and battery.
+  Health insurance moves ahead of NSW and QLD courses and fuel drops from a phase to a data
+  input, changing the 13 Nov order.
 - **The repo is public** (Iven, 13 Nov 2026), so the Claude plugin bundle can ship from it.
 
 ## Open decisions for Iven

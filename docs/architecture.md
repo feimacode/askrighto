@@ -10,8 +10,8 @@ explains how the parts fit and which decisions shaped them.
 
 ## 1. What it has to do
 
-Ask Righto answers everyday Australian questions (energy plans first, then health cover and
-uni courses) from public data. It ships as **one hosted remote MCP server** that the Claude
+Ask Righto answers everyday Australian questions (energy plans first, then uni courses and
+health cover) from public data. It ships as **one hosted remote MCP server** that the Claude
 directory, the ChatGPT plugin directory and Gemini all connect to. The host's model does the
 talking; our server supplies the facts.
 
@@ -175,7 +175,7 @@ never blocks the others. The full list comes from the AER base URI document and 
 Real data will bring new plan shapes; unknown shapes are kept and flagged, not guessed
 (section 7). Gas and dual fuel are stored; coverage today is NSW, QLD, SA, TAS, VIC and the ACT.
 
-### 6.2 New verticals (health cover, uni courses, solar and battery)
+### 6.2 New verticals (uni courses, health cover, solar and battery)
 
 A vertical is a module plus tools, with no change to the core:
 
@@ -188,8 +188,8 @@ The grounded envelope, registry, rate limits and deploy pipeline are shared. Wha
 differs is the data source: energy is a sync from an API, uni courses are own-worded facts with
 links (no admissions centre offers an open licence), health cover is a monthly CC BY file, and
 keyed APIs such as VIC fuel prices carry a mandatory attribution. The envelope's `licence` and `attribution`
-fields exist so each source's reuse terms travel with its facts. The roadmap order (energy, health
-cover, VIC courses, NSW and QLD courses, solar and battery) follows the case scoring in
+fields exist so each source's reuse terms travel with its facts. The roadmap order (energy, VIC
+courses, health cover, NSW and QLD courses, solar and battery) follows the case scoring in
 `ROADMAP.md`: complexity, aggregated data and audience, gated by data rights.
 
 ### 6.3 More directories (ChatGPT, Gemini)
