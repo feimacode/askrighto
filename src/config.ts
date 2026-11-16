@@ -1,6 +1,7 @@
 /** Settings read from the environment. Names follow Inkview's, with an ASKRIGHTO_ prefix. */
 
-export const PUBLIC_URL = process.env.ASKRIGHTO_PUBLIC_URL?.trim() || "https://askrighto.com.au";
+export const PUBLIC_URL =
+  process.env.ASKRIGHTO_PUBLIC_URL?.trim() || "https://askrighto.com.au";
 
 export interface HttpConfig {
   /** express.json limit, e.g. "256kb". */
@@ -26,9 +27,13 @@ export function httpConfig(env: NodeJS.ProcessEnv = process.env): HttpConfig {
     bodyLimit: env.ASKRIGHTO_BODY_LIMIT || "256kb",
     rateLimit: int(env.ASKRIGHTO_RATE_LIMIT, 120),
     rateWindowMs: int(env.ASKRIGHTO_RATE_WINDOW_MS, 60_000),
-    trustProxy: env.ASKRIGHTO_TRUST_PROXY === "1" || env.ASKRIGHTO_TRUST_PROXY === "true",
+    trustProxy:
+      env.ASKRIGHTO_TRUST_PROXY === "1" || env.ASKRIGHTO_TRUST_PROXY === "true",
     log: env.ASKRIGHTO_LOG !== "off",
-    clientIpHeader: env.ASKRIGHTO_CLIENT_IP_HEADER?.trim().toLowerCase() || undefined,
-    allowedHosts: env.ASKRIGHTO_ALLOWED_HOSTS?.split(",").map((h) => h.trim()).filter(Boolean),
+    clientIpHeader:
+      env.ASKRIGHTO_CLIENT_IP_HEADER?.trim().toLowerCase() || undefined,
+    allowedHosts: env.ASKRIGHTO_ALLOWED_HOSTS?.split(",")
+      .map((h) => h.trim())
+      .filter(Boolean),
   };
 }

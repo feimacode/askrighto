@@ -1,0 +1,480 @@
+# VCE studies by VCAA name, with the short names students use. Ids are ours and stable.
+# Source for names: the VCAA study list (https://www.vcaa.vic.edu.au/curriculum/vce/vce-study-designs). `codes` are left empty until
+# they are re-read from VCAA; do not fill them from VTAC material.
+studies:
+  - id: aboriginal-languages
+    name: "Aboriginal Languages"
+    aliases: []
+    codes: []
+  - id: accounting
+    name: "Accounting"
+    aliases: []
+    codes: []
+  - id: agricultural-horticultural-studies
+    name: "Agricultural & Horticultural Studies"
+    aliases: []
+    codes: []
+  - id: algorithmics-hess
+    name: "Algorithmics (HESS)"
+    aliases: ["Algorithmics"]
+    codes: []
+  - id: ancient-history
+    name: "Ancient History"
+    aliases: []
+    codes: []
+  - id: applied-computing-data-analytics
+    name: "Applied Computing: Data Analytics"
+    aliases: ["Data Analytics", "Applied Computing Data Analytics"]
+    codes: []
+  - id: applied-computing-software-development
+    name: "Applied Computing: Software Development"
+    aliases: ["Software Development", "Applied Computing Software Development"]
+    codes: []
+  - id: arabic
+    name: "Arabic"
+    aliases: []
+    codes: []
+  - id: armenian
+    name: "Armenian"
+    aliases: []
+    codes: []
+  - id: art-creative-practice
+    name: "Art Creative Practice"
+    aliases: []
+    codes: []
+  - id: art-making-and-exhibiting
+    name: "Art Making and Exhibiting"
+    aliases: []
+    codes: []
+  - id: auslan
+    name: "Auslan"
+    aliases: []
+    codes: []
+  - id: australian-history
+    name: "Australian History"
+    aliases: []
+    codes: []
+  - id: bengali
+    name: "Bengali"
+    aliases: []
+    codes: []
+  - id: biology
+    name: "Biology"
+    aliases: ["Bio"]
+    codes: []
+  - id: bosnian
+    name: "Bosnian"
+    aliases: []
+    codes: []
+  - id: business-management
+    name: "Business Management"
+    aliases: ["Biz Man", "Business Man"]
+    codes: []
+  - id: chemistry
+    name: "Chemistry"
+    aliases: ["Chem"]
+    codes: []
+  - id: chin-hakha
+    name: "Chin Hakha"
+    aliases: []
+    codes: []
+  - id: chinese-first-language
+    name: "Chinese First Language"
+    aliases: []
+    codes: []
+  - id: chinese-language-culture-and-society
+    name: "Chinese Language Culture and Society"
+    aliases: []
+    codes: []
+  - id: chinese-second-language
+    name: "Chinese Second Language"
+    aliases: []
+    codes: []
+  - id: chinese-second-language-advanced
+    name: "Chinese Second Language Advanced"
+    aliases: []
+    codes: []
+  - id: classical-greek
+    name: "Classical Greek"
+    aliases: []
+    codes: []
+  - id: classical-hebrew
+    name: "Classical Hebrew"
+    aliases: []
+    codes: []
+  - id: classical-studies
+    name: "Classical Studies"
+    aliases: []
+    codes: []
+  - id: croatian
+    name: "Croatian"
+    aliases: []
+    codes: []
+  - id: dance
+    name: "Dance"
+    aliases: []
+    codes: []
+  - id: drama
+    name: "Drama"
+    aliases: []
+    codes: []
+  - id: dutch
+    name: "Dutch"
+    aliases: []
+    codes: []
+  - id: economics
+    name: "Economics"
+    aliases: ["Econ"]
+    codes: []
+  - id: english
+    name: "English"
+    aliases: []
+    codes: []
+  - id: english-language
+    name: "English Language"
+    aliases: ["Eng Lang", "EngLang"]
+    codes: []
+  - id: english-as-an-additional-language
+    name: "English as an Additional Language"
+    aliases: ["EAL"]
+    codes: []
+  - id: environmental-science
+    name: "Environmental Science"
+    aliases: ["Enviro", "Environmental"]
+    codes: []
+  - id: extended-investigation
+    name: "Extended Investigation"
+    aliases: ["EI"]
+    codes: []
+  - id: filipino
+    name: "Filipino"
+    aliases: []
+    codes: []
+  - id: food-studies
+    name: "Food Studies"
+    aliases: []
+    codes: []
+  - id: foundation-mathematics
+    name: "Foundation Mathematics"
+    aliases: ["Foundation Maths"]
+    codes: []
+  - id: french
+    name: "French"
+    aliases: []
+    codes: []
+  - id: general-mathematics
+    name: "General Mathematics"
+    aliases: ["General Maths", "Further Maths"]
+    codes: []
+  - id: geography
+    name: "Geography"
+    aliases: []
+    codes: []
+  - id: german
+    name: "German"
+    aliases: []
+    codes: []
+  - id: greek
+    name: "Greek"
+    aliases: []
+    codes: []
+  - id: health-and-human-development
+    name: "Health and Human Development"
+    aliases: ["HHD"]
+    codes: []
+  - id: hebrew
+    name: "Hebrew"
+    aliases: []
+    codes: []
+  - id: hindi
+    name: "Hindi"
+    aliases: []
+    codes: []
+  - id: hungarian
+    name: "Hungarian"
+    aliases: []
+    codes: []
+  - id: indonesian-first-language
+    name: "Indonesian First Language"
+    aliases: []
+    codes: []
+  - id: indonesian-second-language
+    name: "Indonesian Second Language"
+    aliases: []
+    codes: []
+  - id: industry-and-enterprise
+    name: "Industry and Enterprise"
+    aliases: []
+    codes: []
+  - id: italian
+    name: "Italian"
+    aliases: []
+    codes: []
+  - id: japanese-first-language
+    name: "Japanese First Language"
+    aliases: []
+    codes: []
+  - id: japanese-second-language
+    name: "Japanese Second Language"
+    aliases: []
+    codes: []
+  - id: karen
+    name: "Karen"
+    aliases: []
+    codes: []
+  - id: khmer
+    name: "Khmer"
+    aliases: []
+    codes: []
+  - id: korean-first-language
+    name: "Korean First Language"
+    aliases: []
+    codes: []
+  - id: korean-second-language
+    name: "Korean Second Language"
+    aliases: []
+    codes: []
+  - id: latin
+    name: "Latin"
+    aliases: []
+    codes: []
+  - id: legal-studies
+    name: "Legal Studies"
+    aliases: ["Legal"]
+    codes: []
+  - id: literature
+    name: "Literature"
+    aliases: ["Lit"]
+    codes: []
+  - id: macedonian
+    name: "Macedonian"
+    aliases: []
+    codes: []
+  - id: mathematical-methods
+    name: "Mathematical Methods"
+    aliases: ["Methods", "Maths Methods", "Math Methods"]
+    codes: []
+  - id: media
+    name: "Media"
+    aliases: []
+    codes: []
+  - id: music-composition
+    name: "Music Composition"
+    aliases: []
+    codes: []
+  - id: music-contemporary-performance
+    name: "Music Contemporary Performance"
+    aliases: []
+    codes: []
+  - id: music-inquiry
+    name: "Music Inquiry"
+    aliases: []
+    codes: []
+  - id: music-repertoire-performance
+    name: "Music Repertoire Performance"
+    aliases: []
+    codes: []
+  - id: outdoor-and-environmental-studies
+    name: "Outdoor and Environmental Studies"
+    aliases: ["OES", "Outdoor Ed"]
+    codes: []
+  - id: persian
+    name: "Persian"
+    aliases: []
+    codes: []
+  - id: philosophy
+    name: "Philosophy"
+    aliases: []
+    codes: []
+  - id: physical-education
+    name: "Physical Education"
+    aliases: ["PE", "Phys Ed"]
+    codes: []
+  - id: physics
+    name: "Physics"
+    aliases: ["Phys"]
+    codes: []
+  - id: polish
+    name: "Polish"
+    aliases: []
+    codes: []
+  - id: politics
+    name: "Politics"
+    aliases: []
+    codes: []
+  - id: portuguese
+    name: "Portuguese"
+    aliases: []
+    codes: []
+  - id: product-design-and-technologies
+    name: "Product Design and Technologies"
+    aliases: ["PDT"]
+    codes: []
+  - id: psychology
+    name: "Psychology"
+    aliases: ["Psych"]
+    codes: []
+  - id: punjabi
+    name: "Punjabi"
+    aliases: []
+    codes: []
+  - id: religion-and-society
+    name: "Religion and Society"
+    aliases: []
+    codes: []
+  - id: revolutions
+    name: "Revolutions"
+    aliases: []
+    codes: []
+  - id: romanian
+    name: "Romanian"
+    aliases: []
+    codes: []
+  - id: russian
+    name: "Russian"
+    aliases: []
+    codes: []
+  - id: serbian
+    name: "Serbian"
+    aliases: []
+    codes: []
+  - id: sinhala
+    name: "Sinhala"
+    aliases: []
+    codes: []
+  - id: sociology
+    name: "Sociology"
+    aliases: []
+    codes: []
+  - id: spanish
+    name: "Spanish"
+    aliases: []
+    codes: []
+  - id: specialist-mathematics
+    name: "Specialist Mathematics"
+    aliases: ["Spesh", "Specialist Maths", "Specialist"]
+    codes: []
+  - id: swedish
+    name: "Swedish"
+    aliases: []
+    codes: []
+  - id: systems-engineering
+    name: "Systems Engineering"
+    aliases: []
+    codes: []
+  - id: tamil
+    name: "Tamil"
+    aliases: []
+    codes: []
+  - id: texts-and-traditions
+    name: "Texts and Traditions"
+    aliases: []
+    codes: []
+  - id: theatre-studies
+    name: "Theatre Studies"
+    aliases: ["Theatre"]
+    codes: []
+  - id: turkish
+    name: "Turkish"
+    aliases: []
+    codes: []
+  - id: vce-vet-business
+    name: "VCE VET Business"
+    aliases: []
+    codes: []
+  - id: vce-vet-community-services
+    name: "VCE VET Community Services"
+    aliases: []
+    codes: []
+  - id: vce-vet-creative-and-digital-media
+    name: "VCE VET Creative and Digital Media"
+    aliases: []
+    codes: []
+  - id: vce-vet-dance
+    name: "VCE VET Dance"
+    aliases: []
+    codes: []
+  - id: vce-vet-engineering
+    name: "VCE VET Engineering"
+    aliases: []
+    codes: []
+  - id: vce-vet-equine-studies
+    name: "VCE VET Equine Studies"
+    aliases: []
+    codes: []
+  - id: vce-vet-furnishing
+    name: "VCE VET Furnishing"
+    aliases: []
+    codes: []
+  - id: vce-vet-health-allied
+    name: "VCE VET Health (Allied)"
+    aliases: []
+    codes: []
+  - id: vce-vet-health-services-assistance
+    name: "VCE VET Health Services Assistance"
+    aliases: []
+    codes: []
+  - id: vce-vet-hospitality
+    name: "VCE VET Hospitality"
+    aliases: []
+    codes: []
+  - id: vce-vet-hospitality-cookery
+    name: "VCE VET Hospitality (Cookery)"
+    aliases: []
+    codes: []
+  - id: vce-vet-information-technology
+    name: "VCE VET Information Technology"
+    aliases: []
+    codes: []
+  - id: vce-vet-integrated-technologies
+    name: "VCE VET Integrated Technologies"
+    aliases: []
+    codes: []
+  - id: vce-vet-laboratory-skills
+    name: "VCE VET Laboratory Skills"
+    aliases: []
+    codes: []
+  - id: vce-vet-music-performance
+    name: "VCE VET Music Performance"
+    aliases: []
+    codes: []
+  - id: vce-vet-music-sound-production
+    name: "VCE VET Music Sound Production"
+    aliases: []
+    codes: []
+  - id: vce-vet-sport-and-recreation
+    name: "VCE VET Sport and Recreation"
+    aliases: []
+    codes: []
+  - id: vietnamese-first-language
+    name: "Vietnamese First Language"
+    aliases: []
+    codes: []
+  - id: vietnamese-second-language
+    name: "Vietnamese Second Language"
+    aliases: []
+    codes: []
+  - id: visual-communication-design
+    name: "Visual Communication Design"
+    aliases: ["VCD"]
+    codes: []
+  - id: yiddish
+    name: "Yiddish"
+    aliases: []
+    codes: []
+
+# Concept groups used in course prerequisites. These are the universities' own phrasing (for example
+# "English (any)"), not VTAC's study area groupings.
+groups:
+  - id: english-group
+    name: "English (any of English, EAL, Literature, English Language)"
+    members: [english, english-as-an-additional-language, literature, english-language]
+  - id: english-not-eal
+    name: "English other than EAL (English, Literature or English Language)"
+    members: [english, literature, english-language]
+  - id: any-mathematics
+    name: "Mathematics (any of Foundation, General, Methods, Specialist)"
+    members: [foundation-mathematics, general-mathematics, mathematical-methods, specialist-mathematics]
+  - id: any-science
+    name: "A science (Biology, Chemistry, Physics, Psychology, Environmental Science)"
+    members: [biology, chemistry, physics, psychology, environmental-science]

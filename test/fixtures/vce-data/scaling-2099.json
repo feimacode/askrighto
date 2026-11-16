@@ -1,0 +1,126 @@
+{
+  "sourceUrl": "https://example.org/synthetic-scaling",
+  "studyYear": 2099,
+  "studies": [
+    {
+      "subject_name": "English",
+      "scaled_at_raw": {
+        "20": 21,
+        "25": 26,
+        "30": 31,
+        "35": 36,
+        "40": 41,
+        "45": 46,
+        "50": 50
+      }
+    },
+    {
+      "subject_name": "English as an Additional Language",
+      "scaled_at_raw": {
+        "20": 23,
+        "25": 28,
+        "30": 33,
+        "35": 38,
+        "40": 43,
+        "45": 48,
+        "50": 50
+      }
+    },
+    {
+      "subject_name": "Literature",
+      "scaled_at_raw": {
+        "20": 20,
+        "25": 25,
+        "30": 30,
+        "35": 35,
+        "40": 40,
+        "45": 45,
+        "50": 50
+      }
+    },
+    {
+      "subject_name": "Chemistry",
+      "scaled_at_raw": {
+        "20": 24,
+        "25": 29,
+        "30": 34,
+        "35": 39,
+        "40": 44,
+        "45": 49,
+        "50": 50
+      }
+    },
+    {
+      "subject_name": "Mathematical Methods",
+      "scaled_at_raw": {
+        "20": 23,
+        "25": 28,
+        "30": 33,
+        "35": 38,
+        "40": 43,
+        "45": 48,
+        "50": 50
+      }
+    },
+    {
+      "subject_name": "Specialist Mathematics",
+      "scaled_at_raw": {
+        "20": 26,
+        "25": 31,
+        "30": 36,
+        "35": 41,
+        "40": 46,
+        "45": 50,
+        "50": 50
+      }
+    },
+    {
+      "subject_name": "General Mathematics",
+      "scaled_at_raw": {
+        "20": 17,
+        "25": 22,
+        "30": 27,
+        "35": 32,
+        "40": 37,
+        "45": 42,
+        "50": 47
+      }
+    },
+    {
+      "subject_name": "Physics",
+      "scaled_at_raw": {
+        "20": 23,
+        "25": 28,
+        "30": 33,
+        "35": 38,
+        "40": 43,
+        "45": 48,
+        "50": 50
+      }
+    },
+    {
+      "subject_name": "Biology",
+      "scaled_at_raw": {
+        "20": 21,
+        "25": 26,
+        "30": 31,
+        "35": 36,
+        "40": 41,
+        "45": 46,
+        "50": 50
+      }
+    },
+    {
+      "subject_name": "Psychology",
+      "scaled_at_raw": {
+        "20": 20,
+        "25": 25,
+        "30": 30,
+        "35": 35,
+        "40": 40,
+        "45": 45,
+        "50": 50
+      }
+    }
+  ]
+}

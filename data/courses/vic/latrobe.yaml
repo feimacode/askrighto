@@ -1,0 +1,102 @@
+# La Trobe University: course index rows. Names and links are for the index; facts live only in curated rows.
+# Rows below with origin gap_fill are stand-ins until the CRICOS load (npm run courses:load -- --cricos FILE) supplies
+# official names and codes. Their foundAt is the university's own page.
+provider:
+  id: latrobe
+  cricosProviderCode: "00115M"  # confirm against the CRICOS file on first load
+  name: La Trobe University
+  coursesUrl: https://www.latrobe.edu.au/courses
+  searchUrl: https://www.latrobe.edu.au/courses
+  domains: [latrobe.edu.au]
+courses:
+  - id: latrobe-bachelor-of-biomedical-science-medical
+    origin: gap_fill
+    name: "Bachelor of Biomedical Science (Medical)"
+    level: bachelor
+    fields: [medicine]
+    foundAt: https://www.latrobe.edu.au/courses/bachelor-of-biomedical-science-medical
+    officialUrl: https://www.latrobe.edu.au/courses/bachelor-of-biomedical-science-medical
+  - id: latrobe-bachelor-of-laws-honours
+    origin: gap_fill
+    name: "Bachelor of Laws (Honours)"
+    level: bachelor
+    fields: [law]
+    foundAt: https://www.latrobe.edu.au/courses/bachelor-of-laws-honours
+    officialUrl: https://www.latrobe.edu.au/courses/bachelor-of-laws-honours
+  - id: latrobe-bachelor-of-civil-engineering-honours
+    origin: gap_fill
+    name: "Bachelor of Civil Engineering (Honours)"
+    level: bachelor
+    fields: [engineering]
+    foundAt: https://www.latrobe.edu.au/courses/bachelor-of-civil-engineering-honours
+    officialUrl: https://www.latrobe.edu.au/courses/bachelor-of-civil-engineering-honours
+  - id: latrobe-bachelor-of-commerce
+    origin: gap_fill
+    name: "Bachelor of Commerce"
+    level: bachelor
+    fields: [business]
+    foundAt: https://www.latrobe.edu.au/courses/bachelor-of-commerce
+    officialUrl: https://www.latrobe.edu.au/courses/bachelor-of-commerce
+  - id: latrobe-bachelor-of-computer-science
+    origin: gap_fill
+    name: "Bachelor of Computer Science"
+    level: bachelor
+    fields: [it]
+    foundAt: https://www.latrobe.edu.au/courses/bachelor-of-computer-science
+    officialUrl: https://www.latrobe.edu.au/courses/bachelor-of-computer-science
+  - id: latrobe-bachelor-of-nursing
+    origin: gap_fill
+    name: "Bachelor of Nursing"
+    level: bachelor
+    fields: [nursing]
+    foundAt: https://www.latrobe.edu.au/courses/bachelor-of-nursing
+    officialUrl: https://www.latrobe.edu.au/courses/bachelor-of-nursing
+  - id: latrobe-bachelor-of-psychological-science
+    origin: gap_fill
+    name: "Bachelor of Psychological Science"
+    level: bachelor
+    fields: [psychology]
+    foundAt: https://www.latrobe.edu.au/courses/bachelor-of-psychological-science
+    officialUrl: https://www.latrobe.edu.au/courses/bachelor-of-psychological-science
+  - id: latrobe-bachelor-of-education-primary-major
+    origin: gap_fill
+    name: "Bachelor of Education (Primary major)"
+    level: bachelor
+    fields: [education]
+    foundAt: https://www.latrobe.edu.au/courses/bachelor-of-education
+    officialUrl: https://www.latrobe.edu.au/courses/bachelor-of-education
+  - id: latrobe-bachelor-of-arts
+    origin: gap_fill
+    name: "Bachelor of Arts"
+    level: bachelor
+    fields: [arts]
+    foundAt: https://www.latrobe.edu.au/courses/bachelor-of-arts
+    officialUrl: https://www.latrobe.edu.au/courses/bachelor-of-arts
+  - id: latrobe-bachelor-of-science
+    origin: gap_fill
+    name: "Bachelor of Science"
+    level: bachelor
+    fields: [science]
+    foundAt: https://www.latrobe.edu.au/courses/bachelor-of-science
+    officialUrl: https://www.latrobe.edu.au/courses/bachelor-of-science
+  - id: latrobe-bachelor-of-pharmacy-honours
+    origin: gap_fill
+    name: "Bachelor of Pharmacy (Honours)"
+    level: bachelor
+    fields: [pharmacy]
+    foundAt: https://www.latrobe.edu.au/courses/bachelor-of-pharmacy-honours
+    officialUrl: https://www.latrobe.edu.au/courses/bachelor-of-pharmacy-honours
+  - id: latrobe-bachelor-of-paramedic-practice-honours
+    origin: gap_fill
+    name: "Bachelor of Paramedic Practice (Honours)"
+    level: bachelor
+    fields: [health]
+    foundAt: https://www.latrobe.edu.au/courses/bachelor-of-paramedic-practice-with-honours
+    officialUrl: https://www.latrobe.edu.au/courses/bachelor-of-paramedic-practice-with-honours
+  - id: latrobe-bachelor-of-business-agribusiness-major
+    origin: gap_fill
+    name: "Bachelor of Business (Agribusiness major)"
+    level: bachelor
+    fields: [business]
+    foundAt: https://www.latrobe.edu.au/courses/bachelor-of-business
+    officialUrl: https://www.latrobe.edu.au/courses/bachelor-of-business

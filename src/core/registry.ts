@@ -3,6 +3,7 @@
  * `list_data_sources` reads it and tools use it to flag stale data.
  */
 import type { Source } from "./grounded.js";
+import { assertRegistrable } from "./rights.js";
 
 export interface DataSet {
   id: string;
@@ -17,12 +18,16 @@ export interface DataSet {
   maxAgeHours: number;
   /** Extra facts shown in the listing (counts, failing retailers). */
   stats?(): Record<string, unknown>;
+  /** The vertical that owns the dataset, so a route can list only the verticals it serves. */
+  vertical?: string;
 }
 
 const datasets = new Map<string, DataSet>();
 
 export function registerDataSet(d: DataSet): void {
-  if (datasets.has(d.id)) throw new Error(`Dataset ${d.id} is already registered`);
+  if (datasets.has(d.id))
+    throw new Error(`Dataset ${d.id} is already registered`);
+  assertRegistrable(d.id);
   datasets.set(d.id, d);
 }
 
@@ -40,7 +45,10 @@ export function clearDataSets(): void {
 }
 
 /** Staleness warnings for the datasets a result was built from. */
-export function staleWarnings(ids: readonly string[], now: Date = new Date()): string[] {
+export function staleWarnings(
+  ids: readonly string[],
+  now: Date = new Date(),
+): string[] {
   const out: string[] = [];
   for (const id of ids) {
     const d = datasets.get(id);
@@ -49,7 +57,9 @@ export function staleWarnings(ids: readonly string[], now: Date = new Date()): s
     if (!at) {
       out.push(`${d.title} has not been loaded yet.`);
     } else if (now.getTime() - at.getTime() > d.maxAgeHours * 3_600_000) {
-      out.push(`${d.title} was last refreshed on ${at.toISOString()}, which is older than expected, so it may be out of date.`);
+      out.push(
+        `${d.title} was last refreshed on ${at.toISOString()}, which is older than expected, so it may be out of date.`,
+      );
     }
   }
   return out;

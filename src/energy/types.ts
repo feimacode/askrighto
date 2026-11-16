@@ -114,7 +114,12 @@ export interface Contract {
   fees: Fee[];
   incentives: Incentive[];
   eligibility: Eligibility[];
-  terms: { termType?: string; billFrequency?: string[]; paymentOptions?: string[]; coolingOffDays?: number };
+  terms: {
+    termType?: string;
+    billFrequency?: string[];
+    paymentOptions?: string[];
+    coolingOffDays?: number;
+  };
 }
 
 export interface EnergyPlan {
@@ -125,7 +130,11 @@ export interface EnergyPlan {
   fuelType: FuelType;
   planType: PlanType;
   customerType: "RESIDENTIAL";
-  geography: { includedPostcodes: string[]; excludedPostcodes: string[]; distributors: string[] };
+  geography: {
+    includedPostcodes: string[];
+    excludedPostcodes: string[];
+    distributors: string[];
+  };
   effectiveFrom?: string;
   effectiveTo?: string;
   electricity?: Contract;

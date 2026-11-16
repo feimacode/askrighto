@@ -1,0 +1,67 @@
+# Australian Catholic University: course index rows. Names and links are for the index; facts live only in curated rows.
+# Rows below with origin gap_fill are stand-ins until the CRICOS load (npm run courses:load -- --cricos FILE) supplies
+# official names and codes. Their foundAt is the university's own page.
+provider:
+  id: acu
+  cricosProviderCode: "00004C"  # confirm against the CRICOS file on first load
+  name: Australian Catholic University
+  coursesUrl: https://www.acu.edu.au/study-at-acu/find-a-course
+  searchUrl: https://www.acu.edu.au/study-at-acu/find-a-course
+  domains: [acu.edu.au]
+courses:
+  - id: acu-bachelor-of-laws
+    origin: gap_fill
+    name: "Bachelor of Laws"
+    level: bachelor
+    fields: [law]
+    foundAt: https://www.acu.edu.au/course/bachelor-of-laws
+    officialUrl: https://www.acu.edu.au/course/bachelor-of-laws
+  - id: acu-bachelor-of-commerce
+    origin: gap_fill
+    name: "Bachelor of Commerce"
+    level: bachelor
+    fields: [business]
+    foundAt: https://www.acu.edu.au/course/bachelor-of-commerce
+    officialUrl: https://www.acu.edu.au/course/bachelor-of-commerce
+  - id: acu-bachelor-of-nursing-first-year-entry-only
+    origin: gap_fill
+    name: "Bachelor of Nursing (First Year Entry Only)"
+    level: bachelor
+    fields: [nursing]
+    foundAt: https://www.acu.edu.au/course/bachelor-of-nursing
+    officialUrl: https://www.acu.edu.au/course/bachelor-of-nursing
+  - id: acu-bachelor-of-psychological-science
+    origin: gap_fill
+    name: "Bachelor of Psychological Science"
+    level: bachelor
+    fields: [psychology]
+    foundAt: https://www.acu.edu.au/course/bachelor-of-psychological-science
+    officialUrl: https://www.acu.edu.au/course/bachelor-of-psychological-science
+  - id: acu-bachelor-of-education-primary
+    origin: gap_fill
+    name: "Bachelor of Education (Primary)"
+    level: bachelor
+    fields: [education]
+    foundAt: https://www.acu.edu.au/course/bachelor-of-education-primary
+    officialUrl: https://www.acu.edu.au/course/bachelor-of-education-primary
+  - id: acu-bachelor-of-arts
+    origin: gap_fill
+    name: "Bachelor of Arts"
+    level: bachelor
+    fields: [arts]
+    foundAt: https://www.acu.edu.au/course/bachelor-of-arts
+    officialUrl: https://www.acu.edu.au/course/bachelor-of-arts
+  - id: acu-exercise-and-sports-science
+    origin: gap_fill
+    name: "Exercise and Sports Science"
+    level: bachelor
+    fields: [health]
+    foundAt: https://www.acu.edu.au/course/bachelor-of-exercise-and-sports-science
+    officialUrl: https://www.acu.edu.au/course/bachelor-of-exercise-and-sports-science
+  - id: acu-paramedicine
+    origin: gap_fill
+    name: "Paramedicine"
+    level: bachelor
+    fields: [health]
+    foundAt: https://www.acu.edu.au/course/bachelor-of-paramedicine
+    officialUrl: https://www.acu.edu.au/course/bachelor-of-paramedicine

@@ -8,26 +8,40 @@ export interface ReadinessResult {
 
 type Check = () => Promise<ReadinessResult>;
 
-const checks = new Map<string, Check>();
+const checks = new Map<string, { check: Check; vertical?: string }>();
 
-export function addReadinessCheck(name: string, check: Check): void {
-  checks.set(name, check);
+/** `vertical` ties a check to a vertical, so a route can report only the verticals it serves. */
+export function addReadinessCheck(
+  name: string,
+  check: Check,
+  vertical?: string,
+): void {
+  checks.set(name, { check, ...(vertical ? { vertical } : {}) });
 }
 
 export function clearReadinessChecks(): void {
   checks.clear();
 }
 
-export async function runReadiness(): Promise<{ ok: boolean; checks: Record<string, ReadinessResult> }> {
-  const results: Record<string, ReadinessResult> = {};
+/** Runs the checks that belong to no vertical plus those of the given verticals (all when omitted). */
+export async function runReadiness(only?: readonly string[]): Promise<{
+  ok: boolean;
+  checks: Record<string, ReadinessResult & { vertical?: string }>;
+}> {
+  const results: Record<string, ReadinessResult & { vertical?: string }> = {};
   let ok = true;
-  for (const [name, check] of checks) {
+  for (const [name, { check, vertical }] of checks) {
+    if (only && vertical && !only.includes(vertical)) continue;
     try {
-      const r = await check();
+      const r = { ...(await check()), ...(vertical ? { vertical } : {}) };
       results[name] = r;
       if (!r.ok) ok = false;
     } catch {
-      results[name] = { ok: false, reason: "check_failed" };
+      results[name] = {
+        ok: false,
+        reason: "check_failed",
+        ...(vertical ? { vertical } : {}),
+      };
       ok = false;
     }
   }

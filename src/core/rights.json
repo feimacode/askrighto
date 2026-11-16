@@ -1,0 +1,171 @@
+[
+  {
+    "datasetId": "energy-plans",
+    "owner": "Australian Energy Regulator (Consumer Data Right product reference data)",
+    "basis": "cdr_rule",
+    "status": "cleared",
+    "evidence": [
+      {
+        "url": "https://www.aer.gov.au/energy-product-reference-data",
+        "readOn": "2026-11-11",
+        "note": "CDR Rules rule 2.6: a data holder must not restrict use of disclosed product data. Only the Feb 2020 version of the rule was read; confirm it is unchanged."
+      }
+    ],
+    "attribution": null,
+    "conditions": [
+      "The Energy Made Easy and Victorian Energy Compare websites are not scraped; the API only."
+    ],
+    "reviewBy": "2027-02-01"
+  },
+  {
+    "datasetId": "cricos",
+    "owner": "Australian Government Department of Education (CRICOS, on data.gov.au)",
+    "basis": "open_licence",
+    "status": "cleared",
+    "evidence": [
+      {
+        "url": "https://data.gov.au/",
+        "readOn": "2026-11-12",
+        "note": "CRICOS dataset published under CC BY 2.5 AU. Names, providers, codes and locations only; no ATARs."
+      }
+    ],
+    "attribution": "Course names, codes and locations: CRICOS, Australian Government Department of Education, via data.gov.au, licensed CC BY 2.5 AU.",
+    "conditions": [],
+    "reviewBy": "2027-08-01"
+  },
+  {
+    "datasetId": "vic-courses",
+    "owner": "Each Victorian university (course pages and admissions transparency pages)",
+    "basis": "own_words_facts",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://www.vtac.edu.au/copyright.html",
+        "readOn": "2026-11-12",
+        "note": "VTAC terms: personal non-commercial use only, no extraction without written permission. So no VTAC or Course Seeker content is used; facts come from the universities' own pages, re-keyed in our own words with a link."
+      }
+    ],
+    "attribution": null,
+    "conditions": [
+      "Facts only, in our own words, with a link on every fact.",
+      "Legal view on re-keyed facts outstanding (roadmap Phase 0)."
+    ],
+    "reviewBy": "2027-08-01"
+  },
+  {
+    "datasetId": "vce-key-dates",
+    "owner": "VCAA and VTAC (key dates pages)",
+    "basis": "own_words_facts",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://www.vcaa.vic.edu.au/administration/key-dates/key-dates",
+        "readOn": "2026-11-12",
+        "note": "Individual dates re-keyed in our own words with a link. VCAA terms page not yet read; request drafted (docs/permissions/vcaa.md)."
+      }
+    ],
+    "attribution": null,
+    "conditions": ["VCAA terms still to be read."],
+    "reviewBy": "2027-02-01"
+  },
+  {
+    "datasetId": "vtac-preference-rules",
+    "owner": "VTAC (preferences and offers pages)",
+    "basis": "own_words_facts",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://www.vtac.edu.au/offers",
+        "readOn": "2026-11-12",
+        "note": "Rules stated as individual facts in our own words with a link. VTAC asked to confirm (docs/permissions/vtac.md)."
+      }
+    ],
+    "attribution": null,
+    "conditions": ["Reword, never copy; VTAC reply pending."],
+    "reviewBy": "2027-08-01"
+  },
+  {
+    "datasetId": "vic-early-entry",
+    "owner": "Each Victorian university's early offer scheme page",
+    "basis": "own_words_facts",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://www.vtac.edu.au/institutions/earlyofferprograms",
+        "readOn": "2026-11-12",
+        "note": "Scheme facts re-keyed from each university's own scheme page, linked. No eligibility verdicts."
+      }
+    ],
+    "attribution": null,
+    "conditions": [],
+    "reviewBy": "2027-08-01"
+  },
+  {
+    "datasetId": "vce-scaling",
+    "owner": "VTAC (annual scaling report)",
+    "basis": "written_permission",
+    "status": "pending",
+    "evidence": [
+      {
+        "url": "https://www.vtac.edu.au/copyright.html",
+        "readOn": "2026-11-12",
+        "note": "No reuse without written permission. Request drafted (docs/permissions/vtac.md), not sent."
+      }
+    ],
+    "attribution": null,
+    "conditions": [],
+    "reviewBy": "2027-02-01",
+    "dataGlobs": ["data/vce/scaling-*"]
+  },
+  {
+    "datasetId": "vce-study-groupings",
+    "owner": "VTAC (study area groupings fact sheet)",
+    "basis": "written_permission",
+    "status": "pending",
+    "evidence": [
+      {
+        "url": "https://www.vtac.edu.au/copyright.html",
+        "readOn": "2026-11-12",
+        "note": "No reuse without written permission. Request drafted (docs/permissions/vtac.md), not sent."
+      }
+    ],
+    "attribution": null,
+    "conditions": [],
+    "reviewBy": "2027-02-01",
+    "dataGlobs": ["data/vce/study-groupings-*"]
+  },
+  {
+    "datasetId": "vtac-coursesearch",
+    "owner": "VTAC (CourseSearch)",
+    "basis": "written_permission",
+    "status": "pending",
+    "evidence": [
+      {
+        "url": "https://www.vtac.edu.au/copyright.html",
+        "readOn": "2026-11-12",
+        "note": "Extraction banned without written permission. Used only to block facts sourced from vtac.edu.au pages."
+      }
+    ],
+    "attribution": null,
+    "conditions": [],
+    "reviewBy": "2027-02-01",
+    "domains": ["vtac.edu.au"]
+  },
+  {
+    "datasetId": "course-seeker",
+    "owner": "Department of Education and the admissions centres (Course Seeker)",
+    "basis": "written_permission",
+    "status": "pending",
+    "evidence": [
+      {
+        "url": "https://www.courseseeker.edu.au/",
+        "readOn": "2026-11-13",
+        "note": "No open licence. Deep links are fine; copying needs permission (CourseSeeker@education.gov.au). Request drafted (docs/permissions/course-seeker.md), not sent."
+      }
+    ],
+    "attribution": null,
+    "conditions": [],
+    "reviewBy": "2027-02-01",
+    "domains": ["courseseeker.edu.au"]
+  }
+]

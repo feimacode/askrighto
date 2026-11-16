@@ -14,11 +14,14 @@ import { nextRunAt } from "./schedule.js";
 import { CachedStore, summary, type StoreSummary } from "./store.js";
 import { runSync, type Retailer } from "./sync.js";
 
+/** Migration the energy tools need; later migrations belong to other verticals. */
+export const ENERGY_REQUIRED_SCHEMA = 1;
 export const ENERGY_DATASET_ID = "energy-plans";
 export const ENERGY_SOURCE = {
   name: "Australian Energy Regulator, energy product reference data (Consumer Data Right)",
   url: "https://www.aer.gov.au/energy-product-reference-data",
-  licence: "Consumer Data Right Rules, rule 2.6 (no restriction on use of product data)",
+  licence:
+    "Consumer Data Right Rules, rule 2.6 (no restriction on use of product data)",
 };
 
 export const RETAILERS: Retailer[] = retailersJson as Retailer[];
@@ -37,8 +40,12 @@ export function getEnergy(): EnergyRuntime | undefined {
   return runtime;
 }
 
-export function makeSyncDeps(env: NodeJS.ProcessEnv = process.env, recorder?: ConstructorParameters<typeof CdrClient>[0]["recorder"]) {
-  const num = (v: string | undefined, d: number) => (v && Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : d);
+export function makeSyncDeps(
+  env: NodeJS.ProcessEnv = process.env,
+  recorder?: ConstructorParameters<typeof CdrClient>[0]["recorder"],
+) {
+  const num = (v: string | undefined, d: number) =>
+    v && Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : d;
   const limiter = new RetailerLimiter({
     rps: num(env.ASKRIGHTO_SYNC_PER_RETAILER_RPS, 2),
     maxInFlight: num(env.ASKRIGHTO_SYNC_MAX_IN_FLIGHT, 8),
@@ -50,7 +57,9 @@ export function makeSyncDeps(env: NodeJS.ProcessEnv = process.env, recorder?: Co
   });
 }
 
-export async function startEnergy(env: NodeJS.ProcessEnv = process.env): Promise<EnergyRuntime | undefined> {
+export async function startEnergy(
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<EnergyRuntime | undefined> {
   const cfg = dbConfig(env);
   if (!cfg) return undefined;
   const db = createDb(cfg);
@@ -67,45 +76,69 @@ export async function startEnergy(env: NodeJS.ProcessEnv = process.env): Promise
 
   registerDataSet({
     id: ENERGY_DATASET_ID,
+    vertical: "energy",
     title: "Electricity and gas plans (AER product reference data)",
     publisher: "Australian Energy Regulator, via the Consumer Data Right",
     source: ENERGY_SOURCE,
-    coverage: "Residential electricity, gas and dual fuel plans from the retailers listed in the AER's product data, across the National Electricity Market states and the ACT",
+    coverage:
+      "Residential electricity, gas and dual fuel plans from the retailers listed in the AER's product data, across the National Electricity Market states and the ACT",
     refreshedAt: () => snap?.lastSuccessfulSync,
     maxAgeHours: 48,
-    stats: () => ({ retailers: snap?.retailers ?? 0, plans: snap?.plans ?? 0, failingRetailers: snap?.failingRetailers ?? [] }),
+    stats: () => ({
+      retailers: snap?.retailers ?? 0,
+      plans: snap?.plans ?? 0,
+      failingRetailers: snap?.failingRetailers ?? [],
+    }),
   });
 
-  addReadinessCheck("energy-plans", async () => {
-    try {
-      if (!(await schemaCurrent(db))) return { ok: false, reason: "schema_behind" };
-      await refresh();
-      return snap && snap.plans > 0 ? { ok: true } : { ok: false, reason: "no_data_loaded" };
-    } catch {
-      return { ok: false, reason: "database_unreachable" };
-    }
-  });
+  addReadinessCheck(
+    "energy-plans",
+    async () => {
+      try {
+        if (!(await schemaCurrent(db, ENERGY_REQUIRED_SCHEMA)))
+          return { ok: false, reason: "schema_behind" };
+        await refresh();
+        return snap && snap.plans > 0
+          ? { ok: true }
+          : { ok: false, reason: "no_data_loaded" };
+      } catch {
+        return { ok: false, reason: "database_unreachable" };
+      }
+    },
+    "energy",
+  );
 
   // Daily sync, default 02:30 Australia/Sydney. The advisory lock lets only one instance run it.
   let timer: NodeJS.Timeout | undefined;
   let stopped = false;
   if (env.ASKRIGHTO_SYNC_SCHEDULE !== "off") {
-    const [hh, mm] = (env.ASKRIGHTO_SYNC_AT ?? "02:30").split(":").map(Number) as [number, number];
+    const [hh, mm] = (env.ASKRIGHTO_SYNC_AT ?? "02:30")
+      .split(":")
+      .map(Number) as [number, number];
     const tz = env.ASKRIGHTO_SYNC_TZ ?? "Australia/Sydney";
     const arm = () => {
       if (stopped) return;
       const wait = nextRunAt(new Date(), hh, mm, tz).getTime() - Date.now();
-      timer = setTimeout(async () => {
-        try {
-          // Only runs when data was loaded once by `sync-energy`; the server never starts a first load.
-          if (snap && snap.plans > 0) await runSync({ db, client: makeSyncDeps(env), retailers: RETAILERS, log: (m) => console.error(`sync: ${m}`) });
-          await refresh();
-          store.clear();
-        } catch (e) {
-          console.error(`scheduled sync failed: ${(e as Error).message}`);
-        }
-        arm();
-      }, Math.min(wait, 2 ** 31 - 1));
+      timer = setTimeout(
+        async () => {
+          try {
+            // Only runs when data was loaded once by `sync-energy`; the server never starts a first load.
+            if (snap && snap.plans > 0)
+              await runSync({
+                db,
+                client: makeSyncDeps(env),
+                retailers: RETAILERS,
+                log: (m) => console.error(`sync: ${m}`),
+              });
+            await refresh();
+            store.clear();
+          } catch (e) {
+            console.error(`scheduled sync failed: ${(e as Error).message}`);
+          }
+          arm();
+        },
+        Math.min(wait, 2 ** 31 - 1),
+      );
       timer.unref();
     };
     arm();
@@ -130,13 +163,22 @@ export async function startEnergy(env: NodeJS.ProcessEnv = process.env): Promise
  * Runs a store read, turning a missing or unreachable database into a not-found result.
  * Tools never answer plan questions from memory or another source.
  */
-export async function withStore<T>(fn: (store: CachedStore) => Promise<Grounded<T>>): Promise<Grounded<T>> {
+export async function withStore<T>(
+  fn: (store: CachedStore) => Promise<Grounded<T>>,
+): Promise<Grounded<T>> {
   const rt = runtime;
-  if (!rt) return notFound("data_unavailable", "The energy plan database is not configured on this server, so plan details cannot be looked up right now.");
+  if (!rt)
+    return notFound(
+      "data_unavailable",
+      "The energy plan database is not configured on this server, so plan details cannot be looked up right now.",
+    );
   try {
     return await fn(rt.store);
   } catch (e) {
     console.error(`energy store read failed: ${(e as Error).message}`);
-    return notFound("data_unavailable", "The energy plan database could not be reached just now, so plan details cannot be looked up. Please try again shortly.");
+    return notFound(
+      "data_unavailable",
+      "The energy plan database could not be reached just now, so plan details cannot be looked up. Please try again shortly.",
+    );
   }
 }

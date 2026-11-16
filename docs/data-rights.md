@@ -1,0 +1,94 @@
+# Data rights register
+
+Every dataset the server serves has an entry here and in `src/core/rights.json` (the machine copy; a test fails if the two disagree).
+In production a tool reading a dataset whose status is not `cleared` or `cleared_pending_legal_view` answers `data_unavailable`; in development it answers with a warning.
+
+**Bases:** `open_licence`, `cdr_rule`, `written_permission`, `own_words_facts`. **Statuses:** `cleared`, `cleared_pending_legal_view` (served, but blocks public listing), `pending`, `refused`, `withdrawn`.
+
+Corrections and take-downs: see [permissions/log.md](permissions/log.md#corrections-process). Permission requests: [Course Seeker](permissions/course-seeker.md), [VTAC](permissions/vtac.md), [VCAA](permissions/vcaa.md).
+
+## energy-plans
+
+- Owner: Australian Energy Regulator (Consumer Data Right product reference data)
+- Basis: `cdr_rule`
+- Status: `cleared`
+- Review by: 2027-02-01
+- Evidence: https://www.aer.gov.au/energy-product-reference-data (read 2026-11-11). CDR Rules rule 2.6: a data holder must not restrict use of disclosed product data. Only the Feb 2020 version of the rule was read; confirm it is unchanged.
+- Condition: The Energy Made Easy and Victorian Energy Compare websites are not scraped; the API only.
+
+## cricos
+
+- Owner: Australian Government Department of Education (CRICOS, on data.gov.au)
+- Basis: `open_licence`
+- Status: `cleared`
+- Review by: 2027-08-01
+- Evidence: https://data.gov.au/ (read 2026-11-12). CRICOS dataset published under CC BY 2.5 AU. Names, providers, codes and locations only; no ATARs.
+- Attribution: Course names, codes and locations: CRICOS, Australian Government Department of Education, via data.gov.au, licensed CC BY 2.5 AU.
+
+## vic-courses
+
+- Owner: Each Victorian university (course pages and admissions transparency pages)
+- Basis: `own_words_facts`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-08-01
+- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). VTAC terms: personal non-commercial use only, no extraction without written permission. So no VTAC or Course Seeker content is used; facts come from the universities' own pages, re-keyed in our own words with a link.
+- Condition: Facts only, in our own words, with a link on every fact.
+- Condition: Legal view on re-keyed facts outstanding (roadmap Phase 0).
+
+## vce-key-dates
+
+- Owner: VCAA and VTAC (key dates pages)
+- Basis: `own_words_facts`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-02-01
+- Evidence: https://www.vcaa.vic.edu.au/administration/key-dates/key-dates (read 2026-11-12). Individual dates re-keyed in our own words with a link. VCAA terms page not yet read; request drafted (docs/permissions/vcaa.md).
+- Condition: VCAA terms still to be read.
+
+## vtac-preference-rules
+
+- Owner: VTAC (preferences and offers pages)
+- Basis: `own_words_facts`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-08-01
+- Evidence: https://www.vtac.edu.au/offers (read 2026-11-12). Rules stated as individual facts in our own words with a link. VTAC asked to confirm (docs/permissions/vtac.md).
+- Condition: Reword, never copy; VTAC reply pending.
+
+## vic-early-entry
+
+- Owner: Each Victorian university's early offer scheme page
+- Basis: `own_words_facts`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-08-01
+- Evidence: https://www.vtac.edu.au/institutions/earlyofferprograms (read 2026-11-12). Scheme facts re-keyed from each university's own scheme page, linked. No eligibility verdicts.
+
+## vce-scaling
+
+- Owner: VTAC (annual scaling report)
+- Basis: `written_permission`
+- Status: `pending`
+- Review by: 2027-02-01
+- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). No reuse without written permission. Request drafted (docs/permissions/vtac.md), not sent.
+
+## vce-study-groupings
+
+- Owner: VTAC (study area groupings fact sheet)
+- Basis: `written_permission`
+- Status: `pending`
+- Review by: 2027-02-01
+- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). No reuse without written permission. Request drafted (docs/permissions/vtac.md), not sent.
+
+## vtac-coursesearch
+
+- Owner: VTAC (CourseSearch)
+- Basis: `written_permission`
+- Status: `pending`
+- Review by: 2027-02-01
+- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). Extraction banned without written permission. Used only to block facts sourced from vtac.edu.au pages.
+
+## course-seeker
+
+- Owner: Department of Education and the admissions centres (Course Seeker)
+- Basis: `written_permission`
+- Status: `pending`
+- Review by: 2027-02-01
+- Evidence: https://www.courseseeker.edu.au/ (read 2026-11-13). No open licence. Deep links are fine; copying needs permission (CourseSeeker@education.gov.au). Request drafted (docs/permissions/course-seeker.md), not sent.

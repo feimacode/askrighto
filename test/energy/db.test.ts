@@ -254,7 +254,7 @@ d("serving, registry and outages", () => {
     clearReadinessChecks();
     const rt = (await startEnergy({ DATABASE_URL: URL, DATABASE_SCHEMA: schema, ASKRIGHTO_SYNC_SCHEDULE: "off" } as NodeJS.ProcessEnv))!;
     expect(getEnergy()).toBe(rt);
-    expect((await runReadiness()).checks["energy-plans"]).toEqual({ ok: false, reason: "no_data_loaded" });
+    expect((await runReadiness()).checks["energy-plans"]).toMatchObject({ ok: false, reason: "no_data_loaded" });
 
     mock.state.retailers = { agl: [withId("single-rate", "A1")], origin: [] };
     mock.state.inject = undefined;

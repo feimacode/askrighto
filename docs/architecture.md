@@ -230,3 +230,11 @@ instance, and reads are indexed. Rollback is re-running the playbook with an ear
 
 None of these change the shape of the system. The GST gate and the unknown-shape handling are
 designed so the server says what it does not know and fails safe until the data is confirmed.
+
+## 8. Release channels
+
+Each vertical (`energy`, `courses`) registers its tools, instructions, datasets, readiness checks and start-up in `src/verticals.ts` and its own `vertical.ts`. `ASKRIGHTO_VERTICALS` says what the process loads and `ASKRIGHTO_PUBLIC_VERTICALS` what `/mcp` serves; `/mcp-internal/<token>` serves everything loaded. Each request builds its own MCP server from its route's verticals (`src/server/route.ts`), so a public client cannot list or call an internal-only tool, read its instructions, or see its datasets in `list_data_sources`. `/readyz` reflects public verticals only; `/readyz-internal/<token>` reports each loaded vertical and any that failed to start. Outcome counters (curated, index_only, cannot_check, not_in_dataset, data_unavailable, needs_input, plus latency) are kept per tool and route in memory at `/metrics-internal/<token>` and never hold arguments, results, course ids or identities. The data rights gate (`src/core/rights.ts`) applies on both routes in production.
+
+## 9. Courses vertical
+
+One course index (`courses` table, `origin` cricos or gap_fill, `depth` index_only or curated) loaded from `data/courses/vic/*.yaml` plus an optional CRICOS CSV; curated rows carry entry figures (kind, intake year, campus, source, checked date), structured prerequisite rules by entry year and other criteria. VCE admissions data (key dates, preference rules, early entry, scaling, groupings) loads from `data/vce/`. Tools read an in-memory snapshot of the tables (cached five minutes) and never fetch university pages: for an index-only course they return links and a reading checklist for the user's own browsing assistant (AGENTS.md rule 1). Details: [course-data.md](course-data.md), [course-tools.md](course-tools.md).

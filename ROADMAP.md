@@ -216,7 +216,7 @@ mid-year subject selection and VTAC preferences opening in August. Estimate: 3 t
 for a VIC-only server (judgement from the code reviewed, not measured) [F]. The server core from
 Phase 1 is reused.
 
-The changes below are proposed in `openspec/changes/` and wait for review (15 Nov 2026). Build
+The changes below are implemented behind the internal route on the branch for review (16 Nov 2026); see each change's `tasks.md` for what is still open (real CRICOS download, curation depth, host tests, permissions sent). Build
 order: `add-course-data-permissions` (start now: the permission requests have the longest lead
 time), then `add-canary-release`, `add-vic-course-data`, `add-vce-admissions-data` and `add-vic-course-tools`.
 The roadmap's earlier `add-course-live-lookup` and `add-course-widgets` items are folded into

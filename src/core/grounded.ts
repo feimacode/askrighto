@@ -43,31 +43,55 @@ export interface NotFound {
 
 export type Grounded<T> = Found<T> | NotFound;
 
-export function found<T>(args: { data: T; source: Source; asOf: string | Date; warnings?: string[] }): Found<T> {
+export function found<T>(args: {
+  data: T;
+  source: Source;
+  asOf: string | Date;
+  warnings?: string[];
+}): Found<T> {
   const asOf = args.asOf instanceof Date ? args.asOf.toISOString() : args.asOf;
-  if (Number.isNaN(Date.parse(asOf))) throw new Error(`asOf is not a valid date-time: ${String(args.asOf)}`);
+  if (Number.isNaN(Date.parse(asOf)))
+    throw new Error(`asOf is not a valid date-time: ${String(args.asOf)}`);
   if (!args.source.name || !args.source.url || !args.source.licence) {
-    throw new Error("A found result needs source.name, source.url and source.licence");
+    throw new Error(
+      "A found result needs source.name, source.url and source.licence",
+    );
   }
-  return { found: true, data: args.data, source: args.source, asOf, ...(args.warnings?.length ? { warnings: args.warnings } : {}) };
+  return {
+    found: true,
+    data: args.data,
+    source: args.source,
+    asOf,
+    ...(args.warnings?.length ? { warnings: args.warnings } : {}),
+  };
 }
 
-export function notFound(reason: NotFoundReason, message: string, details?: Record<string, unknown>): NotFound {
+export function notFound(
+  reason: NotFoundReason,
+  message: string,
+  details?: Record<string, unknown>,
+): NotFound {
   return { found: false, reason, message, ...(details ? { details } : {}) };
 }
 
 /** The fixed footer that ends the text form of every found result. */
 export function sourceFooter(r: Found<unknown>): string {
-  const lines = [`Source: ${r.source.name} (${r.source.url}), licence: ${r.source.licence}. As of ${r.asOf}.`];
+  const lines = [
+    `Source: ${r.source.name} (${r.source.url}), licence: ${r.source.licence}. As of ${r.asOf}.`,
+  ];
   if (r.source.attribution) lines.push(r.source.attribution);
   return lines.join("\n");
 }
 
 /** Text form: body, warnings, then the source footer. Not-found results are just the message. */
-export function renderText<T>(r: Grounded<T>, body: (data: T) => string): string {
+export function renderText<T>(
+  r: Grounded<T>,
+  body: (data: T) => string,
+): string {
   if (!r.found) return r.message;
   const parts = [body(r.data).trim()];
-  if (r.warnings?.length) parts.push(r.warnings.map((w) => `Warning: ${w}`).join("\n"));
+  if (r.warnings?.length)
+    parts.push(r.warnings.map((w) => `Warning: ${w}`).join("\n"));
   parts.push(sourceFooter(r));
   return parts.filter(Boolean).join("\n\n");
 }

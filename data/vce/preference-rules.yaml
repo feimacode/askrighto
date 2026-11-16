@@ -1,0 +1,56 @@
+# How VTAC preferences and offers work, summarised. Ported from the earlier pilot (read 2026-08-30); wording to be re-checked
+# against the VTAC pages and rewritten in our own words before release (add-vce-admissions-data task 1.3).
+admissionsYear: 2027
+rules:
+- id: max-preferences
+  title: Number of preferences
+  text: You can list between 1 and 8 course preferences, in order.
+  sourceUrl: https://www.vtac.edu.au/offers
+  checkedOn: '2026-08-30'
+  provisional: true
+- id: ordering
+  title: Preference order
+  text: You may list between one and eight course preferences, ranked. In each offer round you receive the single
+    highest offer available to you based on that ranked list; lower preferences are offered to other applicants.
+    VTAC's advice is to list courses in the genuine order you want them, not strategically.
+  sourceUrl: https://www.vtac.edu.au/offers
+  checkedOn: '2026-08-30'
+  provisional: true
+- id: timely
+  title: Timely applications
+  text: A timely application is one lodged and paid by the timely close date. It attracts the lowest fee and is
+    required for some SEAS and scholarship guarantees.
+  sourceUrl: https://www.vtac.edu.au/offers
+  checkedOn: '2026-08-30'
+  provisional: true
+- id: late
+  title: Late applications
+  text: Applications lodged after the timely close date are accepted as 'late' and then 'very late', each with a
+    higher fee, up to the final close date. Consideration in the earliest rounds and some equity guarantees can
+    be lost by applying late.
+  sourceUrl: https://www.vtac.edu.au/offers
+  checkedOn: '2026-08-30'
+  provisional: true
+- id: offers-per-round
+  title: Offers in each round
+  text: You can receive at most one offer per offer round — your highest reachable preference at that point. Not
+    receiving an offer in a round does not prevent an offer in a later round.
+  sourceUrl: https://www.vtac.edu.au/offers
+  checkedOn: '2026-08-30'
+  provisional: true
+- id: change-of-preference
+  title: Changing preferences
+  text: Between offer rounds you can add, remove and re-order your preferences as many times as you like, for free,
+    until that round's change-of-preference deadline. To be considered for a course ranked below one you have already
+    been offered, move the offered course below every course you would still genuinely accept before the deadline
+    — do not move it to the bottom of the list.
+  sourceUrl: https://www.vtac.edu.au/offers
+  checkedOn: '2026-08-30'
+  provisional: true
+- id: offer-rounds
+  title: Offer rounds
+  text: 'The rounds run in this order: November round, December round, January round 1, January round 2, February
+    rounds.'
+  sourceUrl: https://www.vtac.edu.au/offers
+  checkedOn: '2026-08-30'
+  provisional: true
