@@ -36,4 +36,4 @@ Try asking (see [docs/energy-estimates.md](docs/energy-estimates.md)): "What ene
 
 Victorian uni course tools (internal route only for now, see [docs/course-tools.md](docs/course-tools.md)): "Which engineering courses at RMIT are held, and what was last year's lowest selection rank?", "Compare these three nursing degrees", "I do English, Chemistry and Biology: which of these courses do my subjects rule out?", "When do VTAC preferences close?". Extra settings: `ASKRIGHTO_VERTICALS`, `ASKRIGHTO_PUBLIC_VERTICALS`, `ASKRIGHTO_INTERNAL_TOKEN`, `ASKRIGHTO_ENV`, `ASKRIGHTO_DATA_DIR` (see [docs/deploying.md](docs/deploying.md)). Reuse rights for every dataset: [docs/data-rights.md](docs/data-rights.md).
 
-Adding a tool: [docs/adding-a-tool.md](docs/adding-a-tool.md).
+Adding a tool: [docs/adding-a-tool.md](docs/adding-a-tool.md). How it fits together, with implementation detail per area (platform, energy, VIC courses, international courses, skills and plugins): [docs/architecture.md](docs/architecture.md).
