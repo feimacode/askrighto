@@ -13,7 +13,11 @@ export interface Rate {
   measureUnit: string;
   /** Block threshold in the measure unit; absent for the last (or only) block. */
   volume?: number;
-  /** Period the block threshold applies to, e.g. P1D, P1M. */
+  /**
+   * Period the block threshold applies to, e.g. P1D, P1M. The standards put `period` on the
+   * rate block (singleRate, timeOfUseRates[], feed-in tariff), not on each rate; it is copied
+   * here so every block rate carries it.
+   */
   period?: string;
 }
 
@@ -24,18 +28,22 @@ export interface TimeWindow {
 }
 
 export interface TimeOfUseRate {
-  type: string; // PEAK, OFF_PEAK, SHOULDER, SHOULDER1, SHOULDER2, ...
+  type: string; // PEAK, OFF_PEAK, SHOULDER, SHOULDER1, SHOULDER2, SOLAR_SPONGE (controlled load), ...
   displayName?: string;
   rates: Rate[];
   windows: TimeWindow[];
+  /** Controlled load only: the standards give each controlled load rate block its own supply charge. */
+  dailySupplyCharge?: number;
 }
 
 export interface TariffPeriod {
   displayName?: string;
   startDate?: string; // MM-DD
   endDate?: string;
-  /** Daily supply charge, scaled integer dollars per day. */
+  /** Daily supply charge, scaled integer dollars per day. Absent when the supply charge is banded. */
   dailySupplyCharge?: number;
+  /** dailySupplyChargeType BAND: supply charge per day by volume band (not costed yet). */
+  bandedDailySupplyCharges?: Rate[];
   singleRate?: Rate[];
   timeOfUse?: TimeOfUseRate[];
   hasDemandCharges: boolean;
@@ -43,6 +51,7 @@ export interface TariffPeriod {
 
 export interface ControlledLoad {
   displayName?: string;
+  /** From `singleRate.dailySupplyCharge`; time-of-use controlled loads carry it per rate block. */
   dailySupplyCharge?: number;
   singleRate?: Rate[];
   timeOfUse?: TimeOfUseRate[];
@@ -50,10 +59,16 @@ export interface ControlledLoad {
 
 export interface FeedIn {
   displayName?: string;
-  scheme?: string;
-  payerType?: string;
+  description?: string;
+  scheme?: string; // PREMIUM, CURRENT, VARIABLE, OTHER
+  payerType?: string; // GOVERNMENT, RETAILER
+  startDate?: string;
+  endDate?: string;
+  /** singleTariff rates; empty when the tariff varies by time. */
   rates: Rate[];
   timeVarying: boolean;
+  /** timeVaryingTariffs (an array since Get Generic Plan Detail v3), with their time windows. */
+  timeVaryingTariffs?: TimeOfUseRate[];
 }
 
 export interface Discount {

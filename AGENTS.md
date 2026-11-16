@@ -43,6 +43,10 @@ The repos `ivenxu/vce-subject-planner`, `ivenxu/vce-parents-helper` and
 (the recommendation engine and tool schemas in particular), but do not depend on them,
 and do not ship their scraped VTAC, UAC or QTAC CSVs.
 
+CDR payload shapes (energy plans now, banking products later) come from the Data Standards
+Body's JSON schemas in `ConsumerDataStandardsAustralia/dsb-schema-tools`, one folder per
+standards version. See `docs/cdr-schemas.md` for how to read them and what they settle.
+
 ## Data store
 
 PostgreSQL (shared Azure instance), `DATABASE_URL` plus `DATABASE_SCHEMA=askrighto`, small connection pool, versioned SQL migrations. `feimacode/feima-api` (Python) is the reference for these conventions; do not copy its code. Credentials are secrets and never go in the repo or the image.

@@ -9,5 +9,15 @@ Task 1.2 of `add-energy-plan-data` replaces them with recorded responses:
 
     npm run sync:energy -- --record test/fixtures/energy/recorded
 
+The fixtures follow the CDS 1.35.0 schema shapes (checked field by field on 16 Nov 2026,
+see `docs/cdr-schemas.md`). `solar-time-varying.json` mirrors the v3 time-varying feed-in
+shape behind issue #8; it is still synthetic.
+
 Record from a network that can reach `cdr.energymadeeasy.gov.au`, then note the capture date
 here. Do not commit any fixture that has not been checked for personal data (there should be none).
+
+## Recorded
+
+- `recorded/agl-AGD812605MR.json`: AGL plan detail (x-v 3) for `AGD812605MR@VEC`, fetched by
+  Iven on 16 Nov 2026 (lastUpdated 2026-11-04). Public product data, no personal data. Used
+  to confirm the GST basis against the plan's fact sheet.

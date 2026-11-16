@@ -72,6 +72,7 @@ first real load (task 6.3).
 export DATABASE_URL=...   # see docs/local-database.md
 npm run migrate
 npm run sync:energy                  # prints the sync report; add -- --retailer agl to try one
+npm run renormalise:energy -- --dry-run --show solarFeedIn   # re-run the normaliser on stored plans, no API calls
 ```
 
 ## Recording fixtures
@@ -84,11 +85,13 @@ saves every list page and plan detail under that folder. Record from a network t
 host, check the files, and note the capture date in `test/fixtures/energy/README.md`. The
 fixtures in the repository today are **synthetic**.
 
-## GST basis: not yet confirmed
+## GST basis: exclusive (confirmed 16 Nov 2026)
 
-The standards describe plan amounts as exclusive of GST, but `gstBasis` is `UNKNOWN`
-(`src/energy/gst.ts`) until three recorded plans are checked against the retailers' published
-price sheets (task 1.3). Tools must not show dollar figures while it is `UNKNOWN`.
+Rates and supply charges are published exclusive of GST, as the standards describe; a recorded
+AGL plan matches its fact sheet once 10% is added. Fees are published including GST and feed-in
+credits carry none, so both are used as published. Details and the worked example are in
+[cdr-schemas.md](cdr-schemas.md#gst-what-the-standards-settle). The basis is stored with each
+normalised contract, so after changing `src/energy/gst.ts` run `renormalise-energy`.
 
 ## Not done in this workspace
 

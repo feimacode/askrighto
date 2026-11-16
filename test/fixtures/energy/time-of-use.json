@@ -6,21 +6,38 @@
   "type": "MARKET",
   "customerType": "RESIDENTIAL",
   "lastUpdated": "2026-11-02T00:00:00Z",
-  "geography": { "distributors": ["Jemena"], "includedPostcodes": ["3000"] },
+  "geography": {
+    "distributors": [
+      "Jemena"
+    ],
+    "includedPostcodes": [
+      "3000"
+    ]
+  },
   "electricityContract": {
     "pricingModel": "TIME_OF_USE_CONT_LOAD",
     "tariffPeriod": [
       {
         "displayName": "Year",
-        "dailySupplyCharges": "0.95",
         "rateBlockUType": "timeOfUseRates",
         "timeOfUseRates": [
           {
             "type": "PEAK",
-            "rates": [{ "unitPrice": "0.45", "measureUnit": "KWH" }],
+            "rates": [
+              {
+                "unitPrice": "0.45",
+                "measureUnit": "KWH"
+              }
+            ],
             "timeOfUse": [
               {
-                "days": ["MON", "TUE", "WED", "THU", "FRI"],
+                "days": [
+                  "MON",
+                  "TUE",
+                  "WED",
+                  "THU",
+                  "FRI"
+                ],
                 "startTime": "1500",
                 "endTime": "2100"
               }
@@ -28,25 +45,45 @@
           },
           {
             "type": "OFF_PEAK",
-            "rates": [{ "unitPrice": "0.18", "measureUnit": "KWH" }],
+            "rates": [
+              {
+                "unitPrice": "0.18",
+                "measureUnit": "KWH"
+              }
+            ],
             "timeOfUse": [
               {
-                "days": ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"],
+                "days": [
+                  "MON",
+                  "TUE",
+                  "WED",
+                  "THU",
+                  "FRI",
+                  "SAT",
+                  "SUN"
+                ],
                 "startTime": "2100",
                 "endTime": "0700"
               }
             ]
           }
-        ]
+        ],
+        "dailySupplyCharge": "0.95"
       }
     ],
     "controlledLoad": [
       {
         "displayName": "CL1",
         "rateBlockUType": "singleRate",
-        "dailySupplyCharges": "0.10",
         "singleRate": {
-          "rates": [{ "unitPrice": "0.15", "measureUnit": "KWH" }]
+          "displayName": "Controlled load",
+          "dailySupplyCharge": "0.10",
+          "rates": [
+            {
+              "unitPrice": "0.15",
+              "measureUnit": "KWH"
+            }
+          ]
         }
       }
     ],
@@ -57,7 +94,12 @@
         "payerType": "RETAILER",
         "tariffUType": "singleTariff",
         "singleTariff": {
-          "rates": [{ "unitPrice": "0.05", "measureUnit": "KWH" }]
+          "rates": [
+            {
+              "unitPrice": "0.05",
+              "measureUnit": "KWH"
+            }
+          ]
         }
       }
     ]

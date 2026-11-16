@@ -85,3 +85,23 @@ export async function cliSyncEnergy(args: string[]): Promise<void> {
     await db.close();
   }
 }
+
+/** `renormalise-energy [--retailer SLUG] [--dry-run] [--show REASON_PREFIX]`: no network calls. */
+export async function cliRenormaliseEnergy(args: string[]): Promise<void> {
+  const cfg = dbConfig();
+  if (!cfg) throw new Error("DATABASE_URL is not set");
+  const { renormalise } = await import("./renormalise.js");
+  const db = createDb(cfg);
+  try {
+    const dryRun = args.includes("--dry-run");
+    const show = arg(args, "--show");
+    const r = await renormalise(db, { retailer: arg(args, "--retailer"), dryRun, ...(show ? { show } : {}) });
+    console.log(`Re-normalised ${r.plans} stored plans${dryRun ? " (dry run, nothing written)" : ""}: ${r.updated} changed`);
+    console.log(`Not understood before: ${JSON.stringify(r.before)}`);
+    console.log(`Not understood after:  ${JSON.stringify(r.after)}`);
+    for (const s of r.samples) console.log(`\n${s.planId} ${JSON.stringify(s.reasons)}\n${JSON.stringify(s.fragment, null, 2)}`);
+    if (!dryRun && r.updated) console.log("\nRestart the server (or wait for the next sync) so its cache picks up the change.");
+  } finally {
+    await db.close();
+  }
+}

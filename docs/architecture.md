@@ -220,9 +220,10 @@ instance, and reads are indexed. Rollback is re-running the playbook with an ear
 
 | Item | State | Why it matters |
 | --- | --- | --- |
-| GST basis of CDR amounts | `UNKNOWN` in `src/energy/gst.ts`; no dollar figures shown | Needs real fixtures and a retailer price sheet to confirm. Biggest gate before costs go live |
-| AGL solar feed-in shapes | 21 of 727 plans `solarFeedIn:unknown_shape` ([#8](https://github.com/feimacode/askrighto/issues/8)) | Those plans lack feed-in figures; more shapes expected from other retailers |
-| Real fixtures | Test fixtures are synthetic; record real ones (`sync:energy -- --record`) | Locks the normaliser to real data |
+| GST basis of CDR amounts | `EXCLUSIVE` since 16 Nov 2026, checked on a real AGL plan against its fact sheet; fees are GST inclusive ([cdr-schemas.md](cdr-schemas.md)) | Stored plans need `renormalise-energy` after deploy before prices show |
+| AGL solar feed-in shapes | 21 of 727 plans `solarFeedIn:unknown_shape` ([#8](https://github.com/feimacode/askrighto/issues/8)). The normaliser read v3 `timeVaryingTariffs` as an object; it is an array. Fixed; run `renormalise-energy` on the server to confirm | Those plans lack feed-in figures until re-normalised |
+| Real fixtures | One recorded AGL plan; the rest are synthetic. Record more (`sync:energy -- --record`) | Locks the normaliser to real data |
+| AGL time-of-use band names | AGL labels both bands `SHOULDER`, so its time-of-use plans are not estimated | Needs the user's split matched to bands by time window (design change) |
 | Retailer list | 3 of many seeded; only AGL loaded | Coverage is incomplete until the list is seeded and loaded |
 | Estimate check | Not yet compared with retailer fact sheets | Accuracy claim for estimates |
 | Live host tests | Not run through a tunnel; MCP Inspector check pending | Real-world tool behaviour |

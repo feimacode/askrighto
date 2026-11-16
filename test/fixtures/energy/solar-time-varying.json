@@ -1,0 +1,47 @@
+{
+  "planId": "AGL-SYN-SOLAR-TV",
+  "displayName": "Synthetic Solar Time Varying",
+  "brandName": "AGL",
+  "fuelType": "ELECTRICITY",
+  "type": "MARKET",
+  "customerType": "RESIDENTIAL",
+  "lastUpdated": "2026-11-05T00:00:00Z",
+  "geography": { "distributors": ["Ausgrid"], "includedPostcodes": ["2000"] },
+  "electricityContract": {
+    "pricingModel": "SINGLE_RATE",
+    "isFixed": false,
+    "tariffPeriod": [
+      {
+        "displayName": "Year",
+        "startDate": "01-01",
+        "endDate": "12-31",
+        "dailySupplyChargeType": "SINGLE",
+        "dailySupplyCharge": "1.0000",
+        "rateBlockUType": "singleRate",
+        "singleRate": { "displayName": "Usage", "rates": [{ "unitPrice": "0.3000", "measureUnit": "KWH" }] }
+      }
+    ],
+    "solarFeedInTariff": [
+      {
+        "displayName": "Time varying feed-in",
+        "scheme": "CURRENT",
+        "payerType": "RETAILER",
+        "tariffUType": "timeVaryingTariffs",
+        "timeVaryingTariffs": [
+          {
+            "displayName": "Evening",
+            "type": "PEAK",
+            "rates": [{ "unitPrice": "0.0800", "measureUnit": "KWH" }],
+            "timeVariations": [{ "days": ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"], "startTime": "16:00", "endTime": "21:00" }]
+          },
+          {
+            "displayName": "Rest of day",
+            "type": "OFF_PEAK",
+            "rates": [{ "unitPrice": "0.0200", "measureUnit": "KWH" }],
+            "timeVariations": [{ "days": ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"], "startTime": "21:00", "endTime": "16:00" }]
+          }
+        ]
+      }
+    ]
+  }
+}
