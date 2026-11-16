@@ -75,24 +75,44 @@ The standards' own field descriptions say:
   charges, incentives.
 
 So every component the estimate prices today (supply, usage, controlled load, feed-in) is
-documented as GST exclusive. Feed-in credits paid to a household that is not registered for GST
+documented as GST exclusive, and a real plan confirms it (below). Feed-in credits paid to a household that is not registered for GST
 carry no GST, so the estimate and `get_energy_plan` show them as published, without adding 10%.
 
-What real data still has to confirm before `GST_BASIS` changes:
+### Confirmed against a real plan (16 Nov 2026)
 
-1. That retailers follow the description: one or more recorded AGL plans whose unit price times
-   1.1 matches the GST-inclusive price on the retailer's fact sheet (Basic Plan Information
-   Document) or Energy Made Easy. A single example settles the common case.
-2. The basis of recurring fees and fixed discounts, which the estimate includes but the
-   standards do not describe. Until checked, treat them as GST exclusive like the rates, or
-   leave them out of the GST line.
-3. The feed-in rate on the fact sheet equals the published `unitPrice` (no GST either side).
+AGL `AGD812605MR@VEC` (Residential Smart Saver (Westpac), Citipower), recorded in
+`test/fixtures/energy/recorded/agl-AGD812605MR.json`, against its fact sheet released 10 Nov 2026:
 
-A quick way to pull the raw prices of one stored plan on the server:
+| | CDR `unitPrice` | x 1.1 | Fact sheet (incl. GST) |
+| --- | --- | --- | --- |
+| Daily supply | 0.9471 | 1.04181 | 104.18 c/day |
+| Usage 3pm to 9pm | 0.278 | 0.3058 | 30.58 c/kWh |
+| Usage 9pm to 3pm | 0.1658 | 0.18238 | 18.24 c/kWh |
+| Feed-in | 0.005 | (no GST) | 0.50 c/kWh |
+| Reconnection fee | 51.19 | (as published) | $51.19 incl. GST |
+
+So `GST_BASIS` is `EXCLUSIVE` for rates and supply charges. The same payload shows the
+standards' silence on fees is filled the other way: every AGL fee description says "Includes
+GST" and the amounts equal the fact sheet's GST-inclusive fees, and the GreenPower charge
+(0.011) is described as "inc. GST". So fees are shown and costed as published, outside the GST
+line. Fixed discount amounts are shown as published and are not costed. Other retailers may
+differ; check one plan each as they are loaded.
+
+The same plan also showed two things the schema check could not:
+
+- AGL labels both of its time-of-use bands `SHOULDER` (3pm to 9pm, and the rest of the day), so
+  the estimate's peak, shoulder and off-peak split cannot be applied by band name and the plan
+  is not estimated (`not_fully_understood`). Matching the user's split to the bands by their
+  time windows is a design change, not a patch.
+- AGL spells the network `Citipower`; other sources use `CitiPower`. Distributor lists are now
+  de-duplicated ignoring case.
+
+To pull the raw prices of one stored plan on the server:
 
 ```
 SELECT plan_id, display_name, plan_url,
        raw->'electricityContract'->'tariffPeriod' AS periods,
-       raw->'electricityContract'->'solarFeedInTariff' AS feed_in
-  FROM askrighto.plans WHERE retailer_slug = 'agl' LIMIT 1;
+       raw->'electricityContract'->'solarFeedInTariff' AS feed_in,
+       raw->'electricityContract'->'fees' AS fees
+  FROM askrighto.plans WHERE plan_id = 'AGD812605MR@VEC';
 ```

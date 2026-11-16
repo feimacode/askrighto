@@ -69,6 +69,9 @@ function view(fuel: "ELECTRICITY" | "GAS", c: Contract): ContractView {
     const v = incGst(c, u);
     return v === undefined ? undefined : `$${formatMoney(v, 2)}`;
   };
+  // Fees are published including GST (AGL's fee descriptions say so; the standards are silent),
+  // and the basis of fixed discount amounts is not described, so both are shown as published.
+  const published = (u: number | undefined) => (u === undefined || c.gstBasis === "UNKNOWN" ? undefined : `$${formatMoney(u, 2)}`);
   return {
     fuel,
     pricingModel: c.pricingModel,
@@ -100,9 +103,9 @@ function view(fuel: "ELECTRICITY" | "GAS", c: Contract): ContractView {
       name: d.displayName ?? d.category ?? "Discount",
       conditional: d.conditional,
       condition: d.conditional ? [d.category?.toLowerCase().replace(/_/g, " "), d.description].filter(Boolean).join(": ") || "conditions apply, see the plan link" : "applies without conditions",
-      ...(d.percent ? { amount: `${Math.round(Number(d.percent) * 1000) / 10}% (${d.method})` } : d.amount !== undefined && money(d.amount) ? { amount: `${money(d.amount)} (${d.method})` } : {}),
+      ...(d.percent ? { amount: `${Math.round(Number(d.percent) * 1000) / 10}% (${d.method})` } : d.amount !== undefined && published(d.amount) ? { amount: `${published(d.amount)} (${d.method}, as published)` } : {}),
     })),
-    fees: c.fees.map((f) => `${(f.type ?? "fee").toLowerCase().replace(/_/g, " ")}${f.term ? ` (${f.term.toLowerCase()})` : ""}${f.amount !== undefined && money(f.amount) ? `: ${money(f.amount)}` : f.rate ? `: ${f.rate}` : ""}${f.description ? ` - ${f.description}` : ""}`),
+    fees: c.fees.map((f) => `${(f.type ?? "fee").toLowerCase().replace(/_/g, " ")}${f.term ? ` (${f.term.toLowerCase()})` : ""}${f.amount !== undefined && published(f.amount) ? `: ${published(f.amount)}` : f.rate ? `: ${f.rate}` : ""}${f.description ? ` - ${f.description}` : ""}`),
     incentives: c.incentives.map((i) => [i.displayName, i.description].filter(Boolean).join(": ")),
     eligibility: c.eligibility.map((e) => [e.type, e.information ?? e.description].filter(Boolean).join(": ")),
     terms: [

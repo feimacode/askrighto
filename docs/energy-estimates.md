@@ -31,9 +31,13 @@ with a reason.
    ones (pay on time, direct debit and so on) are *not* in the ordering cost; each is listed with
    its condition, and `totalIfConditionsMet` shows the lower cost. Fixed-amount discounts and
    other forms whose basis is unclear are listed under `notIncluded`, not applied.
-7. Fees: recurring membership-type fees only. One-off fees are listed as left out.
-8. GST: 10% of the taxable components when the published amounts exclude it; none to add when they
-   include it. **If the GST basis is `UNKNOWN` no plan is estimated** (`gst_basis_unknown`).
+7. Fees: recurring membership-type fees only, as published (fees are published including GST).
+   One-off fees are listed as left out.
+8. GST: 10% of supply, usage, controlled load and guaranteed discounts when the published amounts
+   exclude it (the case since 16 Nov 2026, see `docs/cdr-schemas.md`); fees and the solar credit
+   are outside it. **If the GST basis is `UNKNOWN` no plan is estimated** (`gst_basis_unknown`).
+9. Time-of-use plans whose bands cannot be told apart by name (AGL labels both bands `SHOULDER`)
+   are not estimated yet (`not_fully_understood`).
 
 Components are rounded once to the cent each, and the total is their sum, so the breakdown always
 adds up.

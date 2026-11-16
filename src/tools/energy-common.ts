@@ -59,6 +59,17 @@ export function matchRetailer(plans: EnergyPlan[], input: string): RetailerMatch
 }
 
 /** Scaled money to displayed dollars including GST, or undefined while the GST basis is unconfirmed. */
+/**
+ * Distributor names, one per network regardless of case, sorted. Retailers spell them
+ * differently (AGL publishes "Citipower", our other sources "CitiPower"); without this the
+ * user would be asked to choose between two spellings of one network.
+ */
+export function uniqueDistributors(names: string[]): string[] {
+  const seen = new Map<string, string>();
+  for (const n of names) if (!seen.has(n.toLowerCase())) seen.set(n.toLowerCase(), n);
+  return [...seen.values()].sort((a, b) => a.localeCompare(b));
+}
+
 export function incGst(c: Contract | undefined, units: number | undefined): number | undefined {
   if (units === undefined || !c || c.gstBasis === "UNKNOWN") return undefined;
   const v = c.gstBasis === "EXCLUSIVE" ? units * 1.1 : units;

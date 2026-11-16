@@ -85,14 +85,13 @@ saves every list page and plan detail under that folder. Record from a network t
 host, check the files, and note the capture date in `test/fixtures/energy/README.md`. The
 fixtures in the repository today are **synthetic**.
 
-## GST basis: not yet confirmed
+## GST basis: exclusive (confirmed 16 Nov 2026)
 
-The standards' field descriptions put every amount we cost (usage rates, supply charges,
-controlled load, feed-in) as exclusive of GST; see [cdr-schemas.md](cdr-schemas.md#gst-what-the-standards-settle)
-for the field list and the exceptions. `gstBasis` stays `UNKNOWN` (`src/energy/gst.ts`) until
-recorded plans are checked against the retailers' published price sheets (task 1.3). Tools must
-not show dollar figures while it is `UNKNOWN`. Changing it needs `renormalise-energy` afterwards,
-because the basis is stored with each normalised contract.
+Rates and supply charges are published exclusive of GST, as the standards describe; a recorded
+AGL plan matches its fact sheet once 10% is added. Fees are published including GST and feed-in
+credits carry none, so both are used as published. Details and the worked example are in
+[cdr-schemas.md](cdr-schemas.md#gst-what-the-standards-settle). The basis is stored with each
+normalised contract, so after changing `src/energy/gst.ts` run `renormalise-energy`.
 
 ## Not done in this workspace
 

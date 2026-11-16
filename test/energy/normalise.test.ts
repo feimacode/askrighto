@@ -30,7 +30,7 @@ describe("normalisePlan", () => {
     expect(plan.electricity?.discounts[0]).toMatchObject({ method: "percentOfBill", percent: "0.05", conditional: true });
     expect(plan.electricity?.fees[0]).toMatchObject({ type: "EXIT", amount: 5_000_000 });
     expect(plan.planUrl).toBe("https://example.test/plan/single");
-    expect(plan.electricity?.gstBasis).toBe("UNKNOWN");
+    expect(plan.electricity?.gstBasis).toBe("EXCLUSIVE"); // confirmed 16 Nov 2026, see gst.ts
   });
 
   it("time of use with controlled load and feed-in", () => {
@@ -98,6 +98,21 @@ describe("normalisePlan", () => {
 
     tp.dailySupplyCharges = "1.1"; // not in the standards, still accepted
     expect(normalisePlan("x", readListItem(d)!, d).plan.understood).toBe(true);
+  });
+
+  it("recorded AGL plan AGD812605MR: GST-exclusive rates match the fact sheet once GST is added", () => {
+    const d = fixture("recorded/agl-AGD812605MR");
+    const { plan } = normalisePlan("agl", readListItem(d)!, d);
+    expect(plan.notUnderstood).toEqual([]);
+    expect(plan.electricity!.gstBasis).toBe("EXCLUSIVE");
+    const tp = plan.electricity!.tariffPeriods[0]!;
+    // Fact sheet (incl. GST, released 10 Nov 2026): 104.18 c/day, 30.58 c/kWh 3pm-9pm, 18.24 c/kWh 9pm-3pm.
+    const incGstCents = (u: number) => Math.round((u * 1.1) / 10) / 100;
+    expect(incGstCents(tp.dailySupplyCharge!)).toBe(104.18);
+    expect(tp.timeOfUse!.map((t) => incGstCents(t.rates[0]!.unitPrice))).toEqual([30.58, 18.24]);
+    // AGL labels both bands SHOULDER; the windows are what tell them apart.
+    expect(tp.timeOfUse!.map((t) => t.type)).toEqual(["SHOULDER", "SHOULDER"]);
+    expect(plan.electricity!.solarFeedIn[0]).toMatchObject({ rates: [{ unitPrice: 500 }], timeVarying: false });
   });
 
   it("keeps an unknown pricing model and flags it", () => {

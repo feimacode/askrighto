@@ -15,3 +15,9 @@ shape behind issue #8; it is still synthetic.
 
 Record from a network that can reach `cdr.energymadeeasy.gov.au`, then note the capture date
 here. Do not commit any fixture that has not been checked for personal data (there should be none).
+
+## Recorded
+
+- `recorded/agl-AGD812605MR.json`: AGL plan detail (x-v 3) for `AGD812605MR@VEC`, fetched by
+  Iven on 16 Nov 2026 (lastUpdated 2026-11-04). Public product data, no personal data. Used
+  to confirm the GST basis against the plan's fact sheet.

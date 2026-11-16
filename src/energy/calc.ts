@@ -282,9 +282,10 @@ function estimate(plan: EnergyPlan, u: Usage): Estimate {
       guaranteedDiscountCents: -cents(guaranteed + extraDiscount) || 0,
       feesCents: cents(fees),
     };
-    const taxableCents = comp.supplyCents + comp.usageCents + comp.controlledLoadCents + comp.guaranteedDiscountCents + comp.feesCents;
+    // Fees are published including GST (see gst.ts), so they are added as they are.
+    const taxableCents = comp.supplyCents + comp.usageCents + comp.controlledLoadCents + comp.guaranteedDiscountCents;
     const gstCents = c.gstBasis === "EXCLUSIVE" ? Math.round(taxableCents * 0.1) : 0;
-    const total = taxableCents + comp.feedInCreditCents + gstCents;
+    const total = taxableCents + comp.feesCents + comp.feedInCreditCents + gstCents;
     return { breakdown: { ...comp, gstCents }, total };
   };
 
