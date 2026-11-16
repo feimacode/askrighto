@@ -268,7 +268,7 @@ Usage:
   askrighto courses:validate | courses:load [--cricos FILE.csv] | courses:check-pages
   askrighto vce:validate | vce:load
                        check and load the Victorian course index and VCE admissions data from data/
-  askrighto intl:validate --cricos FILE.csv | intl:load --cricos FILE.csv [--source-date YYYY-MM-DD]
+  askrighto intl:validate|intl:load --cricos COURSES.csv [--course-locations FILE.csv] [--institutions FILE.csv] [--source-date YYYY-MM-DD]
                        check and load the CRICOS course sheet (international students)
   askrighto compare:usecases [--json]
                        coverage report for the domestic and international course data (read-only)

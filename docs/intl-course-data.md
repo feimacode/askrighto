@@ -14,14 +14,14 @@ English language requirements, entry requirements by country, intake dates and s
 
 ## Loading
 
-CRICOS is a spreadsheet. Export the courses sheet to CSV (see `docs/cricos-columns.md`, which also says the real columns are still to be confirmed), then:
+CRICOS is a spreadsheet with several sheets (see `docs/cricos-columns.md`, verified against the 1 Oct 2026 file). Export the Courses, Course Locations and Institutions sheets to CSV, then:
 
 ```
-npm run intl:validate -- --cricos courses.csv
-DATABASE_URL=... DATABASE_SCHEMA=askrighto npm run intl:load -- --cricos courses.csv --source-date 2026-02-02
+npm run intl:validate -- --cricos courses.csv --course-locations course-locations.csv --institutions institutions.csv
+DATABASE_URL=... DATABASE_SCHEMA=askrighto npm run intl:load -- --cricos courses.csv --course-locations course-locations.csv --institutions institutions.csv --source-date 2026-10-01
 ```
 
-`--source-date` is the file date from the dataset page and is what tools show as the as-of date. A load replaces all rows in one transaction; an empty or failed load leaves the old rows. The table `intl_loads` records each load.
+The two title rows above each sheet's header are skipped. Without the other two sheets the courses still load, with no locations or websites, and the report says so. `--source-date` is the date the file was generated and is what tools show as the as-of date. A load replaces all rows in one transaction; an empty or failed load leaves the old rows. The table `intl_loads` records each load.
 
 ## Serving
 

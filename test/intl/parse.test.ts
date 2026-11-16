@@ -90,3 +90,84 @@ describe("CRICOS international parser", () => {
     });
   });
 });
+
+describe("CRICOS parser on the real export layout", () => {
+  const dir = "test/fixtures/cricos/real-layout";
+  const read = (f: string) => readFileSync(`${dir}/${f}`, "utf8");
+  const real = () =>
+    parseIntlCricos(read("courses.csv"), {
+      courseLocationsCsv: read("course-locations.csv"),
+      institutionsCsv: read("institutions.csv"),
+    });
+
+  it("skips the two title rows above the header", () => {
+    const r = parseIntlCricos(read("courses.csv"));
+    expect(r.problems).toEqual([]);
+    expect(r.report.rowsRead).toBe(6);
+    expect(r.courses.map((c) => c.cricosCode).sort()).toEqual([
+      "000101A",
+      "000102B",
+      "000103C",
+      "000104D",
+      "000106F",
+    ]);
+    expect(r.report.excludedByLevel).toEqual({ Diploma: 1 });
+  });
+  it("keeps Honours and expired rows (expired is labelled), and reads fees with thousands separators", () => {
+    const r = real();
+    expect(r.courses.find((c) => c.cricosCode === "000103C")).toMatchObject({
+      levelGroup: "bachelor",
+      durationWeeks: 52,
+    });
+    expect(
+      r.courses.find((c) => c.cricosCode === "000103C")!.tuitionFeeTotal,
+    ).toBeUndefined();
+    expect(r.courses.find((c) => c.cricosCode === "000101A")).toMatchObject({
+      tuitionFeeTotal: 134400,
+      nonTuitionFee: 647,
+      expired: false,
+    });
+    expect(r.courses.find((c) => c.cricosCode === "000104D")).toMatchObject({
+      expired: true,
+      workComponent: true,
+    });
+  });
+  it("joins locations from Course Locations and websites from Institutions", () => {
+    const r = real();
+    expect(
+      r.courses.find((c) => c.cricosCode === "000102B")!.locations,
+    ).toEqual([
+      { state: "VIC", campus: "Parkville Campus" },
+      { state: "NSW", campus: "Sydney CBD" },
+    ]);
+    expect(
+      r.courses.find((c) => c.cricosCode === "000103C")!.locations,
+    ).toEqual([]);
+    expect(r.providers.find((p) => p.id === "00001X")!.website).toBe(
+      "https://www.testu.edu.au",
+    );
+    expect(r.providers.find((p) => p.id === "00002Y")!.website).toBeUndefined();
+    expect(r.report.joined).toEqual({
+      courseLocations: true,
+      institutions: true,
+    });
+    expect(r.report.withoutLocation).toBe(1);
+    expect(r.report.columnsMissing).toEqual([]);
+  });
+  it("maps the broad and narrow field of education", () => {
+    const r = real();
+    expect(r.courses.find((c) => c.cricosCode === "000102B")!.field).toBe(
+      "02 - Information Technology; 0201 - Computer Science",
+    );
+    expect(r.courses.find((c) => c.cricosCode === "000103C")!.field).toBe(
+      "09 - Society and Culture",
+    );
+  });
+  it("says locations and websites are missing when the sheets are not given", () => {
+    const r = parseIntlCricos(read("courses.csv"));
+    expect(r.report.columnsMissing).toEqual(
+      expect.arrayContaining(["locations", "providerWebsite"]),
+    );
+    expect(r.report.columnsMissing).not.toContain("field");
+  });
+});

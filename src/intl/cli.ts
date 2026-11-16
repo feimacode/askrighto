@@ -24,8 +24,19 @@ const sha = () => {
 function parseFile(args: string[]) {
   const f = arg(args, "--cricos");
   if (!f)
-    throw new Error("Give the CRICOS course sheet as CSV: --cricos FILE.csv");
-  const r = parseIntlCricos(readFileSync(f, "utf8"));
+    throw new Error(
+      "Give the CRICOS Courses sheet as CSV: --cricos FILE.csv (and, for locations and websites, --course-locations FILE.csv --institutions FILE.csv)",
+    );
+  const opt = (name: string) => {
+    const p = arg(args, name);
+    return p ? readFileSync(p, "utf8") : undefined;
+  };
+  const courseLocationsCsv = opt("--course-locations");
+  const institutionsCsv = opt("--institutions");
+  const r = parseIntlCricos(readFileSync(f, "utf8"), {
+    ...(courseLocationsCsv ? { courseLocationsCsv } : {}),
+    ...(institutionsCsv ? { institutionsCsv } : {}),
+  });
   if (r.problems.length) {
     for (const p of r.problems) console.error(`error: CRICOS file: ${p}`);
     process.exit(1);

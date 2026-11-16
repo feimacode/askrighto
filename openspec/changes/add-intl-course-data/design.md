@@ -14,6 +14,10 @@
 8. **Under-18 and school-level courses excluded.** They carry guardianship and welfare rules we do not want to summarise.
 9. **Rights.** Reuse the cleared `cricos` entry. Add the attribution text to every tool result. No change to the production gate.
 
+## Findings from the real file (16 Nov 2026)
+
+Verified against the 1 Oct 2026 XLSX; details in `docs/cricos-columns.md`. Fees, duration, language, work component and expiry are all present on the Courses sheet, so the proposal's expectations held. Three things differed from the first guess: each sheet has two title rows above the header; locations live on a separate Course Locations sheet (joined on provider code and course code) and websites on the Institutions sheet; the field of education is split into broad, narrow and detailed levels, of which we keep broad and narrow. Tuition fee is a whole-course total, blank on some courses. Expired courses are kept in the file and in our table, labelled, and left out of search. Diploma, advanced diploma and VET rows (about 11,000) are excluded by the level rule; diplomas alone are 5,846 courses.
+
 ## Risks / Trade-offs
 
 - Column assumptions may be wrong; mitigated by decision 5.

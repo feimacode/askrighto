@@ -25,7 +25,13 @@ const HEADERS = {
   ],
   courseName: ["coursename", "name"],
   level: ["courselevel", "level"],
-  field: ["fieldofeducation", "broadfieldofeducation", "field"],
+  field: [
+    "fieldofeducation",
+    "broadfieldofeducation",
+    "field",
+    "fieldofeducation1broadfield",
+  ],
+  fieldNarrow: ["fieldofeducation1narrowfield"],
   durationWeeks: ["durationweeks", "duration", "totalcoursedurationweeks"],
   tuitionFee: [
     "tuitionfee",
@@ -83,6 +89,41 @@ export function parseLocation(raw: string): IntlLocation | undefined {
   return { campus: t, state: "" };
 }
 
+/** The real export has two title rows above the header. Returns the rows from the first row that looks like a header. */
+export function fromHeader(
+  rows: string[][],
+  accepted: readonly string[],
+  minMatch = 3,
+): string[][] {
+  const want = new Set(accepted);
+  for (let i = 0; i < Math.min(rows.length, 10); i++)
+    if (rows[i]!.filter((c) => want.has(key(c))).length >= minMatch)
+      return rows.slice(i);
+  return rows;
+}
+
+/** Adds a scheme to a bare website such as "www.ecu.edu.au". Anything that does not look like a host is dropped. */
+export function normaliseWebsite(raw: string): string | undefined {
+  const t = raw.trim();
+  if (!t) return undefined;
+  const withScheme = /^https?:\/\//i.test(t)
+    ? t
+    : `https://${t.replace(/^\/+/, "")}`;
+  try {
+    const u = new URL(withScheme);
+    return u.hostname.includes(".") ? withScheme : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export interface IntlParseOptions {
+  /** Course Locations sheet as CSV: one row per course and location. */
+  courseLocationsCsv?: string;
+  /** Institutions sheet as CSV: provider website. */
+  institutionsCsv?: string;
+}
+
 export interface IntlParseReport {
   rowsRead: number;
   kept: number;
@@ -91,17 +132,62 @@ export interface IntlParseReport {
   withoutFee: number;
   withoutDuration: number;
   withoutLocation: number;
+  /** Which optional sheets were supplied. */
+  joined: { courseLocations: boolean; institutions: boolean };
   columnsFound: string[];
   columnsMissing: string[];
 }
 
-export function parseIntlCricos(csv: string): {
+const LOC_HEADERS = {
+  providerCode: HEADERS.providerCode,
+  cricosCode: HEADERS.cricosCode,
+  name: ["locationname", "campus", "campusname"],
+  city: ["locationcity", "city"],
+  state: ["locationstate", "state"],
+} as const;
+const INST_HEADERS = {
+  providerCode: HEADERS.providerCode,
+  website: HEADERS.providerWebsite,
+} as const;
+
+/** Reads a sheet with named columns; rows come back as objects keyed by our field names. */
+function readSheet<H extends Record<string, readonly string[]>>(
+  csv: string,
+  headers: H,
+): Array<Record<keyof H, string>> {
+  const all = Object.values(headers).flat();
+  const rows = fromHeader(parseCsv(csv), all, 2);
+  if (rows.length < 2) return [];
+  const head = rows[0]!.map(key);
+  const idx = Object.fromEntries(
+    Object.entries(headers).map(([f, names]) => [
+      f,
+      head.findIndex((h) => names.includes(h)),
+    ]),
+  );
+  return rows
+    .slice(1)
+    .map(
+      (r) =>
+        Object.fromEntries(
+          Object.keys(headers).map((f) => [
+            f,
+            idx[f]! >= 0 ? (r[idx[f]!] ?? "").trim() : "",
+          ]),
+        ) as Record<keyof H, string>,
+    );
+}
+
+export function parseIntlCricos(
+  csv: string,
+  opts: IntlParseOptions = {},
+): {
   providers: IntlProvider[];
   courses: IntlCourse[];
   report: IntlParseReport;
   problems: string[];
 } {
-  const rows = parseCsv(csv);
+  const rows = fromHeader(parseCsv(csv), Object.values(HEADERS).flat());
   const empty = {
     providers: [],
     courses: [],
@@ -113,6 +199,7 @@ export function parseIntlCricos(csv: string): {
       withoutFee: 0,
       withoutDuration: 0,
       withoutLocation: 0,
+      joined: { courseLocations: false, institutions: false },
       columnsFound: [],
       columnsMissing: [],
     } satisfies IntlParseReport,
@@ -123,7 +210,13 @@ export function parseIntlCricos(csv: string): {
     header.findIndex((h) => (HEADERS[f] as readonly string[]).includes(h));
   const fields = Object.keys(HEADERS) as Field[];
   const columnsFound = fields.filter((f) => col(f) >= 0);
-  const columnsMissing = fields.filter((f) => col(f) < 0);
+  const columnsMissing = fields.filter(
+    (f) =>
+      col(f) < 0 &&
+      f !== "fieldNarrow" &&
+      !(f === "locations" && opts.courseLocationsCsv) &&
+      !(f === "providerWebsite" && opts.institutionsCsv),
+  );
   const problems = (
     ["cricosCode", "providerCode", "courseName", "level"] as const
   )
@@ -139,6 +232,27 @@ export function parseIntlCricos(csv: string): {
     const i = col(f);
     return i >= 0 ? (r[i] ?? "").trim() : "";
   };
+  // Optional sheets: locations come from Course Locations and websites from Institutions in the real export.
+  const locByCourse = new Map<string, IntlLocation[]>();
+  if (opts.courseLocationsCsv)
+    for (const r of readSheet(opts.courseLocationsCsv, LOC_HEADERS)) {
+      if (!r.cricosCode || !r.name) continue;
+      const campus =
+        r.city && !r.name.toLowerCase().includes(r.city.toLowerCase())
+          ? `${r.name}, ${r.city}`
+          : r.name;
+      const k = `${r.providerCode}|${r.cricosCode}`;
+      locByCourse.set(k, [
+        ...(locByCourse.get(k) ?? []),
+        { state: r.state.toUpperCase(), campus },
+      ]);
+    }
+  const websites = new Map<string, string>();
+  if (opts.institutionsCsv)
+    for (const r of readSheet(opts.institutionsCsv, INST_HEADERS)) {
+      const w = normaliseWebsite(r.website);
+      if (r.providerCode && w) websites.set(r.providerCode, w);
+    }
   const providers = new Map<string, IntlProvider>();
   const courses = new Map<string, IntlCourse>();
   const excludedByLevel: Record<string, number> = {};
@@ -165,8 +279,12 @@ export function parseIntlCricos(csv: string): {
       providers.set(providerId, {
         id: providerId,
         name: g(r, "providerName") || providerId,
-        ...(g(r, "providerWebsite")
-          ? { website: g(r, "providerWebsite") }
+        ...((websites.get(providerId) ??
+        normaliseWebsite(g(r, "providerWebsite")))
+          ? {
+              website: (websites.get(providerId) ??
+                normaliseWebsite(g(r, "providerWebsite")))!,
+            }
           : {}),
       });
     const weeks = num(g(r, "durationWeeks"));
@@ -177,17 +295,22 @@ export function parseIntlCricos(csv: string): {
       /^\d{4}-\d{2}-\d{2}/.test(exp) &&
       exp.slice(0, 10) < new Date().toISOString().slice(0, 10);
     const work = yes(g(r, "workComponent"));
-    const locations = g(r, "locations")
-      .split(/[;|]/)
-      .map(parseLocation)
-      .filter((x): x is IntlLocation => !!x);
+    const locations = opts.courseLocationsCsv
+      ? (locByCourse.get(`${providerId}|${code}`) ?? [])
+      : g(r, "locations")
+          .split(/[;|]/)
+          .map(parseLocation)
+          .filter((x): x is IntlLocation => !!x);
+    const field = [g(r, "field"), g(r, "fieldNarrow")]
+      .filter(Boolean)
+      .join("; ");
     courses.set(code, {
       cricosCode: code,
       providerId,
       name: g(r, "courseName"),
       level,
       levelGroup: group,
-      ...(g(r, "field") ? { field: g(r, "field") } : {}),
+      ...(field ? { field } : {}),
       ...(weeks ? { durationWeeks: Math.round(weeks) } : {}),
       ...(tuition ? { tuitionFeeTotal: tuition } : {}),
       ...(nonTuition ? { nonTuitionFee: nonTuition } : {}),
@@ -209,6 +332,10 @@ export function parseIntlCricos(csv: string): {
       withoutFee: list.filter((c) => c.tuitionFeeTotal === undefined).length,
       withoutDuration: list.filter((c) => c.durationWeeks === undefined).length,
       withoutLocation: list.filter((c) => c.locations.length === 0).length,
+      joined: {
+        courseLocations: !!opts.courseLocationsCsv,
+        institutions: !!opts.institutionsCsv,
+      },
       columnsFound,
       columnsMissing,
     },
