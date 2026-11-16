@@ -114,11 +114,16 @@ Usage:
   askrighto --http     run over streamable HTTP on PORT (default 3001), path /mcp
   askrighto migrate    apply database migrations (needs DATABASE_URL)
   askrighto sync-energy [--record DIR] [--retailer SLUG]
-                       load or refresh energy plans; --record saves raw API responses as fixtures`);
+                       load or refresh energy plans; --record saves raw API responses as fixtures
+  askrighto renormalise-energy [--retailer SLUG] [--dry-run] [--show REASON]
+                       re-run the normaliser over stored raw payloads (no API calls); --show prints
+                       the raw fragment of plans still flagged with that reason`);
   } else if (args[0] === "migrate") {
     await (await import("./energy/cli.js")).cliMigrate();
   } else if (args[0] === "sync-energy") {
     await (await import("./energy/cli.js")).cliSyncEnergy(args.slice(1));
+  } else if (args[0] === "renormalise-energy") {
+    await (await import("./energy/cli.js")).cliRenormaliseEnergy(args.slice(1));
   } else if (args.includes("--http")) {
     await startHttp();
   } else {

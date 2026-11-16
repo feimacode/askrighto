@@ -43,7 +43,12 @@ const arr = (v: unknown): Obj[] => (Array.isArray(v) ? v.filter(isObj) : []);
 const str = (v: unknown): string | undefined => (typeof v === "string" && v ? v : undefined);
 const strs = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
 
-function rates(v: unknown, why: string[]): Rate[] {
+/**
+ * Rates of one rate block. `period` comes from the block (the standards put it on singleRate,
+ * timeOfUseRates[] and the feed-in tariffs, not on each rate). A per-rate `period` is still
+ * accepted for tolerance but is not in the standards.
+ */
+function rates(v: unknown, why: string[], blockPeriod?: string): Rate[] {
   const out: Rate[] = [];
   for (const r of arr(v)) {
     const unitPrice = parseMoney(r.unitPrice);
@@ -52,32 +57,46 @@ function rates(v: unknown, why: string[]): Rate[] {
       continue;
     }
     const volume = typeof r.volume === "number" ? r.volume : undefined;
+    const period = str(r.period) ?? blockPeriod;
     out.push({
       unitPrice,
       measureUnit: str(r.measureUnit) ?? "KWH",
       ...(volume !== undefined ? { volume } : {}),
-      ...(str(r.period) ? { period: str(r.period) } : {}),
+      ...(volume !== undefined && period ? { period } : {}),
     });
   }
   return out;
 }
 
-function timeOfUse(v: unknown, why: string[]): TimeOfUseRate[] {
-  return arr(v).map((t) => ({
-    type: str(t.type) ?? "UNKNOWN",
-    ...(str(t.displayName) ? { displayName: str(t.displayName) } : {}),
-    rates: rates(t.rates, why),
-    windows: arr(t.timeOfUse).map((w) => ({
-      days: strs(w.days),
-      ...(str(w.startTime) ? { startTime: str(w.startTime) } : {}),
-      ...(str(w.endTime) ? { endTime: str(w.endTime) } : {}),
-    })),
+/** Block period, with the schema default (P1Y) where the standards state one. */
+const blockPeriod = (o: Obj, schemaDefault?: string): string | undefined => str(o.period) ?? schemaDefault;
+
+function windows(v: unknown) {
+  return arr(v).map((w) => ({
+    days: strs(w.days),
+    ...(str(w.startTime) ? { startTime: str(w.startTime) } : {}),
+    ...(str(w.endTime) ? { endTime: str(w.endTime) } : {}),
   }));
 }
 
+function timeOfUse(v: unknown, why: string[], withSupply = false): TimeOfUseRate[] {
+  return arr(v).map((t) => {
+    const out: TimeOfUseRate = {
+      type: str(t.type) ?? "UNKNOWN",
+      ...(str(t.displayName) ? { displayName: str(t.displayName) } : {}),
+      rates: rates(t.rates, why, blockPeriod(t, "P1Y")),
+      windows: windows(t.timeOfUse),
+    };
+    const d = withSupply ? parseMoney(t.dailySupplyCharge) : undefined;
+    if (d !== undefined) out.dailySupplyCharge = d;
+    return out;
+  });
+}
+
 function supply(o: Obj): number | undefined {
-  // The standards name this dailySupplyCharges (v3) or dailySupplyCharge; accept both.
-  return parseMoney(o.dailySupplyCharges ?? o.dailySupplyCharge);
+  // The standards (every version) name it dailySupplyCharge. dailySupplyCharges is not in the
+  // standards; it is still accepted until real payloads confirm it never appears.
+  return parseMoney(o.dailySupplyCharge ?? o.dailySupplyCharges);
 }
 
 function tariffPeriods(v: unknown, why: string[]): TariffPeriod[] {
@@ -86,10 +105,21 @@ function tariffPeriods(v: unknown, why: string[]): TariffPeriod[] {
     if (str(t.displayName)) p.displayName = str(t.displayName);
     if (str(t.startDate)) p.startDate = str(t.startDate);
     if (str(t.endDate)) p.endDate = str(t.endDate);
-    const d = supply(t);
-    if (d !== undefined) p.dailySupplyCharge = d;
+    const supplyType = str(t.dailySupplyChargeType) ?? "SINGLE";
+    if (supplyType === "BAND") {
+      // Banded supply charges are recorded but not costed; the estimate stops on the missing single charge.
+      p.bandedDailySupplyCharges = rates(t.bandedDailySupplyCharges, why);
+      why.push("tariffPeriod:banded_supply_charge");
+    } else {
+      if (supplyType !== "SINGLE") why.push(`dailySupplyChargeType:${supplyType}`);
+      const d = supply(t);
+      if (d !== undefined) p.dailySupplyCharge = d;
+      else why.push("tariffPeriod:no_supply_charge");
+    }
     const u = str(t.rateBlockUType);
-    if (isObj(t.singleRate) && (u === "singleRate" || !u)) p.singleRate = rates(t.singleRate.rates, why);
+    // singleRate.period has no schema default, so a block threshold without one stays unperiod-ed
+    // and the estimate refuses it rather than guessing.
+    if (isObj(t.singleRate) && (u === "singleRate" || !u)) p.singleRate = rates(t.singleRate.rates, why, blockPeriod(t.singleRate));
     if (Array.isArray(t.timeOfUseRates) && (u === "timeOfUseRates" || !u)) p.timeOfUse = timeOfUse(t.timeOfUseRates, why);
     if (u === "demandCharges" || Array.isArray(t.demandCharges)) p.hasDemandCharges = true;
     if (u && !["singleRate", "timeOfUseRates", "demandCharges"].includes(u)) why.push(`rateBlockUType:${u}`);
@@ -102,26 +132,53 @@ function controlledLoads(v: unknown, why: string[]): ControlledLoad[] {
   return arr(v).map((c) => {
     const o: ControlledLoad = {};
     if (str(c.displayName)) o.displayName = str(c.displayName);
-    const d = supply(c);
-    if (d !== undefined) o.dailySupplyCharge = d;
-    if (isObj(c.singleRate)) o.singleRate = rates(c.singleRate.rates, why);
-    if (Array.isArray(c.timeOfUseRates)) o.timeOfUse = timeOfUse(c.timeOfUseRates, why);
+    const u = str(c.rateBlockUType);
+    if (isObj(c.singleRate) && (u === "singleRate" || !u)) {
+      o.singleRate = rates(c.singleRate.rates, why, blockPeriod(c.singleRate, "P1Y"));
+      // The standards put the controlled load supply charge inside singleRate.
+      const d = parseMoney(c.singleRate.dailySupplyCharge) ?? supply(c);
+      if (d !== undefined) o.dailySupplyCharge = d;
+    }
+    if (Array.isArray(c.timeOfUseRates) && (u === "timeOfUseRates" || !u)) o.timeOfUse = timeOfUse(c.timeOfUseRates, why, true);
+    if (u && !["singleRate", "timeOfUseRates"].includes(u)) why.push(`controlledLoad:rateBlockUType:${u}`);
+    if (!o.singleRate && !o.timeOfUse) why.push("controlledLoad:no_rates");
     return o;
   });
 }
 
+/**
+ * Solar feed-in tariffs. In Get Generic Plan Detail v3 (EnergyPlanSolarFeedInTariffV3)
+ * `timeVaryingTariffs` is an array of tariffs, each with `rates[]` and `timeVariations[]`
+ * windows. In v2 it was a single object; that shape is still read for tolerance.
+ */
 function feedIn(v: unknown, why: string[]): FeedIn[] {
   return arr(v).map((f) => {
-    const single = isObj(f.singleTariff) ? f.singleTariff : undefined;
-    const varying = isObj(f.timeVaryingTariffs) ? f.timeVaryingTariffs : undefined;
-    if (!single && !varying) why.push("solarFeedIn:unknown_shape");
-    return {
+    const u = str(f.tariffUType);
+    const single = isObj(f.singleTariff) && (u === "singleTariff" || !u) ? f.singleTariff : undefined;
+    const tv = u === "timeVaryingTariffs" || !u ? f.timeVaryingTariffs : undefined;
+    const varyingList = Array.isArray(tv) ? arr(tv) : isObj(tv) ? [tv] : undefined;
+    if (u && u !== "singleTariff" && u !== "timeVaryingTariffs") why.push(`solarFeedIn:tariffUType:${u}`);
+    if (!single && !varyingList?.length) why.push("solarFeedIn:unknown_shape");
+    const out: FeedIn = {
       ...(str(f.displayName) ? { displayName: str(f.displayName) } : {}),
+      ...(str(f.description) ? { description: str(f.description) } : {}),
       ...(str(f.scheme) ? { scheme: str(f.scheme) } : {}),
       ...(str(f.payerType) ? { payerType: str(f.payerType) } : {}),
-      rates: rates((single ?? varying)?.rates, why),
-      timeVarying: !!varying,
+      ...(str(f.startDate) ? { startDate: str(f.startDate) } : {}),
+      ...(str(f.endDate) ? { endDate: str(f.endDate) } : {}),
+      rates: single ? rates(single.rates, why, blockPeriod(single, "P1Y")) : [],
+      timeVarying: !single && !!varyingList?.length,
     };
+    if (!single && varyingList?.length) {
+      out.timeVaryingTariffs = varyingList.map((t) => ({
+        // An absent type means the tariff applies to all periods.
+        type: str(t.type) ?? "ALL",
+        ...(str(t.displayName) ? { displayName: str(t.displayName) } : {}),
+        rates: rates(t.rates, why, blockPeriod(t, "P1Y")),
+        windows: windows(t.timeVariations),
+      }));
+    }
+    return out;
   });
 }
 

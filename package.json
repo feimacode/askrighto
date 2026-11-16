@@ -17,7 +17,8 @@
     "start": "node dist/askrighto.js --http",
     "start:stdio": "node dist/askrighto.js",
     "migrate": "npm run build && node dist/askrighto.js migrate",
-    "sync:energy": "npm run build && node dist/askrighto.js sync-energy"
+    "sync:energy": "npm run build && node dist/askrighto.js sync-energy",
+    "renormalise:energy": "npm run build && node dist/askrighto.js renormalise-energy"
   },
   "repository": {
     "type": "git",

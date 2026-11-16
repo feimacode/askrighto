@@ -72,6 +72,7 @@ first real load (task 6.3).
 export DATABASE_URL=...   # see docs/local-database.md
 npm run migrate
 npm run sync:energy                  # prints the sync report; add -- --retailer agl to try one
+npm run renormalise:energy -- --dry-run --show solarFeedIn   # re-run the normaliser on stored plans, no API calls
 ```
 
 ## Recording fixtures
@@ -86,9 +87,12 @@ fixtures in the repository today are **synthetic**.
 
 ## GST basis: not yet confirmed
 
-The standards describe plan amounts as exclusive of GST, but `gstBasis` is `UNKNOWN`
-(`src/energy/gst.ts`) until three recorded plans are checked against the retailers' published
-price sheets (task 1.3). Tools must not show dollar figures while it is `UNKNOWN`.
+The standards' field descriptions put every amount we cost (usage rates, supply charges,
+controlled load, feed-in) as exclusive of GST; see [cdr-schemas.md](cdr-schemas.md#gst-what-the-standards-settle)
+for the field list and the exceptions. `gstBasis` stays `UNKNOWN` (`src/energy/gst.ts`) until
+recorded plans are checked against the retailers' published price sheets (task 1.3). Tools must
+not show dollar figures while it is `UNKNOWN`. Changing it needs `renormalise-energy` afterwards,
+because the basis is stored with each normalised contract.
 
 ## Not done in this workspace
 

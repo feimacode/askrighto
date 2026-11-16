@@ -51,6 +51,55 @@ describe("normalisePlan", () => {
     expect(plan.gas!.discounts[0]).toMatchObject({ method: "fixedAmount", amount: 3_000_000, conditional: false });
   });
 
+  it("time-varying solar feed-in (v3 array shape, issue #8) is understood with its windows", () => {
+    const { plan } = norm("solar-time-varying");
+    expect(plan.notUnderstood).toEqual([]);
+    const f = plan.electricity!.solarFeedIn[0]!;
+    expect(f).toMatchObject({ scheme: "CURRENT", payerType: "RETAILER", timeVarying: true, rates: [] });
+    expect(f.timeVaryingTariffs).toEqual([
+      { type: "PEAK", displayName: "Evening", rates: [{ unitPrice: 8_000, measureUnit: "KWH" }], windows: [{ days: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"], startTime: "16:00", endTime: "21:00" }] },
+      { type: "OFF_PEAK", displayName: "Rest of day", rates: [{ unitPrice: 2_000, measureUnit: "KWH" }], windows: [{ days: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"], startTime: "21:00", endTime: "16:00" }] },
+    ]);
+  });
+
+  it("still reads the retired v2 single-object time-varying feed-in; flags a feed-in with neither shape", () => {
+    const base = fixture("solar-time-varying") as Record<string, any>;
+    const v2 = structuredClone(base);
+    v2.electricityContract.solarFeedInTariff[0].timeVaryingTariffs = { type: "PEAK", rates: [{ unitPrice: "0.07" }], timeVariations: [{ days: ["MON"] }] };
+    const a = normalisePlan("x", readListItem(v2)!, v2).plan;
+    expect(a.understood).toBe(true);
+    expect(a.electricity!.solarFeedIn[0]!.timeVaryingTariffs).toEqual([{ type: "PEAK", rates: [{ unitPrice: 7_000, measureUnit: "KWH" }], windows: [{ days: ["MON"] }] }]);
+
+    const broken = structuredClone(base);
+    delete broken.electricityContract.solarFeedInTariff[0].timeVaryingTariffs;
+    expect(normalisePlan("x", readListItem(broken)!, broken).plan.notUnderstood).toContain("solarFeedIn:unknown_shape");
+  });
+
+  it("controlled load supply charge is read from inside the rate block, as the standards place it", () => {
+    const d = fixture("time-of-use") as Record<string, any>;
+    expect(d.electricityContract.controlledLoad[0].dailySupplyCharges).toBeUndefined();
+    const { plan } = norm("time-of-use");
+    expect(plan.electricity!.controlledLoads[0]!.dailySupplyCharge).toBe(10_000);
+  });
+
+  it("banded or missing supply charges are flagged, not silently dropped", () => {
+    const d = structuredClone(fixture("single-rate")) as Record<string, any>;
+    const tp = d.electricityContract.tariffPeriod[0];
+    tp.dailySupplyChargeType = "BAND";
+    delete tp.dailySupplyCharge;
+    tp.bandedDailySupplyCharges = [{ unitPrice: "0.90", volume: 10 }, { unitPrice: "1.20" }];
+    const a = normalisePlan("x", readListItem(d)!, d).plan;
+    expect(a.notUnderstood).toContain("tariffPeriod:banded_supply_charge");
+    expect(a.electricity!.tariffPeriods[0]!.bandedDailySupplyCharges).toHaveLength(2);
+
+    delete tp.dailySupplyChargeType;
+    delete tp.bandedDailySupplyCharges;
+    expect(normalisePlan("x", readListItem(d)!, d).plan.notUnderstood).toContain("tariffPeriod:no_supply_charge");
+
+    tp.dailySupplyCharges = "1.1"; // not in the standards, still accepted
+    expect(normalisePlan("x", readListItem(d)!, d).plan.understood).toBe(true);
+  });
+
   it("keeps an unknown pricing model and flags it", () => {
     const { plan } = norm("unknown-model");
     expect(plan.understood).toBe(false);

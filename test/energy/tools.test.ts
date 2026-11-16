@@ -60,7 +60,7 @@ beforeAll(async () => {
   await migrate(db);
   mock = await startMockCdr({
     retailers: {
-      agl: [plan("single-rate", "A1"), plan("unknown-model", "A2")],
+      agl: [plan("single-rate", "A1"), plan("unknown-model", "A2"), plan("solar-time-varying", "A3")],
       origin: [plan("time-of-use", "O1")],
       energyaustralia: [plan("block-rates-gas", "G1")],
     },
@@ -165,6 +165,17 @@ d("get_energy_plan", () => {
     expect(text).toContain(NOTICE);
     expect(sc.component).toBe("entity_card");
     expect(g.data.planUrl).toBe("https://example.test/plan/single");
+  });
+
+  it("shows feed-in credits as published (no GST added), including time-varying tariffs with windows", async () => {
+    const tou = (await call("get_energy_plan", { planId: "O1" })).g;
+    expect(tou.data.contracts[0].solarFeedIn[0]).toBe("FiT (current): 0.0500/kWh");
+    expect(tou.data.contracts[0].controlledLoads[0]).toMatch(/supply \$0\.11\/day/); // 0.10 x 1.1, read from singleRate
+    const tv = (await call("get_energy_plan", { planId: "A3" })).g;
+    expect(tv.found).toBe(true);
+    expect(tv.data.contracts[0].solarFeedIn[0]).toBe(
+      "Time varying feed-in (current): varies by time: Evening: 0.0800/kWh (MON/TUE/WED/THU/FRI/SAT/SUN 16:00-21:00); Rest of day: 0.0200/kWh (MON/TUE/WED/THU/FRI/SAT/SUN 21:00-16:00)",
+    );
   });
 
   it("reports an unknown id and flags a plan it does not fully understand", async () => {
