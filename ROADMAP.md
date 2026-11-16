@@ -165,7 +165,7 @@ data rights problem to clear first.
 | --- | --- | --- |
 | Server skeleton | TypeScript remote MCP server over HTTP (`/mcp`, `/healthz`), stateless, rate limited, access log without arguments, following Inkview's server shape [I] | `add-mcp-server-core` |
 | Grounded result envelope | Every tool returns the value, `source` (name, URL), `asOf` date, and an explicit `found: false` instead of a guess [F] | `add-mcp-server-core` |
-| Host guidance skill | A short skill that tells the host model to quote only tool results and show sources [F] | `add-host-guidance` |
+| Host guidance skill | A short skill that tells the host model to quote only tool results and show sources; skills-only plugin bundle. Later skill changes: `add-energy-bill-skill`, `add-course-skills` (unlisted until promotion), `add-answer-review-skill` (maintainer only) [F] | `add-host-guidance` |
 | Tests | Unit tests for the engine, an MCP smoke test, and tests that every tool returns `source` and `asOf` | each change |
 
 ### Energy plans
