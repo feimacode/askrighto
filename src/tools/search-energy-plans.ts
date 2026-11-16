@@ -3,7 +3,7 @@ import { defineTool } from "../core/define-tool.js";
 import { found, notFound } from "../core/grounded.js";
 import { ENERGY_DATASET_ID, withStore } from "../energy/index.js";
 import type { EnergyPlan } from "../energy/types.js";
-import { asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, inkview, inkviewResult, inkviewSource, matchRetailer, NOTICE, source, tableMeta } from "./energy-common.js";
+import { asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, inkview, inkviewResult, inkviewSource, matchRetailer, NOTICE, source, tableMeta, uniqueDistributors } from "./energy-common.js";
 
 const input = z.object({
   postcode: z.string().describe("Four-digit Australian postcode of the property, e.g. 3000"),
@@ -90,8 +90,8 @@ export const searchEnergyPlans = defineTool({
       // Distributors come from single-fuel plans, since a dual fuel plan lists both fuels' networks.
       const byFuel: Record<string, string[]> = {};
       for (const fuel of ["ELECTRICITY", "GAS"] as const) {
-        const set = new Set(plans.filter((p) => p.fuelType === fuel).flatMap((p) => p.geography.distributors));
-        if (set.size) byFuel[fuel] = [...set].sort();
+        const names = uniqueDistributors(plans.filter((p) => p.fuelType === fuel).flatMap((p) => p.geography.distributors));
+        if (names.length) byFuel[fuel] = names;
       }
       const relevant = args.fuelType ? [args.fuelType] : (["ELECTRICITY", "GAS"] as const);
       const multi = relevant.filter((f) => (byFuel[f]?.length ?? 0) > 1);

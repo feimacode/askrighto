@@ -13,6 +13,7 @@ import { assertSchema, createDb, migrate, type Db } from "../../src/energy/db.js
 import { RetailerLimiter } from "../../src/energy/limiter.js";
 import { getEnergy, startEnergy, withStore } from "../../src/energy/index.js";
 import { plansByPostcode, planById, CachedStore } from "../../src/energy/store.js";
+import { renormalise } from "../../src/energy/renormalise.js";
 import { runSync, type Retailer } from "../../src/energy/sync.js";
 import { fixture, startMockCdr, type MockCdr, type MockPlan } from "./mock-cdr.js";
 
@@ -217,6 +218,32 @@ d("sync and store", () => {
     expect((await store.plans({ postcode: "3000" })).length).toBe(3); // cached
     t += 1001;
     expect((await store.plans({ postcode: "3000" })).length).toBe(2); // expired
+  });
+});
+
+d("renormalise", () => {
+  beforeEach(reset);
+  it("re-runs the normaliser over stored raw payloads, with a dry run and raw fragments of flagged plans", async () => {
+    mock.state.retailers = { agl: [withId("solar-time-varying", "S1"), withId("single-rate", "A1")], origin: [] };
+    await sync();
+    // Simulate a plan stored by the old normaliser, which read timeVaryingTariffs as an object.
+    await db.pool.query("UPDATE plans SET understood = false, not_understood = '{solarFeedIn:unknown_shape}', contract = '{}' WHERE plan_id = 'S1'");
+
+    const dry = await renormalise(db, { dryRun: true, show: "solarFeedIn" });
+    expect(dry).toMatchObject({ plans: 2, updated: 1, before: { "solarFeedIn:unknown_shape": 1 }, after: {}, samples: [] });
+    expect((await db.pool.query("SELECT understood FROM plans WHERE plan_id = 'S1'")).rows[0].understood).toBe(false);
+
+    const real = await renormalise(db);
+    expect(real.updated).toBe(1);
+    const row = (await db.pool.query("SELECT understood, contract FROM plans WHERE plan_id = 'S1'")).rows[0];
+    expect(row.understood).toBe(true);
+    expect(row.contract.electricity.solarFeedIn[0].timeVaryingTariffs).toHaveLength(2);
+    expect((await renormalise(db)).updated).toBe(0);
+
+    // A shape still unknown is shown with its raw fragment.
+    await db.pool.query(`UPDATE plans SET raw = jsonb_set(raw, '{electricityContract,solarFeedInTariff,0}', '{"displayName":"odd","tariffUType":"timeVaryingTariffs"}') WHERE plan_id = 'S1'`);
+    const odd = await renormalise(db, { dryRun: true, show: "solarFeedIn" });
+    expect(odd.samples).toEqual([{ planId: "S1", reasons: ["solarFeedIn:unknown_shape"], fragment: { electricity: [{ displayName: "odd", tariffUType: "timeVaryingTariffs" }] } }]);
   });
 });
 

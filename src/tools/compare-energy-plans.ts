@@ -4,7 +4,7 @@ import { found, notFound, type Found } from "../core/grounded.js";
 import { estimateAnnualCost, type Estimate, type NotEstimated, type Usage } from "../energy/calc.js";
 import { ENERGY_DATASET_ID, withStore } from "../energy/index.js";
 import {
-  asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, dollars, inkview, inkviewResult, inkviewSource, matchRetailer, NOTICE, source, tableMeta,
+  asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, dollars, inkview, inkviewResult, inkviewSource, matchRetailer, NOTICE, source, tableMeta, uniqueDistributors,
 } from "./energy-common.js";
 
 const input = z.object({
@@ -30,7 +30,7 @@ const input = z.object({
 export const ASSUMPTIONS = [
   "Usage is spread evenly across the year and across each tariff period by its number of days.",
   "A year is 365 days.",
-  "Amounts include GST (10%) where the published rates exclude it. Solar feed-in credits are shown without GST.",
+  "Amounts include GST (10%) where the published rates exclude it. Fees are published including GST and solar feed-in credits carry none, so both are used as published.",
   "Conditional discounts (such as pay on time) are not in the ordering cost; each is listed with its condition and the lower cost if it is met.",
 ];
 export const OMISSIONS = [
@@ -103,7 +103,7 @@ export const compareEnergyPlans = defineTool({
       if (plans.length === 0) return notFound("outside_coverage", `No ${args.fuelType.toLowerCase()} plans are stored for postcode ${postcode}. The data covers ${COVERAGE_STATES}.`, { states: COVERAGE_STATES });
 
       // Network tariffs differ, so a mixed-network ranking would mislead. Distributors come from single-fuel plans.
-      const nets = [...new Set(plans.filter((p) => p.fuelType === args.fuelType).flatMap((p) => p.geography.distributors))].sort();
+      const nets = uniqueDistributors(plans.filter((p) => p.fuelType === args.fuelType).flatMap((p) => p.geography.distributors));
       let distributor = args.distributor;
       if (distributor) {
         const match = nets.find((n) => n.toLowerCase() === distributor!.toLowerCase());

@@ -47,6 +47,17 @@ const ratesText = (c: Contract, rs: Rate[]): string[] =>
     return r.volume !== undefined ? `${price} for the first ${r.volume} ${r.measureUnit.toLowerCase()} per ${r.period ?? "period"}` : `${price}${rs.length > 1 ? " above that" : ""}`;
   });
 
+/**
+ * Feed-in credits are shown as published, with no GST added: a household that is not
+ * registered for GST receives the credit without GST (the estimate treats it the same way).
+ * Still withheld while the GST basis is unconfirmed, so no figure goes out unchecked.
+ */
+const feedInRatesText = (c: Contract, rs: Rate[]): string[] =>
+  rs.map((r) => {
+    const price = c.gstBasis === "UNKNOWN" ? "price withheld" : `${formatMoney(r.unitPrice, 4)}/${r.measureUnit === "KWH" ? "kWh" : r.measureUnit.toLowerCase()}`;
+    return r.volume !== undefined ? `${price} for the first ${r.volume} ${r.measureUnit.toLowerCase()} per ${r.period ?? "period"}` : `${price}${rs.length > 1 ? " above that" : ""}`;
+  });
+
 const touText = (c: Contract, ts: TimeOfUseRate[]): string[] =>
   ts.map((t) => {
     const win = t.windows.map((w) => `${w.days.join("/")} ${w.startTime ?? ""}-${w.endTime ?? ""}`.trim()).join("; ");
@@ -58,6 +69,9 @@ function view(fuel: "ELECTRICITY" | "GAS", c: Contract): ContractView {
     const v = incGst(c, u);
     return v === undefined ? undefined : `$${formatMoney(v, 2)}`;
   };
+  // Fees are published including GST (AGL's fee descriptions say so; the standards are silent),
+  // and the basis of fixed discount amounts is not described, so both are shown as published.
+  const published = (u: number | undefined) => (u === undefined || c.gstBasis === "UNKNOWN" ? undefined : `$${formatMoney(u, 2)}`);
   return {
     fuel,
     pricingModel: c.pricingModel,
@@ -72,15 +86,26 @@ function view(fuel: "ELECTRICITY" | "GAS", c: Contract): ContractView {
       const s = money(cl.dailySupplyCharge);
       return `${cl.displayName ?? "Controlled load"}: ${cl.singleRate ? ratesText(c, cl.singleRate).join(", ") : cl.timeOfUse ? touText(c, cl.timeOfUse).join("; ") : "see plan"}${s ? `, supply ${s}/day` : ""}`;
     }),
-    solarFeedIn: c.solarFeedIn.map((f) => `${f.displayName ?? "Feed-in"}${f.scheme ? ` (${f.scheme.toLowerCase()})` : ""}: ${f.timeVarying ? "varies by time, " : ""}${ratesText(c, f.rates).join(", ")}`),
+    solarFeedIn: c.solarFeedIn.map((f) => {
+      const head = `${f.displayName ?? "Feed-in"}${f.scheme ? ` (${f.scheme.toLowerCase()})` : ""}`;
+      const body = f.timeVaryingTariffs?.length
+        ? `varies by time: ${f.timeVaryingTariffs
+            .map((t) => {
+              const win = t.windows.map((w) => `${w.days.join("/")} ${w.startTime ?? ""}-${w.endTime ?? ""}`.trim()).join("; ");
+              return `${t.displayName ?? t.type.replace(/_/g, " ").toLowerCase()}: ${feedInRatesText(c, t.rates).join(", ")}${win ? ` (${win})` : ""}`;
+            })
+            .join("; ")}`
+        : feedInRatesText(c, f.rates).join(", ");
+      return `${head}: ${body}`;
+    }),
     // Discounts always keep their published condition and are never folded into a rate.
     discounts: c.discounts.map((d) => ({
       name: d.displayName ?? d.category ?? "Discount",
       conditional: d.conditional,
       condition: d.conditional ? [d.category?.toLowerCase().replace(/_/g, " "), d.description].filter(Boolean).join(": ") || "conditions apply, see the plan link" : "applies without conditions",
-      ...(d.percent ? { amount: `${Math.round(Number(d.percent) * 1000) / 10}% (${d.method})` } : d.amount !== undefined && money(d.amount) ? { amount: `${money(d.amount)} (${d.method})` } : {}),
+      ...(d.percent ? { amount: `${Math.round(Number(d.percent) * 1000) / 10}% (${d.method})` } : d.amount !== undefined && published(d.amount) ? { amount: `${published(d.amount)} (${d.method}, as published)` } : {}),
     })),
-    fees: c.fees.map((f) => `${(f.type ?? "fee").toLowerCase().replace(/_/g, " ")}${f.term ? ` (${f.term.toLowerCase()})` : ""}${f.amount !== undefined && money(f.amount) ? `: ${money(f.amount)}` : f.rate ? `: ${f.rate}` : ""}${f.description ? ` - ${f.description}` : ""}`),
+    fees: c.fees.map((f) => `${(f.type ?? "fee").toLowerCase().replace(/_/g, " ")}${f.term ? ` (${f.term.toLowerCase()})` : ""}${f.amount !== undefined && published(f.amount) ? `: ${published(f.amount)}` : f.rate ? `: ${f.rate}` : ""}${f.description ? ` - ${f.description}` : ""}`),
     incentives: c.incentives.map((i) => [i.displayName, i.description].filter(Boolean).join(": ")),
     eligibility: c.eligibility.map((e) => [e.type, e.information ?? e.description].filter(Boolean).join(": ")),
     terms: [

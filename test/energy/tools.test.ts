@@ -16,7 +16,7 @@ import { RetailerLimiter } from "../../src/energy/limiter.js";
 import { runSync } from "../../src/energy/sync.js";
 import type { GstBasis } from "../../src/energy/types.js";
 import { createServer } from "../../src/server/create-server.js";
-import { NOTICE } from "../../src/tools/energy-common.js";
+import { NOTICE, uniqueDistributors } from "../../src/tools/energy-common.js";
 import { fixture, startMockCdr, type MockCdr } from "./mock-cdr.js";
 
 const URL = process.env.TEST_DATABASE_URL;
@@ -60,7 +60,13 @@ beforeAll(async () => {
   await migrate(db);
   mock = await startMockCdr({
     retailers: {
-      agl: [plan("single-rate", "A1"), plan("unknown-model", "A2")],
+      agl: [
+        plan("single-rate", "A1"),
+        plan("unknown-model", "A2"),
+        plan("solar-time-varying", "A3"),
+        // Recorded AGL plan, moved to one postcode of its own so the counts in the 3000 tests stay put.
+        { detail: { ...fixture("recorded/agl-AGD812605MR"), geography: { distributors: ["Citipower"], includedPostcodes: ["3207"] } } },
+      ],
       origin: [plan("time-of-use", "O1")],
       energyaustralia: [plan("block-rates-gas", "G1")],
     },
@@ -165,6 +171,33 @@ d("get_energy_plan", () => {
     expect(text).toContain(NOTICE);
     expect(sc.component).toBe("entity_card");
     expect(g.data.planUrl).toBe("https://example.test/plan/single");
+  });
+
+  it("shows feed-in credits as published (no GST added), including time-varying tariffs with windows", async () => {
+    const tou = (await call("get_energy_plan", { planId: "O1" })).g;
+    expect(tou.data.contracts[0].solarFeedIn[0]).toBe("FiT (current): 0.0500/kWh");
+    expect(tou.data.contracts[0].controlledLoads[0]).toMatch(/supply \$0\.11\/day/); // 0.10 x 1.1, read from singleRate
+    const tv = (await call("get_energy_plan", { planId: "A3" })).g;
+    expect(tv.found).toBe(true);
+    expect(tv.data.contracts[0].solarFeedIn[0]).toBe(
+      "Time varying feed-in (current): varies by time: Evening: 0.0800/kWh (MON/TUE/WED/THU/FRI/SAT/SUN 16:00-21:00); Rest of day: 0.0200/kWh (MON/TUE/WED/THU/FRI/SAT/SUN 21:00-16:00)",
+    );
+  });
+
+  it("recorded AGL plan shows the fact sheet's GST-inclusive prices and its fees as published", async () => {
+    const g = (await call("get_energy_plan", { planId: "AGD812605MR@VEC" })).g;
+    const c = g.data.contracts[0];
+    expect(c.periods[0].dailySupply).toBe("$1.04/day"); // fact sheet 104.18 c/day
+    expect(c.periods[0].usage).toEqual([
+      "shoulder: 0.3058/kWh (MON/TUE/WED/THU/FRI/SAT/SUN 15:00-21:00)",
+      "shoulder: 0.1824/kWh (MON/TUE/WED/THU/FRI/SAT/SUN 21:00-00:00; MON/TUE/WED/THU/FRI/SAT/SUN 00:00-15:00)",
+    ]);
+    expect(c.solarFeedIn[0]).toBe("Current FIT policy (current): 0.0050/kWh");
+    expect(c.fees[0]).toMatch(/^reconnection \(fixed\): \$51\.19 /); // "Includes GST", not grossed up again
+  });
+
+  it("treats distributor spellings that differ only by case as one network", () => {
+    expect(uniqueDistributors(["CitiPower", "Jemena", "Citipower"])).toEqual(["CitiPower", "Jemena"]);
   });
 
   it("reports an unknown id and flags a plan it does not fully understand", async () => {

@@ -4,7 +4,7 @@
 
 - [x] 1.1 Build the CDR client (list with paging for `CURRENT` and `FUTURE`, detail, version headers, timeout, per-retailer rate and concurrency limits, overall in-flight ceiling, adaptive slow-down, `Retry-After` backoff) and a `sync:energy --record` CLI mode; verify unit tests against a mock server cover paging through `links.next`, 429 with `Retry-After`, 5xx retry, a 404 plan, that no retailer receives more than its configured requests in any second, and that a throttled retailer slows while the others do not *(Note: mock-server tests only; not yet run against the live API)*
 - [ ] 1.2 From a network that can reach the API (Iven's machine or a manually triggered GitHub Actions job), record list pages and at least 40 plan details across five or more retailers, both fuels, every plan type, a Victorian postcode, a future-dated plan and every `pricingModel` found; verify the fixtures are committed under `test/fixtures/energy/` with a README naming the capture date
-- [ ] 1.3 Confirm the GST basis and units by checking three fixture plans against the retailers' published price sheets; verify the finding is written into `docs/energy-data.md` and `gstBasis` is set from it
+- [x] 1.3 Confirm the GST basis and units by checking three fixture plans against the retailers' published price sheets; verify the finding is written into `docs/energy-data.md` and `gstBasis` is set from it (done 16 Nov 2026 with one recorded AGL plan and its fact sheet rather than three; rates exclusive, fees inclusive; see docs/cdr-schemas.md)
 - [ ] 1.4 Seed `retailers.json` from the AER base URI list and compare it once with the CDR Register's energy brands; verify a script reports any brand in one list and not the other
 
 ## 2. Normalised plan model

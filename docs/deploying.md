@@ -47,8 +47,9 @@ schema and repeat steps 4 and 5.
 
 ## Known limits of this deployment
 
-- `gstBasis` is `UNKNOWN` until confirmed from real data (`docs/energy-data.md`), so the live server
-  shows no cost estimates and withholds dollar amounts in plan details. Search works.
+- `gstBasis` is `EXCLUSIVE` since 16 Nov 2026 (`docs/cdr-schemas.md`). Plans loaded before that
+  carry `UNKNOWN` until `node dist/askrighto.js renormalise-energy` is run once after deploy (then
+  restart); until then the server shows no cost estimates for them.
 - Azure PostgreSQL requires TLS; the server verifies the certificate. If the connection fails with a
   certificate error, the Azure CA chain is not in Node's bundle: tell us, and we add it through
   `NODE_EXTRA_CA_CERTS`.
