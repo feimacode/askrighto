@@ -7,6 +7,7 @@ import pg from "pg";
 import { sql as m0001 } from "./migrations/0001-init.js";
 import { sql as m0002 } from "./migrations/0002-courses.js";
 import { sql as m0003 } from "./migrations/0003-vce.js";
+import { sql as m0004 } from "./migrations/0004-intl.js";
 
 export interface DbConfig {
   url: string;
@@ -74,6 +75,7 @@ export const MIGRATIONS: ReadonlyArray<{
   { version: 1, name: "init", sql: m0001 },
   { version: 2, name: "courses", sql: m0002 },
   { version: 3, name: "vce", sql: m0003 },
+  { version: 4, name: "intl", sql: m0004 },
 ];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1]!.version;
