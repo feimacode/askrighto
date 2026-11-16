@@ -32,4 +32,5 @@ jobs:
       - run: npm test
       - run: npm run courses:validate
       - run: npm run vce:validate
+      - run: npm run guidance:check
       - run: npm run release:check

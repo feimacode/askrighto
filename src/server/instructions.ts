@@ -1,11 +1,6 @@
 /** Server instructions returned on `initialize`: the base rules plus each served vertical's guidance. */
 import { ENERGY_INSTRUCTIONS } from "../energy/instructions.js";
-
-const BASE = `Ask Righto answers everyday Australian questions from public data. Follow these rules:
-- State figures only as they appear in a tool result. Never estimate, round up or fill a gap from memory.
-- Show the source name, the source link and the as-of date with every figure you give.
-- If a tool says it found nothing (found: false), say so plainly and relay its message. Do not guess.
-- Results are general information, not advice. Do not call any option the best or recommended.`;
+import { baseInstructions } from "../guidance/shared.js";
 
 const extra: string[] = [];
 
@@ -16,7 +11,7 @@ export function addInstructions(text: string): void {
 export function serverInstructions(
   verticalTexts: readonly string[] = [ENERGY_INSTRUCTIONS],
 ): string {
-  return [BASE, ...verticalTexts, ...extra].join("\n\n");
+  return [baseInstructions(), ...verticalTexts, ...extra].join("\n\n");
 }
 
 /** For tests only. */
