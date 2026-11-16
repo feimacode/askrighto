@@ -25,6 +25,17 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Evidence: https://data.gov.au/ (read 2026-11-12). CRICOS dataset published under CC BY 2.5 AU. Names, providers, codes and locations only; no ATARs.
 - Attribution: Course names, codes and locations: CRICOS, Australian Government Department of Education, via data.gov.au, licensed CC BY 2.5 AU.
 
+## intl-courses
+
+- Owner: Australian Government Department of Education (CRICOS, on data.gov.au)
+- Basis: `open_licence`
+- Status: `cleared`
+- Review by: 2027-08-01
+- Evidence: https://data.gov.au/ (read 2026-11-12). CRICOS dataset published under CC BY 2.5 AU. Same source as the cricos entry; here used for fees, durations and locations of courses for international students. Which fields the file holds is confirmed in docs/cricos-columns.md once a real file is opened.
+- Attribution: Course names, codes, fees, durations and locations: CRICOS, Australian Government Department of Education, via data.gov.au, licensed CC BY 2.5 AU. Fees are indicative.
+- Condition: Fees shown as indicative, as published, with the file date.
+- Condition: No English, entry-requirement, scholarship or intake facts are stored.
+
 ## vic-courses
 
 - Owner: Each Victorian university (course pages and admissions transparency pages)

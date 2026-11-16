@@ -268,6 +268,10 @@ Usage:
   askrighto courses:validate | courses:load [--cricos FILE.csv] | courses:check-pages
   askrighto vce:validate | vce:load
                        check and load the Victorian course index and VCE admissions data from data/
+  askrighto intl:validate --cricos FILE.csv | intl:load --cricos FILE.csv [--source-date YYYY-MM-DD]
+                       check and load the CRICOS course sheet (international students)
+  askrighto compare:usecases [--json]
+                       coverage report for the domestic and international course data (read-only)
   askrighto renormalise-energy [--retailer SLUG] [--dry-run] [--show REASON]
                        re-run the normaliser over stored raw payloads (no API calls); --show prints
                        the raw fragment of plans still flagged with that reason`);
@@ -285,6 +289,13 @@ Usage:
     const run = map[args[0]];
     if (!run) throw new Error(`Unknown command ${args[0]}`);
     await run();
+  } else if (args[0]?.startsWith("intl:")) {
+    const cli = await import("./intl/cli.js");
+    if (args[0] === "intl:validate") cli.cliIntlValidate(args.slice(1));
+    else if (args[0] === "intl:load") await cli.cliIntlLoad(args.slice(1));
+    else throw new Error(`Unknown command ${args[0]}`);
+  } else if (args[0] === "compare:usecases") {
+    await (await import("./compare/cli.js")).cliCompareUseCases(args.slice(1));
   } else if (args[0] === "sync-energy") {
     await (await import("./energy/cli.js")).cliSyncEnergy(args.slice(1));
   } else if (args[0] === "renormalise-energy") {

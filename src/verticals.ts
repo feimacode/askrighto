@@ -8,7 +8,7 @@ import { notFound } from "./core/grounded.js";
 import type { AnyToolDefinition } from "./core/define-tool.js";
 import { makeListDataSources } from "./tools/list-data-sources.js";
 
-export const KNOWN_VERTICALS = ["energy", "courses"] as const;
+export const KNOWN_VERTICALS = ["energy", "courses", "international"] as const;
 
 export interface Vertical {
   id: (typeof KNOWN_VERTICALS)[number];

@@ -6,18 +6,18 @@
 
 ## 2. Schema and loader
 
-- [ ] 2.1 Add migration `0004-intl.ts` with `intl_providers`, `intl_courses`, `intl_course_locations` and `intl_load`, under the `askrighto` schema
-- [ ] 2.2 Extend the CRICOS parser in `src/courses/cricos.ts` (or a shared module) to stream the national file and map the verified columns
-- [ ] 2.3 Implement `intl:validate` (row counts by level, rows with no fee, rows with no duration, duplicate course codes) and `intl:load` (single transaction, replaces all rows, records source file and date)
-- [ ] 2.4 Link rows to domestic `courses` through `cricos_code` where both exist
+- [x] 2.1 Add migration `0004-intl.ts` with `intl_providers`, `intl_courses`, `intl_course_locations` and `intl_load`, under the `askrighto` schema
+- [x] 2.2 Extend the CRICOS parser in `src/courses/cricos.ts` (or a shared module) to stream the national file and map the verified columns (parser reads one CSV with a locations column; a separate locations sheet would need a join once the real file is seen)
+- [x] 2.3 Implement `intl:validate` (row counts by level, rows with no fee, rows with no duration, duplicate course codes) and `intl:load` (single transaction, replaces all rows, records source file and date)
+- [x] 2.4 Link rows to domestic `courses` through `cricos_code` where both exist (resolved at read time by a join on `courses.cricos_code`, so it never goes stale)
 
 ## 3. Labelling and guidance
 
-- [ ] 3.1 Add the fee label, as-of date and CRICOS attribution to every returned record
-- [ ] 3.2 Seed provider page links and write the reading checklist (English entry, scholarships, intakes, country requirements) for the browsing assistant
+- [x] 3.1 Add the fee label, as-of date and CRICOS attribution to every returned record
+- [x] 3.2 Seed provider page links and write the reading checklist (English entry, scholarships, intakes, country requirements) for the browsing assistant (provider links come from the website column when the file has one; no hand-seeded list)
 
 ## 4. Vertical and gate
 
-- [ ] 4.1 Add `international` to `KNOWN_VERTICALS`, register its readiness check, keep it out of `ASKRIGHTO_PUBLIC_VERTICALS` by default
-- [ ] 4.2 Tests: parser on the fixture, load idempotence, level filter, null handling, link to domestic rows, `data_unavailable` when the rights entry is not cleared
-- [ ] 4.3 Document in `docs/intl-course-data.md`
+- [x] 4.1 Add `international` to `KNOWN_VERTICALS`, register its readiness check, keep it out of `ASKRIGHTO_PUBLIC_VERTICALS` by default
+- [x] 4.2 Tests: parser on the fixture, load idempotence, level filter, null handling, link to domestic rows, `data_unavailable` when the rights entry is not cleared
+- [x] 4.3 Document in `docs/intl-course-data.md`

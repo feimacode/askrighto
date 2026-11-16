@@ -23,6 +23,9 @@
     "courses:check-pages": "npm run build && node dist/askrighto.js courses:check-pages",
     "vce:validate": "npm run build && node dist/askrighto.js vce:validate",
     "vce:load": "npm run build && node dist/askrighto.js vce:load",
+    "intl:validate": "npm run build && node dist/askrighto.js intl:validate",
+    "intl:load": "npm run build && node dist/askrighto.js intl:load",
+    "compare:usecases": "npm run build && node dist/askrighto.js compare:usecases",
     "release:check": "node scripts/release-check.mjs",
     "renormalise:energy": "npm run build && node dist/askrighto.js renormalise-energy"
   },
