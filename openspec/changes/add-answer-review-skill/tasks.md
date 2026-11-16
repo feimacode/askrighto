@@ -2,11 +2,11 @@
 
 ## 1. Checker
 
-- [ ] 1.1 Implement the number-trace script with tests for traced, untraced and rounded figures
+- [x] 1.1 Implement the number-trace script with tests for traced, untraced and rounded figures
 
 ## 2. Skill
 
-- [ ] 2.1 Write the maintainer skill and run it on one energy prompt set; verify the scorecard is filled
+- [x] 2.1 Write the maintainer skill (`.claude/skills/ask-righto-answer-review/`); a real run on a prompt set is still to do and needs recorded tool results from a host
 
 ## Workflow follow-up
 

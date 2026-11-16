@@ -1,0 +1,6 @@
+{
+  "name": "askrighto-internal",
+  "version": "0.1.0",
+  "description": "Course skills for testers of the Ask Righto course tools, which are served on an internal route until the course verticals pass their promotion gates. Install alongside the askrighto plugin.",
+  "repository": "https://github.com/feimacode/askrighto"
+}

@@ -26,6 +26,8 @@
     "intl:validate": "npm run build && node dist/askrighto.js intl:validate",
     "intl:load": "npm run build && node dist/askrighto.js intl:load",
     "compare:usecases": "npm run build && node dist/askrighto.js compare:usecases",
+    "guidance:generate": "node scripts/guidance.mjs",
+    "guidance:check": "node scripts/guidance.mjs --check",
     "release:check": "node scripts/release-check.mjs",
     "renormalise:energy": "npm run build && node dist/askrighto.js renormalise-energy"
   },
