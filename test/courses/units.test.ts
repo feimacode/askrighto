@@ -199,6 +199,11 @@ describe("CRICOS merge", () => {
       locations: ["Parkville", "Clayton"],
     });
   });
+  it("skips the two title rows of the real export", () => {
+    const r = parseCricos(`Courses\nReport generated 01/10/2026\n${csv}`);
+    expect(r.problems).toEqual([]);
+    expect(r.courses).toHaveLength(2);
+  });
   it("reports a missing column", () =>
     expect(parseCricos("a,b\n1,2").problems.length).toBeGreaterThan(0));
   it("adds undergraduate CRICOS courses as index-only rows and skips others", () => {

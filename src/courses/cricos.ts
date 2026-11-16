@@ -60,7 +60,12 @@ export function parseCricos(csv: string): {
   courses: CricosCourse[];
   problems: string[];
 } {
-  const rows = parseCsv(csv);
+  const all = parseCsv(csv);
+  // The real export has title rows above the header; start at the first row that names a course code column.
+  const at = all.findIndex(
+    (r, i) => i < 10 && r.some((c) => HEADERS.cricosCode.includes(key(c))),
+  );
+  const rows = at > 0 ? all.slice(at) : all;
   const problems: string[] = [];
   if (rows.length < 2) return { courses: [], problems: ["no rows"] };
   const header = rows[0]!.map(key);
