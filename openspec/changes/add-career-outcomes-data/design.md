@@ -23,3 +23,10 @@ JSA publishes occupation and industry profiles and projections, mostly as downlo
 - Which JSA files carry occupation outlook and projections, and in what layout?
 - Is there a stated link from occupation to qualification or field of study?
 - What attribution wording does JSA require?
+
+## Implementation notes (18 Nov 2026)
+
+- Real files opened from the maintainer's computer; see `docs/career-outcomes-columns.md`. Differences from the proposal: `labourmarketinsights.gov.au` does not exist, the licence page is `jobsandskills.gov.au/copyright-and-disclaimer` (CC BY 4.0, attribution "© Commonwealth of Australia"); only the employment projections workbook (ANZSCO 1.3, May 2025 to May 2035) is loaded; JSA's OSCA and ANZSCO profile workbooks are not, because the OSCA file has no projections and is ABS-derived, and the ANZSCO profile is mostly pay and attainment data. The profile workbooks were not opened beyond their headers and samples.
+- Tables are `career_occupations` and `career_loads` (migration 0007). The loader reads xlsx with `read-excel-file`, finds the header by its "ANZSCO Code" cell, and keeps nfd rows and group levels.
+- Database tests exist but ran only where `TEST_DATABASE_URL` is set, which the writing session did not have.
+- JSA says a fuller OSCA release with projections is due November 2026; check before relying on ANZSCO long term.

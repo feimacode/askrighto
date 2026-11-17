@@ -21,3 +21,9 @@ Pattern: `add-intl-course-tools`. Read-only tools, flat input schemas, `title`, 
 
 - Does the data change find a stated occupation-to-study link?
 - Should a short occupation summary come from the file, or only numbers?
+
+## Implementation notes (18 Nov 2026)
+
+- Two tools built, `find_occupations` and `get_occupation_outlook`. `list_occupation_study_paths` is not built: the file holds a skill level paired with a qualification level, not a field of study. The outlook result shows that level and says it is a level of study.
+- Employment is returned in thousands of people as published; percentages are the file's fractions shown as percent (a change of unit only).
+- Task 3.3 (course plugin skill line) and 4.2 (use-case prompts) are still open.

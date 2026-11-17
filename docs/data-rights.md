@@ -148,3 +148,16 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Condition: Rows carry the source page's updated date, effective dates and status; a proposed change is never used in a figure.
 - Condition: Reviewed each 1 April and 1 July.
 - Condition: Licence of the ATO and Department of Health pages to be confirmed.
+
+## career-outcomes
+
+- Owner: Jobs and Skills Australia (employment projections, jobsandskills.gov.au)
+- Basis: `open_licence`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-08-01
+- Evidence: https://www.jobsandskills.gov.au/copyright-and-disclaimer (read 2026-11-18, page last modified 19 May 2025): site content is under CC BY 4.0 except third-party content, the Commonwealth Coat of Arms, trade marks and images; required attribution "© Commonwealth of Australia". The workbook carries no licence text of its own. Also https://www.jobsandskills.gov.au/data/employment-projections (read 2026-11-18): May 2025 to May 2035 projections, indicative, not reflecting generative AI. The earlier `labourmarketinsights.gov.au` site named in planning does not exist (no DNS record on 18 Nov 2026); the data.gov.au copies are frozen (CC BY 2.5 AU, last updated Aug 2023) and are not used.
+- Attribution: Employment projections: Jobs and Skills Australia, © Commonwealth of Australia, licensed CC BY 4.0.
+- Condition: Only the employment projections workbook is loaded. The OSCA and ANZSCO profile workbooks are ABS-derived and need ABS credit and their own review before use.
+- Condition: JSA pages are linked, never framed, altered or reformatted on another site.
+- Condition: Results carry the projections' own caveat: indicative, and not reflecting generative AI.
+- Condition: Legal view outstanding (roadmap Phase 0): information-only use, JSA's no-warranty disclaimer.

@@ -277,5 +277,31 @@
       "No statement that the RBA endorses Ask Righto."
     ],
     "reviewBy": "2027-03-01"
+  },
+  {
+    "datasetId": "career-outcomes",
+    "owner": "Jobs and Skills Australia (employment projections, jobsandskills.gov.au)",
+    "basis": "open_licence",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://www.jobsandskills.gov.au/copyright-and-disclaimer",
+        "readOn": "2026-11-18",
+        "note": "Page last modified 19 May 2025. Site content is under CC BY 4.0 except third-party content, the Coat of Arms, trade marks and images. Required attribution: © Commonwealth of Australia. The workbook itself carries no licence text."
+      },
+      {
+        "url": "https://www.jobsandskills.gov.au/data/employment-projections",
+        "readOn": "2026-11-18",
+        "note": "Employment projections May 2025 to May 2035 (VUEF model, ANZSCO 1.3), workbook dated Nov 2025. The page says projections are indicative and do not reflect generative AI."
+      }
+    ],
+    "attribution": "Employment projections: Jobs and Skills Australia, © Commonwealth of Australia, licensed CC BY 4.0.",
+    "conditions": [
+      "Only the employment projections workbook is loaded. The OSCA and ANZSCO profile workbooks are ABS-derived and need ABS credit and their own review before use.",
+      "JSA pages are linked, never framed, altered or reformatted on another site.",
+      "Results carry the projections' own caveat: indicative, and not reflecting generative AI.",
+      "Legal view outstanding (roadmap Phase 0): information-only use, JSA's no-warranty disclaimer."
+    ],
+    "reviewBy": "2027-08-01"
   }
 ]
