@@ -271,7 +271,7 @@ with an earlier `askrighto_version` or removing a vertical from the public list.
 
 | Item | State | Why it matters |
 | --- | --- | --- |
-| Energy: retailer list | 3 seeded; project notes say only AGL loaded | Coverage incomplete |
+| Energy: retailer list | 92 CDR retailer paths seeded (17 Nov 2026); only AGL was loaded on the VM until `sync-energy` is run again | Coverage is incomplete until that run; check the report for 404 paths; compare with the CDR Register (task 1.4) |
 | Energy: real fixtures and estimate check | One recorded AGL plan; estimates not compared with fact sheets beyond it | Accuracy claim |
 | Energy: AGL time-of-use | Both bands labelled `SHOULDER`, so not estimated | Needs window-based split (design change) |
 | Energy: `renormalise-energy` after deploy | Needed once to apply the solar feed-in and GST fixes to stored plans | Prices and feed-in absent for stale rows until run |

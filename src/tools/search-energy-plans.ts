@@ -73,7 +73,7 @@ export const searchEnergyPlans = defineTool({
           return notFound("needs_input", `"${args.retailer}" could match more than one retailer. Ask the user which one they mean.`, { candidates: m.candidates.map((c) => c.brandName) });
         }
         matchedRetailer = m.brandName;
-        plans = plans.filter((p) => p.retailerSlug === m.slug);
+        plans = plans.filter((p) => p.brandName === m.brandName);
       }
       if (args.fuelType) plans = plans.filter((p) => p.fuelType === args.fuelType || p.fuelType === "DUAL");
       if (args.planType) plans = plans.filter((p) => p.planType === args.planType);

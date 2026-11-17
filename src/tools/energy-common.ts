@@ -41,10 +41,11 @@ export type RetailerMatch = { slug: string; brandName: string } | { candidates: 
 export function matchRetailer(plans: EnergyPlan[], input: string): RetailerMatch {
   const q = norm(input);
   if (!q) return undefined;
+  // One entry per brand: a path such as energy-locals serves several brands, and one brand can appear under two paths.
   const brands = new Map<string, { slug: string; brandName: string }>();
-  for (const p of plans) brands.set(p.retailerSlug, { slug: p.retailerSlug, brandName: p.brandName });
+  for (const p of plans) if (!brands.has(p.brandName)) brands.set(p.brandName, { slug: p.retailerSlug, brandName: p.brandName });
   const list = [...brands.values()];
-  const keys = (b: { slug: string; brandName: string }) => [norm(b.brandName), norm(b.slug)];
+  const keys = (b: { slug: string; brandName: string }) => [norm(b.brandName), ...(norm(b.slug) === norm(b.brandName) || b.brandName.toLowerCase().startsWith(b.slug.split("-")[0]!) ? [norm(b.slug)] : [])];
   const tiers: Array<(b: { slug: string; brandName: string }) => boolean> = [
     (b) => keys(b).includes(q),
     (b) => keys(b).some((k) => k.startsWith(q) || (q.length >= 4 && q.startsWith(k) && k.length >= 3)),

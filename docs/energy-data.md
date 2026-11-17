@@ -13,10 +13,29 @@ Victorian Energy Compare web pages.
 ## What is stored
 
 Residential electricity, gas and dual fuel plans (standing, market, regulated) that are current
-or start in the future, per retailer in `src/energy/retailers.json`. **That list currently holds
-only AGL, Origin and EnergyAustralia**, the brands seen in the proof of concept; seeding the
-full list from the AER base URI document and comparing it with the CDR Register (task 1.4)
-needs network access this workspace lacks.
+or start in the future, per retailer in `src/energy/retailers.json`.
+
+**Retailer list.** The file holds 92 base URI path segments, seeded on 17 Nov 2026 from the AER
+document *Consumer Data Right: Energy Retailer Base URIs and CDR Brands* (January 2026,
+<https://www.aer.gov.au/system/files/2026-01/Consumer%20Data%20Right%20-%20Energy%20Retailer%20Base%20URIs%20and%20CDR%20Brands%20-%20January%202026.pdf>):
+the 83 rows of its main table, which share 76 paths, plus 16 brands that only its change log
+names (Simply Energy, Powerdirect, Circular Energy and others). Brands that share a path
+(for example ARCLINE, Cooperative Power, RAA Energy, Indigo Power and Sonnen under
+`/energy-locals/`) are one entry, and each plan keeps its own `brandName`. A path that is not
+served answers 404 and is recorded in `retailers.last_error` without stopping the others, and
+business-only retailers return no residential plans. The main table was checked twice (a
+summarised read and a parse of the PDF's own content streams on Iven's computer); both gave the
+same 83 rows. The 16 change-log-only brands are in the document's change log but not its main
+table, so check the first sync report for 404s on them. Still to do (task 1.4): compare the list
+with the CDR Register's energy brands, and re-read the AER document when it is next updated.
+
+**To load them**, run on the VM (a full first load takes a while; retailers run 16 at a time,
+each at 2 requests a second):
+
+```
+node dist/askrighto.js sync-energy
+node dist/askrighto.js renormalise-energy   # only if plans loaded before the 16 Nov fixes remain
+```
 
 Tables (schema `askrighto`): `retailers`, `coverage_sets` (postcode lists stored once, GIN
 indexed), `plans` (normalised `contract` plus the raw payload and its hash), `plan_changes`,
@@ -97,3 +116,15 @@ normalised contract, so after changing `src/energy/gst.ts` run `renormalise-ener
 
 Tasks 1.2, 1.3, 1.4, 6.1, 6.2, 6.3 and 6.4 need the live API or the shared database; see
 `openspec/changes/add-energy-plan-data/tasks.md`.
+
+## Brand names
+
+Retailers spell their brand differently from plan to plan ("GloBird Energy" and "Globird Energy",
+"Dodo" and "Dodo Power & Gas", "Lumo Energy" and "Lumo Energy (SA)"). `src/energy/brands.ts` maps each
+published name to one canonical name: the key is the lowercase letters and digits of the name with
+bracketed suffixes and generic words (energy, power, gas, retail, group, pty, ltd) removed, and the
+canonical name is the one in `retailers.json` (or the short list of shared-path brands in that file).
+A name that matches no known brand is kept as published, with spacing tidied. The raw payload is
+untouched. The retailer filter in the tools matches the canonical brand name, so asking for a brand on a
+shared path such as `energy-locals` returns only that brand's plans. After deploying this, run
+`node dist/askrighto.js renormalise-energy` once; it lists the brand names it rewrote.

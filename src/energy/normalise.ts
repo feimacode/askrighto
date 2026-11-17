@@ -3,6 +3,7 @@
  * anything unrecognised is kept in the raw payload and recorded in `notUnderstood`, never
  * coerced into a number.
  */
+import { canonicalBrand } from "./brands.js";
 import { GST_BASIS } from "./gst.js";
 import { stableHash } from "./hash.js";
 import { parseMoney } from "./money.js";
@@ -106,6 +107,10 @@ function tariffPeriods(v: unknown, why: string[]): TariffPeriod[] {
     if (str(t.startDate)) p.startDate = str(t.startDate);
     if (str(t.endDate)) p.endDate = str(t.endDate);
     const supplyType = str(t.dailySupplyChargeType) ?? "SINGLE";
+    // Retailers (Origin, Alinta, Energy Locals) alternate rate periods with "Demand period N" entries
+    // (rateBlockUType demandCharges) that carry no supply charge of their own; the supply charge sits
+    // on the rate periods. A demand entry without one is not a missing charge.
+    const isDemandEntry = str(t.rateBlockUType) === "demandCharges";
     if (supplyType === "BAND") {
       // Banded supply charges are recorded but not costed; the estimate stops on the missing single charge.
       p.bandedDailySupplyCharges = rates(t.bandedDailySupplyCharges, why);
@@ -114,7 +119,7 @@ function tariffPeriods(v: unknown, why: string[]): TariffPeriod[] {
       if (supplyType !== "SINGLE") why.push(`dailySupplyChargeType:${supplyType}`);
       const d = supply(t);
       if (d !== undefined) p.dailySupplyCharge = d;
-      else why.push("tariffPeriod:no_supply_charge");
+      else if (!isDemandEntry) why.push("tariffPeriod:no_supply_charge");
     }
     const u = str(t.rateBlockUType);
     // singleRate.period has no schema default, so a block threshold without one stays unperiod-ed
@@ -334,7 +339,7 @@ export function normalisePlan(retailerSlug: string, item: ListItem, detail: unkn
   const plan: NormalisedPlan["plan"] = {
     planId: item.planId,
     retailerSlug,
-    brandName: str(d.brandName) ?? item.brandName ?? retailerSlug,
+    brandName: canonicalBrand(str(d.brandName) ?? item.brandName ?? retailerSlug),
     displayName: str(d.displayName) ?? item.displayName ?? item.planId,
     fuelType: fuelType as FuelType,
     planType: planType as PlanType,

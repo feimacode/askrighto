@@ -99,6 +99,8 @@ export async function cliRenormaliseEnergy(args: string[]): Promise<void> {
     console.log(`Re-normalised ${r.plans} stored plans${dryRun ? " (dry run, nothing written)" : ""}: ${r.updated} changed`);
     console.log(`Not understood before: ${JSON.stringify(r.before)}`);
     console.log(`Not understood after:  ${JSON.stringify(r.after)}`);
+    const bc = Object.entries(r.brandChanges).sort();
+    if (bc.length) console.log(`Brand names made canonical (${bc.length}):\n${bc.map(([k, v]) => `  ${k}: ${v}`).join("\n")}`);
     for (const s of r.samples) console.log(`\n${s.planId} ${JSON.stringify(s.reasons)}\n${JSON.stringify(s.fragment, null, 2)}`);
     if (!dryRun && r.updated) console.log("\nRestart the server (or wait for the next sync) so its cache picks up the change.");
   } finally {

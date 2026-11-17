@@ -245,6 +245,15 @@ d("renormalise", () => {
     const odd = await renormalise(db, { dryRun: true, show: "solarFeedIn" });
     expect(odd.samples).toEqual([{ planId: "S1", reasons: ["solarFeedIn:unknown_shape"], fragment: { electricity: [{ displayName: "odd", tariffUType: "timeVaryingTariffs" }] } }]);
   });
+
+  it("makes stored brand names canonical", async () => {
+    mock.state.retailers = { agl: [withId("single-rate", "A1")], origin: [] };
+    await sync();
+    await db.pool.query(`UPDATE plans SET brand_name = 'AGL Old', raw = jsonb_set(raw, '{brandName}', '"Globird Energy"') WHERE plan_id = 'A1'`);
+    const r = await renormalise(db);
+    expect(r.brandChanges).toEqual({ "AGL Old -> GloBird Energy": 1 });
+    expect((await db.pool.query("SELECT brand_name FROM plans WHERE plan_id = 'A1'")).rows[0].brand_name).toBe("GloBird Energy");
+  });
 });
 
 d("serving, registry and outages", () => {
