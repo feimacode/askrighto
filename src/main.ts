@@ -268,6 +268,7 @@ Usage:
   askrighto courses:validate | courses:load [--cricos FILE.csv] | courses:check-pages
   askrighto vce:validate | vce:load
                        check and load the Victorian course index and VCE admissions data from data/
+  askrighto health:validate|health:load --dir UNZIPPED_FOLDER [--source-date YYYY-MM-DD] [--source-name NAME]  |  health:rates-validate
   askrighto intl:validate|intl:load --cricos COURSES.csv [--course-locations FILE.csv] [--institutions FILE.csv] [--source-date YYYY-MM-DD]
                        check and load the CRICOS course sheet (international students)
   askrighto compare:usecases [--json]
@@ -289,6 +290,11 @@ Usage:
     const run = map[args[0]];
     if (!run) throw new Error(`Unknown command ${args[0]}`);
     await run();
+  } else if (args[0]?.startsWith("health:")) {
+    const cli = await import("./health/cli.js");
+    if (args[0] === "health:validate") cli.cliHealthValidate(args.slice(1));
+    else if (args[0] === "health:load") await cli.cliHealthLoad(args.slice(1));
+    else if (args[0] === "health:rates-validate") cli.cliHealthRatesValidate();
   } else if (args[0]?.startsWith("intl:")) {
     const cli = await import("./intl/cli.js");
     if (args[0] === "intl:validate") cli.cliIntlValidate(args.slice(1));

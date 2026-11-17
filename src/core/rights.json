@@ -84,7 +84,9 @@
       }
     ],
     "attribution": null,
-    "conditions": ["VCAA terms still to be read."],
+    "conditions": [
+      "VCAA terms still to be read."
+    ],
     "reviewBy": "2027-02-01"
   },
   {
@@ -100,7 +102,9 @@
       }
     ],
     "attribution": null,
-    "conditions": ["Reword, never copy; VTAC reply pending."],
+    "conditions": [
+      "Reword, never copy; VTAC reply pending."
+    ],
     "reviewBy": "2027-08-01"
   },
   {
@@ -134,7 +138,9 @@
     "attribution": null,
     "conditions": [],
     "reviewBy": "2027-02-01",
-    "dataGlobs": ["data/vce/scaling-*"]
+    "dataGlobs": [
+      "data/vce/scaling-*"
+    ]
   },
   {
     "datasetId": "vce-study-groupings",
@@ -151,7 +157,9 @@
     "attribution": null,
     "conditions": [],
     "reviewBy": "2027-02-01",
-    "dataGlobs": ["data/vce/study-groupings-*"]
+    "dataGlobs": [
+      "data/vce/study-groupings-*"
+    ]
   },
   {
     "datasetId": "vtac-coursesearch",
@@ -168,7 +176,9 @@
     "attribution": null,
     "conditions": [],
     "reviewBy": "2027-02-01",
-    "domains": ["vtac.edu.au"]
+    "domains": [
+      "vtac.edu.au"
+    ]
   },
   {
     "datasetId": "course-seeker",
@@ -185,6 +195,48 @@
     "attribution": null,
     "conditions": [],
     "reviewBy": "2027-02-01",
-    "domains": ["courseseeker.edu.au"]
+    "domains": [
+      "courseseeker.edu.au"
+    ]
+  },
+  {
+    "datasetId": "health-cover-products",
+    "owner": "Private Health Insurance Ombudsman (PrivateHealth.gov.au dataset, on data.gov.au)",
+    "basis": "open_licence",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://data.gov.au/data/dataset/private-health-insurance",
+        "readOn": "2026-11-17",
+        "note": "Dataset record and resource pages show Creative Commons Attribution 3.0 Australia, owned by the Ombudsman, monthly ZIP. No file has been opened yet; the ZIP's Readme.txt may add attribution wording. The privatehealth.gov.au site terms are unread."
+      }
+    ],
+    "attribution": "Private health insurance product data: Private Health Insurance Ombudsman, via data.gov.au, licensed CC BY 3.0 AU.",
+    "conditions": [
+      "Dataset only: the privatehealth.gov.au website is never scraped, framed or fetched.",
+      "Results say the data covers products in the Ombudsman's file, not all funds or the whole market.",
+      "Legal view outstanding (roadmap Phase 0): information-only comparison, Australian Consumer Law wording, tax agent services, privacy."
+    ],
+    "reviewBy": "2027-08-01"
+  },
+  {
+    "datasetId": "health-cover-rates",
+    "owner": "Australian Taxation Office and Department of Health, Disability and Ageing (rebate, Medicare levy surcharge and Lifetime Health Cover pages)",
+    "basis": "own_words_facts",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://www.ato.gov.au/individuals-and-families/medicare-and-private-health-insurance/private-health-insurance-rebate/income-thresholds-and-rates-for-the-private-health-insurance-rebate",
+        "readOn": "2026-11-17",
+        "note": "Thresholds and rates re-keyed as numbers with source links; no page text copied. The ATO and Department of Health reuse licence has not been confirmed."
+      }
+    ],
+    "attribution": null,
+    "conditions": [
+      "Rows carry the source page's updated date, effective dates and status; a proposed change is never used in a figure.",
+      "Reviewed each 1 April and 1 July.",
+      "Licence of the ATO and Department of Health pages to be confirmed."
+    ],
+    "reviewBy": "2027-04-01"
   }
 ]

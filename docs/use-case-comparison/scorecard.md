@@ -47,3 +47,24 @@ The use case with more prompts answered without a browsing assistant goes first,
 | 3 No ungrounded figure | | |
 | 4 Data under 45 days old | | |
 | Candidate for promotion? | | |
+
+
+## Health cover (add-health-cover-evaluation)
+
+Prompt set: `health-prompts.md` (H01 to H20). The data-side facts come from `npm run compare:usecases` once the health case is added to the report (not built yet; read the file date, insurer and product counts from `list_data_sources` until then).
+
+| Measure | Value |
+| --- | --- |
+| Product file date and age in days | |
+| Insurers and product variants loaded | |
+| Share of products with a published premium | |
+| Share with a published after-rebate premium | |
+| Oldest rule page date; any rule past its review date | |
+| Rights status of `health-cover-products` and `health-cover-rates` | |
+
+Per prompt, record the usual columns plus these checks: disclosure line present in the first reply; "insurer's quote governs" on every calculated figure; no banned or directive wording (best, right for you, should, recommend, worth it, promises of saving); proposed rebate change called proposed and not law; no condition passed to a tool.
+
+Calculator accuracy sample (a promotion gate): at least ten products, the calculated premium after rebate against an insurer-published figure, with each difference explained.
+
+| Product id | Tier and age band | Calculated | Insurer's figure | Difference and cause |
+| --- | --- | --- | --- | --- |

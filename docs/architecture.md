@@ -81,6 +81,7 @@ linked, with diagrams, and (3) the main functions and how they serve the end-to-
 | VIC uni courses and VCE planning | [`areas/vic-courses.md`](areas/vic-courses.md) | internal | YAML course index plus CRICOS, curated facts, prerequisite rules, VCE dates, scaling, aggregate; eight tools |
 | International courses | [`areas/international-courses.md`](areas/international-courses.md) | internal | CRICOS higher-education courses with fees, durations and campuses; four tools |
 | Skills and plugins | [`areas/skills-and-plugins.md`](areas/skills-and-plugins.md) | public plugin: yes; internal plugin: no | grounding, energy bill, VCE course and international skills; shared rules generated from one source |
+| Private health cover | [`areas/health-cover.md`](areas/health-cover.md) | internal | PHIO monthly file into PostgreSQL, dated rebate, surcharge and loading rules in YAML, integer-cents calculator, seven tools; file layout assumed until a real ZIP is opened |
 | Review and comparison | [`areas/review-and-comparison.md`](areas/review-and-comparison.md) | maintainers | coverage report, answer-review skill, number trace |
 
 Older topic docs stay as deeper references: [`energy-data.md`](energy-data.md),

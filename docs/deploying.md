@@ -80,3 +80,7 @@ Start-up fails on an unknown vertical name, an empty list, or a public vertical 
 ### Tester note (share with the named testers only)
 
 The course tools are a work in progress. Answers may be incomplete: many courses show only links and a reading checklist. After an announced update, disconnect and reconnect the connector so your host reloads the tool list. Report problems to Iven with the question you asked and what you saw (do not include personal details). Do not share the URL.
+
+## Private health cover (internal vertical)
+
+Add `health-cover` to `ASKRIGHTO_VERTICALS` (not to `ASKRIGHTO_PUBLIC_VERTICALS`) to serve it on the internal route. Each month: unzip the PHIO file, `health:validate`, then `health:load` (see [health-cover-columns.md](health-cover-columns.md)). After each 1 April and 1 July run `health:rates-validate`. Rates are read from `data/health/rates.yaml`, which the image already copies.

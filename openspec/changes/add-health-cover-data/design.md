@@ -27,3 +27,8 @@ The source is one ZIP a month: XML per insurer and product, an XML schema, chang
 - Does the file state premiums after rebate for each tier, or only before? (Decides how much `add-health-cover-rates` has to calculate.)
 - Which licence text does the ZIP's `Readme.txt` carry, and does it add attribution wording?
 - Does any trade mark guidance restrict showing insurer names? (Part of the legal view.)
+
+## Implementation notes (17 Nov 2026)
+
+- Built against an **assumed** layout (`docs/health-cover-columns.md`); no real file was opened. Tasks 1.1 to 1.4 and 1.6 stay open.
+- `health:load` reads an unzipped folder of XML files. Rollback (decision 8) and the hospital agreements CSV are not built.

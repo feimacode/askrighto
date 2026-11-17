@@ -27,8 +27,8 @@ The system SHALL choose the rules in force on the date asked about, and SHALL re
 The system SHALL NOT use a row with status `proposed` in any calculation, and SHALL say that the change is proposed and not law when a result concerns a date after its proposed start.
 
 #### Scenario: Rebate for people 65 and over after 1 April 2027
-- **WHEN** a cost is requested for a person aged 70 for a date after 1 April 2027 and the change is still `proposed`
-- **THEN** the result uses the stored in-force rate, states that a lower rate is proposed from that date and not law, and links to the Department of Health page
+- **WHEN** a cost is requested for a person aged 70 for a date after 1 April 2027, no in-force rate is stored for that date and the change is still `proposed`
+- **THEN** no figure is returned, the reason is `rules_out_of_range`, and the result states that a lower rate is proposed from that date and is not law, with the Department of Health link
 
 ### Requirement: Review dates enforced
 The system SHALL fail `release:check` when a stored rule's review date has passed.

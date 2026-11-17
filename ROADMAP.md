@@ -247,12 +247,13 @@ pass: legal view done, rights cleared, curation depth met, host tests passed, Iv
 Follows VIC courses and comes before NSW and QLD courses (Iven, 15 Nov 2026): open data with no
 permission to wait for, and the same sync-then-calculate shape as energy.
 
-Proposed 17 Nov 2026 as five OpenSpec changes, planning only, built in this order:
+Proposed 17 Nov 2026 as five OpenSpec changes (PR #21) and implemented behind the internal route the same day, built in this order:
 `add-health-cover-data`, `add-health-cover-rates`, `add-health-cover-tools`,
 `add-health-cover-skills`, `add-health-cover-evaluation`. The new vertical id is `health-cover`,
 internal route only until its promotion gates pass. Research, licences and what is still
 unverified: [`docs/health-cover-research.md`](docs/health-cover-research.md). No file has been
-downloaded yet, because cloud sessions cannot reach data.gov.au; opening a real ZIP is task 1.1 of
+downloaded yet, because cloud sessions cannot reach data.gov.au, so the parser reads an assumed
+layout ([`docs/health-cover-columns.md`](docs/health-cover-columns.md)); opening a real ZIP is task 1.1 of
 `add-health-cover-data`.
 
 | Item | Detail | Change id |
