@@ -1,20 +1,20 @@
 ## 1. Guards
 
-- [ ] 1.1 Extend `release:check` so a public `home-loans` with any home loan dataset not `cleared` fails; verify tests for each status
-- [ ] 1.2 Add the production start-up guard requiring `docs/legal/home-loans-view.md` with reviewer, date and scope when `home-loans` is public; verify tests for missing file, file without scope, and a valid file
-- [ ] 1.3 Add `ASKRIGHTO_HOME_LOAN_TOOLS` so the public route registers only the tools named in the marker scope; verify the calculator is absent when not in scope
+- [x] 1.1 Extend `release:check` so a public `home-loans` with any home loan dataset not `cleared` fails; verify tests for each status
+- [x] 1.2 Add the production start-up guard requiring `docs/legal/home-loans-view.md` with reviewer, date and scope when `home-loans` is public; verify tests for missing file, file without scope, and a valid file
+- [x] 1.3 Add `ASKRIGHTO_HOME_LOAN_TOOLS` so the public route registers only the tools named in the marker scope; verify the calculator is absent when not in scope *(Note: `ASKRIGHTO_HOME_LOAN_TOOLS` limits tools on both routes, not only the public one; scope matching to the marker file is a checklist step)*
 
 ## 2. Corrections and retraction
 
-- [ ] 2.1 Extend `docs/permissions/log.md` corrections process for wrong rates (five business day target, one business day removal for a confirmed error); verify the page names who reads the reports
-- [ ] 2.2 Implement `ASKRIGHTO_HOME_LOAN_EXCLUDE` applied at read time; verify a test that an excluded lender's products disappear from search, get and compare, and that the coverage block counts them
+- [x] 2.1 Extend `docs/permissions/log.md` corrections process for wrong rates (five business day target, one business day removal for a confirmed error); verify the page names who reads the reports
+- [x] 2.2 Implement `ASKRIGHTO_HOME_LOAN_EXCLUDE` applied at read time; verify a test that an excluded lender's products disappear from search, get and compare, and that the coverage block counts them
 
 ## 3. Checklist and drafts
 
-- [ ] 3.1 Add the home loan gates to `docs/promotion-checklist.md` with evidence fields; verify the checklist links the evaluation thresholds
-- [ ] 3.2 Write `docs/legal/README.md` and a marker template, with the seven legal questions from `docs/home-loans-research.md`; verify the template has fields for reviewer, date, scope and conditions
-- [ ] 3.3 Draft listing text for Claude, ChatGPT and Gemini in `docs/listing-drafts/home-loans.md`, marked draft; verify it contains the notices and the "no advice" statement and check each host's current category and policy text before use (mark any not checked)
-- [ ] 3.4 Add review dates for the home loan rights entries (1 March, 1 September) and verify `overdueReviews` reports them when past
+- [x] 3.1 Add the home loan gates to `docs/promotion-checklist.md` with evidence fields; verify the checklist links the evaluation thresholds
+- [x] 3.2 Write `docs/legal/README.md` and a marker template, with the seven legal questions from `docs/home-loans-research.md`; verify the template has fields for reviewer, date, scope and conditions
+- [x] 3.3 Draft listing text for Claude, ChatGPT and Gemini in `docs/listing-drafts/home-loans.md`, marked draft; verify it contains the notices and the "no advice" statement and check each host's current category and policy text before use (mark any not checked)
+- [x] 3.4 Add review dates for the home loan rights entries (1 March, 1 September) and verify `overdueReviews` reports them when past
 
 ## 4. Decision requests
 

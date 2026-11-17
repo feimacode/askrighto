@@ -25,6 +25,8 @@
     "vce:load": "npm run build && node dist/askrighto.js vce:load",
     "intl:validate": "npm run build && node dist/askrighto.js intl:validate",
     "intl:load": "npm run build && node dist/askrighto.js intl:load",
+    "homeloans:sync": "npm run build && node dist/askrighto.js homeloans:sync",
+    "report:homeloans": "npm run build && node dist/askrighto.js report:homeloans",
     "compare:usecases": "npm run build && node dist/askrighto.js compare:usecases",
     "guidance:generate": "node scripts/guidance.mjs",
     "guidance:check": "node scripts/guidance.mjs --check",

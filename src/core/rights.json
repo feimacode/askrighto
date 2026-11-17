@@ -84,7 +84,9 @@
       }
     ],
     "attribution": null,
-    "conditions": ["VCAA terms still to be read."],
+    "conditions": [
+      "VCAA terms still to be read."
+    ],
     "reviewBy": "2027-02-01"
   },
   {
@@ -100,7 +102,9 @@
       }
     ],
     "attribution": null,
-    "conditions": ["Reword, never copy; VTAC reply pending."],
+    "conditions": [
+      "Reword, never copy; VTAC reply pending."
+    ],
     "reviewBy": "2027-08-01"
   },
   {
@@ -134,7 +138,9 @@
     "attribution": null,
     "conditions": [],
     "reviewBy": "2027-02-01",
-    "dataGlobs": ["data/vce/scaling-*"]
+    "dataGlobs": [
+      "data/vce/scaling-*"
+    ]
   },
   {
     "datasetId": "vce-study-groupings",
@@ -151,7 +157,9 @@
     "attribution": null,
     "conditions": [],
     "reviewBy": "2027-02-01",
-    "dataGlobs": ["data/vce/study-groupings-*"]
+    "dataGlobs": [
+      "data/vce/study-groupings-*"
+    ]
   },
   {
     "datasetId": "vtac-coursesearch",
@@ -168,7 +176,9 @@
     "attribution": null,
     "conditions": [],
     "reviewBy": "2027-02-01",
-    "domains": ["vtac.edu.au"]
+    "domains": [
+      "vtac.edu.au"
+    ]
   },
   {
     "datasetId": "course-seeker",
@@ -185,6 +195,47 @@
     "attribution": null,
     "conditions": [],
     "reviewBy": "2027-02-01",
-    "domains": ["courseseeker.edu.au"]
+    "domains": [
+      "courseseeker.edu.au"
+    ]
+  },
+  {
+    "datasetId": "home-loans-cdr",
+    "owner": "Each lender, via the Consumer Data Right (banking product reference data)",
+    "basis": "cdr_rule",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://cdr-support.zendesk.com/hc/en-us/articles/900004104506",
+        "readOn": "2026-11-17",
+        "note": "Product Reference Data needs no authentication. The CDR Rules simplified outline (rule 1.4) says a data holder cannot impose conditions on use of disclosed data; the operative rule number was not read."
+      }
+    ],
+    "attribution": null,
+    "conditions": [
+      "API only; comparison sites and lender web pages are not scraped.",
+      "Rates and fees shown as published, never recomputed.",
+      "Public listing needs the credit legal view (docs/home-loans-research.md section 2) and the marker docs/legal/home-loans-view.md."
+    ],
+    "reviewBy": "2027-03-01"
+  },
+  {
+    "datasetId": "rba-cash-rate",
+    "owner": "Reserve Bank of Australia",
+    "basis": "open_licence",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://www.rba.gov.au/copyright/",
+        "readOn": "2026-11-17",
+        "note": "Financial data (the cash rate) may be used commercially if RBA endorsement is not stated or implied; attribute 'Source: Reserve Bank of Australia'. Statistical tables F5 and F6 are not used: third-party content not checked."
+      }
+    ],
+    "attribution": "Source: Reserve Bank of Australia 2026. The RBA does not endorse Ask Righto.",
+    "conditions": [
+      "Cash rate target only; no other RBA series.",
+      "No statement that the RBA endorses Ask Righto."
+    ],
+    "reviewBy": "2027-03-01"
   }
 ]

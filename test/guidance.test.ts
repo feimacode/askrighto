@@ -71,8 +71,9 @@ describe("vertical skills", () => {
     const { allTools } = await import("../src/tools/index.js");
     const { coursesVertical } = await import("../src/courses/vertical.js");
     const { internationalVertical } = await import("../src/intl/vertical.js");
+    const { homeLoansVertical } = await import("../src/homeloans/vertical.js");
     const names = new Set(
-      [...allTools, ...coursesVertical.tools, ...internationalVertical.tools].map((t) => t.name),
+      [...allTools, ...coursesVertical.tools, ...internationalVertical.tools, ...homeLoansVertical.tools].map((t) => t.name),
     );
     for (const f of ALL.flatMap(walk).filter((p) => p.endsWith(".md"))) {
       const text = readFileSync(f, "utf8");
@@ -102,10 +103,23 @@ describe("vertical skills", () => {
   });
 });
 
+describe("home loan skill", () => {
+  it("keeps the no-advice rules and uses no currency amounts in its worked example", () => {
+    const skill = readFileSync(join(INTERNAL, "home-loan-comparison/SKILL.md"), "utf8");
+    expect(skill).toMatch(/Never/);
+    expect(skill).toMatch(/approved/);
+    expect(skill).toMatch(/refinance or switch/);
+    const rules = readFileSync(join(INTERNAL, "home-loan-comparison/references/rules.md"), "utf8");
+    for (const r of ["suitability", "approval", "switching", "application"]) expect(rules.toLowerCase()).toContain(r === "suitability" ? "which loan suits me" : r === "approval" ? "approved" : r === "switching" ? "refinance" : "apply for me");
+    const ex = readFileSync(join(INTERNAL, "home-loan-comparison/references/worked-example.md"), "utf8");
+    expect(ex).toMatch(/invented/i);
+  });
+});
+
 describe("public bundle", () => {
   it("contains no course skill until the verticals are promoted", () => {
     const names = readdirSync(SKILLS);
-    expect(names.filter((n) => /course/.test(n))).toEqual([]);
+    expect(names.filter((n) => /course|loan/.test(n))).toEqual([]);
     const market = JSON.parse(readFileSync(join(ROOT, ".claude-plugin/marketplace.json"), "utf8"));
     expect(market.plugins.find((p: { name: string }) => p.name === "askrighto").source).toBe("./plugin");
   });

@@ -20,6 +20,7 @@ ENV NODE_ENV=production HOST=0.0.0.0 PORT=8080 ASKRIGHTO_DATA_DIR=/app/data
 COPY --from=build /app/dist/askrighto.js /app/dist/askrighto.js.LEGAL.txt ./
 # Reference data read at run time (course YAML, VCE files). data/local/ is git-ignored and never reaches the image.
 COPY data ./data
+COPY docs/legal ./docs/legal
 USER node
 EXPOSE 8080
 # Liveness only: /healthz never touches the database. /readyz reports data readiness.
