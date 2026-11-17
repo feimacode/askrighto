@@ -48,7 +48,7 @@ const base = {
   datasets: COURSE_DATASETS,
 } as const;
 
-// ---------------------------------------------------------------- search_courses
+// ---------------------------------------------------------------- search_domestic_courses
 interface Row {
   courseId: string;
   name: string;
@@ -77,7 +77,7 @@ interface SearchData {
 }
 
 export const searchCourses = defineTool({
-  name: "search_courses",
+  name: "search_domestic_courses",
   title: "Search Victorian university courses",
   description:
     "Finds Victorian university undergraduate courses by name or keyword, field, university and campus. Can keep only courses whose published prerequisites the student's VCE studies could meet (ignoring study scores), or whose latest lowest selection rank is at or below a figure. Each result says whether Ask Righto holds checked facts (curated) or only the course and its links (index_only). Entry figures are past results, not cut-offs.",
@@ -306,14 +306,14 @@ const SHORT: Record<string, string> = {
   median_atar: "Median ATAR",
 };
 
-// ---------------------------------------------------------------- get_course
+// ---------------------------------------------------------------- get_domestic_course
 export const getCourse = defineTool({
-  name: "get_course",
+  name: "get_domestic_course",
   title: "Show one Victorian course",
   description:
-    "Shows one course: our summary, every stored entry figure with its kind, intake year, source and checked date, prerequisites for the entry year asked, other selection criteria, campuses, codes and the official page. For a course Ask Righto only indexes, it returns the links and a reading checklist instead of facts, and says so. Use a courseId from search_courses.",
+    "Shows one course: our summary, every stored entry figure with its kind, intake year, source and checked date, prerequisites for the entry year asked, other selection criteria, campuses, codes and the official page. For a course Ask Righto only indexes, it returns the links and a reading checklist instead of facts, and says so. Use a courseId from search_domestic_courses.",
   inputSchema: z.object({
-    courseId: z.string().max(120).describe("Course id from search_courses"),
+    courseId: z.string().max(120).describe("Course id from search_domestic_courses"),
     entryYear,
   }),
   ...base,
@@ -391,7 +391,7 @@ export const getCourse = defineTool({
     }),
 });
 
-// ---------------------------------------------------------------- compare_courses
+// ---------------------------------------------------------------- compare_domestic_courses
 interface CompareData {
   courses: CourseView[];
   notes: string[];
@@ -431,7 +431,7 @@ const cell = (v: CourseView, i: number): string => {
 };
 
 export const compareCourses = defineTool({
-  name: "compare_courses",
+  name: "compare_domestic_courses",
   title: "Compare Victorian courses",
   description:
     "Shows two to five courses side by side on the same fields: university, campus, duration, entry figures with kind and year, prerequisites, other selection criteria and official page. It does not pick a winner. Index-only courses show cannot_check with their links.",
@@ -440,7 +440,7 @@ export const compareCourses = defineTool({
       .array(z.string().max(120))
       .min(1)
       .max(12)
-      .describe("Two to five course ids from search_courses"),
+      .describe("Two to five course ids from search_domestic_courses"),
     entryYear,
   }),
   ...base,
@@ -513,7 +513,7 @@ export const compareCourses = defineTool({
     }),
 });
 
-// ---------------------------------------------------------------- check_course_prerequisites
+// ---------------------------------------------------------------- check_domestic_course_prerequisites
 interface CheckRow {
   courseId: string;
   name: string;
@@ -537,7 +537,7 @@ interface CheckData {
 }
 
 export const checkCoursePrerequisites = defineTool({
-  name: "check_course_prerequisites",
+  name: "check_domestic_course_prerequisites",
   title: "Check course prerequisites",
   description:
     "For up to ten courses, checks the published VCE prerequisites against the student's studies and, if given, expected study scores. Per course it says met, not_met (and what is missing), needs_scores (and the minimum scores), or cannot_check for a course Ask Righto only indexes. Selection criteria such as a folio or interview are listed, not checked. Studies and scores are used for this call only and never stored. Do not ask for the student's name, school or age.",

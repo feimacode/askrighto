@@ -57,9 +57,11 @@ flowchart TB
 Key relationships:
 
 - A **vertical** (`src/verticals.ts`, interface `Vertical`) bundles `id`, `tools`, `instructions`
-  and `start(env)`. Three exist: `energy` (`src/energy/vertical.ts`), `courses`
-  (`src/courses/vertical.ts`), `international` (`src/intl/vertical.ts`). `KNOWN_VERTICALS` is the
-  closed list.
+  and `start(env)`. Three exist: `energy` (`src/energy/vertical.ts`), `courses-domestic`
+  (`src/courses/vertical.ts`: Victorian courses and VCE planning), `cricos`
+  (`src/intl/vertical.ts`: courses for international students, from the CRICOS register).
+  `KNOWN_VERTICALS` is the closed list. The earlier ids `courses` and `international` are accepted
+  through `VERTICAL_ALIASES` with a logged warning, because the settings live in feima-infra.
 - A **tool** (`ToolDefinition`) names the dataset ids it reads in `datasets`. Those ids tie the
   tool to the registry (staleness) and the rights register (gate and attribution).
 - A **route set** (`RouteSet`) is the tools and instruction texts of the verticals one route may
@@ -135,8 +137,8 @@ Behaviour worth knowing:
 - Each request builds its server from its own route's set, so a public client cannot list or call an
   internal-only tool, read its instructions, or see its datasets in `list_data_sources`.
 - The intended production setting (docs/deploying.md, "Infra handoff") is
-  `ASKRIGHTO_VERTICALS=energy,courses`, `ASKRIGHTO_PUBLIC_VERTICALS=energy`,
-  `ASKRIGHTO_ENV=production`. The `international` vertical is added to the loaded list the same
+  `ASKRIGHTO_VERTICALS=energy,courses-domestic`, `ASKRIGHTO_PUBLIC_VERTICALS=energy`,
+  `ASKRIGHTO_ENV=production`. The `cricos` vertical is added to the loaded list the same
   way. **(unverified)** I could not see the feima-infra repo, so whether those values are set on the
   live VM is not known from this repo.
 - Promotion to public is a settings change guarded by `docs/promotion-checklist.md` (rights cleared,
@@ -160,7 +162,7 @@ In development the gate serves everything but adds a warning ("shown for develop
 Production means `ASKRIGHTO_ENV=production`, or `NODE_ENV=production` when `ASKRIGHTO_ENV` is unset
 (`isProduction`); the Docker image sets `NODE_ENV=production`.
 
-Current register (from `rights.json`, read 16 Nov 2026): `energy-plans`, `cricos`, `intl-courses`
+Current register (from `rights.json`, read 16 Nov 2026): `energy-plans`, `cricos-register`, `intl-courses`
 are `cleared`; `vic-courses`, `vce-key-dates`, `vtac-preference-rules`, `vic-early-entry` are
 `cleared_pending_legal_view`; `vce-scaling`, `vce-study-groupings`, `vtac-coursesearch`,
 `course-seeker` are `pending` (written permission not yet recorded). The `dataGlobs` on the two

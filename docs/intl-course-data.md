@@ -1,6 +1,6 @@
 # International course data (CRICOS)
 
-The `international` vertical answers questions about courses open to international students, from the CRICOS register (CC BY 2.5 AU, Australian Government Department of Education, via data.gov.au). It is kept apart from the domestic VCE finder: its own tables, its own tools, its own rights entry (`intl-courses`).
+The `cricos` vertical answers questions about courses open to international students, from the CRICOS register (CC BY 2.5 AU, Australian Government Department of Education, via data.gov.au). It is kept apart from the domestic VCE finder: its own tables, its own tools, its own rights entry (`intl-courses`).
 
 ## What it holds
 
@@ -10,7 +10,7 @@ Fees are labelled "Indicative, as published in CRICOS" with the file date. A yea
 
 ## What it does not hold
 
-English language requirements, entry requirements by country, intake dates and scholarships. `get_intl_entry_checklist` returns the provider's website and a reading checklist for the user's own browsing assistant (AGENTS.md rule 1). Nothing read that way is sent back or stored. There is no visa, migration or work-rights advice.
+English language requirements, entry requirements by country, intake dates and scholarships. `get_international_entry_checklist` returns the provider's website and a reading checklist for the user's own browsing assistant (AGENTS.md rule 1). Nothing read that way is sent back or stored. There is no visa, migration or work-rights advice.
 
 ## Loading
 
@@ -25,7 +25,7 @@ The two title rows above each sheet's header are skipped. Without the other two 
 
 ## Serving
 
-`ASKRIGHTO_VERTICALS=energy,courses,international` loads it. Leave it out of `ASKRIGHTO_PUBLIC_VERTICALS` and it is served only on `/mcp-internal/<token>`. Domestic and international rows link through the CRICOS code (`domesticCourseId`).
+`ASKRIGHTO_VERTICALS=energy,courses-domestic,cricos` loads it. Leave it out of `ASKRIGHTO_PUBLIC_VERTICALS` and it is served only on `/mcp-internal/<token>`. Domestic and international rows link through the CRICOS code (`domesticCourseId`).
 
 ## Comparing with the domestic finder
 

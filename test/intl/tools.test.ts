@@ -15,22 +15,22 @@ describe("international tools", () => {
   it("are listed read-only on the internal route and absent from a public one", async () => {
     const internal = (await (await connectIntl()).listTools()).tools;
     for (const n of [
-      "search_intl_courses",
-      "get_intl_course",
-      "compare_intl_courses",
-      "get_intl_entry_checklist",
+      "search_international_courses",
+      "get_international_course",
+      "compare_international_courses",
+      "get_international_entry_checklist",
     ])
       expect(internal.map((t) => t.name)).toContain(n);
     for (const t of internal) expect(t.annotations?.readOnlyHint).toBe(true);
     const pub = (
-      await (await connectIntl(["energy", "courses"], "public")).listTools()
+      await (await connectIntl(["energy", "courses-domestic"], "public")).listTools()
     ).tools.map((t) => t.name);
     expect(pub.some((n) => n.includes("intl"))).toBe(false);
   });
 
   it("filters by level and location, with fee labels, source date and attribution", async () => {
     const c = await connectIntl();
-    const { data, text } = await call(c, "search_intl_courses", {
+    const { data, text } = await call(c, "search_international_courses", {
       level: "master",
       state: "NSW",
     });
@@ -49,9 +49,9 @@ describe("international tools", () => {
 
   it("leaves expired courses out of search and shows them with a label on lookup", async () => {
     const c = await connectIntl();
-    const s = await call(c, "search_intl_courses", { query: "nursing" });
+    const s = await call(c, "search_international_courses", { query: "nursing" });
     expect(s.data.found).toBe(false);
-    const g = await call(c, "get_intl_course", { cricosCode: "000005E" });
+    const g = await call(c, "get_international_course", { cricosCode: "000005E" });
     expect(g.data.found).toBe(true);
     expect(g.data.data.expired).toBe(true);
     expect(g.data.warnings?.join(" ")).toMatch(/expired/);
@@ -59,7 +59,7 @@ describe("international tools", () => {
 
   it("does not count a course with no published fee as under a fee limit, and says how many", async () => {
     const c = await connectIntl();
-    const { data } = await call(c, "search_intl_courses", {
+    const { data } = await call(c, "search_international_courses", {
       level: "bachelor",
       maxTotalFee: 125000,
     });
@@ -71,7 +71,7 @@ describe("international tools", () => {
 
   it("shows no fee as 'not published' and never estimates one", async () => {
     const c = await connectIntl();
-    const { data, text } = await call(c, "get_intl_course", {
+    const { data, text } = await call(c, "get_international_course", {
       cricosCode: "000003C",
     });
     expect(data.data.tuitionFeeTotal).toBeUndefined();
@@ -81,12 +81,12 @@ describe("international tools", () => {
 
   it("shows a yearly fee only when fee and duration are both published, labelled as calculated", async () => {
     const c = await connectIntl();
-    const both = await call(c, "get_intl_course", { cricosCode: "000002B" });
+    const both = await call(c, "get_international_course", { cricosCode: "000002B" });
     expect(both.data.data.yearlyFee).toBe(48000);
     expect(both.data.data.yearlyFeeNote).toBe(
       "calculated: total fee divided by duration",
     );
-    const noDuration = await call(c, "get_intl_course", {
+    const noDuration = await call(c, "get_international_course", {
       cricosCode: "000006F",
     });
     expect(noDuration.data.data.yearlyFee).toBeUndefined();
@@ -94,16 +94,16 @@ describe("international tools", () => {
 
   it("compares two to five courses and refuses one", async () => {
     const c = await connectIntl();
-    const ok = await call(c, "compare_intl_courses", {
+    const ok = await call(c, "compare_international_courses", {
       cricosCodes: ["000001A", "000002B"],
     });
     expect(ok.data.found).toBe(true);
     expect(ok.text).toMatch(/Yearly fee is calculated/);
-    const one = await call(c, "compare_intl_courses", {
+    const one = await call(c, "compare_international_courses", {
       cricosCodes: ["000001A"],
     });
     expect(one.data.reason).toBe("needs_input");
-    const bad = await call(c, "compare_intl_courses", {
+    const bad = await call(c, "compare_international_courses", {
       cricosCodes: ["000001A", "NOPE"],
     });
     expect(bad.data.reason).toBe("not_in_dataset");
@@ -111,7 +111,7 @@ describe("international tools", () => {
 
   it("gives a checklist and link, with no English score, entry requirement or visa advice", async () => {
     const c = await connectIntl();
-    const { data, text } = await call(c, "get_intl_entry_checklist", {
+    const { data, text } = await call(c, "get_international_entry_checklist", {
       cricosCode: "000001A",
     });
     expect(data.data.providerWebsite).toBe(
@@ -122,7 +122,7 @@ describe("international tools", () => {
     );
     expect(text).toMatch(/Department of Home Affairs/);
     expect(text).not.toMatch(/IELTS|TOEFL|\b6\.5\b/);
-    const noSite = await call(c, "get_intl_entry_checklist", {
+    const noSite = await call(c, "get_international_entry_checklist", {
       cricosCode: "000004D",
     });
     expect(noSite.data.data.providerWebsite).toBeUndefined();
@@ -131,19 +131,19 @@ describe("international tools", () => {
   it("answers data_unavailable with no runtime, in production with the entry not cleared, and counts outcomes only", async () => {
     resetMetrics();
     const c = await connectIntl();
-    await call(c, "search_intl_courses", { level: "master" });
+    await call(c, "search_international_courses", { level: "master" });
     expect(metricsText()).toMatch(
-      /tool="search_intl_courses",outcome="results"/,
+      /tool="search_international_courses",outcome="results"/,
     );
     expect(metricsText()).not.toMatch(/master/);
     setIntlRuntime(undefined);
-    const gone = await call(c, "get_intl_course", { cricosCode: "000001A" });
+    const gone = await call(c, "get_international_course", { cricosCode: "000001A" });
     expect(gone.data.reason).toBe("data_unavailable");
   });
 
   it("returns a not-found for an unknown code", async () => {
     const c = await connectIntl();
-    const { data } = await call(c, "get_intl_course", { cricosCode: "ZZZ" });
+    const { data } = await call(c, "get_international_course", { cricosCode: "ZZZ" });
     expect(data).toMatchObject({ found: false, reason: "not_in_dataset" });
   });
 });

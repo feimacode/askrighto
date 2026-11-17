@@ -1,4 +1,4 @@
-# International student courses (vertical `international`)
+# International student courses (vertical `cricos`)
 
 Answers "which higher-education courses registered for international students match my field,
 level, state or budget, and what does CRICOS say about duration, fee and campus?" It gives no
@@ -13,7 +13,7 @@ leave it open. Read at commit `ff220c9`; nothing was run. Related docs:
 ## 1. Data: how it is loaded and refreshed
 
 Source: the national CRICOS register (CC BY 2.5 AU, Australian Government Department of Education,
-via data.gov.au). Rights entries: `intl-courses` and `cricos`, both `cleared` (`src/core/rights.json`).
+via data.gov.au). Rights entries: `intl-courses` and `cricos-register`, both `cleared` (`src/core/rights.json`).
 CRICOS is a spreadsheet with several sheets; `docs/cricos-columns.md` records the layout of the
 file dated 1 Oct 2026, checked on 16 Nov 2026.
 
@@ -118,7 +118,7 @@ erDiagram
   domestic answers.
 - The only link is the CRICOS course code. `IntlStore.data()` runs a sub-select
   (`SELECT c.id FROM courses c WHERE c.cricos_code = i.cricos_code LIMIT 1`) to fill
-  `IntlCourse.domesticCourseId`, which `get_intl_course` shows as "Also in the domestic index as ...".
+  `IntlCourse.domesticCourseId`, which `get_international_course` shows as "Also in the domestic index as ...".
   This needs migration 2 applied even for an international-only deployment because it queries
   `courses`. **(inferred)** `INTL_REQUIRED_SCHEMA` is 4 and migrations are applied in order, so
   `courses` exists whenever the schema is current.
@@ -136,9 +136,9 @@ erDiagram
 ```mermaid
 sequenceDiagram
   participant H as Host model
-  participant S as search_intl_courses
-  participant G as get_intl_course / compare_intl_courses
-  participant K as get_intl_entry_checklist
+  participant S as search_international_courses
+  participant G as get_international_course / compare_international_courses
+  participant K as get_international_entry_checklist
   participant W as withIntl
   H->>S: query, level, field, state, campus, provider, maxTotalFee, maxDurationWeeks
   S->>W: IntlData snapshot
@@ -156,10 +156,10 @@ sequenceDiagram
 | `startIntl` | `src/intl/index.ts` | Opens the pool (3 s statement timeout), builds `IntlStore`, registers dataset `intl-courses` (as-of is the CRICOS source date; stats: courses, providers), adds readiness check `intl-courses` (schema >= 4 and courses > 0). |
 | `withIntl` | `src/intl/index.ts` | Wraps reads; missing runtime, `NoIntlLoad` or database error becomes `data_unavailable`. |
 | `IntlStore.data` | `src/intl/load.ts` | Reads providers, courses with the domestic join, locations and the latest load into one cached snapshot. |
-| `searchIntlCourses` (`search_intl_courses`) | `src/tools/intl-tools.ts` | Drops expired courses; filters by words in course or provider name, level group, field substring, state, campus, provider, `maxDurationWeeks` (courses with no duration are left out) and `maxTotalFee` (courses with no published fee are **not** counted as under it, and the count is reported in a note). Pages by cursor. |
-| `getIntlCourse` (`get_intl_course`) | same | One course in full via `viewOf`; adds a warning if the course is marked expired. |
-| `compareIntlCourses` (`compare_intl_courses`) | same | Side by side on the same published fields, no winner. |
-| `checkIntlEntryChecklist` (`get_intl_entry_checklist`) | same | Despite the export name, the tool is `get_intl_entry_checklist`. Returns provider website, `INTL_READING_CHECKLIST` (English requirement, entry requirements by country, intake and deadline, provider-listed fee and scholarships, page date), `INTL_BROWSING_RULES` and `INTL_NO_ADVICE`. Ask Righto holds none of these facts and fetches no pages. |
+| `searchIntlCourses` (`search_international_courses`) | `src/tools/intl-tools.ts` | Drops expired courses; filters by words in course or provider name, level group, field substring, state, campus, provider, `maxDurationWeeks` (courses with no duration are left out) and `maxTotalFee` (courses with no published fee are **not** counted as under it, and the count is reported in a note). Pages by cursor. |
+| `getIntlCourse` (`get_international_course`) | same | One course in full via `viewOf`; adds a warning if the course is marked expired. |
+| `compareIntlCourses` (`compare_international_courses`) | same | Side by side on the same published fields, no winner. |
+| `checkIntlEntryChecklist` (`get_international_entry_checklist`) | same | Despite the export name, the tool is `get_international_entry_checklist`. Returns provider website, `INTL_READING_CHECKLIST` (English requirement, entry requirements by country, intake and deadline, provider-listed fee and scholarships, page date), `INTL_BROWSING_RULES` and `INTL_NO_ADVICE`. Ask Righto holds none of these facts and fetches no pages. |
 | `okResult` | same | Wraps results in `found` with source `CRICOS_SOURCE`, as-of = CRICOS source date, and `INTL_NOTICE`. |
 | `INTL_INSTRUCTIONS`, `INTL_NOTICE`, `FEE_LABEL`, `INTL_NO_ADVICE` | `src/intl/instructions.ts`, `notice.ts` | Wording rules; fees as indicative; Home Affairs pointer. |
 

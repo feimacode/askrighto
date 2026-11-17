@@ -67,7 +67,7 @@ export async function startIntl(
   await refresh();
   registerDataSet({
     id: "intl-courses",
-    vertical: "international",
+    vertical: "cricos",
     title: "Courses for international students (CRICOS)",
     publisher: "Australian Government Department of Education (CRICOS)",
     source: {
@@ -98,7 +98,7 @@ export async function startIntl(
         return { ok: false, reason: "database_unreachable" };
       }
     },
-    "international",
+    "cricos",
   );
   runtime = {
     intl: store,

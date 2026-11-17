@@ -85,7 +85,7 @@ const ds = (
 ) =>
   registerDataSet({
     id,
-    vertical: "courses",
+    vertical: "courses-domestic",
     title,
     publisher,
     source: { name: title, url, licence },
@@ -192,7 +192,7 @@ export async function startCourses(
         return { ok: false, reason: "database_unreachable" };
       }
     },
-    "courses",
+    "courses-domestic",
   );
 
   runtime = {

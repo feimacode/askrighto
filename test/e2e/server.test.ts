@@ -287,7 +287,7 @@ describe("courses loaded but internal-only", () => {
         ...cleanEnv(),
         PORT: port,
         HOST: "127.0.0.1",
-        ASKRIGHTO_VERTICALS: "energy,courses",
+        ASKRIGHTO_VERTICALS: "energy,courses-domestic",
         ASKRIGHTO_PUBLIC_VERTICALS: "energy",
         ASKRIGHTO_INTERNAL_TOKEN: TOKEN,
         ASKRIGHTO_ENV: "production",
@@ -308,9 +308,9 @@ describe("courses loaded but internal-only", () => {
     );
     const names = (await client.listTools()).tools.map((t) => t.name);
     expect(names.some((n) => /course|vce|early_entry/.test(n))).toBe(false);
-    expect(client.getInstructions()).not.toMatch(/index_only|search_courses/);
+    expect(client.getInstructions()).not.toMatch(/index_only|search_domestic_courses/);
     const res = await client
-      .callTool({ name: "search_courses", arguments: {} })
+      .callTool({ name: "search_domestic_courses", arguments: {} })
       .catch((e) => e);
     expect(
       res instanceof Error || (res as { isError?: boolean }).isError === true,
@@ -328,10 +328,10 @@ describe("courses loaded but internal-only", () => {
     const names = (await client.listTools()).tools.map((t) => t.name);
     expect(names).toEqual(
       expect.arrayContaining([
-        "search_courses",
-        "get_course",
-        "compare_courses",
-        "check_course_prerequisites",
+        "search_domestic_courses",
+        "get_domestic_course",
+        "compare_domestic_courses",
+        "check_domestic_course_prerequisites",
         "get_subject_scaling",
         "estimate_vce_aggregate",
         "get_vce_key_dates",
@@ -340,7 +340,7 @@ describe("courses loaded but internal-only", () => {
     );
     expect(client.getInstructions()).toMatch(/index_only/);
     const res = await client.callTool({
-      name: "search_courses",
+      name: "search_domestic_courses",
       arguments: {},
     });
     expect(

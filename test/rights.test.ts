@@ -67,7 +67,7 @@ describe("rights register", () => {
     expect(overdueReviews(new Date("2026-11-15"))).toEqual([]);
   });
   it("gives CRICOS attribution", () => {
-    expect(attributionFor(["cricos", "energy-plans"])).toMatch(
+    expect(attributionFor(["cricos-register", "energy-plans"])).toMatch(
       /CRICOS.*CC BY 2\.5 AU/,
     );
   });
@@ -199,7 +199,7 @@ describe("list_data_sources and attribution on results", () => {
       readOnlyHint: true,
       destructiveHint: false,
       openWorldHint: false,
-      datasets: ["cricos"],
+      datasets: ["cricos-register"],
       handler: () =>
         found({
           data: { n: 1 },

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   parseVerticalFlags,
   routeSet,
@@ -23,21 +23,53 @@ describe("vertical flags", () => {
     expect(
       parseVerticalFlags(
         env({
-          ASKRIGHTO_VERTICALS: "energy,courses",
+          ASKRIGHTO_VERTICALS: "energy,courses-domestic",
           ASKRIGHTO_PUBLIC_VERTICALS: "energy",
         }),
       ),
-    ).toEqual({ loaded: ["energy", "courses"], public: ["energy"] });
+    ).toEqual({ loaded: ["energy", "courses-domestic"], public: ["energy"] });
   });
   it("defaults public to everything loaded", () => {
     expect(
-      parseVerticalFlags(env({ ASKRIGHTO_VERTICALS: "energy,courses" })).public,
-    ).toEqual(["energy", "courses"]);
+      parseVerticalFlags(env({ ASKRIGHTO_VERTICALS: "energy,courses-domestic" })).public,
+    ).toEqual(["energy", "courses-domestic"]);
   });
   it("fails on an unknown name and names it", () => {
     expect(() =>
       parseVerticalFlags(env({ ASKRIGHTO_VERTICALS: "energy,cuorses" })),
     ).toThrow(/cuorses/);
+  });
+  it("accepts the earlier ids with a warning and maps them to the new ones", () => {
+    const warn = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      expect(
+        parseVerticalFlags(
+          env({
+            ASKRIGHTO_VERTICALS: "energy,courses,international",
+            ASKRIGHTO_PUBLIC_VERTICALS: "energy",
+          }),
+        ),
+      ).toEqual({
+        loaded: ["energy", "courses-domestic", "cricos"],
+        public: ["energy"],
+      });
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('"courses"'));
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('"international"'),
+      );
+    } finally {
+      warn.mockRestore();
+    }
+  });
+  it("does not list a vertical twice when the old and new id are both given", () => {
+    const warn = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      expect(
+        parseVerticalFlags(env({ ASKRIGHTO_VERTICALS: "energy,courses,courses-domestic" })).loaded,
+      ).toEqual(["energy", "courses-domestic"]);
+    } finally {
+      warn.mockRestore();
+    }
   });
   it("fails on an empty list", () => {
     expect(() => parseVerticalFlags(env({ ASKRIGHTO_VERTICALS: " " }))).toThrow(
@@ -49,7 +81,7 @@ describe("vertical flags", () => {
       parseVerticalFlags(
         env({
           ASKRIGHTO_VERTICALS: "energy",
-          ASKRIGHTO_PUBLIC_VERTICALS: "energy,courses",
+          ASKRIGHTO_PUBLIC_VERTICALS: "energy,courses-domestic",
         }),
       ),
     ).toThrow(/courses/);
@@ -83,7 +115,7 @@ const mk = (id: Vertical["id"], tool: string): Vertical => ({
 describe("route sets", () => {
   const all = [
     mk("energy", "get_energy_thing"),
-    mk("courses", "get_course_thing"),
+    mk("courses-domestic", "get_course_thing"),
   ];
   it("shows a route only its own verticals' tools and instructions", () => {
     const pub = routeSet(all, ["energy"]);
@@ -92,13 +124,13 @@ describe("route sets", () => {
       "list_data_sources",
     ]);
     expect(pub.instructions).toEqual(["energy guidance"]);
-    const internal = routeSet(all, ["energy", "courses"]);
+    const internal = routeSet(all, ["energy", "courses-domestic"]);
     expect(internal.tools.map((t) => t.name)).toContain("get_course_thing");
   });
   it("answers data_unavailable from a vertical that failed to start", async () => {
-    markVerticalFailed("courses", "tables missing");
+    markVerticalFailed("courses-domestic", "tables missing");
     try {
-      const t = routeSet(all, ["courses"]).tools.find(
+      const t = routeSet(all, ["courses-domestic"]).tools.find(
         (x) => x.name === "get_course_thing",
       )!;
       expect(await t.handler({})).toMatchObject({

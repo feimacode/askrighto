@@ -9,8 +9,8 @@ Follow the `ask-righto-grounding` skill for quoting results. If the user gives d
 
 ## Steps
 
-1. **Find courses.** Use `search_courses` before naming any course.
-2. **Studies.** Ask which VCE studies the student takes before `check_course_prerequisites`. Ask for expected study scores only if the student wants a scored check or an aggregate. Do not ask for name, school, age or contact details.
+1. **Find courses.** Use `search_domestic_courses` before naming any course.
+2. **Studies.** Ask which VCE studies the student takes before `check_domestic_course_prerequisites`. Ask for expected study scores only if the student wants a scored check or an aggregate. Do not ask for name, school, age or contact details.
 3. **Check prerequisites.** Report met, not met or cannot check for each course and what is missing. This is not a promise of entry.
 4. **Figures.** Quote every entry figure with its kind and intake year exactly as returned, for example "lowest selection rank that received an offer in 2026". Past figures are not cut-offs.
 5. **Aggregate.** `estimate_vce_aggregate` gives an aggregate, which is not an ATAR. Never convert one to the other. If scaling is unavailable, say so and quote nothing from memory.
