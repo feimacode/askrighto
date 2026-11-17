@@ -3,7 +3,7 @@ import { parseProjectionRows, parseProjectionsFile } from "../../src/careers/par
 import { FIXTURE } from "./helpers.js";
 
 describe("career projections parser", () => {
-  it("reads the unit group sheet from a workbook with title rows, a split header and footnotes", async () => {
+  it("reads the unit group sheet from a workbook with title rows, a header split over two rows (sub-header below) and footnotes", async () => {
     const r = await parseProjectionsFile(FIXTURE);
     expect(r.report.problems).toEqual([]);
     expect(r.baselineLabel).toBe("May 2025");
@@ -26,6 +26,14 @@ describe("career projections parser", () => {
     expect(small.change5Pct).toBeUndefined();
     expect(r.report.rowsWithoutEmployment).toBe(1);
     expect(typeof r.occupations[0]!.code).toBe("string");
+  });
+
+  it("also reads a single-row header followed directly by data", () => {
+    const head = ["Occupation Level", "NFD Indicator", "ANZSCO Code", "Occupation", "Skill level", "Baseline May 2025 ('000)", "Projected May 2030 ('000)", "Projected May 2035 ('000)", "5-Year Change Level ('000)", "5-Year Change %", "10-Year Change Level ('000)", "10-Year Change %"];
+    const r = parseProjectionRows([head, [4, "N", "1111", "Test Occupation", "1", 1, 2, 3, 1, 1, 2, 2]]);
+    expect(r.report.problems).toEqual([]);
+    expect(r.occupations).toHaveLength(1);
+    expect(r.midLabel).toBe("May 2030");
   });
 
   it("reports a missing header and a missing column rather than loading guesses", () => {
