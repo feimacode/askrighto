@@ -74,7 +74,7 @@ d("home loan sync", () => {
     expect(r.productsPerLender).toEqual({ alpha: 2, beta: 2 });
     expect(r.notUnderstood.byReason["rateType:MYSTERY"]).toBe(1);
     expect(mock.log.some((l) => l.path.includes("product-category=RESIDENTIAL_MORTGAGES"))).toBe(true);
-    expect(mock.log.every((l) => l.v === (/products\/[^/?]+$/.test(l.path) ? "7" : "4"))).toBe(true);
+    expect(mock.log.every((l) => l.v === (/products\/[^/?]+$/.test(l.path) ? "7" : "5"))).toBe(true);
   });
 
   it("makes no detail call for unchanged products, refetches a changed one, removes a withdrawn one", async () => {

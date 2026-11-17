@@ -47,6 +47,11 @@ describe("normalise", () => {
     expect(norm("a", { name: "Construction Loan" }).notUnderstood).toContain("category:possible_construction_or_reverse");
     expect(norm("a", { lendingRates: [] }).notUnderstood).toContain("rates:none");
   });
+  it("accepts tier bounds sent as JSON numbers", () => {
+    const n = norm("gs", { lendingRates: [rate({ tiers: [{ name: "LVR", unitOfMeasure: "PERCENT", minimumValue: 0, maximumValue: 0.7001 }] })] });
+    expect(n.notUnderstood).not.toContain("tier:unknown_unit");
+    expect(n.rates[0]!.tiers[0]).toMatchObject({ unit: "PERCENT_LVR", min: "0", max: "0.7001" });
+  });
   it("treats an absent purpose or repayment type (older versions) as applying to all", () => {
     const p = norm("a", { lendingRates: [rate({ loanPurpose: undefined, repaymentType: undefined })] });
     expect(p.rates[0]).toMatchObject({ purpose: "UNCONSTRAINED", repayment: "UNCONSTRAINED" });
@@ -198,5 +203,26 @@ describe("routes and docs", () => {
   it("the legal marker is not committed until a view exists", async () => {
     const { existsSync } = await import("node:fs");
     expect(existsSync("docs/legal/home-loans-view.md")).toBe(false);
+  });
+});
+
+describe("list version negotiation", () => {
+  it("steps down from x-v 5 to 4 when a lender answers 406, and remembers it", async () => {
+    const { BankingClient } = await import("../../src/homeloans/client.js");
+    const { RetailerLimiter } = await import("../../src/cdr/limiter.js");
+    const { product, startMockLenders } = await import("./helpers.js");
+    const mock = await startMockLenders({ v4only: [{ detail: product("X1") }], modern: [{ detail: product("Y1") }] });
+    try {
+      const c = new BankingClient({ limiter: new RetailerLimiter({ rps: 500, maxInFlight: 4 }), backoffMs: 1 });
+      const l = (slug: string) => ({ slug, brandName: slug, baseUri: `${mock.url}/${slug}`, active: true });
+      expect(await c.listProducts(l("v4only"))).toHaveLength(1);
+      expect(await c.listProducts(l("modern"))).toHaveLength(1);
+      await c.listProducts(l("v4only"));
+      const used = mock.log.filter((x) => x.slug === "v4only").map((x) => x.v);
+      expect(used).toEqual(["5", "4", "4"]);
+      expect(mock.log.filter((x) => x.slug === "modern").map((x) => x.v)).toEqual(["5"]);
+    } finally {
+      await mock.close();
+    }
   });
 });

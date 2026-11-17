@@ -41,3 +41,12 @@ Percent convention: a `RateString` is a fraction, so `0.0599` is 5.99%. Rates ab
 - The shared CDR code moved to `src/cdr/` (HTTP core and limiter); energy uses it with its tests unchanged. The sync loop itself is still a separate copy in `src/homeloans/sync.ts`.
 - Home loans have their own `home_loan_sync_runs` table rather than a `vertical` column on `sync_runs`.
 - Not built: `check:lenders`, Inkview widgets (tools return markdown), `ongoing_fees` sort (the fee period is not stored yet).
+
+## Findings from a real run (2026-11-17, 12 lenders)
+
+- The Register brands list works with `x-v: 2` and gives each brand's `publicBaseUri`.
+- Product list: 8 of 12 lenders need `x-v: 5` and answer 406 to 4 (CBA, Westpac, ANZ, ING, Bendigo, Great Southern, Teachers Mutual, Beyond). NAB, Macquarie, BOQ and Unloan accept 4. The client now tries 5, then 4, then 3, and remembers the answer per lender. Product detail at `x-v: 7` worked everywhere.
+- Rates are fractions (0.0714 is 7.14%); some lenders send 16-decimal strings. Fixed terms were ISO durations (`P1Y`, `P2Y`, `P60M`).
+- Tier bounds are strings for most lenders and JSON numbers for Great Southern; both are now read.
+- ING adds a `DOLLAR` "Total borrowing" tier. Great Southern's `DISCOUNT` rates have no comparison rate. NAB publishes a minimum and a maximum advertised rate for the same product and LVR band. One Unloan comparison rate was below its own rate.
+- Not yet handled: margin-style `DISCOUNT` entries, purpose or repayment stated only in free text, and a comparison rate below the rate (to be flagged).

@@ -21,6 +21,9 @@ const obj = (v: unknown): Obj | undefined =>
 const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
 const str = (v: unknown): string | undefined =>
   typeof v === "string" && v.trim() ? v : undefined;
+/** Tier bounds arrive as strings from most lenders and as JSON numbers from some (Great Southern). */
+const numStr = (v: unknown): string | undefined =>
+  typeof v === "number" && Number.isFinite(v) ? String(v) : str(v);
 
 export interface ListItem {
   productId: string;
@@ -138,7 +141,7 @@ export function normaliseProduct(
     for (const t of arr(o.tiers)) {
       const to = obj(t);
       const unit = TIER_UNITS[str(to?.unitOfMeasure) ?? ""];
-      const min = str(to?.minimumValue);
+      const min = numStr(to?.minimumValue);
       if (!to || !unit || min === undefined) {
         flag("tier:unknown_unit");
         continue;
@@ -146,7 +149,7 @@ export function normaliseProduct(
       tiers.push({
         unit,
         min,
-        ...(str(to.maximumValue) ? { max: str(to.maximumValue)! } : {}),
+        ...(numStr(to.maximumValue) ? { max: numStr(to.maximumValue)! } : {}),
         ...(str(to.rateApplicationMethod) ? { method: str(to.rateApplicationMethod)! } : {}),
         ...(str(to.name) ? { name: str(to.name)! } : {}),
       });

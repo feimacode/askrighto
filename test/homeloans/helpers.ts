@@ -62,6 +62,7 @@ export async function startMockLenders(state: Record<string, MockProduct[]>): Pr
     const slug = decodeURIComponent(m[1]!);
     log.push({ slug, path: u.pathname + u.search, v: req.headers["x-v"] as string | undefined });
     if (fail.has(slug)) return send(500, { error: "down" });
+    if (!m[2] && req.headers["x-v"] === "5" && slug.startsWith("v4only")) return send(406, { errors: [{ code: "urn:au-cds:error:cds-all:Header/UnsupportedVersion" }] });
     const items = state[slug];
     if (!items) return send(404);
     if (m[2]) {
