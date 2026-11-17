@@ -34,9 +34,13 @@ import {
 import {
   COVER_KINDS,
   HOUSEHOLDS,
+  categoriesOf,
+  COVER_LETTER,
+  type CoverState,
   type HealthData,
   type HealthPremium,
   type HealthProduct,
+  type Household,
 } from "../health/types.js";
 
 const productBase = {
@@ -87,6 +91,10 @@ export interface HealthView {
   household?: string;
   excess?: string;
   premiums: string[];
+  /** Whether the file says the policy is exempt from the Medicare levy surcharge, when it says. */
+  levySurchargeExempt?: boolean;
+  /** Who can buy it, from the file: restricted fund, employer group, needs another product. */
+  availability: string[];
   categories?: { label: string; cover: string }[];
   waitingPeriods?: string[];
   infoUrl?: string;
@@ -102,6 +110,38 @@ function premiumText(p: HealthPremium): string {
   return `${dollars(p.amountCents)} ${p.frequency} (${basis})`;
 }
 
+/** Excess as the file states it, with each published amount named, never reduced to one number. */
+function excessText(p: HealthProduct): string | undefined {
+  if (p.excessType === undefined) return undefined;
+  if (p.excessType === "None") return "none (the file says no excess)";
+  const parts = [
+    p.excessPerAdmissionCents !== undefined ? `${dollars(p.excessPerAdmissionCents)} per admission` : undefined,
+    p.excessPerPersonCents !== undefined ? `${dollars(p.excessPerPersonCents)} per person` : undefined,
+    p.excessPerPolicyCents !== undefined ? `${dollars(p.excessPerPolicyCents)} per policy` : undefined,
+  ].filter(Boolean);
+  return `${parts.join(", ") || "amount not published"} (${p.excessType})`;
+}
+
+function availabilityOf(p: HealthProduct, ins: HealthData["insurers"][number] | undefined): string[] {
+  const out: string[] = [];
+  if (ins?.fundType === "restricted")
+    out.push(`restricted fund${ins.restrictionHint ? `: ${ins.restrictionHint}` : ""}`);
+  if (p.corporate) out.push("corporate or employer-group product");
+  if (p.onlyAvailableWith) out.push(`only available with ${p.onlyAvailableWith}`);
+  return out;
+}
+
+/** The stated cover for one category title, or undefined when the product does not state it. */
+function coverFor(d: HealthData, p: HealthProduct, title: string): CoverState | undefined {
+  const i = d.categoryTitles.indexOf(title);
+  return i < 0 ? undefined : COVER_LETTER[p.coverCodes[i] ?? ""];
+}
+
+/** The household for a threshold: what the user said, else the product's own when it is one of the four types. */
+function estHousehold(given: Household | undefined, p: HealthProduct): Household | undefined {
+  return given ?? (p.household && p.household !== "dependants_only" ? p.household : undefined);
+}
+
 function viewOf(d: HealthData, p: HealthProduct, full: boolean): HealthView {
   const ins = d.insurers.find((i) => i.id === p.insurerId);
   return {
@@ -112,13 +152,13 @@ function viewOf(d: HealthData, p: HealthProduct, full: boolean): HealthView {
     ...(p.tier ? { tier: p.tier } : {}),
     ...(p.state ? { state: p.state } : {}),
     ...(p.household ? { household: p.household } : {}),
-    ...(p.excessCents !== undefined
-      ? { excess: `${dollars(p.excessCents)}${p.excessType ? ` (${p.excessType})` : ""}` }
-      : {}),
+    ...(excessText(p) ? { excess: excessText(p)! } : {}),
     premiums: p.premiums.map(premiumText),
+    ...(p.mlsExempt !== undefined ? { levySurchargeExempt: p.mlsExempt } : {}),
+    availability: availabilityOf(p, ins),
     ...(full
       ? {
-          categories: p.categories.map((c) => ({ label: c.label, cover: c.cover.replace("_", " ") })),
+          categories: categoriesOf(d, p).map((c) => ({ label: c.label, cover: c.cover.replace("_", " ") })),
           waitingPeriods: p.waiting.map((w) => `${w.type}: ${w.months} months`),
         }
       : {}),
@@ -143,7 +183,7 @@ const productResult = <T extends object>(d: HealthData, data: T, warnings: strin
   });
 
 const coverageNote = (d: HealthData) =>
-  `Products in the Private Health Insurance Ombudsman's file dated ${isoDay(d.sourceDate)} (${d.insurers.length} insurers, ${d.products.length} product variants loaded). This is not necessarily every fund or the whole market.`;
+  `Products in the PrivateHealth.gov.au file dated ${isoDay(d.sourceDate)} (${d.insurers.length} insurers, ${d.products.length} product variants loaded). This is not necessarily every fund or the whole market.`;
 
 // ---------------------------------------------------------------- search_health_cover_products
 interface SearchData {
@@ -163,7 +203,7 @@ export const searchHealthCoverProducts = defineTool({
   name: "search_health_cover_products",
   title: "Search private health insurance products",
   description:
-    "Finds private health insurance products in the Private Health Insurance Ombudsman's monthly file by state, household type, cover type (hospital, general treatment or combined), hospital tier, clinical categories wanted (by the names the file uses), maximum excess, maximum monthly premium and insurer. Results are ordered only by the sort you choose (premium or excess), with premiums, excess and the stated cover for each category as published. It compares published facts and does not recommend a product or give advice.",
+    "Finds private health insurance products in the PrivateHealth.gov.au monthly file by state, household type, cover type (hospital, general treatment or combined), hospital tier, clinical categories wanted (by the names the file uses), maximum excess, maximum monthly premium and insurer. Results are ordered only by the sort you choose (premium or excess), with premiums, excess and the stated cover for each category as published. It compares published facts and does not recommend a product or give advice.",
   inputSchema: z.object({
     state: z.string().max(3).optional().describe("State or territory code, e.g. VIC"),
     household: z.enum(HOUSEHOLDS).optional().describe("Who the policy covers"),
@@ -203,9 +243,10 @@ export const searchHealthCoverProducts = defineTool({
       const notes: string[] = [];
       const wantedLabels: string[] = [];
       for (const want of a.requiredCategories ?? []) {
-        const w = lower(want);
-        const known = new Set(d.products.flatMap((p) => p.categories.map((c) => c.label)));
-        const label = [...known].find((k) => lower(k) === w) ?? [...known].find((k) => lower(k).includes(w));
+        const known = new Set(d.categoryTitles);
+        const squash = (x: string) => lower(x).replace(/[^a-z0-9]/g, "");
+        const label =
+          [...known].find((k) => squash(k) === squash(want)) ?? [...known].find((k) => squash(k).includes(squash(want)));
         if (!label)
           return notFound(
             "needs_input",
@@ -214,8 +255,8 @@ export const searchHealthCoverProducts = defineTool({
           );
         wantedLabels.push(label);
         list = list.filter((p) => {
-          const c = p.categories.find((x) => x.label === label);
-          return c !== undefined && c.cover !== "not_covered";
+          const c = coverFor(d, p, label);
+          return c !== undefined && c !== "not_covered";
         });
       }
       if (wantedLabels.length)
@@ -258,7 +299,7 @@ export const searchHealthCoverProducts = defineTool({
         order: sort === "excess_asc" ? "lowest excess first" : "lowest premium first",
         categoryStates: page.map((p) =>
           Object.fromEntries(
-            wantedLabels.map((l) => [l, p.categories.find((c) => c.label === l)?.cover.replace("_", " ") ?? "not stated"]),
+            wantedLabels.map((l) => [l, coverFor(d, p, l)?.replace("_", " ") ?? "not stated"]),
           ),
         ),
         products: page.map((p) => viewOf(d, p, false)),
@@ -313,7 +354,7 @@ export const getHealthCoverProduct = defineTool({
   name: "get_health_cover_product",
   title: "Show one private health insurance product",
   description:
-    "Shows one product variant from the Private Health Insurance Ombudsman's file: insurer, cover type, tier, state, household, excess, every published premium with its rebate basis, the stated cover for every clinical category, waiting periods and the insurer's information statement link when the file carries one. Use a product id from search_health_cover_products.",
+    "Shows one product variant from the PrivateHealth.gov.au file: insurer, cover type, tier, state, household, excess, every published premium with its rebate basis, the stated cover for every clinical category, waiting periods and the insurer's information statement link when the file carries one. Use a product id from search_health_cover_products.",
   inputSchema: z.object({
     productId: z.string().max(200).describe("Product id from search_health_cover_products"),
   }),
@@ -334,14 +375,20 @@ export const getHealthCoverProduct = defineTool({
         `${v.insurer}, ${v.name}. Product id ${v.productId}. Cover type: ${v.kind}.${v.tier ? ` Tier: ${v.tier}.` : ""}${v.state ? ` State: ${v.state}.` : ""}${v.household ? ` Household: ${v.household}.` : ""}`,
         v.excess ? `Excess: ${v.excess}.` : "Excess: not published.",
         v.premiums.length ? `Premiums as published: ${v.premiums.join("; ")}.` : "Premium: not published.",
+        v.levySurchargeExempt !== undefined
+          ? `Medicare levy surcharge exempt, as the file states: ${v.levySurchargeExempt ? "yes" : "no"}.`
+          : "Medicare levy surcharge exemption: not stated in the file.",
+        v.availability.length ? `Who can buy it: ${v.availability.join("; ")}.` : "",
         v.categories?.length
           ? `Clinical categories: ${v.categories.map((c) => `${c.label} (${c.cover})`).join(", ")}.`
           : "Clinical categories: not published.",
         v.waitingPeriods?.length ? `Waiting periods: ${v.waitingPeriods.join("; ")}.` : "Waiting periods: not published.",
-        v.infoUrl ? `Insurer's information statement: ${v.infoUrl}` : "No information statement link is in the file.",
+        v.infoUrl ? `Insurer's page for this product: ${v.infoUrl}` : "No insurer page link is in the file for this product.",
         v.coverage,
         CONFIRM,
-      ].join("\n"),
+      ]
+        .filter(Boolean)
+        .join("\n"),
     ),
 });
 
@@ -365,7 +412,7 @@ export const compareHealthCoverProducts = defineTool({
   name: "compare_health_cover_products",
   title: "Compare private health insurance products",
   description:
-    "Shows two to four product variants from the Private Health Insurance Ombudsman's file side by side on the same published fields: insurer, cover type, tier, excess, premiums and categories not covered. It shows differences and does not judge them or pick one.",
+    "Shows two to four product variants from the PrivateHealth.gov.au file side by side on the same published fields: insurer, cover type, tier, excess, premiums and categories not covered. It shows differences and does not judge them or pick one.",
   inputSchema: z.object({
     productIds: z.array(z.string().max(200)).min(1).max(8).describe("Two to four product ids from search_health_cover_products"),
   }),
@@ -463,7 +510,7 @@ export const estimatePremiumAfterRebate = defineTool({
           ageBand: a.ageBand,
           ...(a.incomeTier ? { incomeTier: a.incomeTier } : {}),
           ...(a.income !== undefined ? { income: a.income } : {}),
-          ...((a.household ?? p.household) ? { household: (a.household ?? p.household)! } : {}),
+          ...(estHousehold(a.household, p) ? { household: estHousehold(a.household, p)! } : {}),
           ...(a.dependentChildren !== undefined ? { dependentChildren: a.dependentChildren } : {}),
         },
         date,

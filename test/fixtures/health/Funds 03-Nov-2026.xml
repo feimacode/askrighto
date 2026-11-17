@@ -1,0 +1,6 @@
+<Funds Count="2" >
+<Fund xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" FundItemID="TST-item" FundID="TST-id" Status="Published" PublishDate="16-Apr-26 09:45" SchemaVersion="3.0" xmlns="http://admin.privatehealth.gov.au/ws/Schemas" xsi:schemaLocation="PHOLSchema-V3.1.xsd">
+<FundCode>TST</FundCode><FundName>Test Health Fund</FundName><FundDescription>Synthetic test fund.</FundDescription><Website>https://example.org/tst</Website><FundType>Open</FundType></Fund>
+<Fund xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" FundItemID="RST-item" FundID="RST-id" Status="Published" PublishDate="16-Apr-26 09:45" SchemaVersion="3.0" xmlns="http://admin.privatehealth.gov.au/ws/Schemas" xsi:schemaLocation="PHOLSchema-V3.1.xsd">
+<FundCode>RST</FundCode><FundName>Test Restricted Fund</FundName><FundDescription>Synthetic test fund.</FundDescription><Website>https://example.org/rst</Website><FundType>Restricted</FundType><Restrictions><RestrictionHint>Employees of the test union</RestrictionHint><RestrictionParagraph>x</RestrictionParagraph><RestrictionDetails>y</RestrictionDetails></Restrictions></Fund>
+</Funds>

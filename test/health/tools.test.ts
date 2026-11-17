@@ -13,10 +13,11 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-const GOLD = "tst/tst-gold/VIC/single";
-const BRONZE = "tst/tst-bronze/VIC/single";
-const COMBO = "tst/tst-combo/VIC/single";
-const NOBASIS = "tst/tst-nobasis/NSW/couple";
+const GOLD = "tst-gold";
+const BRONZE = "tst-bronze";
+const COMBO = "tst-combo";
+const COUPLE = "tst-couple";
+const EXTRAS = "tst-extras";
 
 describe("health cover tools", () => {
   it("are read-only, on the internal route only, with no free-text condition input", async () => {
@@ -45,12 +46,12 @@ describe("health cover tools", () => {
     const { data, text } = await call(c, "search_health_cover_products", {
       state: "VIC",
       household: "single",
-      requiredCategories: ["Pregnancy and birth"],
+      requiredCategories: ["PregnancyBirth"],
     });
     expect(data.found).toBe(true);
     // Bronze says not covered, so it is left out; combo (180) is below gold (200).
     expect(data.data.products.map((p: { productId: string }) => p.productId)).toEqual([COMBO, GOLD]);
-    expect(data.data.categoryStates[0]).toEqual({ "Pregnancy and birth": "covered" });
+    expect(data.data.categoryStates[0]).toEqual({ PregnancyBirth: "covered" });
     expect(data.asOf).toMatch(/^2026-11-03/);
     expect(data.source.attribution).toMatch(/CC BY 3\.0 AU/);
     expect(data.data.coverage).toMatch(/not necessarily every fund or the whole market/);
@@ -78,15 +79,15 @@ describe("health cover tools", () => {
     const c = await connectHealth();
     const g = await call(c, "get_health_cover_product", { productId: GOLD });
     expect(g.data.data.categories.length).toBe(3);
-    expect(g.text).toMatch(/Waiting periods: Pregnancy: 12 months/);
-    const nb = await call(c, "get_health_cover_product", { productId: NOBASIS });
+    expect(g.text).toMatch(/Waiting periods: PreExisting: 12 months; PregnancyBirth: 12 months/);
+    const nb = await call(c, "get_health_cover_product", { productId: COUPLE });
     expect(nb.text).toMatch(/Excess: not published/);
     expect((await call(c, "get_health_cover_product", { productId: "zzz" })).data).toMatchObject({ found: false, reason: "not_in_dataset" });
     const cmp = await call(c, "compare_health_cover_products", { productIds: [GOLD, BRONZE] });
     expect(cmp.data.found).toBe(true);
     expect(cmp.text).toMatch(/Categories not covered/);
     expect(bannedInHealth(cmp.text)).toEqual([]);
-    const five = await call(c, "compare_health_cover_products", { productIds: [GOLD, BRONZE, COMBO, NOBASIS, GOLD] });
+    const five = await call(c, "compare_health_cover_products", { productIds: [GOLD, BRONZE, COMBO, COUPLE, GOLD] });
     expect(five.data).toMatchObject({ found: false });
   });
 
@@ -107,12 +108,13 @@ describe("health cover tools", () => {
     expect(data.asOf).toMatch(/^2026-06-22/);
     expect(bannedInHealth(text)).toEqual([]);
     const pub = await call(c, "estimate_premium_after_rebate", { productId: COMBO, ageBand: "under65", incomeTier: "base", asAt: "2026-08-01" });
-    expect(pub.data.data.basis).toBe("published");
+    expect(pub.data.data.basis).toBe("calculated");
+    expect(pub.data.data.premiumBeforeRebateAnnual).toBe("$2,160.00");
   });
 
   it("will not estimate when the basis is unclear, the date is outside the rules, or a change is only proposed", async () => {
     const c = await connectHealth();
-    const a = await call(c, "estimate_premium_after_rebate", { productId: NOBASIS, ageBand: "under65", incomeTier: "base", asAt: "2026-08-01" });
+    const a = await call(c, "estimate_premium_after_rebate", { productId: EXTRAS, ageBand: "under65", incomeTier: "base", asAt: "2026-08-01" });
     expect(a.data).toMatchObject({ found: false, details: { calcReason: "rebate_basis_unclear" } });
     const b = await call(c, "estimate_premium_after_rebate", { productId: GOLD, ageBand: "age70plus", incomeTier: "base", asAt: "2027-05-01" });
     expect(b.data).toMatchObject({ found: false, details: { calcReason: "rules_out_of_range" } });
@@ -138,7 +140,7 @@ describe("health cover tools", () => {
     expect(text).toMatch(/not a view on whether to hold cover/);
     expect(bannedInHealth(text)).toEqual([]);
     expect(metricsText()).not.toMatch(/120000|120,000/);
-    const extras = await call(c, "check_levy_surcharge_breakeven", { productId: "tst/tst-extras/VIC/single", income: 120000, household: "single", ageBand: "under65" });
+    const extras = await call(c, "check_levy_surcharge_breakeven", { productId: EXTRAS, income: 120000, household: "single", ageBand: "under65" });
     expect(extras.data).toMatchObject({ found: false, reason: "needs_input" });
   });
 

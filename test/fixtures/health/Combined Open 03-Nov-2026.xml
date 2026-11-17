@@ -1,0 +1,14 @@
+<Products Count="1" >
+<Product xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ProductCode="C1/TC" ProductItemID="tst-combo-item" ProductID="tst-combo" FundItemID="TST-item" Status="Published" PublishDate="01-Nov-26 00:00" SchemaVersion="3.1" xmlns="http://admin.privatehealth.gov.au/ws/Schemas" xsi:schemaLocation="http://admin.privatehealth.gov.au/ws/Schemas PHOLSchema-V3.1.xsd">
+<FundCode>TST</FundCode><ProductGroupCode>G1</ProductGroupCode><Name>Test Combined</Name><ProductType>Combined</ProductType>
+<ProductURL xsi:nil="true" /><PHISURL xsi:nil="true" /><ProductStatus>Open</ProductStatus>
+<Corporate Atomic="true" /><OnlyAvailableWith><NotApplicable xsi:nil="true" /></OnlyAvailableWith><DateValidFrom xsi:nil="true" /><DateValidTo xsi:nil="true" /><State>VIC</State>
+<WhoIsCovered OnlyOnePerson="true"><Coverage xsi:nil="true" /></WhoIsCovered>
+<Excesses ExcessType="LimitedPerPerson" Atomic="true"><ExcessPerAdmission>500</ExcessPerAdmission><ExcessPerPerson>500</ExcessPerPerson></Excesses><CoPayments CoPaymentType="None" Atomic="true" /><MedicareLevySurchargeExempt>true</MedicareLevySurchargeExempt>
+<PremiumNoRebate>180.00</PremiumNoRebate><PremiumHospitalComponent>110.00</PremiumHospitalComponent>
+<AddOns /><Brands />
+<HospitalCover><HospitalTier>Silver</HospitalTier><Accommodation>PrivateOrPublic</Accommodation><MedicalService Title="PregnancyBirth" Cover="Covered" /></HospitalCover>
+<GeneralHealthCover BasedOnID=""><GeneralHealthServices><GeneralHealthService Title="DentalGeneral" Covered="true"><WaitingPeriod Unit="Month" Atomic="true">2</WaitingPeriod></GeneralHealthService></GeneralHealthServices></GeneralHealthCover>
+<ProductAmbulance UseFund="true"></ProductAmbulance>
+</Product>
+</Products>

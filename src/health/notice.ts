@@ -1,6 +1,6 @@
 /** Fixed wording for health cover results. */
 export const HEALTH_NOTICE =
-  "Ask Righto is a free information tool. It compares published facts, takes no commission and is not an insurer, broker or adviser. Prices and cover come from the Private Health Insurance Ombudsman's monthly file and can differ from the insurer's own: confirm price and cover with the insurer before acting.";
+  "Ask Righto is a free information tool. It compares published facts, takes no commission and is not an insurer, broker or adviser. Prices and cover come from the PrivateHealth.gov.au monthly file and can differ from the insurer's own: confirm price and cover with the insurer before acting.";
 
 /** Short form for component captions, which are length limited. */
 export const HEALTH_CAPTION =
@@ -10,7 +10,7 @@ export const CALCULATED_NOTE =
   "calculated by Ask Righto from the published premium and the ATO rates effective on the date shown; your insurer's quote and the ATO's own calculator govern";
 
 export const PHIO_SOURCE = {
-  name: "PrivateHealth.gov.au product data, Private Health Insurance Ombudsman",
+  name: "PrivateHealth.gov.au product data, Commonwealth Ombudsman",
   url: "https://data.gov.au/data/dataset/private-health-insurance",
   licence: "CC BY 3.0 AU",
 } as const;

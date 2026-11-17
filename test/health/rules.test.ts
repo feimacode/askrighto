@@ -46,26 +46,35 @@ describe("tiers", () => {
 describe("rebate", () => {
   it("calculates a premium after rebate from integer cents, rounded once", () => {
     // $200 a month = $2,400 a year; base tier under 65 rebate 24.118% -> $1,821.17
-    const e = estimateRebate(rates, product("TST-GOLD"), { ageBand: "under65", incomeTier: "base" }, "2026-08-01");
+    const e = estimateRebate(rates, product("H1/TG"), { ageBand: "under65", incomeTier: "base" }, "2026-08-01");
     expect(e).toMatchObject({ estimated: true, afterBasis: "calculated", premiumBeforeAnnualCents: 240000, premiumAfterAnnualCents: 182117, rebateAnnualCents: 57883 });
   });
   it("shows a premium the file already states for that tier as published", () => {
-    const e = estimateRebate(rates, product("TST-COMBO"), { ageBand: "under65", incomeTier: "base" }, "2026-08-01");
+    // The real PHIO file never carries one, so the calculator is tested with a hand-built product.
+    const base = product("C1/TC");
+    const stated = {
+      ...base,
+      premiums: [
+        { amountCents: 18000, frequency: "monthly" as const, basis: "before_rebate" as const },
+        { amountCents: 13660, frequency: "monthly" as const, basis: "after_rebate" as const, rebateTier: "base" },
+      ],
+    };
+    const e = estimateRebate(rates, stated, { ageBand: "under65", incomeTier: "base" }, "2026-08-01");
     expect(e).toMatchObject({ estimated: true, afterBasis: "published", premiumAfterAnnualCents: 13660 * 12 });
   });
   it("uses the age band and tier percentages, and tier 3 gets none", () => {
-    expect(estimateRebate(rates, product("TST-GOLD"), { ageBand: "age70plus", incomeTier: "base" }, "2026-08-01")).toMatchObject({ rebatePercentMilli: 32158 });
-    expect(estimateRebate(rates, product("TST-GOLD"), { ageBand: "under65", incomeTier: "tier3" }, "2026-08-01")).toMatchObject({ premiumAfterAnnualCents: 240000 });
+    expect(estimateRebate(rates, product("H1/TG"), { ageBand: "age70plus", incomeTier: "base" }, "2026-08-01")).toMatchObject({ rebatePercentMilli: 32158 });
+    expect(estimateRebate(rates, product("H1/TG"), { ageBand: "under65", incomeTier: "tier3" }, "2026-08-01")).toMatchObject({ premiumAfterAnnualCents: 240000 });
   });
   it("says the basis is unclear when the file does not say, and when rates are out of range, naming a proposed change without using it", () => {
-    expect(estimateRebate(rates, product("TST-NOBASIS"), { ageBand: "under65", incomeTier: "base" }, "2026-08-01")).toMatchObject({ estimated: false, reason: "rebate_basis_unclear" });
-    const out = estimateRebate(rates, product("TST-GOLD"), { ageBand: "age70plus", incomeTier: "base" }, "2027-05-01");
+    expect(estimateRebate(rates, product("G1/TE"), { ageBand: "under65", incomeTier: "base" }, "2026-08-01")).toMatchObject({ estimated: false, reason: "rebate_basis_unclear" });
+    const out = estimateRebate(rates, product("H1/TG"), { ageBand: "age70plus", incomeTier: "base" }, "2027-05-01");
     expect(out).toMatchObject({ estimated: false, reason: "rules_out_of_range" });
     expect((out as { proposed?: unknown }).proposed).toBeDefined();
-    expect(estimateRebate(rates, product("TST-GOLD"), { ageBand: "under65", incomeTier: "base" }, "2020-01-01")).toMatchObject({ reason: "rules_out_of_range" });
+    expect(estimateRebate(rates, product("H1/TG"), { ageBand: "under65", incomeTier: "base" }, "2020-01-01")).toMatchObject({ reason: "rules_out_of_range" });
   });
   it("needs a tier or an income with a household", () => {
-    expect(estimateRebate(rates, product("TST-GOLD"), { ageBand: "under65" }, "2026-08-01")).toMatchObject({ reason: "needs_input" });
+    expect(estimateRebate(rates, product("H1/TG"), { ageBand: "under65" }, "2026-08-01")).toMatchObject({ reason: "needs_input" });
   });
 });
 

@@ -136,6 +136,12 @@ export function estimateRebate(
       afterBasis: "published",
       usedPublishedPremium: published,
     };
+  if (product.premiums.length === 0)
+    return {
+      estimated: false,
+      reason: "rebate_basis_unclear",
+      message: "The file gives no premium for this product, so Ask Righto cannot work out a premium after the rebate. Ask the insurer.",
+    };
   if (!before)
     return {
       estimated: false,

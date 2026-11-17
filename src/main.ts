@@ -292,7 +292,7 @@ Usage:
     await run();
   } else if (args[0]?.startsWith("health:")) {
     const cli = await import("./health/cli.js");
-    if (args[0] === "health:validate") cli.cliHealthValidate(args.slice(1));
+    if (args[0] === "health:validate") await cli.cliHealthValidate(args.slice(1));
     else if (args[0] === "health:load") await cli.cliHealthLoad(args.slice(1));
     else if (args[0] === "health:rates-validate") cli.cliHealthRatesValidate();
   } else if (args[0]?.startsWith("intl:")) {

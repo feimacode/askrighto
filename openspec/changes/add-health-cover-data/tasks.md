@@ -1,11 +1,11 @@
 ## 1. Verify the source
 
-- [ ] 1.1 Download the latest ZIP from data.gov.au on a machine that can reach it (cloud sessions are blocked), list its files, XML elements and CSV columns in `docs/health-cover-columns.md`, and mark which expected fields are present (insurer, product, state, household type, age band, hospital tier, premium by frequency, premium before and after rebate, excess type and amount, clinical categories, general treatment services and limits, waiting periods, hospital agreements, PHIS page link)
-- [ ] 1.2 Read the ZIP's `Readme.txt` and record any attribution or reuse wording
+- [x] 1.1 (17 Nov 2026, from Iven's machine) Download the latest ZIP from data.gov.au on a machine that can reach it (cloud sessions are blocked), list its files, XML elements and CSV columns in `docs/health-cover-columns.md`, and mark which expected fields are present (insurer, product, state, household type, age band, hospital tier, premium by frequency, premium before and after rebate, excess type and amount, clinical categories, general treatment services and limits, waiting periods, hospital agreements, PHIS page link)
+- [x] 1.2 (17 Nov 2026: the Readme describes files only and says nothing about attribution or reuse) Read the ZIP's `Readme.txt` and record any attribution or reuse wording
 - [ ] 1.3 Read the privatehealth.gov.au terms of use and record in `docs/data-rights.md` exactly what they say about reuse of the site (the dataset is covered by CC BY; the site is not assumed to be)
 - [ ] 1.4 Check the CC BY 3.0 AU licence on the data.gov.au record is still current before shipping
 - [x] 1.5 Add a small synthetic fixture under `test/fixtures/health/` in the real file layout (no real insurer rows committed)
-- [ ] 1.6 Update this design and the proposal with any field that turned out absent
+- [x] 1.6 (17 Nov 2026) Update this design and the proposal with any field that turned out absent
 
 ## 2. Schema and loader
 

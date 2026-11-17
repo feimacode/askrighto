@@ -27,7 +27,7 @@ flowchart LR
 
 | Function | File | Does |
 | --- | --- | --- |
-| `parseHealthFiles` | `src/health/parse.ts` | Reads the assumed XML into products; problems are collected, duplicate keys reported |
+| `parseHealthDir`, `HealthAccumulator` | `src/health/parse.ts` | Streams the real PHIO XML (700 MB files) product by product; open products only unless asked; problems collected, repeated ProductIDs reported |
 | `loadHealth`, `HealthStore` | `src/health/load.ts` | Replace-all load; cached read |
 | `loadRates`, `ruleAt`, `proposedAt`, `overdueRules` | `src/health/rules.ts` | Validate and select dated rules |
 | `estimateRebate`, `estimateSurcharge`, `estimateLhc`, `tierFor` | `src/health/calc.ts` | Pure calculators returning `NotEstimated` with a reason |

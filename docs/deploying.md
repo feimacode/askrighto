@@ -83,4 +83,4 @@ The course tools are a work in progress. Answers may be incomplete: many courses
 
 ## Private health cover (internal vertical)
 
-Add `health-cover` to `ASKRIGHTO_VERTICALS` (not to `ASKRIGHTO_PUBLIC_VERTICALS`) to serve it on the internal route. Each month: unzip the PHIO file, `health:validate`, then `health:load` (see [health-cover-columns.md](health-cover-columns.md)). After each 1 April and 1 July run `health:rates-validate`. Rates are read from `data/health/rates.yaml`, which the image already copies.
+Add `health-cover` to `ASKRIGHTO_VERTICALS` (not to `ASKRIGHTO_PUBLIC_VERTICALS`) to serve it on the internal route. Each month: unzip the PrivateHealth.gov.au ZIP, `health:validate --dir FOLDER`, then `health:load --dir FOLDER` (open products only; add `--include-closed` to keep closed ones; allow a few minutes and about 1 GB of memory for the full file) (see [health-cover-columns.md](health-cover-columns.md)). After each 1 April and 1 July run `health:rates-validate`. Rates are read from `data/health/rates.yaml`, which the image already copies.

@@ -1,245 +1,406 @@
 /**
- * Reads the PHIO product XML into our model. **The real file layout has not been opened yet**
- * (add-health-cover-data task 1.1), so this parser reads an ASSUMED layout, documented in
- * docs/health-cover-columns.md. Element names are matched loosely (case and punctuation are ignored) and any
- * field that is absent stays unset; nothing is inferred. Once a real file is opened, change `PATHS` here and
- * the fixture in test/fixtures/health/ to match it.
- *
- * Assumed layout, one file per insurer:
- *   <Insurer><Code/><Name/><Products><Product><Code/><Name/><Type/><Tier/><State/><Household/>
- *     <ExcessAmount/><ExcessType/><InfoUrl/>
- *     <Premiums><Premium><Amount/><Frequency/><Basis/><RebateTier/></Premium></Premiums>
- *     <ClinicalCategories><Category code="" label="" cover=""/></ClinicalCategories>
- *     <WaitingPeriods><WaitingPeriod type="" months=""/></WaitingPeriods>
- *   </Product></Products></Insurer>
+ * Reads the PrivateHealth.gov.au product XML (schema V3.1, opened 17 Nov 2026 from the November 2026 ZIP)
+ * into our model. Layout, documented in docs/health-cover-columns.md:
+ *   - one file per cover type and status: "Hospital Open", "Combined Closed", "GeneralHealth Open" and so on,
+ *     each a flat <Products Count=".."> of <Product> (the default namespace sits on every <Product>);
+ *   - one "Funds" file with a <Fund> per insurer;
+ *   - sizes run to 700 MB, so product files are streamed and cut at </Product>; no file is read whole.
+ * Each product is parsed on its own. Closed products are skipped unless asked for. Anything absent stays unset.
  */
+import { createHash } from "node:crypto";
+import { createReadStream, readdirSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { XMLParser } from "fast-xml-parser";
-import {
-  COVER_KINDS,
-  FREQUENCIES,
-  HOUSEHOLDS,
-  type CoverKind,
-  type CoverState,
-  type Frequency,
-  type HealthCategory,
-  type HealthInsurer,
-  type HealthPremium,
-  type HealthProduct,
-  type HealthWaiting,
-  type Household,
-  type PremiumBasis,
+import type {
+  CoverKind,
+  CoverState,
+  HealthInsurer,
+  HealthProduct,
+  HealthWaiting,
+  ProductHousehold,
 } from "./types.js";
 
+const ARRAYS = new Set(["Fund", "MedicalService", "WaitingPeriod", "DependantCover"]);
 const parser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: "@_",
   parseTagValue: false,
   parseAttributeValue: false,
   trimValues: true,
+  isArray: (name) => ARRAYS.has(name),
 });
 
-const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
 type Node = Record<string, unknown>;
+const isNode = (v: unknown): v is Node => typeof v === "object" && v !== null && !Array.isArray(v);
 
-/** First child (or attribute) whose normalised name is one of `names`, as text. */
-function text(n: Node | undefined, ...names: string[]): string | undefined {
-  if (!n) return undefined;
-  for (const [k, v] of Object.entries(n)) {
-    const key = norm(k.replace(/^@_/, ""));
-    if (names.includes(key) && (typeof v === "string" || typeof v === "number")) {
-      const s = String(v).trim();
-      if (s) return s;
-    }
-  }
+/** Text of an element: a plain string, or the #text of one that also has attributes. A nil element has no text. */
+function tx(v: unknown): string | undefined {
+  if (typeof v === "string" || typeof v === "number") return String(v).trim() || undefined;
+  if (isNode(v) && "#text" in v) return tx(v["#text"]);
   return undefined;
 }
-/** Children named `names`, always as a list (the XML library returns a single child as an object). */
-function list(n: Node | undefined, ...names: string[]): Node[] {
-  if (!n) return [];
-  for (const [k, v] of Object.entries(n))
-    if (names.includes(norm(k))) {
-      const arr = Array.isArray(v) ? v : [v];
-      return arr.filter((x): x is Node => typeof x === "object" && x !== null);
-    }
-  return [];
-}
-/** The container element, then its repeated children: <Premiums><Premium/></Premiums>. */
-function items(n: Node | undefined, container: string, item: string): Node[] {
-  return list(n, norm(container)).flatMap((c) => list(c, norm(item)));
-}
+const attr = (n: Node | undefined, name: string): string | undefined => {
+  const v = n?.[`@_${name}`];
+  return typeof v === "string" ? v : undefined;
+};
+const arr = (v: unknown): Node[] => (Array.isArray(v) ? v : v === undefined ? [] : [v]).filter(isNode);
 
-const cents = (s: string | undefined): number | undefined => {
+/** Dollars as published ("277.48") to whole cents. Undefined for anything that is not a non-negative number. */
+export const cents = (s: string | undefined): number | undefined => {
   if (s === undefined) return undefined;
   const n = Number(s.replace(/[$,\s]/g, ""));
   return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : undefined;
 };
 
-function oneOf<T extends string>(raw: string | undefined, allowed: readonly T[]): T | undefined {
-  if (!raw) return undefined;
-  const k = norm(raw);
-  return allowed.find((a) => norm(a) === k);
-}
-
-const KIND_ALIASES: Record<string, CoverKind> = {
+const KINDS: Record<string, CoverKind> = {
   hospital: "hospital",
-  hospitalonly: "hospital",
-  generaltreatment: "general_treatment",
-  extras: "general_treatment",
+  generalhealth: "general_treatment",
   combined: "combined",
-  hospitalandgeneraltreatment: "combined",
 };
-const BASIS_ALIASES: Record<string, PremiumBasis> = {
-  beforerebate: "before_rebate",
-  withoutrebate: "before_rebate",
-  afterrebate: "after_rebate",
-  withrebate: "after_rebate",
-};
-const COVER_ALIASES: Record<string, CoverState> = {
-  covered: "covered",
-  restricted: "restricted",
-  restrictedcover: "restricted",
-  notcovered: "not_covered",
-};
-const TIER_CODE_ALIASES: Record<string, string> = {
-  base: "base",
-  basetier: "base",
-  tier1: "tier1",
-  tier2: "tier2",
-  tier3: "tier3",
-};
+const COVERS: Record<string, CoverState> = { Covered: "covered", Restricted: "restricted", NotCovered: "not_covered" };
+const LETTER: Record<CoverState, string> = { covered: "C", restricted: "R", not_covered: "N" };
+/** The seven hospital tiers the schema lists; anything else is reported, not dropped. */
+export const HOSPITAL_TIERS = ["Basic", "BasicPlus", "Bronze", "BronzePlus", "Silver", "SilverPlus", "Gold"] as const;
+
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 export interface HealthParseReport {
   insurers: number;
   productsRead: number;
   productsKept: number;
+  closedSkipped: number;
   productsWithoutPremium: number;
-  duplicateKeys: string[];
+  duplicateIds: string[];
+  unknownFunds: string[];
   unknownTiers: string[];
+  byKind: Record<string, number>;
   byTier: Record<string, number>;
+  byState: Record<string, number>;
+  byHousehold: Record<string, number>;
   problems: string[];
 }
 
 export interface HealthParseResult {
   insurers: HealthInsurer[];
   products: HealthProduct[];
+  categoryTitles: string[];
   report: HealthParseReport;
 }
 
-const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+/** Household from the file's WhoIsCovered element: never guessed when the element is missing or odd. */
+function householdOf(w: unknown): { household?: ProductHousehold; dependants: string[] } {
+  if (!isNode(w)) return { dependants: [] };
+  if (attr(w, "OnlyOnePerson") === "true") return { household: "single", dependants: [] };
+  const cov = isNode(w.Coverage) ? w.Coverage : undefined;
+  const adults = Number(attr(cov, "NumberOfAdults"));
+  const dependants = arr(cov?.DependantCover)
+    .filter((d) => attr(d, "Covered") === "true")
+    .map((d) => attr(d, "Title") ?? "")
+    .filter(Boolean);
+  if (!cov || !Number.isFinite(adults)) return { dependants };
+  if (adults === 0) return { household: "dependants_only", dependants };
+  if (adults === 1) return { household: dependants.length ? "single_parent" : "single", dependants };
+  if (adults === 2) return { household: dependants.length ? "family" : "couple", dependants };
+  return { dependants };
+}
 
-/** Parses the XML text of each insurer file (name, content). Problems are collected, not thrown, so one bad file is visible. */
-export function parseHealthFiles(files: { name: string; xml: string }[]): HealthParseResult {
-  const insurers: HealthInsurer[] = [];
-  const products: HealthProduct[] = [];
-  const problems: string[] = [];
-  const seen = new Set<string>();
-  const duplicateKeys: string[] = [];
-  const unknownTiers = new Set<string>();
-  let productsRead = 0;
+function onlyAvailableWith(n: unknown): string | undefined {
+  if (!isNode(n)) return undefined;
+  if ("AnyHospital" in n) return "any hospital cover";
+  if ("AnyGeneralHealth" in n) return "any general health cover";
+  const codes = tx(n.Products);
+  return codes ? `product groups ${codes.split(";").map((c) => c.trim()).filter(Boolean).join(", ")}` : undefined;
+}
 
-  for (const f of files) {
+/** Cuts a text stream into <Product>…</Product> pieces. Feed chunks in order; each call returns the pieces now complete. */
+export class ProductSplitter {
+  private buf = "";
+  feed(chunk: string): string[] {
+    this.buf += chunk;
+    const out: string[] = [];
+    for (;;) {
+      const start = /<Product[\s>]/.exec(this.buf);
+      if (!start) {
+        // keep only a possible partial "<Product" at the very end
+        this.buf = this.buf.slice(Math.max(0, this.buf.length - 9));
+        return out;
+      }
+      const end = this.buf.indexOf("</Product>", start.index);
+      if (end < 0) {
+        this.buf = this.buf.slice(start.index);
+        return out;
+      }
+      out.push(this.buf.slice(start.index, end + "</Product>".length));
+      this.buf = this.buf.slice(end + "</Product>".length);
+    }
+  }
+}
+
+export interface ParseOptions {
+  /** Keep products that are closed to new members. Off by default. */
+  includeClosed?: boolean;
+}
+
+/** Collects funds and products, then reports. Products are parsed one at a time, so memory holds only the kept rows. */
+export class HealthAccumulator {
+  private insurers: HealthInsurer[] = [];
+  private products: HealthProduct[] = [];
+  private seen = new Set<string>();
+  private titleIndex = new Map<string, number>();
+  private duplicateIds: string[] = [];
+  private unknownFunds = new Set<string>();
+  private unknownTiers = new Set<string>();
+  private problems: string[] = [];
+  private read = 0;
+  private closedSkipped = 0;
+  constructor(private opts: ParseOptions = {}) {}
+
+  addFunds(xml: string, fileName = "Funds"): void {
     let doc: Node;
     try {
-      doc = parser.parse(f.xml) as Node;
+      doc = parser.parse(xml) as Node;
     } catch (e) {
-      problems.push(`${f.name}: not valid XML (${(e as Error).message.slice(0, 80)})`);
-      continue;
+      this.problems.push(`${fileName}: not valid XML (${(e as Error).message.slice(0, 80)})`);
+      return;
     }
-    const roots = list(doc, "insurer");
-    if (roots.length === 0) {
-      problems.push(`${f.name}: no <Insurer> element found (layout is assumed; see docs/health-cover-columns.md)`);
-      continue;
-    }
-    for (const ins of roots) {
-      const name = text(ins, "name", "insurername", "fundname");
-      const code = text(ins, "code", "insurercode", "fundcode") ?? (name ? slug(name) : undefined);
-      if (!name || !code) {
-        problems.push(`${f.name}: an insurer has no name or code`);
+    const funds = arr(isNode(doc.Funds) ? doc.Funds.Fund : undefined);
+    if (funds.length === 0) this.problems.push(`${fileName}: no <Fund> elements found`);
+    for (const f of funds) {
+      const code = tx(f.FundCode);
+      const name = tx(f.FundName);
+      if (!code || !name) {
+        this.problems.push(`${fileName}: a fund has no FundCode or FundName`);
         continue;
       }
-      const insurerId = slug(code);
-      if (!insurers.some((i) => i.id === insurerId)) insurers.push({ id: insurerId, name });
-      for (const p of items(ins, "products", "product")) {
-        productsRead++;
-        const pname = text(p, "name", "productname");
-        const pcode = text(p, "code", "productcode") ?? (pname ? slug(pname) : undefined);
-        const kind = KIND_ALIASES[norm(text(p, "type", "covertype", "producttype") ?? "")];
-        if (!pname || !pcode || !kind || !COVER_KINDS.includes(kind)) {
-          problems.push(`${f.name}: a product has no name, code or recognised type (${pcode ?? pname ?? "?"})`);
-          continue;
-        }
-        const state = text(p, "state")?.toUpperCase();
-        const household = oneOf<Household>(text(p, "household", "membership", "policytype"), HOUSEHOLDS) ??
-          oneOf<Household>((text(p, "household") ?? "").replace(/\s+/g, ""), HOUSEHOLDS);
-        const id = [insurerId, slug(pcode), state ?? "all", household ?? "any"].join("/");
-        if (seen.has(id)) {
-          duplicateKeys.push(id);
-          continue;
-        }
-        seen.add(id);
-
-        const premiums: HealthPremium[] = [];
-        for (const pr of items(p, "premiums", "premium")) {
-          const amount = cents(text(pr, "amount", "premium"));
-          const freq = oneOf<Frequency>(text(pr, "frequency", "paymentfrequency"), FREQUENCIES);
-          if (amount === undefined || !freq) continue;
-          const basis = BASIS_ALIASES[norm(text(pr, "basis", "rebatebasis") ?? "")] ?? "unknown";
-          const rt = text(pr, "rebatetier");
-          premiums.push({
-            amountCents: amount,
-            frequency: freq,
-            basis,
-            ...(rt && TIER_CODE_ALIASES[norm(rt)] ? { rebateTier: TIER_CODE_ALIASES[norm(rt)]! } : {}),
-          });
-        }
-        const categories: HealthCategory[] = items(p, "clinicalcategories", "category").flatMap((c) => {
-          const code2 = text(c, "code");
-          const cover = COVER_ALIASES[norm(text(c, "cover", "coverstatus") ?? "")];
-          if (!code2 || !cover) return [];
-          return [{ code: code2, label: text(c, "label", "name") ?? code2, cover }];
-        });
-        const waiting: HealthWaiting[] = items(p, "waitingperiods", "waitingperiod").flatMap((w) => {
-          const type = text(w, "type");
-          const months = Number(text(w, "months"));
-          return type && Number.isFinite(months) ? [{ type, months }] : [];
-        });
-        const tier = text(p, "tier", "hospitaltier");
-        const excess = cents(text(p, "excessamount", "excess"));
-        const infoUrl = text(p, "infourl", "phisurl", "url");
-        products.push({
-          id,
-          insurerId,
-          code: pcode,
-          name: pname,
-          kind,
-          ...(tier ? { tier } : {}),
-          ...(state ? { state } : {}),
-          ...(household ? { household } : {}),
-          ...(excess !== undefined ? { excessCents: excess } : {}),
-          ...(text(p, "excesstype") ? { excessType: text(p, "excesstype")! } : {}),
-          premiums,
-          categories,
-          waiting,
-          ...(infoUrl && /^https?:\/\//.test(infoUrl) ? { infoUrl } : {}),
-        });
-      }
+      const type = tx(f.FundType)?.toLowerCase();
+      const hint = isNode(f.Restrictions) ? tx(f.Restrictions.RestrictionHint) : undefined;
+      this.insurers.push({
+        id: slug(code),
+        name,
+        ...(type === "open" || type === "restricted" ? { fundType: type } : {}),
+        ...(hint ? { restrictionHint: hint } : {}),
+      });
     }
   }
 
-  const byTier: Record<string, number> = {};
-  for (const p of products) byTier[p.tier ?? "(none)"] = (byTier[p.tier ?? "(none)"] ?? 0) + 1;
+  /** One <Product> element as text. */
+  addProduct(xml: string, fileName = "products"): void {
+    this.read++;
+    // The extras and ambulance blocks are large and not used, so they are cut before parsing.
+    const slim = xml
+      .replace(/<GeneralHealthCover[\s>][\s\S]*?<\/GeneralHealthCover>/, "")
+      .replace(/<ProductAmbulance[\s>][\s\S]*?<\/ProductAmbulance>/, "");
+    let p: Node;
+    try {
+      const doc = parser.parse(slim) as Node;
+      if (!isNode(doc.Product)) throw new Error("no Product");
+      p = doc.Product;
+    } catch (e) {
+      this.problems.push(`${fileName}: a product is not valid XML (${(e as Error).message.slice(0, 60)})`);
+      return;
+    }
+    const id = attr(p, "ProductID");
+    const code = attr(p, "ProductCode");
+    const name = tx(p.Name);
+    const fundCode = tx(p.FundCode);
+    const kind = KINDS[(tx(p.ProductType) ?? "").toLowerCase()];
+    if (!id || !code || !name || !fundCode || !kind) {
+      this.problems.push(`${fileName}: a product has no ProductID, ProductCode, Name, FundCode or recognised ProductType (${code ?? name ?? "?"})`);
+      return;
+    }
+    const status = (tx(p.ProductStatus) ?? "").toLowerCase() === "closed" ? "closed" : "open";
+    if (status === "closed" && !this.opts.includeClosed) {
+      this.closedSkipped++;
+      return;
+    }
+    if (this.seen.has(id)) {
+      this.duplicateIds.push(id);
+      return;
+    }
+    this.seen.add(id);
+    const insurerId = slug(fundCode);
+
+    const stateRaw = tx(p.State)?.toUpperCase();
+    const state = stateRaw && stateRaw !== "ALL" ? stateRaw : undefined;
+    const { household, dependants } = householdOf(p.WhoIsCovered);
+
+    const ex = isNode(p.Excesses) ? p.Excesses : undefined;
+    const excessType = attr(ex, "ExcessType");
+    const perAdmission = cents(tx(ex?.ExcessPerAdmission));
+    const perPerson = cents(tx(ex?.ExcessPerPerson));
+    const perPolicy = cents(tx(ex?.ExcessPerPolicy));
+    const excess = perPerson ?? perPolicy ?? perAdmission ?? (excessType === "None" ? 0 : undefined);
+
+    const premium = cents(tx(p.PremiumNoRebate));
+    const hospitalPart = cents(tx(p.PremiumHospitalComponent));
+
+    const hc = isNode(p.HospitalCover) ? p.HospitalCover : undefined;
+    const tier = tx(hc?.HospitalTier);
+    if (tier && !(HOSPITAL_TIERS as readonly string[]).includes(tier)) this.unknownTiers.add(tier);
+    const letters: string[] = [];
+    for (const m of arr(hc?.MedicalService)) {
+      const title = attr(m, "Title");
+      const cover = COVERS[attr(m, "Cover") ?? ""];
+      if (!title || !cover) continue;
+      let idx = this.titleIndex.get(title);
+      if (idx === undefined) {
+        idx = this.titleIndex.size;
+        this.titleIndex.set(title, idx);
+      }
+      while (letters.length <= idx) letters.push("?");
+      letters[idx] = LETTER[cover];
+    }
+    const waiting: HealthWaiting[] = arr(isNode(hc?.WaitingPeriods) ? hc.WaitingPeriods.WaitingPeriod : undefined).flatMap((w) => {
+      const type = attr(w, "Title");
+      const months = Number(tx(w));
+      return type && attr(w, "Unit") === "Month" && Number.isFinite(months) ? [{ type, months }] : [];
+    });
+
+    const infoUrl = tx(p.ProductURL);
+    const corp = isNode(p.Corporate) ? attr(p.Corporate, "IsCorporate") : undefined;
+    const mls = tx(p.MedicareLevySurchargeExempt);
+    const copay = isNode(p.CoPayments) ? attr(p.CoPayments, "CoPaymentType") : undefined;
+    const owith = onlyAvailableWith(p.OnlyAvailableWith);
+
+    this.products.push({
+      id,
+      insurerId,
+      code,
+      name,
+      kind,
+      status,
+      ...(tier ? { tier } : {}),
+      ...(state ? { state } : {}),
+      ...(household ? { household } : {}),
+      ...(dependants.length ? { dependantsCovered: dependants } : {}),
+      ...(excessType ? { excessType } : {}),
+      ...(perAdmission !== undefined ? { excessPerAdmissionCents: perAdmission } : {}),
+      ...(perPerson !== undefined ? { excessPerPersonCents: perPerson } : {}),
+      ...(perPolicy !== undefined ? { excessPerPolicyCents: perPolicy } : {}),
+      ...(excess !== undefined ? { excessCents: excess } : {}),
+      ...(copay ? { coPaymentType: copay } : {}),
+      ...(mls === "true" || mls === "false" ? { mlsExempt: mls === "true" } : {}),
+      corporate: corp === "true",
+      ...(owith ? { onlyAvailableWith: owith } : {}),
+      // Schema V3.1: PremiumNoRebate is "the monthly premium ... the full 100% premium", so it is before any rebate.
+      premiums: premium !== undefined ? [{ amountCents: premium, frequency: "monthly", basis: "before_rebate" }] : [],
+      ...(hospitalPart !== undefined && hospitalPart > 0 ? { hospitalComponentCents: hospitalPart } : {}),
+      coverCodes: letters.join(""),
+      waiting,
+      ...(infoUrl && /^https?:\/\//.test(infoUrl) ? { infoUrl } : {}),
+    });
+  }
+
+  finish(): HealthParseResult {
+    const ids = new Set(this.insurers.map((i) => i.id));
+    for (const p of this.products) if (!ids.has(p.insurerId)) this.unknownFunds.add(p.insurerId);
+    const count = (f: (p: HealthProduct) => string) => {
+      const o: Record<string, number> = {};
+      for (const p of this.products) o[f(p)] = (o[f(p)] ?? 0) + 1;
+      return o;
+    };
+    const titles: string[] = [];
+    for (const [t, i] of this.titleIndex) titles[i] = t;
+    return {
+      insurers: this.insurers,
+      products: this.products,
+      categoryTitles: titles,
+      report: {
+        insurers: this.insurers.length,
+        productsRead: this.read,
+        productsKept: this.products.length,
+        closedSkipped: this.closedSkipped,
+        productsWithoutPremium: this.products.filter((p) => p.premiums.length === 0).length,
+        duplicateIds: this.duplicateIds,
+        unknownFunds: [...this.unknownFunds],
+        unknownTiers: [...this.unknownTiers],
+        byKind: count((p) => p.kind),
+        byTier: count((p) => p.tier ?? "(none)"),
+        byState: count((p) => p.state ?? "ALL"),
+        byHousehold: count((p) => p.household ?? "(none)"),
+        problems: this.problems,
+      },
+    };
+  }
+}
+
+/** What a file in the unzipped folder is, from its name: the Funds file, a product file, or neither. */
+export function classifyFile(name: string): "funds" | "products" | undefined {
+  const n = name.toLowerCase();
+  if (!n.endsWith(".xml")) return undefined;
+  if (/^funds\b/.test(n)) return "funds";
+  if (/(hospital|generalhealth|general health|combined)/.test(n)) return "products";
+  return undefined;
+}
+
+/** Date in a file name such as "Funds 02-Nov-2026.xml", as YYYY-MM-DD. */
+export function dateInName(name: string): string | undefined {
+  const m = /(\d{2})-([A-Za-z]{3})-(\d{4})/.exec(name);
+  if (!m) return undefined;
+  const mon = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"].indexOf(m[2]!.toLowerCase());
+  return mon < 0 ? undefined : `${m[3]}-${String(mon + 1).padStart(2, "0")}-${m[1]}`;
+}
+
+/** Parses XML text already in memory (small files and tests): same logic as the streaming path. */
+export function parseHealthFiles(files: { name: string; xml: string }[], opts: ParseOptions = {}): HealthParseResult {
+  const acc = new HealthAccumulator(opts);
+  const problems: string[] = [];
+  for (const f of files) {
+    const kind = classifyFile(f.name);
+    if (kind === "funds") acc.addFunds(f.xml, f.name);
+    else if (kind === "products") {
+      const sp = new ProductSplitter();
+      for (const piece of sp.feed(f.xml)) acc.addProduct(piece, f.name);
+    }
+  }
+  const r = acc.finish();
+  r.report.problems.push(...problems);
+  return r;
+}
+
+export interface DirParse extends HealthParseResult {
+  dir: string;
+  fileHash: string;
+  /** The date in the file names, when they agree. */
+  fileDate?: string;
+  files: string[];
+}
+
+/** Streams every Funds and product XML in an unzipped folder. Funds are read first so products can be checked against them. */
+export async function parseHealthDir(dir: string, opts: ParseOptions = {}): Promise<DirParse> {
+  const root = resolve(dir);
+  const names = readdirSync(root).sort();
+  const funds = names.filter((n) => classifyFile(n) === "funds");
+  const prods = names.filter((n) => classifyFile(n) === "products");
+  const acc = new HealthAccumulator(opts);
+  const hashes: string[] = [];
+  const dates = new Set<string>();
+  for (const n of [...funds, ...prods]) {
+    const d = dateInName(n);
+    if (d) dates.add(d);
+    const h = createHash("sha256");
+    const sp = new ProductSplitter();
+    let whole = "";
+    const isFunds = classifyFile(n) === "funds";
+    for await (const chunk of createReadStream(join(root, n), { encoding: "utf8", highWaterMark: 1 << 20 })) {
+      const s = chunk as string;
+      h.update(s);
+      if (isFunds) whole += s;
+      else {
+        for (const piece of sp.feed(s)) acc.addProduct(piece, n);
+      }
+    }
+    if (isFunds) acc.addFunds(whole, n);
+    hashes.push(`${n}:${h.digest("hex")}`);
+  }
+  const r = acc.finish();
+  if (funds.length === 0) r.report.problems.push("no Funds XML file found in the folder");
+  if (prods.length === 0) r.report.problems.push("no Hospital, GeneralHealth or Combined XML file found in the folder");
   return {
-    insurers,
-    products,
-    report: {
-      insurers: insurers.length,
-      productsRead,
-      productsKept: products.length,
-      productsWithoutPremium: products.filter((p) => p.premiums.length === 0).length,
-      duplicateKeys,
-      unknownTiers: [...unknownTiers],
-      byTier,
-      problems,
-    },
+    ...r,
+    dir: root,
+    files: [...funds, ...prods],
+    fileHash: createHash("sha256").update(hashes.join("\n")).digest("hex"),
+    ...(dates.size === 1 ? { fileDate: [...dates][0]! } : {}),
   };
 }

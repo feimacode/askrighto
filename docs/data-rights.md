@@ -106,12 +106,12 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 
 ## health-cover-products
 
-- Owner: Private Health Insurance Ombudsman (PrivateHealth.gov.au dataset, on data.gov.au)
+- Owner: Commonwealth Ombudsman (PrivateHealth.gov.au dataset, on data.gov.au)
 - Basis: `open_licence`
 - Status: `cleared_pending_legal_view`
 - Review by: 2027-08-01
 - Evidence: https://data.gov.au/data/dataset/private-health-insurance (read 2026-11-17). Dataset record and resource pages show Creative Commons Attribution 3.0 Australia, owned by the Ombudsman, monthly ZIP. No file has been opened yet; the ZIP's Readme.txt may add attribution wording. The privatehealth.gov.au site terms are unread.
-- Attribution: Private health insurance product data: Private Health Insurance Ombudsman, via data.gov.au, licensed CC BY 3.0 AU.
+- Attribution: Private health insurance product data: Commonwealth Ombudsman (PrivateHealth.gov.au), via data.gov.au, licensed CC BY 3.0 AU.
 - Condition: Dataset only: the privatehealth.gov.au website is never scraped, framed or fetched.
 - Condition: Results say the data covers products in the Ombudsman's file, not all funds or the whole market.
 - Condition: Legal view outstanding (roadmap Phase 0): information-only comparison, Australian Consumer Law wording, tax agent services, privacy.

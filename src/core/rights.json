@@ -201,7 +201,7 @@
   },
   {
     "datasetId": "health-cover-products",
-    "owner": "Private Health Insurance Ombudsman (PrivateHealth.gov.au dataset, on data.gov.au)",
+    "owner": "Commonwealth Ombudsman (PrivateHealth.gov.au dataset, on data.gov.au)",
     "basis": "open_licence",
     "status": "cleared_pending_legal_view",
     "evidence": [
@@ -211,7 +211,7 @@
         "note": "Dataset record and resource pages show Creative Commons Attribution 3.0 Australia, owned by the Ombudsman, monthly ZIP. No file has been opened yet; the ZIP's Readme.txt may add attribution wording. The privatehealth.gov.au site terms are unread."
       }
     ],
-    "attribution": "Private health insurance product data: Private Health Insurance Ombudsman, via data.gov.au, licensed CC BY 3.0 AU.",
+    "attribution": "Private health insurance product data: Commonwealth Ombudsman (PrivateHealth.gov.au), via data.gov.au, licensed CC BY 3.0 AU.",
     "conditions": [
       "Dataset only: the privatehealth.gov.au website is never scraped, framed or fetched.",
       "Results say the data covers products in the Ombudsman's file, not all funds or the whole market.",

@@ -99,7 +99,7 @@ export async function startHealth(
     id: "health-cover-products",
     vertical: "health-cover",
     title: "Private health insurance products (PHIO monthly file)",
-    publisher: "Private Health Insurance Ombudsman",
+    publisher: "Commonwealth Ombudsman (PrivateHealth.gov.au)",
     source: { name: PHIO_SOURCE.name, url: PHIO_SOURCE.url, licence: PHIO_SOURCE.licence },
     coverage: "Products in the PHIO monthly file, as published; not necessarily every fund or the whole market",
     refreshedAt: () => snap?.sourceDate,
