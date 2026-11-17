@@ -144,6 +144,23 @@ describe("normalisePlan", () => {
     expect(plan.electricity!.solarFeedIn[0]).toMatchObject({ rates: [{ unitPrice: 500 }], timeVarying: false });
   });
 
+  it("a demand-charge entry without a supply charge is not a missing supply charge (real Energy Locals shape)", () => {
+    // Pattern from IND808522MR@VEC, loaded 17 Nov 2026: rate periods alternate with "Demand period N"
+    // entries whose daily supply fields are null. 90 plans (Origin, Alinta, Energy Locals) were flagged.
+    const d = structuredClone(fixture("single-rate")) as Record<string, any>;
+    d.electricityContract.tariffPeriod = [
+      { displayName: "Period 1", rateBlockUType: "singleRate", dailySupplyCharge: "1.26", dailySupplyChargeType: "SINGLE", singleRate: { displayName: "Usage", rates: [{ unitPrice: "0.3" }] } },
+      { displayName: "Demand period 1", rateBlockUType: "demandCharges", dailySupplyCharge: null, dailySupplyChargeType: null, bandedDailySupplyCharges: null, demandCharges: [] },
+    ];
+    const { plan } = normalisePlan("x", readListItem(d)!, d);
+    expect(plan.notUnderstood).toEqual([]);
+    expect(plan.electricity!.tariffPeriods.map((t) => t.hasDemandCharges)).toEqual([false, true]);
+
+    // A rate period with no supply charge is still flagged.
+    delete d.electricityContract.tariffPeriod[0].dailySupplyCharge;
+    expect(normalisePlan("x", readListItem(d)!, d).plan.notUnderstood).toEqual(["tariffPeriod:no_supply_charge"]);
+  });
+
   it("keeps an unknown pricing model and flags it", () => {
     const { plan } = norm("unknown-model");
     expect(plan.understood).toBe(false);
