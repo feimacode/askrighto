@@ -24,7 +24,7 @@ export function installIntl(data: IntlData = fixtureIntl()) {
   setIntlRuntime({ intl: { data: async () => data }, stop: async () => {} });
 }
 export async function connectIntl(
-  ids = ["energy", "courses", "international"],
+  ids = ["energy", "courses-domestic", "cricos"],
   route = "internal",
 ) {
   const set = routeSet(ALL_VERTICALS, ids);

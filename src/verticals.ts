@@ -8,7 +8,20 @@ import { notFound } from "./core/grounded.js";
 import type { AnyToolDefinition } from "./core/define-tool.js";
 import { makeListDataSources } from "./tools/list-data-sources.js";
 
-export const KNOWN_VERTICALS = ["energy", "courses", "international"] as const;
+export const KNOWN_VERTICALS = [
+  "energy",
+  "courses-domestic",
+  "cricos",
+] as const;
+
+/**
+ * Earlier names, accepted for now because the settings live outside this repo (feima-infra).
+ * Each use logs a warning; remove once the deployment settings use the new ids.
+ */
+export const VERTICAL_ALIASES: Readonly<Record<string, string>> = {
+  courses: "courses-domestic",
+  international: "cricos",
+};
 
 export interface Vertical {
   id: (typeof KNOWN_VERTICALS)[number];
@@ -28,7 +41,16 @@ const list = (v: string | undefined) =>
   (v ?? "")
     .split(",")
     .map((x) => x.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((x) => {
+      const now = VERTICAL_ALIASES[x];
+      if (!now) return x;
+      console.error(
+        `warning: vertical "${x}" has been renamed "${now}"; update ASKRIGHTO_VERTICALS / ASKRIGHTO_PUBLIC_VERTICALS`,
+      );
+      return now;
+    })
+    .filter((x, i, all) => all.indexOf(x) === i);
 
 /** Parses the two lists. Throws on an unknown name, an empty list, or a public vertical that is not loaded. */
 export function parseVerticalFlags(

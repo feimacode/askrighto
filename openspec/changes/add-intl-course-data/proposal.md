@@ -22,5 +22,5 @@ None. Reuses the `cricos` entry in the rights register and the `cricos_raw` tabl
 ## Impact
 
 - New migration `0004-intl.ts`, new module `src/intl/`, new CLI commands `intl:load` and `intl:validate`.
-- New vertical id `international` in `src/verticals.ts`, internal-only until promoted.
+- New vertical id `cricos` (earlier called `international`) in `src/verticals.ts`, internal-only until promoted.
 - No migration or visa advice: this is course facts, not immigration advice (AGENTS.md rule 5 spirit).

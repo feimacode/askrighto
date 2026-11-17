@@ -15,7 +15,7 @@ import { COURSE_INSTRUCTIONS } from "./instructions.js";
 import { startCourses } from "./index.js";
 
 export const coursesVertical: Vertical = {
-  id: "courses",
+  id: "courses-domestic",
   tools: [
     searchCourses,
     getCourse,

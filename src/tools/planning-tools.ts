@@ -425,7 +425,7 @@ export const listEarlyEntrySchemes = defineTool({
       if (!cat || !c)
         return notFound(
           "not_in_dataset",
-          `No course with id "${a.courseId}" is in the index. Use search_courses, or name the university.`,
+          `No course with id "${a.courseId}" is in the index. Use search_domestic_courses, or name the university.`,
         );
       uni = cat.providers.find((p) => p.id === c.providerId)?.name;
     }

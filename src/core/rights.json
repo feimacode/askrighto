@@ -18,7 +18,7 @@
     "reviewBy": "2027-02-01"
   },
   {
-    "datasetId": "cricos",
+    "datasetId": "cricos-register",
     "owner": "Australian Government Department of Education (CRICOS, on data.gov.au)",
     "basis": "open_licence",
     "status": "cleared",

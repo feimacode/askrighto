@@ -9,7 +9,7 @@ import { INTL_INSTRUCTIONS } from "./instructions.js";
 import { startIntl } from "./index.js";
 
 export const internationalVertical: Vertical = {
-  id: "international",
+  id: "cricos",
   tools: [
     searchIntlCourses,
     getIntlCourse,

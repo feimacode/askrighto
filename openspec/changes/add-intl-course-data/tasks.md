@@ -18,6 +18,6 @@
 
 ## 4. Vertical and gate
 
-- [x] 4.1 Add `international` to `KNOWN_VERTICALS`, register its readiness check, keep it out of `ASKRIGHTO_PUBLIC_VERTICALS` by default
+- [x] 4.1 Add `cricos` (earlier `international`) to `KNOWN_VERTICALS`, register its readiness check, keep it out of `ASKRIGHTO_PUBLIC_VERTICALS` by default
 - [x] 4.2 Tests: parser on the fixture, load idempotence, level filter, null handling, link to domestic rows, `data_unavailable` when the rights entry is not cleared
 - [x] 4.3 Document in `docs/intl-course-data.md`

@@ -2,7 +2,7 @@
 
 A vertical is added to `ASKRIGHTO_PUBLIC_VERTICALS` only through a pull request (or infra change) that records every gate below. Rollback is removing it from the list and redeploying.
 
-For `courses`, copy this list into the promotion pull request and tick each line with evidence.
+For `courses-domestic`, copy this list into the promotion pull request and tick each line with evidence.
 
 1. **Rights cleared.** Every dataset the vertical reads is `cleared` in `src/core/rights.json`, with no `cleared_pending_legal_view` left (the legal view on re-keyed course facts is done). `npm run release:check` passes and lists no pending legal view.
 2. **Review-by dates current.** No served dataset is past its `reviewBy`; terms pages were re-read and the read dates updated.

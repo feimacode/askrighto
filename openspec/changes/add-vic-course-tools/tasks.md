@@ -8,14 +8,14 @@
 
 ## 2. Lookup tools
 
-- [x] 2.1 Port the schema of the pilot's `get_course_details` and `get_courses_by_field` into `search_courses` with filters, paging, the studies filter and `figureAtMost`; verify unit tests for each `course-lookup` search scenario
-- [x] 2.2 Implement `get_course` with the entry-year choice and warning; verify tests for a full course, several figure kinds and an earlier-year fallback
-- [x] 2.3 Implement `compare_courses` (2 to 5, mixed-year warning); verify tests
+- [x] 2.1 Port the schema of the pilot's `get_course_details` and `get_courses_by_field` into `search_domestic_courses` with filters, paging, the studies filter and `figureAtMost`; verify unit tests for each `course-lookup` search scenario
+- [x] 2.2 Implement `get_domestic_course` with the entry-year choice and warning; verify tests for a full course, several figure kinds and an earlier-year fallback
+- [x] 2.3 Implement `compare_domestic_courses` (2 to 5, mixed-year warning); verify tests
 - [x] 2.4 Implement the two depths: curated facts, or index fields with official and Course Seeker links and the reading checklist (`cannot_check` in comparisons and prerequisite checks), plus `not_in_dataset` with the course search link; verify an index-only result never carries a figure or prerequisite
 
 ## 3. Planning tools
 
-- [x] 3.1 Implement `check_course_prerequisites` with parallel lists and the length check; verify tests for every `vce-planning` prerequisite scenario
+- [x] 3.1 Implement `check_domestic_course_prerequisites` with parallel lists and the length check; verify tests for every `vce-planning` prerequisite scenario
 - [x] 3.2 Implement `get_subject_scaling` and `estimate_vce_aggregate` over the admissions data function, declaring `vce-scaling` and `vce-study-groupings`; verify results in development with the local copy and `data_unavailable` in production mode
 - [x] 3.3 Implement `get_vce_key_dates` and `list_early_entry_schemes`; verify the provisional flag and that no eligibility field is returned
 

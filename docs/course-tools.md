@@ -4,18 +4,18 @@ Eight read-only tools, served on the internal route only until promotion. Every 
 
 | Tool | Use |
 | --- | --- |
-| `search_courses` | Find courses by name, field, university, campus; optionally filter by the student's studies (scores ignored) or by latest lowest selection rank. |
-| `get_course` | One course in full, or links and a reading checklist if it is index-only. |
-| `compare_courses` | Two to five courses side by side; no winner. |
-| `check_course_prerequisites` | Up to ten courses against the student's studies (and scores): met, not_met, needs_scores, cannot_check. |
+| `search_domestic_courses` | Find courses by name, field, university, campus; optionally filter by the student's studies (scores ignored) or by latest lowest selection rank. |
+| `get_domestic_course` | One course in full, or links and a reading checklist if it is index-only. |
+| `compare_domestic_courses` | Two to five courses side by side; no winner. |
+| `check_domestic_course_prerequisites` | Up to ten courses against the student's studies (and scores): met, not_met, needs_scores, cannot_check. |
 | `get_subject_scaling`, `estimate_vce_aggregate` | Scaled scores and an aggregate from expected study scores. `data_unavailable` in production until VTAC's permission is recorded. |
 | `get_vce_key_dates`, `list_early_entry_schemes` | Dates and early offer schemes, with links and no eligibility verdict. |
 
 ## Example prompts
 
-- "Which engineering courses at RMIT are held, and what was the latest lowest selection rank?" (`search_courses`)
-- "Compare these three nursing degrees." (`compare_courses`)
-- "I do English, Chemistry and Biology. Which of these courses do my subjects rule out?" (`check_course_prerequisites`)
+- "Which engineering courses at RMIT are held, and what was the latest lowest selection rank?" (`search_domestic_courses`)
+- "Compare these three nursing degrees." (`compare_domestic_courses`)
+- "I do English, Chemistry and Biology. Which of these courses do my subjects rule out?" (`check_domestic_course_prerequisites`)
 - "If I get 35 in Chemistry and 30 in English, what is my aggregate?" (`estimate_vce_aggregate`, development only)
 - "When do VTAC preferences close?" (`get_vce_key_dates`)
 - "Which universities have early offers?" (`list_early_entry_schemes`)

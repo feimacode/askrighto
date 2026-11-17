@@ -186,7 +186,7 @@ export function asOfFor(views: CourseView[], cat: Catalogue): string {
 
 export function indexSource(views: CourseView[], cat: Catalogue): Source {
   const usesCricos = views.some((v) => findCourse(cat, v.courseId)?.fromCricos);
-  const attribution = usesCricos ? attributionFor(["cricos"]) : undefined;
+  const attribution = usesCricos ? attributionFor(["cricos-register"]) : undefined;
   return {
     name: "Ask Righto Victorian course index (universities' own pages, CRICOS)",
     url: INDEX_SOURCE_URL,
@@ -226,7 +226,7 @@ export function notInIndex(
     : undefined;
   return notFound(
     "not_in_dataset",
-    `No course with id "${id}" is in the Ask Righto index. Use search_courses to find the id.${prov ? ` The university's own course search is ${prov.searchUrl ?? prov.coursesUrl}.` : ""}`,
+    `No course with id "${id}" is in the Ask Righto index. Use search_domestic_courses to find the id.${prov ? ` The university's own course search is ${prov.searchUrl ?? prov.coursesUrl}.` : ""}`,
     {
       courseId: id,
       ...(prov ? { courseSearchUrl: prov.searchUrl ?? prov.coursesUrl } : {}),

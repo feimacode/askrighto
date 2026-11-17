@@ -20,7 +20,7 @@
 ## 4. Infra and docs
 
 - [x] 4.1 Write the internal route and promotion section of `docs/deploying.md` (settings, vault token, rotation, how to connect a tester) and a release-channels section in `docs/architecture.md`; verify the settings names match the code
-- [ ] 4.2 Hand the infra settings to feima-infra: `ASKRIGHTO_VERTICALS=energy,courses`, `ASKRIGHTO_PUBLIC_VERTICALS=energy`, vault `vault_askrighto_internal_token` mapped to `ASKRIGHTO_INTERNAL_TOKEN`; verify after deploy that `/mcp` shows energy only and the internal route shows courses NOT DONE here: feima-infra is a separate private repo; settings are written up in `docs/deploying.md`.
+- [ ] 4.2 Hand the infra settings to feima-infra: `ASKRIGHTO_VERTICALS=energy,courses-domestic`, `ASKRIGHTO_PUBLIC_VERTICALS=energy`, vault `vault_askrighto_internal_token` mapped to `ASKRIGHTO_INTERNAL_TOKEN`; verify after deploy that `/mcp` shows energy only and the internal route shows courses NOT DONE here: feima-infra is a separate private repo; settings are written up in `docs/deploying.md`.
 - [ ] 4.3 Write the tester note and share the internal URL directly with the named testers only; verify the URL appears nowhere in the repo, plugin bundles or listing material NOT DONE: Iven shares the URL; the note is in `docs/deploying.md`.
 
 ## 5. Promotion

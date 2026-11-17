@@ -1,4 +1,4 @@
-# Victorian university courses and VCE planning (vertical `courses`)
+# Victorian university courses and VCE planning (vertical `courses-domestic`)
 
 Answers "which Victorian courses fit my VCE studies, what were last year's entry figures, what do
 the prerequisites say, when are VTAC dates, which early entry schemes exist" without ever
@@ -221,8 +221,8 @@ The soft links that matter:
 ```mermaid
 sequenceDiagram
   participant H as Host model
-  participant S as search_courses
-  participant C as check_course_prerequisites
+  participant S as search_domestic_courses
+  participant C as check_domestic_course_prerequisites
   participant Cat as withCatalogue
   participant V as viewOf
   participant P as evaluatePrerequisites
@@ -251,10 +251,10 @@ sequenceDiagram
 | `withCatalogue`, `withVce` | `src/courses/index.ts` | Wrap every read: missing runtime, `NoCourseLoad` or database error becomes a `data_unavailable` not-found. |
 | `filterCourses`, `matchProvider`, `findCourse`, `providerOf` | `src/courses/catalogue.ts` | Normalised word matching on name, fields and summary; university by id, name or distinctive word; field and campus filters. |
 | `viewOf` | `src/tools/course-common.ts` | The key branch. An `index_only` row (or a row with no figures, prerequisites or summary) becomes a view with `INDEX_ONLY_MESSAGE`, `READING_CHECKLIST` and `BROWSING_RULES` and **no figures**. A curated row becomes a view with figures labelled by `FIGURE_LABEL[kind](year)` and the prerequisite block for the requested year, falling back to the latest earlier year with a warning. |
-| `searchCourses` (`search_courses`) | `src/tools/course-tools.ts` | Filters; with `vceStudies` keeps courses the studies *could* meet (`couldMeet`, scores ignored) and always keeps index-only rows; `figureAtMost` and `orderBy: figure` use `latestSelectionRank`; pages by cursor. |
-| `getCourse` (`get_course`) | same | One course view; for index-only, the source is the university page. |
-| `compareCourses` (`compare_courses`) | same | Two to five courses side by side, no winner. |
-| `checkCoursePrerequisites` (`check_course_prerequisites`) | same | Up to ten courses; per course `met`, `not_met`, `needs_scores` or `cannot_check`. The outcome counter becomes `cannot_check` if any row is. |
+| `searchCourses` (`search_domestic_courses`) | `src/tools/course-tools.ts` | Filters; with `vceStudies` keeps courses the studies *could* meet (`couldMeet`, scores ignored) and always keeps index-only rows; `figureAtMost` and `orderBy: figure` use `latestSelectionRank`; pages by cursor. |
+| `getCourse` (`get_domestic_course`) | same | One course view; for index-only, the source is the university page. |
+| `compareCourses` (`compare_domestic_courses`) | same | Two to five courses side by side, no winner. |
+| `checkCoursePrerequisites` (`check_domestic_course_prerequisites`) | same | Up to ten courses; per course `met`, `not_met`, `needs_scores` or `cannot_check`. The outcome counter becomes `cannot_check` if any row is. |
 | `evaluatePrerequisites`, `couldMeet` | `src/courses/prerequisites.ts` | Recursive `allOf` / `anyOf` / leaf evaluation. A leaf expands study groups, applies the EAL minimum for EAL studies (or English studies when `eal` is true), and returns `needs_scores` when a minimum exists but no score was given. |
 | `resolveStudies` | `src/tools/course-common.ts` | Maps typed study names and parallel scores to ids; unknown or ambiguous names return `needs_input` with candidates. |
 | `courseFound`, `asOfFor`, `indexSource` | `src/tools/course-common.ts` | Wrap results with `COURSE_NOTICE`; as-of is the oldest `checkedOn` among shown facts, else the load time; source is the index, with CRICOS attribution when `fromCricos`. |
@@ -265,7 +265,7 @@ sequenceDiagram
 
 ### 3.2 Process: an index-only course (guided browsing)
 
-`get_course` returns links plus a reading checklist (entry figure with kind and intake year,
+`get_domestic_course` returns links plus a reading checklist (entry figure with kind and intake year,
 prerequisites with minimums and EAL, other selection criteria, the page's updated date) and
 `BROWSING_RULES` (university page first, then Course Seeker, never VTAC; quote only the checklist
 items with link and time; say they were read by the assistant, not from Ask Righto's data; never get

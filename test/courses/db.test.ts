@@ -122,10 +122,10 @@ d("course store", () => {
     expect(listDataSets().map((x) => x.id)).toEqual(
       expect.arrayContaining(["vic-courses", "vce-scaling", "vic-early-entry"]),
     );
-    expect(listDataSets().every((x) => x.vertical === "courses")).toBe(true);
+    expect(listDataSets().every((x) => x.vertical === "courses-domestic")).toBe(true);
     expect(
-      (await runReadiness(["courses"])).checks["vic-courses"],
-    ).toMatchObject({ ok: true, vertical: "courses" });
+      (await runReadiness(["courses-domestic"])).checks["vic-courses"],
+    ).toMatchObject({ ok: true, vertical: "courses-domestic" });
     expect(
       (await runReadiness(["energy"])).checks["vic-courses"],
     ).toBeUndefined();
@@ -149,7 +149,7 @@ d("course store", () => {
         DATABASE_SCHEMA: other,
       } as NodeJS.ProcessEnv);
       expect(
-        (await runReadiness(["courses"])).checks["vic-courses"],
+        (await runReadiness(["courses-domestic"])).checks["vic-courses"],
       ).toMatchObject({ ok: false, reason: "schema_behind" });
       await stop!();
     } finally {

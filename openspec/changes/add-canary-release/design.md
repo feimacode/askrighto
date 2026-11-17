@@ -61,7 +61,7 @@ Unchanged. Both routes run the same tool code through `found` or `notFound`; the
 
 ## Risks / Trade-offs
 
-- [An internal-only vertical crashes or slows the shared process] → Isolation in decision 4, tests that a failed course module leaves `/mcp` working, and the option to drop `courses` from `ASKRIGHTO_VERTICALS` with one redeploy.
+- [An internal-only vertical crashes or slows the shared process] → Isolation in decision 4, tests that a failed course module leaves `/mcp` working, and the option to drop `courses-domestic` from `ASKRIGHTO_VERTICALS` with one redeploy.
 - [Every deploy ships course code to the public process, even unpromoted] → It is loaded but unreachable from `/mcp`; a test asserts the public `tools/list` and `initialize` hold nothing from internal-only verticals.
 - [The secret URL leaks] → Read-only public data; rotate the token; move to OAuth if it happens twice or the group grows.
 - [Testers' hosts cache an old tool list after a redeploy] → The tester note asks them to reconnect after an announced update.

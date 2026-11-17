@@ -10,16 +10,16 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("search_courses", () => {
+describe("search_domestic_courses", () => {
   it("lists tools with annotations and flat schemas", async () => {
     const c = await connectCourses();
     const { tools } = await c.listTools();
     const names = tools.map((t) => t.name);
     for (const n of [
-      "search_courses",
-      "get_course",
-      "compare_courses",
-      "check_course_prerequisites",
+      "search_domestic_courses",
+      "get_domestic_course",
+      "compare_domestic_courses",
+      "check_domestic_course_prerequisites",
       "get_subject_scaling",
       "estimate_vce_aggregate",
       "get_vce_key_dates",
@@ -33,7 +33,7 @@ describe("search_courses", () => {
   });
   it("searches by field and university, with depth, figure kind and official link", async () => {
     const c = await connectCourses();
-    const { data, text } = await call(c, "search_courses", {
+    const { data, text } = await call(c, "search_domestic_courses", {
       field: "science",
       university: "Test",
     });
@@ -52,7 +52,7 @@ describe("search_courses", () => {
   });
   it("filters by studies ignoring scores, and says so; index-only courses are kept but unchecked", async () => {
     const c = await connectCourses();
-    const { data } = await call(c, "search_courses", {
+    const { data } = await call(c, "search_domestic_courses", {
       vceStudies: ["English", "Biology", "Psychology", "General Maths"],
       limit: 50,
     });
@@ -69,25 +69,25 @@ describe("search_courses", () => {
   });
   it("filters by figure", async () => {
     const c = await connectCourses();
-    const { data } = await call(c, "search_courses", { figureAtMost: 75 });
+    const { data } = await call(c, "search_domestic_courses", { figureAtMost: 75 });
     expect(
       data.data.courses.map((x: { courseId: string }) => x.courseId),
     ).toEqual(["testu-arts"]);
     expect(data.data.notes.join(" ")).toMatch(/lowest selection rank/);
   });
   it("needs_input with candidates for an unknown study", async () => {
-    const { data } = await call(await connectCourses(), "search_courses", {
+    const { data } = await call(await connectCourses(), "search_domestic_courses", {
       vceStudies: ["Maths"],
     });
     expect(data).toMatchObject({ found: false, reason: "needs_input" });
     expect(data.message).toMatch(/Mathematical Methods/);
   });
   it("pages results", async () => {
-    const { data } = await call(await connectCourses(), "search_courses", {
+    const { data } = await call(await connectCourses(), "search_domestic_courses", {
       limit: 1,
     });
     expect(data.data.nextCursor).toBe("1");
-    const p2 = await call(await connectCourses(), "search_courses", {
+    const p2 = await call(await connectCourses(), "search_domestic_courses", {
       limit: 1,
       cursor: "1",
     });
@@ -97,9 +97,9 @@ describe("search_courses", () => {
   });
 });
 
-describe("get_course", () => {
+describe("get_domestic_course", () => {
   it("shows several figure kinds with their own labels and the prerequisites with a year warning", async () => {
-    const { data, text } = await call(await connectCourses(), "get_course", {
+    const { data, text } = await call(await connectCourses(), "get_domestic_course", {
       courseId: "testu-science",
       entryYear: 2029,
     });
@@ -117,7 +117,7 @@ describe("get_course", () => {
     expect(data.asOf).toBe("2026-11-01T00:00:00Z");
   });
   it("returns links and a checklist, no facts, for an index-only course", async () => {
-    const { data, text } = await call(await connectCourses(), "get_course", {
+    const { data, text } = await call(await connectCourses(), "get_domestic_course", {
       courseId: "testu-nursing",
     });
     expect(data.data.depth).toBe("index_only");
@@ -130,13 +130,13 @@ describe("get_course", () => {
     expect(text).toMatch(/read by the assistant/);
   });
   it("not_in_dataset for an unknown course", async () => {
-    const { data } = await call(await connectCourses(), "get_course", {
+    const { data } = await call(await connectCourses(), "get_domestic_course", {
       courseId: "nope",
     });
     expect(data).toMatchObject({ found: false, reason: "not_in_dataset" });
   });
   it("sends the course Inkview component alongside the grounded envelope", async () => {
-    const { res } = await call(await connectCourses(), "get_course", {
+    const { res } = await call(await connectCourses(), "get_domestic_course", {
       courseId: "testu-science",
     });
     expect(
@@ -145,11 +145,11 @@ describe("get_course", () => {
   });
 });
 
-describe("compare_courses", () => {
+describe("compare_domestic_courses", () => {
   it("compares curated and index-only side by side, warns on different years", async () => {
     const { data, text } = await call(
       await connectCourses(),
-      "compare_courses",
+      "compare_domestic_courses",
       { courseIds: ["testu-science", "testu-arts", "testu-nursing"] },
     );
     expect(data.found).toBe(true);
@@ -159,7 +159,7 @@ describe("compare_courses", () => {
   });
   it("needs 2 to 5", async () => {
     const six = Array(6).fill("testu-arts");
-    const { data } = await call(await connectCourses(), "compare_courses", {
+    const { data } = await call(await connectCourses(), "compare_domestic_courses", {
       courseIds: six,
     });
     expect(data).toMatchObject({ found: false, reason: "needs_input" });
@@ -167,12 +167,12 @@ describe("compare_courses", () => {
   });
 });
 
-describe("check_course_prerequisites", () => {
+describe("check_domestic_course_prerequisites", () => {
   const ids = ["testu-science", "testu-arts", "testu-nursing"];
   it("names missing maths alternatives, and cannot_check for index-only", async () => {
     const { data } = await call(
       await connectCourses(),
-      "check_course_prerequisites",
+      "check_domestic_course_prerequisites",
       { courseIds: ids, vceStudies: ["English", "Chemistry"], entryYear: 2028 },
     );
     const by = Object.fromEntries(
@@ -190,7 +190,7 @@ describe("check_course_prerequisites", () => {
   it("lists other criteria without evaluating them", async () => {
     const { data } = await call(
       await connectCourses(),
-      "check_course_prerequisites",
+      "check_domestic_course_prerequisites",
       {
         courseIds: ["testu-science"],
         vceStudies: ["English", "Methods", "Chemistry"],
@@ -204,7 +204,7 @@ describe("check_course_prerequisites", () => {
   it("EAL minimum", async () => {
     const { data } = await call(
       await connectCourses(),
-      "check_course_prerequisites",
+      "check_domestic_course_prerequisites",
       {
         courseIds: ["testu-science"],
         vceStudies: ["EAL", "Methods", "Chemistry"],
@@ -219,7 +219,7 @@ describe("check_course_prerequisites", () => {
   it("mismatched lists", async () => {
     const { data } = await call(
       await connectCourses(),
-      "check_course_prerequisites",
+      "check_domestic_course_prerequisites",
       {
         courseIds: ids,
         vceStudies: ["English", "Chemistry"],
@@ -233,7 +233,7 @@ describe("check_course_prerequisites", () => {
     resetMetrics();
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    await call(await connectCourses(), "check_course_prerequisites", {
+    await call(await connectCourses(), "check_domestic_course_prerequisites", {
       courseIds: ids,
       vceStudies: ["English", "Chemistry"],
       studyScores: [37, 41],
@@ -324,7 +324,7 @@ describe("planning tools", () => {
     expect(agg.data.reason).toBe("data_unavailable");
     // courses themselves are served in production
     expect(
-      (await call(c, "get_course", { courseId: "testu-arts" })).data.found,
+      (await call(c, "get_domestic_course", { courseId: "testu-arts" })).data.found,
     ).toBe(true);
   });
 });
@@ -333,12 +333,12 @@ describe("every course result", () => {
   it("carries the notice and no banned phrase", async () => {
     const c = await connectCourses();
     const calls: Array<[string, Record<string, unknown>]> = [
-      ["search_courses", {}],
-      ["get_course", { courseId: "testu-science" }],
-      ["get_course", { courseId: "testu-nursing" }],
-      ["compare_courses", { courseIds: ["testu-science", "testu-arts"] }],
+      ["search_domestic_courses", {}],
+      ["get_domestic_course", { courseId: "testu-science" }],
+      ["get_domestic_course", { courseId: "testu-nursing" }],
+      ["compare_domestic_courses", { courseIds: ["testu-science", "testu-arts"] }],
       [
-        "check_course_prerequisites",
+        "check_domestic_course_prerequisites",
         {
           courseIds: ["testu-science", "testu-nursing"],
           vceStudies: ["English"],
@@ -355,7 +355,7 @@ describe("every course result", () => {
   });
   it("is unavailable, not an error, when no runtime is installed", async () => {
     setCoursesRuntime(undefined);
-    const { data } = await call(await connectCourses(), "search_courses", {});
+    const { data } = await call(await connectCourses(), "search_domestic_courses", {});
     expect(data).toMatchObject({ found: false, reason: "data_unavailable" });
   });
   it("instructions carry the course section only on a route that serves courses", async () => {

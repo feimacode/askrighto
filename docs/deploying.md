@@ -61,7 +61,7 @@ One image, one instance, two routes. Which verticals load and which each route s
 
 | Setting | Meaning |
 | --- | --- |
-| `ASKRIGHTO_VERTICALS` | Verticals the process loads. Default `energy`. Example: `energy,courses`. |
+| `ASKRIGHTO_VERTICALS` | Verticals the process loads. Default `energy`. Example: `energy,courses-domestic`. Verticals: `energy`, `courses-domestic`, `cricos` (courses for international students). The earlier ids `courses` and `international` are still accepted with a warning. |
 | `ASKRIGHTO_PUBLIC_VERTICALS` | Verticals `/mcp` serves. Must be a subset of the loaded list. Default: all loaded. Example: `energy`. |
 | `ASKRIGHTO_INTERNAL_TOKEN` | At least 43 characters (32 random bytes, base64url). Turns on `/mcp-internal/<token>`, `/readyz-internal/<token>` and `/metrics-internal/<token>`. With no token those paths do not exist (404). |
 | `ASKRIGHTO_ENV=production` | The data rights gate applies on both routes (pending datasets answer `data_unavailable`). `NODE_ENV=production` has the same effect. |
@@ -69,7 +69,7 @@ One image, one instance, two routes. Which verticals load and which each route s
 
 Start-up fails on an unknown vertical name, an empty list, or a public vertical that is not loaded. An internal-only vertical that fails to start is marked failed: its tools answer `data_unavailable` on the internal route and `/mcp` keeps working. Its database queries run under a 2 second statement timeout.
 
-**Infra handoff (feima-infra, `askrighto` role):** set `ASKRIGHTO_VERTICALS=energy,courses`, `ASKRIGHTO_PUBLIC_VERTICALS=energy`, `ASKRIGHTO_ENV=production`, and a vault secret `vault_askrighto_internal_token` mapped to `ASKRIGHTO_INTERNAL_TOKEN`. Generate the token with `openssl rand -base64 32 | tr '+/' '-_' | tr -d '='`. After deploy, `/mcp` should list energy tools only and `/mcp-internal/<token>` should list the course tools.
+**Infra handoff (feima-infra, `askrighto` role):** set `ASKRIGHTO_VERTICALS=energy,courses-domestic`, `ASKRIGHTO_PUBLIC_VERTICALS=energy`, `ASKRIGHTO_ENV=production`, and a vault secret `vault_askrighto_internal_token` mapped to `ASKRIGHTO_INTERNAL_TOKEN`. Generate the token with `openssl rand -base64 32 | tr '+/' '-_' | tr -d '='`. After deploy, `/mcp` should list energy tools only and `/mcp-internal/<token>` should list the course tools.
 
 **Token handling:** the token lives in ansible-vault. Rotate it when a tester leaves and at least every 90 days (change the secret, redeploy, send the new URL directly to the named testers). The access log writes `/mcp-internal/***`. The URL never goes in the repo, docs, plugin bundles or listings.
 

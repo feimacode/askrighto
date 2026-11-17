@@ -98,7 +98,7 @@ export function installFixtureRuntime(vce: VceData = fixtureVce()) {
 }
 
 export async function connectCourses(route = "internal") {
-  const set = routeSet(ALL_VERTICALS, ["energy", "courses"]);
+  const set = routeSet(ALL_VERTICALS, ["energy", "courses-domestic"]);
   const server = createServer(set.tools, {
     route,
     instructions: set.instructions,
@@ -138,5 +138,5 @@ export const COURSES_DATASET_IDS = [
   "vic-early-entry",
   "vce-scaling",
   "vce-study-groupings",
-  "cricos",
+  "cricos-register",
 ];

@@ -16,7 +16,7 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Evidence: https://www.aer.gov.au/energy-product-reference-data (read 2026-11-11). CDR Rules rule 2.6: a data holder must not restrict use of disclosed product data. Only the Feb 2020 version of the rule was read; confirm it is unchanged.
 - Condition: The Energy Made Easy and Victorian Energy Compare websites are not scraped; the API only.
 
-## cricos
+## cricos-register
 
 - Owner: Australian Government Department of Education (CRICOS, on data.gov.au)
 - Basis: `open_licence`
@@ -31,7 +31,7 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Basis: `open_licence`
 - Status: `cleared`
 - Review by: 2027-08-01
-- Evidence: https://data.gov.au/ (read 2026-11-12). CRICOS dataset published under CC BY 2.5 AU. Same source as the cricos entry; here used for fees, durations and locations of courses for international students. Which fields the file holds is confirmed in docs/cricos-columns.md once a real file is opened.
+- Evidence: https://data.gov.au/ (read 2026-11-12). CRICOS dataset published under CC BY 2.5 AU. Same source as the cricos-register entry; here used for fees, durations and locations of courses for international students. Which fields the file holds is confirmed in docs/cricos-columns.md once a real file is opened.
 - Attribution: Course names, codes, fees, durations and locations: CRICOS, Australian Government Department of Education, via data.gov.au, licensed CC BY 2.5 AU. Fees are indicative.
 - Condition: Fees shown as indicative, as published, with the file date.
 - Condition: No English, entry-requirement, scholarship or intake facts are stored.

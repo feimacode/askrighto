@@ -118,7 +118,7 @@ const expiredWarning = (v: IntlView) =>
 function notInDataset(code: string): Grounded<never> {
   return notFound(
     "not_in_dataset",
-    `No course with CRICOS code "${code}" is in the Ask Righto international index. Use search_intl_courses to find the code.`,
+    `No course with CRICOS code "${code}" is in the Ask Righto international index. Use search_international_courses to find the code.`,
     { cricosCode: code },
   );
 }
@@ -127,7 +127,7 @@ const findByCode = (d: IntlData, code: string) =>
     (c) => c.cricosCode.toLowerCase() === code.trim().toLowerCase(),
   );
 
-// ---------------------------------------------------------------- search_intl_courses
+// ---------------------------------------------------------------- search_international_courses
 interface SearchData {
   total: number;
   returned: number;
@@ -139,10 +139,10 @@ interface SearchData {
 }
 
 export const searchIntlCourses = defineTool({
-  name: "search_intl_courses",
+  name: "search_international_courses",
   title: "Search courses for international students",
   description:
-    "Finds higher-education courses registered for international students in Australia (CRICOS) by name or keyword, level, field, state, campus, provider, maximum total tuition fee and maximum duration. Fees are indicative, as published in CRICOS, and some courses have none published. Expired courses are left out. It gives course facts only, no visa or migration advice.",
+    "Finds higher-education courses registered for international (overseas, student visa) students in Australia (CRICOS), for people applying from overseas or already in Australia and thinking of switching course, by name or keyword, level, field, state, campus, provider, maximum total tuition fee and maximum duration. Fees are indicative, as published in CRICOS, and some courses have none published. Expired courses are left out. It gives course facts only, no visa or migration advice.",
   inputSchema: z.object({
     query: z
       .string()
@@ -331,7 +331,7 @@ export const searchIntlCourses = defineTool({
     }),
 });
 
-// ---------------------------------------------------------------- get_intl_course
+// ---------------------------------------------------------------- get_international_course
 const courseMarkdown = (v: IntlView) =>
   [
     `${v.name}, ${v.provider}. CRICOS course code ${v.cricosCode}.${v.expired ? " This course is marked as expired in CRICOS." : ""}`,
@@ -364,15 +364,15 @@ const courseMarkdown = (v: IntlView) =>
     .join("\n");
 
 export const getIntlCourse = defineTool({
-  name: "get_intl_course",
+  name: "get_international_course",
   title: "Show one course for international students",
   description:
-    "Shows one CRICOS-registered course: provider, level, duration, indicative tuition fee, non-tuition fees, language, work component, locations and the provider's website, each as published, with 'not published' where CRICOS has nothing. Use a CRICOS course code from search_intl_courses. English requirements and entry requirements are not held; use get_intl_entry_checklist.",
+    "Shows one CRICOS-registered course: provider, level, duration, indicative tuition fee, non-tuition fees, language, work component, locations and the provider's website, each as published, with 'not published' where CRICOS has nothing. Use a CRICOS course code from search_international_courses. English requirements and entry requirements are not held; use get_international_entry_checklist.",
   inputSchema: z.object({
     cricosCode: z
       .string()
       .max(20)
-      .describe("CRICOS course code from search_intl_courses"),
+      .describe("CRICOS course code from search_international_courses"),
   }),
   ...base,
   meta: tableMeta("entity_card"),
@@ -439,7 +439,7 @@ export const getIntlCourse = defineTool({
     }),
 });
 
-// ---------------------------------------------------------------- compare_intl_courses
+// ---------------------------------------------------------------- compare_international_courses
 interface CompareData {
   courses: IntlView[];
   notice: string;
@@ -467,7 +467,7 @@ const cell = (v: IntlView, i: number): string =>
   ][i]!;
 
 export const compareIntlCourses = defineTool({
-  name: "compare_intl_courses",
+  name: "compare_international_courses",
   title: "Compare courses for international students",
   description:
     "Shows two to five CRICOS-registered courses side by side on the same published fields: provider, level, duration, indicative tuition fee, a calculated yearly fee (only when fee and duration are both published) and locations. It does not pick a winner.",
@@ -476,7 +476,7 @@ export const compareIntlCourses = defineTool({
       .array(z.string().max(20))
       .min(1)
       .max(12)
-      .describe("Two to five CRICOS course codes from search_intl_courses"),
+      .describe("Two to five CRICOS course codes from search_international_courses"),
   }),
   ...base,
   meta: tableMeta("comparison"),
@@ -530,7 +530,7 @@ export const compareIntlCourses = defineTool({
     }),
 });
 
-// ---------------------------------------------------------------- get_intl_entry_checklist
+// ---------------------------------------------------------------- get_international_entry_checklist
 interface ChecklistData {
   cricosCode: string;
   name: string;
@@ -545,7 +545,7 @@ interface ChecklistData {
 }
 
 export const checkIntlEntryChecklist = defineTool({
-  name: "get_intl_entry_checklist",
+  name: "get_international_entry_checklist",
   title: "What to read on the provider's page",
   description:
     "For one CRICOS course, returns the provider's website and a reading checklist (English language requirement, entry requirements by country, intake dates, provider-listed fee and scholarships). Ask Righto holds none of those facts and does not fetch pages: the user's own browsing assistant can read the provider's page on the user's behalf and quote it with the link and time. Gives no visa or migration advice.",
@@ -553,7 +553,7 @@ export const checkIntlEntryChecklist = defineTool({
     cricosCode: z
       .string()
       .max(20)
-      .describe("CRICOS course code from search_intl_courses"),
+      .describe("CRICOS course code from search_international_courses"),
   }),
   ...base,
   handler: (a) =>
