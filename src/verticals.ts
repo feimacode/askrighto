@@ -14,6 +14,7 @@ export const KNOWN_VERTICALS = [
   "cricos",
   "home-loans",
   "health-cover",
+  "career-outcomes",
 ] as const;
 
 /**
