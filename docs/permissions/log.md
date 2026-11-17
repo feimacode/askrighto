@@ -13,4 +13,5 @@ Newest first. Record every request sent, every reply and every decision, then up
 - Contact: the address on the sources and corrections page of askrighto.com.au (to be set up before any public listing; it must be monitored).
 - Target: acknowledge and fix or remove within five business days.
 - Take-down: set the dataset's status to `withdrawn` (or the entries to be removed) in the rights register and redeploy; tools then answer `data_unavailable` for it in production.
+- Wrong home loan rate or fee: acknowledge within five business days, but once a rate is confirmed wrong remove the lender or product within one business day by adding the lender to `ASKRIGHTO_HOME_LOAN_EXCLUDE` (applied at read time, no resync needed), then fix the cause.
 - Record each correction in the log table above (date, who asked, what changed).

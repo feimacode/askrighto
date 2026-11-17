@@ -19,7 +19,7 @@ Schemas read in `dsb-schema-tools` 1.35.0 (see `docs/home-loans-research.md` sec
 
 1. **Extract `src/cdr/` first, then add banking.** Move the HTTP client (paging via `links.next`, `x-v` headers, 429 and `Retry-After`, 5xx retry, per-host limiter, in-flight ceiling, adaptive slow-down), the sync report types and the lock helper out of `src/energy/`. Energy re-exports them so its tests and CLI keep working. Alternative: copy the files. Rejected: two clients to patch whenever a data holder misbehaves.
 2. **Lender list as a checked-in file** `src/homeloans/lenders.json` (`slug`, `brandName`, `baseUri`, `legalEntity`, `active`, `lastVerified`), seeded by a script from the Register's Data Holder Brands Summary API and reviewed in a PR. The server never calls the Register at run time. A `check:lenders` command compares the file to the live Register and to each base URI's response. Non-bank lenders in the CDR are included only if the Register lists them. **Unverified:** the Register URL, its version header and whether brand records name the products endpoint.
-3. **Tables** (schema `askrighto`, migration `0005`):
+3. **Tables** (schema `askrighto`, migration `0006`):
 
 ```
 home_loan_lenders  (slug pk, brand_name, base_uri, active, last_sync_at, last_sync_ok, last_product_count, last_error)

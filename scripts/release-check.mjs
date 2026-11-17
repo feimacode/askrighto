@@ -8,4 +8,12 @@ const overdue = rights.filter((e) => served.includes(e.status) && e.reviewBy < t
 for (const e of overdue) console.error(`overdue: ${e.datasetId} was due for review by ${e.reviewBy}`);
 const legal = rights.filter((e) => e.status === "cleared_pending_legal_view").map((e) => e.datasetId);
 if (legal.length) console.log(`note: awaiting the legal view (blocks public listing): ${legal.join(", ")}`);
-process.exit(overdue.length ? 1 : 0);
+if (overdue.length) process.exit(1);
+
+// Home loans: public listing is blocked until the credit legal view is recorded and every dataset is cleared.
+const publicIds = (process.env.ASKRIGHTO_PUBLIC_VERTICALS ?? "").split(",").map((x) => x.trim());
+if (publicIds.includes("home-loans")) {
+  const notCleared = rights.filter((e) => ["home-loans-cdr", "rba-cash-rate"].includes(e.datasetId) && e.status !== "cleared");
+  for (const e of notCleared) console.error(`home-loans is public but ${e.datasetId} is ${e.status}`);
+  if (notCleared.length) process.exit(1);
+}

@@ -73,7 +73,7 @@ is closed or the comparison needs a licence. Scores are judgement, not measured.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Energy plans (electricity and gas) | 5 | 5 | 5 | **15** | Open: CDR product data, live | Legal view (accuracy, disclosure) | Building, Phase 1 |
 | 2 | Private health insurance, with rebate, MLS and LHC maths | 5 | 5 | 4 | **14** | Open: CC BY 3.0 AU monthly file | Legal view before listing; Claude high-risk category | Phase 5 |
-| 3 | Bank savings, term deposits, home loans | 4 | 5 | 5 | **14** | Open: CDR product data | ACL/AFSL question | Parked |
+| 3 | Bank savings, term deposits, home loans | 4 | 5 | 5 | **14** | Open: CDR product data | ACL/AFSL question; legal view before any public listing | Home loans built on the internal route only (17 Nov 2026); deposits parked |
 | 4 | Uni course research (VCE first) | 5 | 5 | 3 | **13** | No TAC licence; own-worded store | VTAC/UAC permission requested in Phase 0 | **Next**: VIC Phase 4, NSW/QLD Phase 6 |
 | 5 | Home solar and battery payback | 5 | 4 | 3 | **12** | Reuses CDR plans; solar yield and rebate data to check | None known; no installer referrals | Candidate, Phase 7 |
 | 6 | Aged care: providers and fee estimate | 5 | 4 | 3 | **12** | Star Ratings and provider data, licence to check | None known; estimates must defer to Services Australia | Candidate, research first |
@@ -118,7 +118,7 @@ Notes on the new candidates [S]:
 5. **Aged care, then suburb fit.** Research threads first (data licences, rule sources), then
    proposals. Neither has a confirmed open data path yet.
 
-Banking stays parked until a legal view; mobile and NBN plans stay blocked until open plan data
+Home loans are built but internal-only until a credit legal view (Phase 5b); other banking stays parked; mobile and NBN plans stay blocked until open plan data
 exists.
 
 ---
@@ -267,6 +267,10 @@ been opened from a cloud session (data.gov.au is blocked there), but the Novembe
 | Compliance | Claude lists insurance as high risk: direct disclosure to consumers, human in the loop, no health data on submission; no binding or purchase in-app [F] | `add-health-cover-tools`, `add-health-cover-skills` |
 | Regulatory line | Research finding, 17 Nov 2026: health insurance is carved out of the Corporations Act definition of a financial product (s765A(1)(c), read on one consolidated text), so the AFSL question behind rule 5 looks narrower here than for car, home or travel cover. Australian Consumer Law, tax agent services, privacy and any intermediary regime remain for the legal view. Rule 5 itself is unchanged [S] | — |
 | Gate | Legal view from Phase 0 before public listing | — |
+
+## Phase 5b: Home loan comparison (internal route only)
+
+Built 17 Nov 2026 on the `home-loans` vertical, behind the internal route, from five changes (`add-home-loan-data`, `-tools`, `-skills`, `-evaluation`, `-promotion-gates`). Public listing needs the credit legal view, cleared datasets, the accuracy and prompt checks and Iven's go (`docs/promotion-checklist.md`). Nothing has run against a live lender yet. Research and unverified points: `docs/home-loans-research.md`; data notes: `docs/home-loan-data.md`.
 
 ## Phase 6: Uni course research for NSW (HSC) and QLD (QCE)
 

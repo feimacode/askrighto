@@ -8,3 +8,4 @@ docs
 *.md
 .env*
 data/local
+!docs/legal

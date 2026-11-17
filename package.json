@@ -25,6 +25,8 @@
     "vce:load": "npm run build && node dist/askrighto.js vce:load",
     "intl:validate": "npm run build && node dist/askrighto.js intl:validate",
     "intl:load": "npm run build && node dist/askrighto.js intl:load",
+    "homeloans:sync": "npm run build && node dist/askrighto.js homeloans:sync",
+    "report:homeloans": "npm run build && node dist/askrighto.js report:homeloans",
     "health:validate": "npm run build && node dist/askrighto.js health:validate",
     "health:load": "npm run build && node dist/askrighto.js health:load",
     "health:rates-validate": "npm run build && node dist/askrighto.js health:rates-validate",

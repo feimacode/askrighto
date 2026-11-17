@@ -13,6 +13,7 @@ import {
   tokenMatches,
 } from "./server/internal.js";
 import { startEnergy } from "./energy/index.js";
+import { assertHomeLoanPublicGuard } from "./homeloans/guard.js";
 import { runReadiness } from "./core/readiness.js";
 import { metricsText } from "./core/metrics.js";
 import { createServer } from "./server/create-server.js";
@@ -33,6 +34,7 @@ import { VERSION } from "./version.js";
 /** Loads the verticals named in the flags. A failing public vertical stops start-up; an internal-only one is marked failed. */
 async function startVerticals(env: NodeJS.ProcessEnv = process.env) {
   const flags = parseVerticalFlags(env);
+  assertHomeLoanPublicGuard(flags.public, env);
   const stops: Array<() => Promise<void>> = [];
   for (const id of flags.loaded) {
     const v = ALL_VERTICALS.find((x) => x.id === id);
@@ -273,6 +275,12 @@ Usage:
                        check and load the CRICOS course sheet (international students)
   askrighto compare:usecases [--json]
                        coverage report for the domestic and international course data (read-only)
+  askrighto homeloans:sync [--record DIR] [--lender SLUG]
+                       load or refresh home loans from lenders' CDR product data
+  askrighto homeloans:cash-rate --date YYYY-MM-DD --value PERCENT --source URL
+                       record the RBA cash rate target (re-keyed from the RBA page, with its link)
+  askrighto report:homeloans [--json]
+                       coverage and freshness report for the home loan data (read-only)
   askrighto renormalise-energy [--retailer SLUG] [--dry-run] [--show REASON]
                        re-run the normaliser over stored raw payloads (no API calls); --show prints
                        the raw fragment of plans still flagged with that reason`);
@@ -302,6 +310,11 @@ Usage:
     else throw new Error(`Unknown command ${args[0]}`);
   } else if (args[0] === "compare:usecases") {
     await (await import("./compare/cli.js")).cliCompareUseCases(args.slice(1));
+  } else if (args[0] === "homeloans:sync" || args[0] === "homeloans:cash-rate" || args[0] === "report:homeloans") {
+    const cli = await import("./homeloans/cli.js");
+    if (args[0] === "homeloans:sync") await cli.cliHomeLoanSync(args.slice(1));
+    else if (args[0] === "homeloans:cash-rate") await cli.cliCashRate(args.slice(1));
+    else await cli.cliHomeLoanReport(args.slice(1));
   } else if (args[0] === "sync-energy") {
     await (await import("./energy/cli.js")).cliSyncEnergy(args.slice(1));
   } else if (args[0] === "renormalise-energy") {

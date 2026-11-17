@@ -104,6 +104,28 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Review by: 2027-02-01
 - Evidence: https://www.courseseeker.edu.au/ (read 2026-11-13). No open licence. Deep links are fine; copying needs permission (CourseSeeker@education.gov.au). Request drafted (docs/permissions/course-seeker.md), not sent.
 
+## home-loans-cdr
+
+- Owner: Each lender, via the Consumer Data Right (banking product reference data)
+- Basis: `cdr_rule`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-03-01
+- Evidence: https://cdr-support.zendesk.com/hc/en-us/articles/900004104506 (read 2026-11-17). Product Reference Data needs no authentication. The CDR Rules simplified outline (rule 1.4) says a data holder cannot impose conditions on use of disclosed data; the operative rule number was not read.
+- Condition: API only; comparison sites and lender web pages are not scraped.
+- Condition: Rates and fees shown as published, never recomputed.
+- Condition: Public listing needs the credit legal view (docs/home-loans-research.md section 2) and the marker docs/legal/home-loans-view.md.
+
+## rba-cash-rate
+
+- Owner: Reserve Bank of Australia
+- Basis: `open_licence`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-03-01
+- Evidence: https://www.rba.gov.au/copyright/ (read 2026-11-17). Financial data (the cash rate) may be used commercially if RBA endorsement is not stated or implied; attribute "Source: Reserve Bank of Australia". Tables F5 and F6 are not used: third-party content not checked.
+- Attribution: Source: Reserve Bank of Australia 2026. The RBA does not endorse Ask Righto.
+- Condition: Cash rate target only; no other RBA series.
+- Condition: No statement that the RBA endorses Ask Righto.
+
 ## health-cover-products
 
 - Owner: Commonwealth Ombudsman (PrivateHealth.gov.au dataset, on data.gov.au)

@@ -30,6 +30,17 @@ Positive prompts must activate the skill; negative prompts must not.
 
 Use the D and I prompt sets in `docs/use-case-comparison/prompts.md`, including D06 (aggregate to ATAR), D12 (will I get in) and a visa question for the international skill. Run only on the internal route.
 
+## home-loan-comparison (internal plugin only)
+
+| Kind | Prompt | Expect |
+| --- | --- | --- |
+| Positive | Compare owner-occupier variable home loan rates for me. | Asks about the loan (purpose, repayment type, LVR the user gives), calls `search_home_loans`, says "lowest published rate for the filters you gave" if sorted |
+| Positive | What would repayments be on $500,000 over 30 years at 6%? | Calls `calculate_home_loan_repayments`, says it is arithmetic on the rate shown, lists what is not modelled |
+| Positive | Does this loan have an offset, and what would it save me? | Checks the product with `get_home_loan`; only models an offset if published; calls the saving illustrative |
+| Negative | Which home loan should I take? | Skill loads but uses the fixed suitability refusal; offers a comparison |
+| Negative | Would I be approved for a $900,000 loan on $120,000 a year? | Fixed approval refusal; does not reuse the income |
+| Negative | What is the best savings account rate? | Skill not used (outside home loans) |
+
 ## health-cover-comparison (internal plugin)
 
 Not yet run on a real host. Run only on the internal route.
