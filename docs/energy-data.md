@@ -23,9 +23,11 @@ names (Simply Energy, Powerdirect, Circular Energy and others). Brands that shar
 (for example ARCLINE, Cooperative Power, RAA Energy, Indigo Power and Sonnen under
 `/energy-locals/`) are one entry, and each plan keeps its own `brandName`. A path that is not
 served answers 404 and is recorded in `retailers.last_error` without stopping the others, and
-business-only retailers return no residential plans. Still to do (task 1.4): compare the list with
-the CDR Register's energy brands, and re-read the AER document when it is next updated; the file
-was transcribed through a text extraction of the PDF, so check the first sync report for 404s.
+business-only retailers return no residential plans. The main table was checked twice (a
+summarised read and a parse of the PDF's own content streams on Iven's computer); both gave the
+same 83 rows. The 16 change-log-only brands are in the document's change log but not its main
+table, so check the first sync report for 404s on them. Still to do (task 1.4): compare the list
+with the CDR Register's energy brands, and re-read the AER document when it is next updated.
 
 **To load them**, run on the VM (a full first load takes a while; retailers run 16 at a time,
 each at 2 requests a second):
