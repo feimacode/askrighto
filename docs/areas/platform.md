@@ -1,6 +1,6 @@
 # Platform: server, tools, data rights and release channels
 
-The shared layer every vertical (energy, courses, international) sits on. Read this first; the
+The shared layer every vertical (energy, courses-domestic, cricos) sits on. Read this first; the
 other area docs assume it.
 
 How to read the notes: everything here was read from the code at commit `ff220c9` (main after

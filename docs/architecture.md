@@ -2,7 +2,7 @@
 
 How Ask Righto is put together, why, and how it grows. First written 15 November 2026 after the
 first real energy load; refreshed 16 November 2026 for the verticals, canary release, skills and
-plugins, CDR schema fixes, Victorian courses and the international course finder (PRs #11 to #17).
+plugins, CDR schema fixes, Victorian courses and the international course finder (PRs #11 to #17). Vertical ids are `energy`, `courses-domestic` and `cricos` (earlier `courses` and `international`, still accepted with a warning).
 This page explains how the parts fit and which decisions shaped them. **Implementation detail for
 each area is in [`docs/areas/`](areas/)**, linked from section 3.
 
@@ -50,8 +50,8 @@ flowchart LR
     R["Route sets: public = energy; internal = all loaded verticals"]
     M["MCP server per request + registerTools wrapper<br/>(rights gate, staleness, metrics)"]
     V1["energy"]
-    V2["courses + VCE admissions"]
-    V3["international"]
+    V2["courses-domestic + VCE admissions"]
+    V3["cricos"]
     H --> R --> M
     M --> V1 & V2 & V3
   end

@@ -7,7 +7,7 @@ Lets a VCE student check their studies against course prerequisites, see scaling
 ## ADDED Requirements
 
 ### Requirement: Check prerequisites by code
-`check_course_prerequisites` SHALL evaluate each course's stored prerequisite rules for the entry year against the student's studies and, when given, expected study scores and EAL status, and SHALL return per course `met`, `not_met` with the missing studies or scores, `needs_scores` with the minimum scores involved, or `cannot_check` for an index-only course.
+`check_domestic_course_prerequisites` SHALL evaluate each course's stored prerequisite rules for the entry year against the student's studies and, when given, expected study scores and EAL status, and SHALL return per course `met`, `not_met` with the missing studies or scores, `needs_scores` with the minimum scores involved, or `cannot_check` for an index-only course.
 
 #### Scenario: Missing maths study
 - **WHEN** a course needs Maths Methods or Specialist Maths and the studies include neither

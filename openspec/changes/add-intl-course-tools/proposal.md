@@ -4,7 +4,7 @@ With CRICOS loaded nationally (`add-intl-course-data`), international students a
 
 ## What Changes
 
-- Four tools on the new `international` vertical: `search_intl_courses`, `get_intl_course`, `compare_intl_courses`, `get_intl_entry_checklist`.
+- Four tools on the new `cricos` vertical (earlier called `international`): `search_international_courses`, `get_international_course`, `compare_international_courses`, `get_international_entry_checklist`.
 - Every result carries source, as-of date, indicative-fee label and CRICOS attribution, or an explicit not-found.
 - English and country-specific entry requirements, scholarships and intakes are returned as provider links plus a reading checklist for the user's own browsing assistant (AGENTS.md rule 1), never as stored facts.
 - Visual results through the Inkview SDK (table, entity card, comparison), as for the domestic tools.
@@ -21,5 +21,5 @@ None.
 
 ## Impact
 
-- New `src/tools/intl-tools.ts`, `src/intl/instructions.ts`, `src/intl/vertical.ts`; tools registered in `src/server/route.ts` under the `international` vertical.
+- New `src/tools/intl-tools.ts`, `src/intl/instructions.ts`, `src/intl/vertical.ts`; tools registered in `src/server/route.ts` under the `cricos` vertical.
 - Tool count on the internal route rises; the public route is unchanged.

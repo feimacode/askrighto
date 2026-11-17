@@ -14,15 +14,15 @@ The server SHALL load the verticals named in `ASKRIGHTO_VERTICALS` (default `ene
 - **THEN** start-up fails and names the unknown vertical
 
 #### Scenario: Public vertical not loaded
-- **WHEN** `ASKRIGHTO_PUBLIC_VERTICALS=energy,courses` and `ASKRIGHTO_VERTICALS=energy`
-- **THEN** start-up fails and names `courses`
+- **WHEN** `ASKRIGHTO_PUBLIC_VERTICALS=energy,courses-domestic` and `ASKRIGHTO_VERTICALS=energy`
+- **THEN** start-up fails and names `courses-domestic`
 
 ### Requirement: Public route shows nothing from internal-only verticals
 On `/mcp`, `tools/list`, `tools/call`, `initialize` instructions and `list_data_sources` SHALL include only public verticals.
 
 #### Scenario: Courses loaded but not public
 - **WHEN** courses are loaded but not public and a client connects to `/mcp`
-- **THEN** `tools/list` has no course tools, the instructions have no course section, `list_data_sources` lists no course dataset, and a `tools/call` naming `search_courses` fails as an unknown tool
+- **THEN** `tools/list` has no course tools, the instructions have no course section, `list_data_sources` lists no course dataset, and a `tools/call` naming `search_domestic_courses` fails as an unknown tool
 
 ### Requirement: Internal route is private
 The server SHALL serve the internal route only at `/mcp-internal/<token>` when `ASKRIGHTO_INTERNAL_TOKEN` is set, SHALL return 404 for the plain path, a wrong token, or any internal path when no token is set, SHALL compare tokens in constant time, SHALL send `X-Robots-Tag: noindex` on internal responses, and SHALL NOT write the token to any log.
@@ -57,8 +57,8 @@ In production, the data rights gate SHALL apply on the internal route exactly as
 The server SHALL count tool outcomes (curated, index-only, cannot-check, not-found, unavailable, needs-input) and latency per tool and route, SHALL expose them only on the token-protected metrics path, and SHALL NOT record arguments, results, course ids, IP addresses or session identifiers.
 
 #### Scenario: After a course lookup
-- **WHEN** a tester calls `get_course` for an index-only course
-- **THEN** the internal `get_course` index-only counter rises by one and no counter or log line holds the course id or the question
+- **WHEN** a tester calls `get_domestic_course` for an index-only course
+- **THEN** the internal `get_domestic_course` index-only counter rises by one and no counter or log line holds the course id or the question
 
 ### Requirement: Promotion needs recorded gates
 A vertical SHALL be added to `ASKRIGHTO_PUBLIC_VERTICALS` only through a change that records:

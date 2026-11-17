@@ -7,7 +7,7 @@ Lets a VCE student or parent find Victorian undergraduate courses, see one cours
 ## ADDED Requirements
 
 ### Requirement: Search courses
-`search_courses` SHALL return courses matching the given name or keyword, field, university and campus, each with its university, campus, latest entry figure with kind and intake year, a prerequisites summary and the official page, ordered by name unless the user asks for figure order.
+`search_domestic_courses` SHALL return courses matching the given name or keyword, field, university and campus, each with its university, campus, latest entry figure with kind and intake year, a prerequisites summary and the official page, ordered by name unless the user asks for figure order.
 
 #### Scenario: Search by field and university
 - **WHEN** the host searches for field "engineering" at university "RMIT"
@@ -26,7 +26,7 @@ Lets a VCE student or parent find Victorian undergraduate courses, see one cours
 - **THEN** the result has `found: false`, reason `needs_input`, and the candidate study names
 
 ### Requirement: Show one course
-`get_course` SHALL return our summary, every stored entry figure with its kind, intake year, campus, source URL and checked date, the prerequisites for the entry year asked with their rules and display text, other selection criteria, campuses, CRICOS and VTAC codes where held, and the official page.
+`get_domestic_course` SHALL return our summary, every stored entry figure with its kind, intake year, campus, source URL and checked date, the prerequisites for the entry year asked with their rules and display text, other selection criteria, campuses, CRICOS and VTAC codes where held, and the official page.
 
 #### Scenario: Prerequisites for a later year not yet stored
 - **WHEN** the host asks for entry year 2029 and only 2028 prerequisites are stored
@@ -37,7 +37,7 @@ Lets a VCE student or parent find Victorian undergraduate courses, see one cours
 - **THEN** both are shown with their own fixed labels, and neither is called "the ATAR you need"
 
 ### Requirement: Compare courses
-`compare_courses` SHALL show two to five courses side by side on the same fields (university, campus, duration, entry figures by kind and year, prerequisites, other criteria, official page) and SHALL NOT pick a winner.
+`compare_domestic_courses` SHALL show two to five courses side by side on the same fields (university, campus, duration, entry figures by kind and year, prerequisites, other criteria, official page) and SHALL NOT pick a winner.
 
 #### Scenario: Figures from different years
 - **WHEN** compared courses have latest figures from different intake years
@@ -55,7 +55,7 @@ Every course result SHALL state its depth. A `curated` course SHALL return its s
 - **THEN** the result has depth `index_only`, the course's name, university, campuses and CRICOS code, both links, and the reading checklist, and no figures
 
 #### Scenario: Mixed comparison
-- **WHEN** `compare_courses` is given one curated and one index-only course
+- **WHEN** `compare_domestic_courses` is given one curated and one index-only course
 - **THEN** the curated course shows its facts and the index-only course shows `cannot_check` with its links and checklist
 
 #### Scenario: Course not in the index
@@ -80,7 +80,7 @@ Every course result SHALL label each entry figure with its kind and intake year 
 Search, prerequisite check and date results SHALL render as an Inkview table, comparison results as an Inkview comparison and course detail as an entity card, each carrying the grounded source, and every host SHALL also receive the markdown form with the notice and source footer.
 
 #### Scenario: Host without MCP Apps
-- **WHEN** a text-only host calls `compare_courses`
+- **WHEN** a text-only host calls `compare_domestic_courses`
 - **THEN** it receives a markdown table with the same fields, the notice and the source footer
 
 #### Scenario: Component fails validation

@@ -6,7 +6,7 @@ Tools that let a host assistant search, look up and compare courses for internat
 ## ADDED Requirements
 
 ### Requirement: Search courses
-The system SHALL provide `search_intl_courses` filtering by text, level, field of education, state, campus location, provider, maximum total fee and maximum duration, returning at most a capped page of results and the number of matches that have no published fee.
+The system SHALL provide `search_international_courses` filtering by text, level, field of education, state, campus location, provider, maximum total fee and maximum duration, returning at most a capped page of results and the number of matches that have no published fee.
 
 #### Scenario: Filter by level and location
 - **WHEN** a caller searches for master's courses in a named city
@@ -17,7 +17,7 @@ The system SHALL provide `search_intl_courses` filtering by text, level, field o
 - **THEN** those courses are not counted as under the limit and the result states how many had no published fee
 
 ### Requirement: Get one course
-The system SHALL provide `get_intl_course` returning every stored field for a CRICOS course code, with the indicative-fee label, as-of date, attribution and the domestic course link when present.
+The system SHALL provide `get_international_course` returning every stored field for a CRICOS course code, with the indicative-fee label, as-of date, attribution and the domestic course link when present.
 
 #### Scenario: Unknown code
 - **WHEN** the code is not in the dataset
@@ -28,7 +28,7 @@ The system SHALL provide `get_intl_course` returning every stored field for a CR
 - **THEN** the course is returned with an expired label
 
 ### Requirement: Compare courses
-The system SHALL provide `compare_intl_courses` for 2 to 5 course codes, comparing stored fields only, and SHALL show a yearly fee only when total fee and duration are both published, labelled as calculated.
+The system SHALL provide `compare_international_courses` for 2 to 5 course codes, comparing stored fields only, and SHALL show a yearly fee only when total fee and duration are both published, labelled as calculated.
 
 #### Scenario: Yearly fee available
 - **WHEN** both fee and duration are published
@@ -39,7 +39,7 @@ The system SHALL provide `compare_intl_courses` for 2 to 5 course codes, compari
 - **THEN** no yearly figure is shown
 
 ### Requirement: Entry checklist for the user's assistant
-The system SHALL provide `get_intl_entry_checklist` returning the provider's official page link and a reading checklist, SHALL NOT fetch the page or return English scores, entry requirements, scholarships or intake dates, and SHALL tell the host to quote anything read with the page link and time and to label it as read by the assistant.
+The system SHALL provide `get_international_entry_checklist` returning the provider's official page link and a reading checklist, SHALL NOT fetch the page or return English scores, entry requirements, scholarships or intake dates, and SHALL tell the host to quote anything read with the page link and time and to label it as read by the assistant.
 
 #### Scenario: Checklist request
 - **WHEN** a caller asks what English level a course needs
