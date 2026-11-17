@@ -16,6 +16,8 @@ export interface RenormaliseReport {
   before: Record<string, number>;
   after: Record<string, number>;
   /** Raw fragments of the plans still flagged with `show`, for teaching the normaliser new shapes. */
+  /** Brand names rewritten to their canonical form, with plan counts. */
+  brandChanges: Record<string, number>;
   samples: Array<{ planId: string; reasons: string[]; fragment: unknown }>;
 }
 
@@ -54,6 +56,7 @@ export async function renormalise(
   const after: string[][] = [];
   const samples: RenormaliseReport["samples"] = [];
   let updated = 0;
+  const brandChanges = new Map<string, number>();
   const client = await db.pool.connect();
   try {
     await client.query("BEGIN");
@@ -83,14 +86,16 @@ export async function renormalise(
       }
       const contract = { electricity: n.plan.electricity ?? null, gas: n.plan.gas ?? null };
       // jsonb does not keep key order, so compare by a key-order-free hash.
-      if (stableHash(contract) === stableHash(row.contract) && stableHash(n.plan.notUnderstood) === stableHash(row.not_understood)) continue;
+      if (n.plan.brandName !== row.brand_name) brandChanges.set(`${row.brand_name} -> ${n.plan.brandName}`, (brandChanges.get(`${row.brand_name} -> ${n.plan.brandName}`) ?? 0) + 1);
+      if (stableHash(contract) === stableHash(row.contract) && stableHash(n.plan.notUnderstood) === stableHash(row.not_understood) && n.plan.brandName === row.brand_name) continue;
       updated++;
       if (!o.dryRun) {
-        await client.query("UPDATE plans SET understood = $2, not_understood = $3, contract = $4 WHERE plan_id = $1", [
+        await client.query("UPDATE plans SET understood = $2, not_understood = $3, contract = $4, brand_name = $5 WHERE plan_id = $1", [
           row.plan_id,
           n.plan.understood,
           n.plan.notUnderstood,
           JSON.stringify(contract),
+          n.plan.brandName,
         ]);
       }
     }
@@ -101,5 +106,5 @@ export async function renormalise(
   } finally {
     client.release();
   }
-  return { plans: r.rows.length, updated, before: count(before), after: count(after), samples };
+  return { plans: r.rows.length, updated, before: count(before), after: count(after), brandChanges: Object.fromEntries(brandChanges), samples };
 }

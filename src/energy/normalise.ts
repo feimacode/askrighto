@@ -3,6 +3,7 @@
  * anything unrecognised is kept in the raw payload and recorded in `notUnderstood`, never
  * coerced into a number.
  */
+import { canonicalBrand } from "./brands.js";
 import { GST_BASIS } from "./gst.js";
 import { stableHash } from "./hash.js";
 import { parseMoney } from "./money.js";
@@ -338,7 +339,7 @@ export function normalisePlan(retailerSlug: string, item: ListItem, detail: unkn
   const plan: NormalisedPlan["plan"] = {
     planId: item.planId,
     retailerSlug,
-    brandName: str(d.brandName) ?? item.brandName ?? retailerSlug,
+    brandName: canonicalBrand(str(d.brandName) ?? item.brandName ?? retailerSlug),
     displayName: str(d.displayName) ?? item.displayName ?? item.planId,
     fuelType: fuelType as FuelType,
     planType: planType as PlanType,

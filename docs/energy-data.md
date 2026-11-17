@@ -116,3 +116,15 @@ normalised contract, so after changing `src/energy/gst.ts` run `renormalise-ener
 
 Tasks 1.2, 1.3, 1.4, 6.1, 6.2, 6.3 and 6.4 need the live API or the shared database; see
 `openspec/changes/add-energy-plan-data/tasks.md`.
+
+## Brand names
+
+Retailers spell their brand differently from plan to plan ("GloBird Energy" and "Globird Energy",
+"Dodo" and "Dodo Power & Gas", "Lumo Energy" and "Lumo Energy (SA)"). `src/energy/brands.ts` maps each
+published name to one canonical name: the key is the lowercase letters and digits of the name with
+bracketed suffixes and generic words (energy, power, gas, retail, group, pty, ltd) removed, and the
+canonical name is the one in `retailers.json` (or the short list of shared-path brands in that file).
+A name that matches no known brand is kept as published, with spacing tidied. The raw payload is
+untouched. The retailer filter in the tools matches the canonical brand name, so asking for a brand on a
+shared path such as `energy-locals` returns only that brand's plans. After deploying this, run
+`node dist/askrighto.js renormalise-energy` once; it lists the brand names it rewrote.

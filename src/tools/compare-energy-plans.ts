@@ -120,7 +120,7 @@ export const compareEnergyPlans = defineTool({
         if (!m) return notFound("not_in_dataset", `No retailer matching "${args.retailer}" has ${args.fuelType.toLowerCase()} plans here.`);
         if ("candidates" in m) return notFound("needs_input", `"${args.retailer}" could match more than one retailer. Ask the user which one they mean.`, { candidates: m.candidates.map((c) => c.brandName) });
         matchedRetailer = m.brandName;
-        plans = plans.filter((p) => p.retailerSlug === m.slug);
+        plans = plans.filter((p) => p.brandName === m.brandName);
       }
       if (args.planType) plans = plans.filter((p) => p.planType === args.planType);
       let unknownPlanIds: string[] | undefined;
