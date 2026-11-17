@@ -24,3 +24,9 @@
 
 - Does the ATO MLS income definition ("income for MLS purposes") need its own stored description, or only a link?
 - Should we carry state or territory adjustments at all? Assumed no.
+
+## Implementation notes (17 Nov 2026)
+
+- Rates are read from `data/health/rates.yaml` into memory at start and need no database table (decision 1 said PostgreSQL; the file is small and git-tracked).
+- The MLS exempt-excess limit is not stored: the figure was not confirmed from the ATO page. Tools state the condition and link the ATO.
+- No in-force rebate rates are stored after 31 March 2027, because the ATO says rates from 1 April 2027 are not yet listed. The 65 and over change is stored as `proposed`.

@@ -1,0 +1,85 @@
+# Rules for health cover calculations: rebate, Medicare levy surcharge (MLS) and Lifetime Health Cover (LHC).
+# Facts re-keyed from the ATO pages in our own words, each with the page's own updated date and the date a person read it.
+# status: in_force | legislated_future | proposed. A `proposed` row is never used in a calculation.
+# percents are written as published; thresholds are the top of each tier, in whole dollars.
+# Review each 1 April and 1 July (reviewBy), and whenever Parliament passes a change.
+rebate:
+  - id: rebate-2026-04-to-06
+    status: in_force
+    effectiveFrom: 2026-04-01
+    effectiveTo: 2026-06-30
+    thresholds: { single: [101000, 118000, 158000], family: [202000, 236000, 316000] }
+    childIncrement: 1500
+    percents:
+      under65: [24.118, 16.079, 8.038, 0]
+      age65to69: [28.139, 20.098, 12.058, 0]
+      age70plus: [32.158, 24.118, 16.079, 0]
+    source: &rebate-src
+      url: https://www.ato.gov.au/individuals-and-families/medicare-and-private-health-insurance/private-health-insurance-rebate/income-thresholds-and-rates-for-the-private-health-insurance-rebate
+      pageUpdatedOn: 2026-06-22
+      readOn: 2026-11-17
+    reviewBy: 2027-04-01
+  - id: rebate-2026-07-to-2027-03
+    status: in_force
+    effectiveFrom: 2026-07-01
+    effectiveTo: 2027-03-31
+    thresholds: { single: [105000, 123000, 164000], family: [210000, 246000, 328000] }
+    childIncrement: 1500
+    percents:
+      under65: [24.118, 16.079, 8.038, 0]
+      age65to69: [28.139, 20.098, 12.058, 0]
+      age70plus: [32.158, 24.118, 16.079, 0]
+    source: *rebate-src
+    reviewBy: 2027-04-01
+  - id: rebate-2027-04-proposed-65plus
+    status: proposed
+    effectiveFrom: 2027-04-01
+    effectiveTo: 2027-06-30
+    thresholds: { single: [105000, 123000, 164000], family: [210000, 246000, 328000] }
+    childIncrement: 1500
+    percents:
+      under65: [24.118, 16.079, 8.038, 0]
+      age65to69: [24.118, 16.079, 8.038, 0]
+      age70plus: [24.118, 16.079, 8.038, 0]
+    source:
+      url: https://www.health.gov.au/sites/default/files/2026-07/phi-rebate-changes-modernising-the-private-health-insurance-rebate.pdf
+      pageUpdatedOn: 2026-07-01
+      readOn: 2026-11-17
+    note: Proposed from the 2026-27 Budget, subject to legislation passing Parliament. Not law. The ATO says the rates from 1 April 2027 are not yet listed.
+    reviewBy: 2027-04-01
+mls:
+  - id: mls-2025-26
+    status: in_force
+    effectiveFrom: 2025-07-01
+    effectiveTo: 2026-06-30
+    thresholds: { single: [101000, 118000, 158000], family: [202000, 236000, 316000] }
+    childIncrement: 1500
+    ratePercents: [0, 1, 1.25, 1.5]
+    source: &mls-src
+      url: https://www.ato.gov.au/individuals-and-families/medicare-and-private-health-insurance/medicare-levy-surcharge/medicare-levy-surcharge-income-thresholds-and-rates
+      pageUpdatedOn: 2026-06-22
+      readOn: 2026-11-17
+    reviewBy: 2027-07-01
+  - id: mls-2026-27
+    status: in_force
+    effectiveFrom: 2026-07-01
+    effectiveTo: 2027-06-30
+    thresholds: { single: [105000, 123000, 164000], family: [210000, 246000, 328000] }
+    childIncrement: 1500
+    ratePercents: [0, 1, 1.25, 1.5]
+    source: *mls-src
+    reviewBy: 2027-07-01
+lhc:
+  - id: lhc
+    status: in_force
+    effectiveFrom: 2000-07-01
+    percentPerYearOver: 2
+    startAge: 30
+    capPercent: 70
+    yearsToRemove: 10
+    source:
+      url: https://www.ato.gov.au/individuals-and-families/medicare-and-private-health-insurance/private-health-insurance-rebate/lifetime-health-cover
+      pageUpdatedOn: 2026-05-05
+      readOn: 2026-11-17
+    note: The base day is usually the 1 July after the 31st birthday and can change, for example when overseas on that date. The ATO page was read in summary only.
+    reviewBy: 2027-07-01

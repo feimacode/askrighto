@@ -5,13 +5,13 @@
 
 ## 2. Prompts and scorecard
 
-- [ ] 2.1 Write about 20 prompts in `docs/use-case-comparison/health-prompts.md` with expected tools and what a grounded answer must contain, including the refusal and edge prompts
-- [ ] 2.2 Extend `docs/use-case-comparison/scorecard.md` with the two health measures (rule currency, wording safety) and the health-specific checks
+- [x] 2.1 Write about 20 prompts in `docs/use-case-comparison/health-prompts.md` with expected tools and what a grounded answer must contain, including the refusal and edge prompts
+- [x] 2.2 Extend `docs/use-case-comparison/scorecard.md` with the two health measures (rule currency, wording safety) and the health-specific checks
 - [ ] 2.3 Extend `scripts/trace-numbers.mjs` and the answer-review skill with dollar, percentage and date tracing and the health banned-phrase list
 
 ## 3. Gates
 
-- [ ] 3.1 Add the health cover section to `docs/promotion-checklist.md` with the eight draft gates above
+- [x] 3.1 Add the health cover section to `docs/promotion-checklist.md` with the eight draft gates above
 - [ ] 3.2 Add the calculator accuracy check procedure (sample products, how to obtain the insurer's published figure, how to record differences) to `docs/health-cover-tools.md`
 - [ ] 3.3 Check the data licences (data.gov.au record, ATO pages) and the directory policies are still current when the scorecard is run
 

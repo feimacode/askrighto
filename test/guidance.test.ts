@@ -71,8 +71,9 @@ describe("vertical skills", () => {
     const { allTools } = await import("../src/tools/index.js");
     const { coursesVertical } = await import("../src/courses/vertical.js");
     const { internationalVertical } = await import("../src/intl/vertical.js");
+    const { healthVertical } = await import("../src/health/vertical.js");
     const names = new Set(
-      [...allTools, ...coursesVertical.tools, ...internationalVertical.tools].map((t) => t.name),
+      [...allTools, ...coursesVertical.tools, ...internationalVertical.tools, ...healthVertical.tools].map((t) => t.name),
     );
     for (const f of ALL.flatMap(walk).filter((p) => p.endsWith(".md"))) {
       const text = readFileSync(f, "utf8");
@@ -106,6 +107,7 @@ describe("public bundle", () => {
   it("contains no course skill until the verticals are promoted", () => {
     const names = readdirSync(SKILLS);
     expect(names.filter((n) => /course/.test(n))).toEqual([]);
+    expect(names.filter((n) => /health/.test(n))).toEqual([]);
     const market = JSON.parse(readFileSync(join(ROOT, ".claude-plugin/marketplace.json"), "utf8"));
     expect(market.plugins.find((p: { name: string }) => p.name === "askrighto").source).toBe("./plugin");
   });
