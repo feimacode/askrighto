@@ -2,7 +2,7 @@
 
 Everyday Aussie decisions, backed by public data. askrighto.com.au
 
-Last updated: 15 November 2026. This file collects every recommendation made so far in the
+Last updated: 17 November 2026 (Phase 5 health cover proposals). This file collects every recommendation made so far in the
 project's research. Each item names where it came from and, for build work, the OpenSpec
 change id to propose it under (`/openspec-propose <change-id>`).
 
@@ -247,16 +247,25 @@ pass: legal view done, rights cleared, curation depth met, host tests passed, Iv
 Follows VIC courses and comes before NSW and QLD courses (Iven, 15 Nov 2026): open data with no
 permission to wait for, and the same sync-then-calculate shape as energy.
 
+Proposed 17 Nov 2026 as five OpenSpec changes, planning only, built in this order:
+`add-health-cover-data`, `add-health-cover-rates`, `add-health-cover-tools`,
+`add-health-cover-skills`, `add-health-cover-evaluation`. The new vertical id is `health-cover`,
+internal route only until its promotion gates pass. Research, licences and what is still
+unverified: [`docs/health-cover-research.md`](docs/health-cover-research.md). No file has been
+downloaded yet, because cloud sessions cannot reach data.gov.au; opening a real ZIP is task 1.1 of
+`add-health-cover-data`.
+
 | Item | Detail | Change id |
 | --- | --- | --- |
-| Data | PrivateHealth.gov.au dataset on data.gov.au, CC BY 3.0 AU, monthly ZIP (latest September 2026). Use the dataset, not the site, whose terms forbid framing or using it to sell [D] | `add-health-cover-data` |
-| Tools | Filter and rank policies by stated cover, excess and premium: factual comparison, not a recommendation [F] | `add-health-cover-tools` |
-| Tax maths | Premium after the government rebate by income tier and age, Medicare Levy Surcharge break-even ("is hospital cover cheaper than the surcharge?"), Lifetime Health Cover loading. Thresholds come from published ATO and Department of Health rates with source and as-of date, re-checked each 1 April and 1 July. This calculation is what makes the case complex, not the policy list [S] | `add-health-cover-tools` |
-| Widgets | Cover comparison table through Inkview [F, I] | `add-health-cover-tools` |
-| Compliance | Claude lists insurance as high risk: human-in-the-loop and direct disclosure to consumers; health data flag on submission; no binding or purchase in-app [F] | `add-health-cover-tools` |
+| Data | PrivateHealth.gov.au dataset on data.gov.au, owned by the Private Health Insurance Ombudsman, CC BY 3.0 AU, monthly ZIP (XML per insurer and product, change CSVs, hospital agreements). Use the dataset, not the site, whose terms are unread and are recorded as forbidding framing or using it to sell. Tier, category and service codes kept as the file publishes them, since the July 2026 reform consultation may change tiers. The file's fields are unverified until a real file is opened [D] | `add-health-cover-data` |
+| Tax and loading rules | Rebate tiers and percentages, Medicare levy surcharge (MLS) tiers and rates, Lifetime Health Cover (LHC) rules, stored as dated rows with source, effective dates and status. A `proposed` row is never used for a number: the rebate cut for people 65 and over from 1 April 2027 is proposed, not law. Reviewed each 1 April and 1 July. The ATO and Department of Health licences are unverified [S] | `add-health-cover-rates` |
+| Tools | Seven read-only tools: search, get, compare, premium after rebate, surcharge break-even, LHC loading, rules lookup. Factual comparison: no ranking, no recommendation, no commission, no purchase or switching. Income, age and household are call-only and never logged [F, S] | `add-health-cover-tools` |
+| Skills and wording | One internal skill with intake that never asks for medical conditions, a disclosure line (free, no commission, not an insurer, broker or adviser) and forbidden wording. Unlisted until promotion [F] | `add-health-cover-skills` |
+| Evaluation and gates | About 20 prompts, a scorecard with rule currency and wording safety, a calculator accuracy sample against insurer figures, and eight draft promotion gates including the legal view [F] | `add-health-cover-evaluation` |
+| Widgets | Cover comparison table through Inkview, inside the tools change [F, I] | `add-health-cover-tools` |
+| Compliance | Claude lists insurance as high risk: direct disclosure to consumers, human in the loop, no health data on submission; no binding or purchase in-app [F] | `add-health-cover-tools`, `add-health-cover-skills` |
+| Regulatory line | Research finding, 17 Nov 2026: health insurance is carved out of the Corporations Act definition of a financial product (s765A(1)(c), read on one consolidated text), so the AFSL question behind rule 5 looks narrower here than for car, home or travel cover. Australian Consumer Law, tax agent services, privacy and any intermediary regime remain for the legal view. Rule 5 itself is unchanged [S] | — |
 | Gate | Legal view from Phase 0 before public listing | — |
-
----
 
 ## Phase 6: Uni course research for NSW (HSC) and QLD (QCE)
 
