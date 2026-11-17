@@ -53,7 +53,7 @@ schema and repeat steps 4 and 5.
 - Azure PostgreSQL requires TLS; the server verifies the certificate. If the connection fails with a
   certificate error, the Azure CA chain is not in Node's bundle: tell us, and we add it through
   `NODE_EXTRA_CA_CERTS`.
-- The retailer list currently holds only AGL, Origin and EnergyAustralia.
+- The retailer list holds all 92 CDR energy retailer paths (`docs/energy-data.md`), but the server never starts a first load: run `sync-energy` once on the VM to load the retailers added since AGL.
 
 ## Internal route, verticals and promotion
 

@@ -13,10 +13,27 @@ Victorian Energy Compare web pages.
 ## What is stored
 
 Residential electricity, gas and dual fuel plans (standing, market, regulated) that are current
-or start in the future, per retailer in `src/energy/retailers.json`. **That list currently holds
-only AGL, Origin and EnergyAustralia**, the brands seen in the proof of concept; seeding the
-full list from the AER base URI document and comparing it with the CDR Register (task 1.4)
-needs network access this workspace lacks.
+or start in the future, per retailer in `src/energy/retailers.json`.
+
+**Retailer list.** The file holds 92 base URI path segments, seeded on 17 Nov 2026 from the AER
+document *Consumer Data Right: Energy Retailer Base URIs and CDR Brands* (January 2026,
+<https://www.aer.gov.au/system/files/2026-01/Consumer%20Data%20Right%20-%20Energy%20Retailer%20Base%20URIs%20and%20CDR%20Brands%20-%20January%202026.pdf>):
+the 83 rows of its main table, which share 76 paths, plus 16 brands that only its change log
+names (Simply Energy, Powerdirect, Circular Energy and others). Brands that share a path
+(for example ARCLINE, Cooperative Power, RAA Energy, Indigo Power and Sonnen under
+`/energy-locals/`) are one entry, and each plan keeps its own `brandName`. A path that is not
+served answers 404 and is recorded in `retailers.last_error` without stopping the others, and
+business-only retailers return no residential plans. Still to do (task 1.4): compare the list with
+the CDR Register's energy brands, and re-read the AER document when it is next updated; the file
+was transcribed through a text extraction of the PDF, so check the first sync report for 404s.
+
+**To load them**, run on the VM (a full first load takes a while; retailers run 16 at a time,
+each at 2 requests a second):
+
+```
+node dist/askrighto.js sync-energy
+node dist/askrighto.js renormalise-energy   # only if plans loaded before the 16 Nov fixes remain
+```
 
 Tables (schema `askrighto`): `retailers`, `coverage_sets` (postcode lists stored once, GIN
 indexed), `plans` (normalised `contract` plus the raw payload and its hash), `plan_changes`,

@@ -15,9 +15,8 @@ leave it open. Read at commit `ff220c9`; nothing was run. Related detail docs:
 Source: `https://cdr.energymadeeasy.gov.au/{retailer}/cds-au/v1/energy/plans` (list `x-v: 1`,
 detail `x-v: 3`), no authentication, reuse basis CDR Rules rule 2.6 (`energy-plans` in
 `rights.json`, status `cleared`, review by 2027-02-01). Which retailers: `src/energy/retailers.json`,
-currently **three** (`agl`, `origin`, `energyaustralia`). `docs/architecture.md` (15 Nov) and the
-project notes say only AGL had been loaded on the live VM (727 plans on 15 Nov 2026). **(unverified)** from this
-repo whether Origin and EnergyAustralia have since been loaded.
+currently **92** paths (see `docs/energy-data.md`). Project notes say only AGL had been loaded on the live VM
+(727 plans on 15 Nov 2026). **(unverified)** from this repo which others have been loaded since.
 
 ```mermaid
 flowchart LR
@@ -269,8 +268,9 @@ on any failed retailer) or the nightly timer. After a normaliser or GST change:
 
 ## 4. Known limits and open items
 
-- **Retailer coverage**: three retailers seeded; the full list from the AER base URI document and the
-  CDR Register is not seeded (task 1.4 of `add-energy-plan-data`).
+- **Retailer coverage**: 92 retailer paths seeded from the AER base URI document (Jan 2026); not yet
+  compared with the CDR Register (task 1.4 of `add-energy-plan-data`), and only loaded once
+  `sync-energy` has run for them.
 - **AGL time-of-use**: AGL labels both bands `SHOULDER`, so `touCharge` throws
   `not_fully_understood` for its plans. Fixing it needs matching the user's split to bands by time
   window (a design change). `touCharge` also requires at most one PEAK and one OFF_PEAK band.
