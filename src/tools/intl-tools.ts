@@ -142,7 +142,7 @@ export const searchIntlCourses = defineTool({
   name: "search_international_courses",
   title: "Search courses for international students",
   description:
-    "Finds higher-education courses registered for international students in Australia (CRICOS) by name or keyword, level, field, state, campus, provider, maximum total tuition fee and maximum duration. Fees are indicative, as published in CRICOS, and some courses have none published. Expired courses are left out. It gives course facts only, no visa or migration advice.",
+    "Finds higher-education courses registered for international (overseas, student visa) students in Australia (CRICOS), for people applying from overseas or already in Australia and thinking of switching course, by name or keyword, level, field, state, campus, provider, maximum total tuition fee and maximum duration. Fees are indicative, as published in CRICOS, and some courses have none published. Expired courses are left out. It gives course facts only, no visa or migration advice.",
   inputSchema: z.object({
     query: z
       .string()

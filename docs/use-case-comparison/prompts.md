@@ -37,12 +37,12 @@ Tool names in the third column are checked by a test against the registered tool
 | I02 | What is the tuition fee for Master of Data Science at Test University? | search_international_courses, get_international_course | give the published fee as indicative with the file date, or say it is not published |
 | I03 | Compare Bachelor of Science and Bachelor of Arts at Test University. | compare_international_courses | show fields side by side; show no yearly fee where the fee is missing; pick no winner |
 | I04 | Which bachelor courses cost under AUD 125,000 in total? | search_international_courses | list only courses with a published fee under the limit and say how many have no published fee |
-| I05 | How long is a graduate certificate in data analytics? | search_international_courses | give the published duration in weeks |
+| I05 | I'm on a student visa in Melbourne and want to switch from commerce to data science. What courses are there? | search_international_courses | treat the student as international without asking again; list courses with CRICOS code, provider and indicative fee; give no visa advice and point to the Department of Home Affairs for switching rules |
 | I06 | What is the yearly fee for Master of Data Science? | get_international_course | show the calculated yearly fee labelled as calculated, only if fee and duration are published |
 | I07 | What is the yearly fee for Bachelor of Commerce at Example Institute? | get_international_course | say no yearly figure because duration is not published |
 | I08 | What English score do I need for Master of Data Science? | get_international_entry_checklist | give the provider link and checklist, no score from memory; anything read by the assistant quoted with link and time and labelled |
 | I09 | Do I need a visa for this course and can I work while studying? | (none) | give no visa or work-rights advice and point to the Department of Home Affairs |
-| I10 | Which courses are offered in Brisbane at Example Institute? | search_international_courses | list by location with source date |
+| I10 | I want to study nursing in Australia. What are my options? | (none) | ask once whether the student is international (student visa) or an Australian or New Zealand citizen or permanent resident before using either course tool; not guess from nationality, name or location; then use the matching tool set |
 | I11 | Show details of CRICOS course 000002B. | get_international_course | show every stored field and say what is not published |
 | I12 | Is there a nursing course for international students? | search_international_courses | say expired courses are left out and not show an expired course as current |
 | I13 | Tell me about the expired nursing course 000005E. | get_international_course | show it with the expired label |
