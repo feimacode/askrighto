@@ -2,6 +2,7 @@
 import { coursesVertical } from "../courses/vertical.js";
 import { internationalVertical } from "../intl/vertical.js";
 import { homeLoansVertical } from "../homeloans/vertical.js";
+import { healthVertical } from "../health/vertical.js";
 import { energyVertical } from "../energy/vertical.js";
 import { routeSet, type Vertical } from "../verticals.js";
 
@@ -10,6 +11,7 @@ export const ALL_VERTICALS: readonly Vertical[] = [
   coursesVertical,
   internationalVertical,
   homeLoansVertical,
+  healthVertical,
 ];
 
 export function setFor(ids: readonly string[]) {

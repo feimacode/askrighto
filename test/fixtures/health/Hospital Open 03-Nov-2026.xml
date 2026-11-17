@@ -1,0 +1,52 @@
+<Products Count="5" >
+<Product xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ProductCode="H1/TG" ProductItemID="tst-gold-item" ProductID="tst-gold" FundItemID="TST-item" Status="Published" PublishDate="01-Nov-26 00:00" SchemaVersion="3.1" xmlns="http://admin.privatehealth.gov.au/ws/Schemas" xsi:schemaLocation="http://admin.privatehealth.gov.au/ws/Schemas PHOLSchema-V3.1.xsd">
+<FundCode>TST</FundCode><ProductGroupCode>G1</ProductGroupCode><Name>Test Gold Hospital</Name><ProductType>Hospital</ProductType>
+<ProductURL>https://example.org/testfund/gold</ProductURL><PHISURL xsi:nil="true" /><ProductStatus>Open</ProductStatus>
+<Corporate Atomic="true" /><OnlyAvailableWith><NotApplicable xsi:nil="true" /></OnlyAvailableWith><DateValidFrom xsi:nil="true" /><DateValidTo xsi:nil="true" /><State>VIC</State>
+<WhoIsCovered OnlyOnePerson="true"><Coverage xsi:nil="true" /></WhoIsCovered>
+<Excesses ExcessType="LimitedPerPerson" Atomic="true"><ExcessPerAdmission>250</ExcessPerAdmission><ExcessPerPerson>250</ExcessPerPerson></Excesses><CoPayments CoPaymentType="None" Atomic="true" /><MedicareLevySurchargeExempt>true</MedicareLevySurchargeExempt>
+<PremiumNoRebate>200.00</PremiumNoRebate>
+<AddOns /><Brands />
+<HospitalCover><HospitalTier>Gold</HospitalTier><Accommodation>PrivateOrPublic</Accommodation><MedicalService Title="PregnancyBirth" Cover="Covered" /><MedicalService Title="JointReconstructions" Cover="Covered" /><MedicalService Title="PsychiatricServices" Cover="Restricted" /><WaitingPeriods><WaitingPeriod Unit="Month" Title="PreExisting">12</WaitingPeriod><WaitingPeriod Unit="Month" Title="PregnancyBirth">12</WaitingPeriod></WaitingPeriods></HospitalCover>
+</Product>
+<Product xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ProductCode="H1/TB" ProductItemID="tst-bronze-item" ProductID="tst-bronze" FundItemID="TST-item" Status="Published" PublishDate="01-Nov-26 00:00" SchemaVersion="3.1" xmlns="http://admin.privatehealth.gov.au/ws/Schemas" xsi:schemaLocation="http://admin.privatehealth.gov.au/ws/Schemas PHOLSchema-V3.1.xsd">
+<FundCode>TST</FundCode><ProductGroupCode>G1</ProductGroupCode><Name>Test Bronze Hospital</Name><ProductType>Hospital</ProductType>
+<ProductURL xsi:nil="true" /><PHISURL xsi:nil="true" /><ProductStatus>Open</ProductStatus>
+<Corporate Atomic="true" /><OnlyAvailableWith><NotApplicable xsi:nil="true" /></OnlyAvailableWith><DateValidFrom xsi:nil="true" /><DateValidTo xsi:nil="true" /><State>VIC</State>
+<WhoIsCovered OnlyOnePerson="true"><Coverage xsi:nil="true" /></WhoIsCovered>
+<Excesses ExcessType="LimitedPerPerson" Atomic="true"><ExcessPerAdmission>750</ExcessPerAdmission><ExcessPerPerson>750</ExcessPerPerson></Excesses><CoPayments CoPaymentType="None" Atomic="true" /><MedicareLevySurchargeExempt>false</MedicareLevySurchargeExempt>
+<PremiumNoRebate>120.00</PremiumNoRebate>
+<AddOns /><Brands />
+<HospitalCover><HospitalTier>Bronze</HospitalTier><Accommodation>PrivateOrPublic</Accommodation><MedicalService Title="PregnancyBirth" Cover="NotCovered" /><MedicalService Title="JointReconstructions" Cover="NotCovered" /><MedicalService Title="PsychiatricServices" Cover="NotCovered" /></HospitalCover>
+</Product>
+<Product xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ProductCode="H2/TC" ProductItemID="tst-couple-item" ProductID="tst-couple" FundItemID="TST-item" Status="Published" PublishDate="01-Nov-26 00:00" SchemaVersion="3.1" xmlns="http://admin.privatehealth.gov.au/ws/Schemas" xsi:schemaLocation="http://admin.privatehealth.gov.au/ws/Schemas PHOLSchema-V3.1.xsd">
+<FundCode>TST</FundCode><ProductGroupCode>G1</ProductGroupCode><Name>Test Couple Hospital</Name><ProductType>Hospital</ProductType>
+<ProductURL xsi:nil="true" /><PHISURL xsi:nil="true" /><ProductStatus>Open</ProductStatus>
+<Corporate Atomic="true" /><OnlyAvailableWith><NotApplicable xsi:nil="true" /></OnlyAvailableWith><DateValidFrom xsi:nil="true" /><DateValidTo xsi:nil="true" /><State>NSW</State>
+<WhoIsCovered OnlyOnePerson="false"><Coverage NumberOfAdults="2"><DependantCover Title="Child" Covered="false" /><DependantCover Title="ConditionalNonStudent" Covered="false" /><DependantCover Title="Disability" Covered="false" /><DependantCover Title="NonClassified" Covered="false" /><DependantCover Title="NonStudent" Covered="false" /><DependantCover Title="Student" Covered="false" /></Coverage></WhoIsCovered>
+<CoPayments CoPaymentType="None" Atomic="true" /><MedicareLevySurchargeExempt>true</MedicareLevySurchargeExempt>
+<PremiumNoRebate>300.00</PremiumNoRebate>
+<AddOns /><Brands />
+<HospitalCover><HospitalTier>Silver</HospitalTier><Accommodation>PrivateOrPublic</Accommodation><MedicalService Title="PregnancyBirth" Cover="Covered" /><MedicalService Title="JointReconstructions" Cover="Covered" /><MedicalService Title="PsychiatricServices" Cover="Covered" /></HospitalCover>
+</Product>
+<Product xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ProductCode="H3/RF" ProductItemID="tst-rst-family-item" ProductID="tst-rst-family" FundItemID="RST-item" Status="Published" PublishDate="01-Nov-26 00:00" SchemaVersion="3.1" xmlns="http://admin.privatehealth.gov.au/ws/Schemas" xsi:schemaLocation="http://admin.privatehealth.gov.au/ws/Schemas PHOLSchema-V3.1.xsd">
+<FundCode>RST</FundCode><ProductGroupCode>G1</ProductGroupCode><Name>Test Restricted Family Hospital</Name><ProductType>Hospital</ProductType>
+<ProductURL xsi:nil="true" /><PHISURL xsi:nil="true" /><ProductStatus>Open</ProductStatus>
+<Corporate IsCorporate="true" Atomic="true"><CorporateInfo><CorporateText>Employees of partner organisations</CorporateText></CorporateInfo></Corporate><OnlyAvailableWith><NotApplicable xsi:nil="true" /></OnlyAvailableWith><DateValidFrom xsi:nil="true" /><DateValidTo xsi:nil="true" /><State>NSW</State>
+<WhoIsCovered OnlyOnePerson="false"><Coverage NumberOfAdults="2"><DependantCover Title="Child" Covered="true" /><DependantCover Title="ConditionalNonStudent" Covered="false" /><DependantCover Title="Disability" Covered="false" /><DependantCover Title="NonClassified" Covered="false" /><DependantCover Title="NonStudent" Covered="false" /><DependantCover Title="Student" Covered="true" /></Coverage></WhoIsCovered>
+<Excesses ExcessType="None" Atomic="true" /><CoPayments CoPaymentType="None" Atomic="true" /><MedicareLevySurchargeExempt>true</MedicareLevySurchargeExempt>
+<PremiumNoRebate>410.50</PremiumNoRebate>
+<AddOns /><Brands />
+<HospitalCover><HospitalTier>SilverPlus</HospitalTier><Accommodation>PrivateOrPublic</Accommodation><MedicalService Title="PregnancyBirth" Cover="Covered" /><MedicalService Title="JointReconstructions" Cover="Covered" /><MedicalService Title="PsychiatricServices" Cover="Covered" /></HospitalCover>
+</Product>
+<Product xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ProductCode="H1/TG" ProductItemID="tst-gold-item" ProductID="tst-gold" FundItemID="TST-item" Status="Published" PublishDate="01-Nov-26 00:00" SchemaVersion="3.1" xmlns="http://admin.privatehealth.gov.au/ws/Schemas" xsi:schemaLocation="http://admin.privatehealth.gov.au/ws/Schemas PHOLSchema-V3.1.xsd">
+<FundCode>TST</FundCode><ProductGroupCode>G1</ProductGroupCode><Name>Test Gold Hospital duplicate</Name><ProductType>Hospital</ProductType>
+<ProductURL xsi:nil="true" /><PHISURL xsi:nil="true" /><ProductStatus>Open</ProductStatus>
+<Corporate Atomic="true" /><OnlyAvailableWith><NotApplicable xsi:nil="true" /></OnlyAvailableWith><DateValidFrom xsi:nil="true" /><DateValidTo xsi:nil="true" /><State>VIC</State>
+<WhoIsCovered OnlyOnePerson="true"><Coverage xsi:nil="true" /></WhoIsCovered>
+<Excesses ExcessType="LimitedPerPerson" Atomic="true"><ExcessPerAdmission>250</ExcessPerAdmission><ExcessPerPerson>250</ExcessPerPerson></Excesses><CoPayments CoPaymentType="None" Atomic="true" /><MedicareLevySurchargeExempt>true</MedicareLevySurchargeExempt>
+<PremiumNoRebate>999.00</PremiumNoRebate>
+<AddOns /><Brands />
+<HospitalCover><HospitalTier>Gold</HospitalTier><Accommodation>PrivateOrPublic</Accommodation></HospitalCover>
+</Product>
+</Products>

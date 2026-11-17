@@ -9,7 +9,7 @@ Home loan rates and fees are published by about a hundred lenders, each through 
 - Add a brand list for lenders, seeded from the CDR Register's Data Holder Brands Summary API and checked in, with a check that reports brands that stop answering.
 - Add a normalised home loan model: lender and brand, product name, purpose (owner-occupier or investor), repayment type, rate type (variable, fixed with term, introductory, discount, bundle), rate, comparison rate as published, LVR and balance tiers, fees by type, features (offset, redraw, extra repayments), constraints, eligibility, product links, `isTailored`, effective dates.
 - Keep the source payload beside the normalised fields, flag shapes we do not understand rather than coerce them (as energy does), and never compute or repair a rate.
-- Store in the shared PostgreSQL under the `askrighto` schema in new `home_loan_*` tables (migration `0005`), rebuildable from the API.
+- Store in the shared PostgreSQL under the `askrighto` schema in new `home_loan_*` tables (migration `0006`), rebuildable from the API.
 - Add the RBA cash rate target as a small reference table with source, date and RBA attribution; ingest nothing else from the RBA until its terms for those tables are read.
 - Register datasets and rights entries, with status `cleared_pending_legal_view`: `home-loans-cdr` (basis `cdr_rule`) and `rba-cash-rate` (basis `open_licence`-style RBA terms, recorded as its own basis note).
 - Record the field check against dsb-schema-tools 1.35.0 in `docs/cdr-schemas.md` and a new `docs/home-loan-data.md`.
@@ -45,7 +45,7 @@ None. Energy's internals move to a shared CDR module with no change in behaviour
 
 ## Impact
 
-- New `src/cdr/` (shared client, limiter, report), `src/homeloans/` (normalise, sync, store, cli, vertical), `src/homeloans/lenders.json`, migration `0005`, fixtures `test/fixtures/homeloans/`, docs.
+- New `src/cdr/` (shared client, limiter, report), `src/homeloans/` (normalise, sync, store, cli, vertical), `src/homeloans/lenders.json`, migration `0006`, fixtures `test/fixtures/homeloans/`, docs.
 - Energy files change only to import the shared client; its tests must pass unchanged.
 - New outbound traffic to each lender's CDR host, roughly one list call per lender per day plus changed details (estimate **unverified**; measure in the first load).
 - Depends on `add-mcp-server-core` and `add-energy-plan-data` (already built) and on `add-canary-release`.

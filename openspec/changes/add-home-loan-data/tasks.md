@@ -17,7 +17,7 @@
 
 ## 4. Normalised model and database
 
-- [x] 4.1 Add migration `0005` with the tables in design.md and indexes on `(lender_slug)`, `(understood)` and `((detail->>'purposes'))` as needed; verify a catalog test and that migrations apply twice with no error *(Note: indexes are on `verified_at` and `understood`; no `detail` expression index)*
+- [x] 4.1 Add migration `0006` with the tables in design.md and indexes on `(lender_slug)`, `(understood)` and `((detail->>'purposes'))` as needed; verify a catalog test and that migrations apply twice with no error *(Note: indexes are on `verified_at` and `understood`; no `detail` expression index)*
 - [x] 4.2 Implement normalisation for rates, tiers, fees, features, constraints, eligibility and links, with the `understood` flag; verify golden tests per rate type and a test that an unknown type, unknown tier unit and unreadable fixed term are kept and flagged, and that no rate is ever altered or computed *(Note: tested on synthetic fixtures only)*
 - [ ] 4.3 Pin the percent convention (`RateString`) with a test using a recorded rate and the lender's own product page figure; verify the test names the lender and capture date
 

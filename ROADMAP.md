@@ -247,17 +247,18 @@ pass: legal view done, rights cleared, curation depth met, host tests passed, Iv
 Follows VIC courses and comes before NSW and QLD courses (Iven, 15 Nov 2026): open data with no
 permission to wait for, and the same sync-then-calculate shape as energy.
 
-Proposed 17 Nov 2026 as five OpenSpec changes, planning only, built in this order:
+Proposed 17 Nov 2026 as five OpenSpec changes (PR #21) and implemented behind the internal route the same day, built in this order:
 `add-health-cover-data`, `add-health-cover-rates`, `add-health-cover-tools`,
 `add-health-cover-skills`, `add-health-cover-evaluation`. The new vertical id is `health-cover`,
 internal route only until its promotion gates pass. Research, licences and what is still
 unverified: [`docs/health-cover-research.md`](docs/health-cover-research.md). No file has been
-downloaded yet, because cloud sessions cannot reach data.gov.au; opening a real ZIP is task 1.1 of
-`add-health-cover-data`.
+been opened from a cloud session (data.gov.au is blocked there), but the November 2026 ZIP was opened on
+17 Nov 2026 from Iven's machine and the parser follows its real layout
+([`docs/health-cover-columns.md`](docs/health-cover-columns.md)).
 
 | Item | Detail | Change id |
 | --- | --- | --- |
-| Data | PrivateHealth.gov.au dataset on data.gov.au, owned by the Private Health Insurance Ombudsman, CC BY 3.0 AU, monthly ZIP (XML per insurer and product, change CSVs, hospital agreements). Use the dataset, not the site, whose terms are unread and are recorded as forbidding framing or using it to sell. Tier, category and service codes kept as the file publishes them, since the July 2026 reform consultation may change tiers. The file's fields are unverified until a real file is opened [D] | `add-health-cover-data` |
+| Data | PrivateHealth.gov.au dataset on data.gov.au, authored by the Commonwealth Ombudsman, CC BY 3.0 AU, monthly ZIP (one XML per cover type and open or closed status, a Funds XML, change CSVs, hospital agreements CSV). Use the dataset, not the site, whose terms are unread and are recorded as forbidding framing or using it to sell. Tier, category and service codes kept as the file publishes them, since the July 2026 reform consultation may change tiers. Opened 17 Nov 2026: one monthly before-rebate premium per product, so premiums after rebate are always calculated [D] | `add-health-cover-data` |
 | Tax and loading rules | Rebate tiers and percentages, Medicare levy surcharge (MLS) tiers and rates, Lifetime Health Cover (LHC) rules, stored as dated rows with source, effective dates and status. A `proposed` row is never used for a number: the rebate cut for people 65 and over from 1 April 2027 is proposed, not law. Reviewed each 1 April and 1 July. The ATO and Department of Health licences are unverified [S] | `add-health-cover-rates` |
 | Tools | Seven read-only tools: search, get, compare, premium after rebate, surcharge break-even, LHC loading, rules lookup. Factual comparison: no ranking, no recommendation, no commission, no purchase or switching. Income, age and household are call-only and never logged [F, S] | `add-health-cover-tools` |
 | Skills and wording | One internal skill with intake that never asks for medical conditions, a disclosure line (free, no commission, not an insurer, broker or adviser) and forbidden wording. Unlisted until promotion [F] | `add-health-cover-skills` |

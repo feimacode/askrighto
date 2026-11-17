@@ -27,6 +27,9 @@
     "intl:load": "npm run build && node dist/askrighto.js intl:load",
     "homeloans:sync": "npm run build && node dist/askrighto.js homeloans:sync",
     "report:homeloans": "npm run build && node dist/askrighto.js report:homeloans",
+    "health:validate": "npm run build && node dist/askrighto.js health:validate",
+    "health:load": "npm run build && node dist/askrighto.js health:load",
+    "health:rates-validate": "npm run build && node dist/askrighto.js health:rates-validate",
     "compare:usecases": "npm run build && node dist/askrighto.js compare:usecases",
     "guidance:generate": "node scripts/guidance.mjs",
     "guidance:check": "node scripts/guidance.mjs --check",
@@ -56,6 +59,7 @@
     "zod": "^4.6.7"
   },
   "dependencies": {
+    "fast-xml-parser": "^5.12.1",
     "yaml": "^2.9.1"
   }
 }

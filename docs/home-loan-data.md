@@ -18,7 +18,7 @@ Percent convention: a `RateString` is a fraction, so `0.0599` is 5.99%. Rates ab
 
 `src/homeloans/lenders.json` is empty. Seed it from the CDR Register's Data Holder Brands Summary API (URL, version header and fields **unverified**) and review it in a pull request. Each entry: `slug`, `brandName`, `baseUri` (public base, without `/cds-au/...`), `active`. `check:lenders` (Register vs file vs live response) is not built yet.
 
-## Tables (migration 0005)
+## Tables (migration 0006)
 
 `home_loan_lenders`, `home_loan_products` (key lender + product id; `detail` normalised, `raw` as received), `home_loan_changes`, `home_loan_sync_runs`, `reference_rates`.
 

@@ -125,3 +125,26 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Attribution: Source: Reserve Bank of Australia 2026. The RBA does not endorse Ask Righto.
 - Condition: Cash rate target only; no other RBA series.
 - Condition: No statement that the RBA endorses Ask Righto.
+
+## health-cover-products
+
+- Owner: Commonwealth Ombudsman (PrivateHealth.gov.au dataset, on data.gov.au)
+- Basis: `open_licence`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-08-01
+- Evidence: https://data.gov.au/data/dataset/private-health-insurance (read 2026-11-17). Dataset record and resource pages show Creative Commons Attribution 3.0 Australia, owned by the Ombudsman, monthly ZIP. No file has been opened yet; the ZIP's Readme.txt may add attribution wording. The privatehealth.gov.au site terms are unread.
+- Attribution: Private health insurance product data: Commonwealth Ombudsman (PrivateHealth.gov.au), via data.gov.au, licensed CC BY 3.0 AU.
+- Condition: Dataset only: the privatehealth.gov.au website is never scraped, framed or fetched.
+- Condition: Results say the data covers products in the Ombudsman's file, not all funds or the whole market.
+- Condition: Legal view outstanding (roadmap Phase 0): information-only comparison, Australian Consumer Law wording, tax agent services, privacy.
+
+## health-cover-rates
+
+- Owner: Australian Taxation Office and Department of Health, Disability and Ageing (rebate, Medicare levy surcharge and Lifetime Health Cover pages)
+- Basis: `own_words_facts`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-04-01
+- Evidence: https://www.ato.gov.au/individuals-and-families/medicare-and-private-health-insurance/private-health-insurance-rebate/income-thresholds-and-rates-for-the-private-health-insurance-rebate (read 2026-11-17). Thresholds and rates re-keyed as numbers with source links; no page text copied. The ATO and Department of Health reuse licence has not been confirmed.
+- Condition: Rows carry the source page's updated date, effective dates and status; a proposed change is never used in a figure.
+- Condition: Reviewed each 1 April and 1 July.
+- Condition: Licence of the ATO and Department of Health pages to be confirmed.

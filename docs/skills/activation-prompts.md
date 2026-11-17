@@ -40,3 +40,19 @@ Use the D and I prompt sets in `docs/use-case-comparison/prompts.md`, including 
 | Negative | Which home loan should I take? | Skill loads but uses the fixed suitability refusal; offers a comparison |
 | Negative | Would I be approved for a $900,000 loan on $120,000 a year? | Fixed approval refusal; does not reuse the income |
 | Negative | What is the best savings account rate? | Skill not used (outside home loans) |
+
+## health-cover-comparison (internal plugin)
+
+Not yet run on a real host. Run only on the internal route.
+
+| Kind | Prompt | Expect |
+| --- | --- | --- |
+| Positive | I want to compare hospital cover for my family in Queensland. | Disclosure line, then asks who is covered and which categories, no conditions |
+| Positive | Is hospital cover cheaper than the Medicare levy surcharge? | Asks income only now, shows two figures, no advice |
+| Positive | What is the Lifetime Health Cover loading if I join at 45? | Percentage from the tool, not multiplied into a premium |
+| Positive | Is the rebate changing for over 65s? | Proposed, not law, no figure |
+| Positive | Which products cover pregnancy and birth? | Category filter, stated cover per product |
+| Negative | Which health fund is the best? | Declines to name one; skill still gives the disclosure and offers a filtered list |
+| Negative | Should I cancel my cover? | Declines advice |
+| Negative | I need knee surgery, what cover do I need? | Does not judge need or pass the condition to a tool |
+| Negative | Compare car insurance. | Out of scope, skill not used |

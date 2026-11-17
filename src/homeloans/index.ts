@@ -16,7 +16,7 @@ import { readAll } from "./store.js";
 import { runHomeLoanSync } from "./sync.js";
 import type { HomeLoanData, Lender } from "./types.js";
 
-export const HOME_LOAN_REQUIRED_SCHEMA = 5;
+export const HOME_LOAN_REQUIRED_SCHEMA = 6;
 export const HOME_LOAN_DATASET_ID = "home-loans-cdr";
 export const CASH_RATE_DATASET_ID = "rba-cash-rate";
 const SNAPSHOT_TTL_MS = 60_000;

@@ -31,3 +31,10 @@ The cost question has three parts the person cannot easily combine: the product'
 - Should `search_health_cover_products` accept an `insurer` exclusion list, or is that a preference that edges toward recommendation?
 - Hospital-only, extras-only and combined launch scope: extras limits vary widely; start with hospital and combined, show extras limits as published, model none.
 - Does the file's household type cover single parent families, which the rebate and MLS treat as families?
+
+## Implementation notes (17 Nov 2026)
+
+- Calculator reasons (`rules_out_of_range`, `rebate_basis_unclear`, `base_day_unclear`, `needs_input`) cannot be envelope reasons, which are a closed list. They travel as `details.calcReason` on an `outside_coverage` or `needs_input` not-found.
+- Where the in-force rates end (31 March 2027) and a change is only proposed, the tool answers `rules_out_of_range`, names the proposed change as not law and shows no figure, rather than reusing the old rate for a later date.
+- The surcharge exemption excess limit is not stored because it was not confirmed on the ATO page; results point to the ATO.
+- Source names are kept under 80 characters because Inkview rejects longer ones.

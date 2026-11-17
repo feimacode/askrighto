@@ -1,0 +1,13 @@
+<Products Count="1" >
+<Product xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ProductCode="G1/TE" ProductItemID="tst-extras-item" ProductID="tst-extras" FundItemID="TST-item" Status="Published" PublishDate="01-Nov-26 00:00" SchemaVersion="3.1" xmlns="http://admin.privatehealth.gov.au/ws/Schemas" xsi:schemaLocation="http://admin.privatehealth.gov.au/ws/Schemas PHOLSchema-V3.1.xsd">
+<FundCode>TST</FundCode><ProductGroupCode>G1</ProductGroupCode><Name>Test Extras</Name><ProductType>GeneralHealth</ProductType>
+<ProductURL xsi:nil="true" /><PHISURL xsi:nil="true" /><ProductStatus>Open</ProductStatus>
+<Corporate Atomic="true" /><OnlyAvailableWith><NotApplicable xsi:nil="true" /></OnlyAvailableWith><DateValidFrom xsi:nil="true" /><DateValidTo xsi:nil="true" /><State>VIC</State>
+<WhoIsCovered OnlyOnePerson="true"><Coverage xsi:nil="true" /></WhoIsCovered>
+<CoPayments CoPaymentType="None" Atomic="true" /><MedicareLevySurchargeExempt>true</MedicareLevySurchargeExempt>
+
+<AddOns /><Brands />
+<GeneralHealthCover BasedOnID=""><GeneralHealthServices><GeneralHealthService Title="DentalGeneral" Covered="true"><WaitingPeriod Unit="Month" Atomic="true">2</WaitingPeriod></GeneralHealthService></GeneralHealthServices></GeneralHealthCover>
+<ProductAmbulance UseFund="true"></ProductAmbulance>
+</Product>
+</Products>

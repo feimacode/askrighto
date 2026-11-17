@@ -27,3 +27,8 @@ The source is one ZIP a month: XML per insurer and product, an XML schema, chang
 - Does the file state premiums after rebate for each tier, or only before? (Decides how much `add-health-cover-rates` has to calculate.)
 - Which licence text does the ZIP's `Readme.txt` carry, and does it add attribution wording?
 - Does any trade mark guidance restrict showing insurer names? (Part of the legal view.)
+
+## Implementation notes (17 Nov 2026)
+
+- First built against an assumed layout; on 17 Nov 2026 the real November 2026 ZIP was opened and the parser, model and schema were rewritten to match (`docs/health-cover-columns.md`). Differences from the proposal: one XML file per cover type and open or closed status plus a Funds file (not per insurer); product files run to 684 MB, so they are streamed; the key is `ProductID`; there is a single monthly before-rebate premium per product and no after-rebate figure, so premiums after rebate are always calculated; seven hospital tiers; 38 clinical categories stored as one letter each; no product information statement link (`PHISURL` is nil), only the insurer's `ProductURL`; the owner on the dataset record is the Commonwealth Ombudsman. Closed products are skipped by default. Tasks 1.3 and 1.4 stay open.
+- `health:load` reads an unzipped folder of XML files. Rollback (decision 8) and the hospital agreements CSV are not built.

@@ -13,6 +13,7 @@ export const KNOWN_VERTICALS = [
   "courses-domestic",
   "cricos",
   "home-loans",
+  "health-cover",
 ] as const;
 
 /**

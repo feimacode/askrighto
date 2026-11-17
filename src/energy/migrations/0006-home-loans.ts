@@ -1,4 +1,4 @@
-/** Migration 0005: home loan products from CDR banking product data (add-home-loan-data). */
+/** Migration 0006: home loan products from CDR banking product data (add-home-loan-data). */
 export const sql = `
 CREATE TABLE home_loan_lenders (
   slug               text PRIMARY KEY,
