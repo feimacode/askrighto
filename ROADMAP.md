@@ -2,7 +2,7 @@
 
 Everyday Aussie decisions, backed by public data. askrighto.com.au
 
-Last updated: 17 November 2026 (Phase 5 health cover proposals). This file collects every recommendation made so far in the
+Last updated: 17 November 2026 (open data exploration: careers layer, solar and suburb findings). This file collects every recommendation made so far in the
 project's research. Each item names where it came from and, for build work, the OpenSpec
 change id to propose it under (`/openspec-propose <change-id>`).
 
@@ -75,15 +75,16 @@ is closed or the comparison needs a licence. Scores are judgement, not measured.
 | 2 | Private health insurance, with rebate, MLS and LHC maths | 5 | 5 | 4 | **14** | Open: CC BY 3.0 AU monthly file | Legal view before listing; Claude high-risk category | Phase 5 |
 | 3 | Bank savings, term deposits, home loans | 4 | 5 | 5 | **14** | Open: CDR product data | ACL/AFSL question; legal view before any public listing | Home loans built on the internal route only (17 Nov 2026); deposits parked |
 | 4 | Uni course research (VCE first) | 5 | 5 | 3 | **13** | No TAC licence; own-worded store | VTAC/UAC permission requested in Phase 0 | **Next**: VIC Phase 4, NSW/QLD Phase 6 |
-| 5 | Home solar and battery payback | 5 | 4 | 3 | **12** | Reuses CDR plans; solar yield and rebate data to check | None known; no installer referrals | Candidate, Phase 7 |
+| 5 | Home solar and battery payback | 5 | 4 | 3 | **12** | Reuses CDR plans; CER monthly postcode install data (access verified, licence not stated, confirm); yield and rebate data to check | None known; no installer referrals | Candidate, Phase 7 |
 | 6 | Aged care: providers and fee estimate | 5 | 4 | 3 | **12** | Star Ratings and provider data, licence to check | None known; estimates must defer to Services Australia | Candidate, research first |
-| 7 | Suburb fit for renters and movers | 3 | 5 | 4 | **12** | Many state datasets, licences vary; My School excluded | None known | Candidate, research first |
+| 7 | Suburb fit for renters and movers | 3 | 5 | 4 | **12** | VIC rents and school zones CC BY 4.0 (verified 17 Nov 2026); ABS, transport and crime unverified; My School excluded | None known | Candidate, research first (VIC first) |
 | 8 | Mobile and NBN plans | 3 | 4 | 5 | 12 | Blocked: no open plan data (CDR telco rollout paused, to verify) | None known | Blocked |
-| 9 | EV versus petrol running cost | 4 | 4 | 3 | 11 | Green Vehicle Guide, fuel, tariffs, rego; licences to check | Stay off novated leases and finance | Later |
+| 9 | EV versus petrol running cost | 4 | 4 | 3 | 11 | Green Vehicle Guide data is a limited personal-use licence with no download or API (17 Nov 2026): not open | Stay off novated leases and finance | Blocked unless permission is granted |
 | 10 | Concessions and rebates finder | 3 | 4 | 4 | 11 | Scattered government pages; heavy curation | Eligibility wording needs care | Fold into energy and health as extensions |
 | 11 | First home buyer grants and stamp duty | 4 | 3 | 3 | 10 | State revenue office rules, curated | Stay off loans (ACL) | Later |
 | 12 | Childcare out-of-pocket (CCS) | 4 | 2 | 3 | 9 | CCS rates public; centre fees blocked (Starting Blocks terms) | None known | Later; weak without fee data |
 | 13 | Fuel prices | 1 | 3 | 5 | 9 | VIC open; QLD, NSW unclear; WA closed | None | **Demoted**: input to case 9 only |
+| 14 | Careers layer for course answers (occupation outlook and projections) | 3 | 3 | 3 | 9 | Open: Jobs and Skills Australia Labour Market Insights, CC BY 4.0 (verified 17 Nov 2026); QILT salary data licence unverified | None | Extension of case 4, Phase 8 |
 
 Notes on the new candidates [S]:
 
@@ -115,8 +116,13 @@ Notes on the new candidates [S]:
    content is the larger job.
 4. **Solar and battery payback** (Phase 7). An energy extension that reuses the plan store and
    estimator, so it can move earlier if courses stall on data permission.
-5. **Aged care, then suburb fit.** Research threads first (data licences, rule sources), then
-   proposals. Neither has a confirmed open data path yet.
+5. **Careers layer on courses** (Phase 8). Added 17 Nov 2026 from the open data exploration
+   (`docs/research/open-data-exploration-2026-11-17.md`). Small, no new regulatory question, and
+   it strengthens the course answers. It scores low alone because it is an extension, so it
+   ships with courses rather than as its own case.
+6. **Suburb fit (VIC first), then aged care.** Research threads first (data licences, rule
+   sources), then proposals. Suburb fit now has two verified CC BY 4.0 inputs; aged care still
+   has no confirmed licence.
 
 Home loans are built but internal-only until a credit legal view (Phase 5b); other banking stays parked; mobile and NBN plans stay blocked until open plan data
 exists.
@@ -298,6 +304,19 @@ only after Phase 1 is live with real prices.
 
 ---
 
+## Phase 8: Careers layer for course answers
+
+Added 17 Nov 2026 from the open data exploration. An extension of the course verticals
+(Phases 4 and 6), not a standalone case.
+
+| Item | Detail | Change id |
+| --- | --- | --- |
+| Data | Jobs and Skills Australia Labour Market Insights: occupation profiles and employment projections, CC BY 4.0 on labourmarketinsights.gov.au (attribution required; logos, coat of arms and third-party material excluded). Check each data.gov.au JSA dataset's own licence and date before ingesting: some are CC BY 2.5 AU and frozen (Entry Level Labour Markets, last updated Aug 2023) | `add-career-outcomes-data` |
+| Tools | Occupation outlook for a course or field; courses that lead to a given occupation. Facts only, with source and as-of date | `add-career-outcomes-tools` |
+| Out of scope until licence is confirmed | Graduate salary and employment by institution (QILT). Its copyright page could not be read; ask before use | — |
+
+---
+
 ## Candidates needing research first
 
 Scored in "How we pick cases". Each gets a research thread (data licences, rule sources,
@@ -305,9 +324,9 @@ prior art) before an OpenSpec proposal.
 
 | Case | What to find out | Suggested change id |
 | --- | --- | --- |
-| Aged care providers and fee estimate | Licence of Star Ratings and provider data; whether published fee rules (Aged Care Act from 1 Nov 2025, Support at Home) are stable enough to calculate from | `add-aged-care-data` |
-| Suburb fit for renters and movers | Licence per state for rents, school zones, crime and transport; which states give enough coverage to launch | `add-suburb-data` |
-| EV versus petrol running cost | Green Vehicle Guide licence; rego and charging cost sources. Reuses energy tariffs and the VIC fuel feed below | `add-vehicle-cost` |
+| Aged care providers and fee estimate | Licence of Star Ratings quarterly Excel extract (Aug 2026 edition seen, no licence on its page) and the weekly Provider Register; whether published fee rules (Aged Care Act from 1 Nov 2025, Support at Home) are stable enough to calculate from | `add-aged-care-data` |
+| Suburb fit for renters and movers | VIC rents (quarterly, CC BY 4.0) and VIC school zones (annual, CC BY 4.0, neighbourhood schools only) are verified. Still to check: ABS, GTFS, crime statistics, and other states; which states give enough coverage to launch | `add-suburb-data` |
+| EV versus petrol running cost | Green Vehicle Guide data is personal-use only and VESR has no download (17 Nov 2026), so ask the Department for permission or drop this case; rego and charging cost sources. Reuses energy tariffs and the VIC fuel feed below | `add-vehicle-cost` |
 | International student course finder (later; Iven, 16 Nov 2026) | A separate vertical after domestic courses. CRICOS (CC BY) fits it better than domestic: course codes, providers, campuses, duration and indicative tuition fees. Check which fields the open file really holds; English language requirements may need university pages. No ATAR or VCE prerequisites. Domestic stays first. Proposed 16 Nov 2026 as three changes, built in this order: `add-intl-course-data`, `add-intl-course-tools`, `add-course-use-case-comparison` (compares it with the domestic finder). CRICOS columns are unverified until a real file is opened | `add-intl-course-data` |
 | Concessions and rebates | Which energy and health concessions can be stated as rules with sources; offer as extensions of those verticals rather than a standalone case | — |
 
@@ -335,8 +354,8 @@ findings stay for the EV case:
 | NSW property sales | Free download is CC BY-NC-ND | Paid licence (out: no purchased data) | D |
 | GP and health service finder | Healthdirect NHSD API for approved partners only | Partnership | D |
 | NSW rental bond data ("is this rent fair?") | Page states no licence | Confirm licence; now also an input to suburb fit | D |
-| Mobile and NBN plans | No open plan data; the CDR telco rollout is paused (to verify) | Open plan data | S |
-| Super fund comparison | Financial product; AFSL needed | Licensed partner | S |
+| Mobile and NBN plans | No open plan data; Treasury paused CDR expansion into telco, super and insurance in May 2023 and no official restart was found (17 Nov 2026) | Open plan data | S |
+| Super fund comparison | Financial product; AFSL needed. APRA MySuper data is CC BY 3.0 AU but the dataset page looks stale (last updated 2023) | Licensed partner | S |
 
 ---
 
@@ -351,8 +370,9 @@ findings stay for the EV case:
 
 ## Open decisions for Iven
 
-1. **Next research thread:** aged care or suburb fit first [S].
-2. **Revenue:** run the pilot as a demand test with no revenue, or plan a paid tier on
+1. **Next research thread:** suburb fit (VIC first) now has the better evidence; aged care waits on a licence answer. Confirm [S].
+2. **Which extension next:** careers layer (Phase 8) or the CER and QILT licence checks first.
+3. **Revenue:** run the pilot as a demand test with no revenue, or plan a paid tier on
    askrighto.com.au from the start [F].
 
 ## Not yet read
