@@ -9,4 +9,4 @@ General guidance on where to look; bills differ by retailer, so ask the user to 
 - **Solar:** exported energy (kWh) and the feed-in rate, if the user has solar.
 - **Distributor:** the network name often appears near the supply address or in the charges breakdown.
 
-If the user cannot find a figure, do not fill it in. Say which figure is missing and what the comparison needs it for.
+If the user cannot find a figure, do not fill it in. Say which figure is missing and what the comparison needs it for. If there is no bill at all, the only substitute is the tool's typical-usage option (household size), which is labelled as typical and not the user's own.

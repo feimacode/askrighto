@@ -11,11 +11,12 @@ Compare plans on the user's real usage. Every figure comes from an Ask Righto to
 
 1. **Postcode.** Ask for the postcode (or suburb), then call `search_energy_plans`. Do not ask for a name, address or account number.
 2. **Distributor.** If the postcode has more than one distributor, ask which one is on the bill. Costs differ by network.
-3. **Usage from a bill.** Ask for the kWh used and the number of days on a recent bill (gas: MJ). Never assume usage. If the user has no bill, say a typical figure would be a guess and offer to wait until they have one. See `references/read-your-bill.md`.
+3. **Usage from a bill.** Ask for the kWh used and the number of days on a recent bill (gas: MJ). Never assume usage. If the user has no bill, say so and offer a typical-usage estimate, or to wait until they have one. See `references/read-your-bill.md`.
+   - **Typical usage (only if there is no bill, and the user agrees).** Ask how many people live in the household (1 to 5, 5 meaning five or more), then call `compare_energy_plans` with `useBenchmarkUsage` true and `householdSize`. The usage then comes from the AER's published benchmark for that postcode, not from you. Always say it is typical usage for a household of that size in that zone, not the user's own, and that real cost can differ a lot. Time-of-use plans cannot be estimated this way, and solar export and controlled load are left out. If the user can find a bill later, redo the comparison with it.
 4. **Time-of-use.** If the user is on or considering time-of-use plans, ask for the peak, shoulder and off-peak split shown on the bill. Without it, those plans are listed as not estimated.
 5. **Solar and controlled load.** Ask whether they have solar (and the feed-in or export figure on the bill) and a controlled-load circuit such as hot water.
 6. **Compare.** Call `compare_energy_plans` with the answers.
-7. **Answer.** Say "lowest estimate for the usage you gave", never "best" or "recommended". Pass on the assumptions and the notice that come with the result. Give each plan's link.
+7. **Answer.** Say "lowest estimate for the usage you gave" (for typical usage: "lowest estimate for typical usage, not your own"), never "best" or "recommended". Pass on the assumptions and the notice that come with the result. Give each plan's link.
 8. **Conditional discounts.** Show the result's "If you meet the conditions" table as a separate table after the main one, with each plan's conditions. Say these costs apply only if the user meets every listed condition (for example paying on time or holding a membership), and ask whether they expect to.
 
 ## Plans that are not estimated

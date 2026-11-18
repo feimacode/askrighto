@@ -303,5 +303,31 @@
       "Legal view outstanding (roadmap Phase 0): information-only use, JSA's no-warranty disclaimer."
     ],
     "reviewBy": "2027-08-01"
+  },
+  {
+    "datasetId": "aer-benchmarks",
+    "owner": "Australian Energy Regulator (Simple electricity and gas benchmarks, analysis by Frontier Economics, aer.gov.au)",
+    "basis": "open_licence",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://www.aer.gov.au/about/policies/disclaimer-copyright",
+        "readOn": "2026-11-18",
+        "note": "All material on the AER website is under CC BY 4.0, except the Coat of Arms, AER logos, content supplied by third parties and material where it is expressly stated otherwise. Attribution: \"Source: AER © Commonwealth of Australia\"; if modified, \"Source: Based on AER data\". The workbook states no exception."
+      },
+      {
+        "url": "https://www.aer.gov.au/documents/frontier-economics-simple-electricity-and-gas-benchmarks-june-2021",
+        "readOn": "2026-11-18",
+        "note": "Workbook page: 'Simple electricity and gas benchmarks - published December 2020. Updated June 2021 for postcodes' (XLSX). Frontier Economics did the analysis for the AER. No newer edition was found on 18 Nov 2026."
+      }
+    ],
+    "attribution": "Source: AER © Commonwealth of Australia, simple electricity and gas benchmarks (analysis by Frontier Economics), CC BY 4.0. Values re-keyed unchanged.",
+    "conditions": [
+      "Only the benchmark values and the postcode-to-zone lists are loaded, re-keyed unchanged. The workbook is not committed or republished; test fixtures are synthetic.",
+      "Results call the figure typical household use for that zone and size, never the person's own, and carry the release date (December 2020, postcodes June 2021).",
+      "Frontier Economics authored the analysis and the AER publishes it under the site licence; the legal view should note that.",
+      "Legal view outstanding (roadmap Phase 0): information-only use."
+    ],
+    "reviewBy": "2027-08-01"
   }
 ]

@@ -18,10 +18,15 @@ export type NotEstimatedReason =
   | "gst_basis_unknown"
   | "missing_rate";
 
+/** Where the usage figure comes from. Labelling only: the estimate maths is the same for both. */
+export type UsageBasis = "customer" | "benchmark";
+
 export interface Usage {
   fuel: "ELECTRICITY" | "GAS";
   /** Yearly kWh (electricity) or MJ (gas). */
   annualUsage: number;
+  /** "customer": the person's own figure (bill or stated). "benchmark": the AER typical-household figure. Absent means "customer". */
+  basis?: UsageBasis;
   /** Percent of usage in each time band; must sum to 100. Needed for time-of-use plans. */
   shares?: { peak: number; shoulder: number; offPeak: number };
   controlledLoadAnnualKwh?: number;
@@ -145,7 +150,13 @@ function singleRateCharge(rates: Rate[], usage: number, days: number): number {
 }
 
 function touCharge(tou: TimeOfUseRate[], usage: number, u: Usage): number {
-  if (!u.shares) throw new Stop("needs_time_of_use_split", "This time-of-use plan needs the share of usage in peak, shoulder and off-peak times.");
+  if (!u.shares)
+    throw new Stop(
+      "needs_time_of_use_split",
+      u.basis === "benchmark"
+        ? "This time-of-use plan needs the peak, shoulder and off-peak split from a bill; typical usage has no such split."
+        : "This time-of-use plan needs the share of usage in peak, shoulder and off-peak times.",
+    );
   const price = (t: TimeOfUseRate): number => {
     if (t.rates.length !== 1 || t.rates[0]!.volume !== undefined) throw new Stop("missing_rate", `Time-of-use rate ${t.type} has blocks, which are not supported yet.`);
     return t.rates[0]!.unitPrice;

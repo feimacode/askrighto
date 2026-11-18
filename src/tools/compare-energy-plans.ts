@@ -1,8 +1,13 @@
 import { z } from "zod";
 import { defineTool } from "../core/define-tool.js";
 import { found, notFound, type Found } from "../core/grounded.js";
-import { estimateAnnualCost, type Estimate, type NotEstimated, type Usage } from "../energy/calc.js";
-import { ENERGY_DATASET_ID, withStore } from "../energy/index.js";
+import { staleWarnings } from "../core/registry.js";
+import { attributionFor, availability } from "../core/rights.js";
+import { lookupBenchmark, type BenchmarkFigure } from "../energy/benchmarks/lookup.js";
+import { NoBenchmarkLoad } from "../energy/benchmarks/load.js";
+import { SEASONS } from "../energy/benchmarks/types.js";
+import { estimateAnnualCost, type Estimate, type NotEstimated, type Usage, type UsageBasis } from "../energy/calc.js";
+import { BENCHMARK_DATASET_ID, ENERGY_DATASET_ID, getEnergy, withStore } from "../energy/index.js";
 import {
   asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, dollars, inkview, inkviewResult, inkviewSource, matchRetailer, NOTICE, source, tableMeta, uniqueDistributors,
 } from "./energy-common.js";
@@ -18,6 +23,8 @@ const input = z.object({
   peakSharePct: z.number().min(0).max(100).optional().describe("Percent of electricity used at peak times, from the bill. Needed for time-of-use plans"),
   shoulderSharePct: z.number().min(0).max(100).optional().describe("Percent used at shoulder times (0 if none)"),
   offPeakSharePct: z.number().min(0).max(100).optional().describe("Percent used at off-peak times"),
+  householdSize: z.number().int().min(1).max(5).optional().describe("Number of people in the household, 1 to 5 (5 means five or more). Only used with useBenchmarkUsage"),
+  useBenchmarkUsage: z.boolean().optional().describe("Set true only when the user has no bill figures and agrees to typical usage for a household of their size. Needs householdSize. Ignored if usage is given"),
   controlledLoadAnnualKwh: z.number().min(0).max(1_000_000).optional().describe("Yearly controlled load kWh (for example a hot water system), if the household has one"),
   solarExportAnnualKwh: z.number().min(0).max(1_000_000).optional().describe("Yearly kWh exported to the grid by solar panels, if any"),
   distributor: z.string().optional().describe("Distribution network from the user's bill, required when the postcode has several"),
@@ -38,6 +45,32 @@ export const OMISSIONS = [
   "Eligibility restrictions are shown beside a plan but not checked against the household.",
 ];
 
+export interface BenchmarkUsage {
+  zone: string;
+  zoneLabel: string;
+  zoneKind: BenchmarkFigure["zoneKind"];
+  state: string;
+  householdSize: number;
+  fiveOrMore: boolean;
+  seasons: Record<string, number>;
+  annual: number;
+  unit: "kWh" | "MJ";
+  source: BenchmarkFigure["source"];
+  attribution: string;
+  release: string;
+  releaseDate: string;
+}
+
+export const BENCHMARK_OMISSIONS = [
+  "Solar export and controlled load are not included: typical usage has no export or controlled load figure, so no feed-in credit or controlled load charge is worked out.",
+  "Time-of-use plans are not estimated: they need the peak, shoulder and off-peak split from a bill.",
+];
+
+export function typicalNotice(f: Pick<BenchmarkFigure, "householdSize" | "fiveOrMore" | "zoneLabel" | "state" | "unit" | "annual" | "releaseLabel">): string {
+  const size = f.fiveOrMore ? "5 or more" : String(f.householdSize);
+  return `Typical usage for a household of ${size} in ${f.zoneLabel} (${f.state}), not your own: ${Math.round(f.annual).toLocaleString("en-AU")} ${f.unit} a year, the AER benchmark (${f.releaseLabel}). Real cost can differ a lot from these estimates.`;
+}
+
 export interface IfConditionsMet {
   rank: number;
   /** The plan's place in the main ordering (cost without conditions). */
@@ -57,7 +90,20 @@ export interface CompareData {
   fuelType: string;
   distributor?: string;
   matchedRetailer?: string;
-  usage: { annualUsage: number; unit: "kWh" | "MJ"; scaledFromBill?: string; shares?: Usage["shares"]; controlledLoadAnnualKwh?: number; solarExportAnnualKwh?: number };
+  usage: {
+    annualUsage: number;
+    unit: "kWh" | "MJ";
+    /** "customer" is the person's own figure; "benchmark" is the AER's typical-household figure. */
+    basis: UsageBasis;
+    scaledFromBill?: string;
+    shares?: Usage["shares"];
+    controlledLoadAnnualKwh?: number;
+    solarExportAnnualKwh?: number;
+    /** Present only when basis is "benchmark". */
+    benchmark?: BenchmarkUsage;
+  };
+  /** Present only for benchmark usage: shown before the figures in every output form. */
+  typicalUsageNotice?: string;
   counts: { available: number; estimated: number; notEstimated: number; returned: number };
   summary: string;
   estimates: Array<Estimate & { rank: number }>;
@@ -78,7 +124,7 @@ export const compareEnergyPlans = defineTool({
   name: "compare_energy_plans",
   title: "Compare energy plan costs",
   description:
-    "Estimates the yearly cost of the current energy plans at a postcode for the usage the user gives (kWh or MJ from a recent bill), ordered from the lowest estimate to the highest, with a cost breakdown, conditional discounts and the plans that cannot be estimated. Needs usage figures; time-of-use plans also need the peak, shoulder and off-peak split from the bill. Estimates only, not advice.",
+    "Estimates the yearly cost of the current energy plans at a postcode for the usage the user gives (kWh or MJ from a recent bill), ordered from the lowest estimate to the highest, with a cost breakdown, conditional discounts and the plans that cannot be estimated. Needs usage figures; time-of-use plans also need the peak, shoulder and off-peak split from the bill. Only if the user has no bill, and agrees, set useBenchmarkUsage with householdSize to use the AER's typical household use instead; the result is then labelled typical usage, not theirs, and time-of-use plans are not estimated. Estimates only, not advice.",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,
@@ -100,24 +146,54 @@ export const compareEnergyPlans = defineTool({
       scaledFromBill = `${bill} ${unit} over ${args.billDays} days scaled to a year (x 365/${args.billDays}); real use varies with the seasons`;
     }
     if (annual === undefined) {
-      return notFound("needs_input", `No usage was given. Ask the user for the ${unit} used and the number of days from a recent bill (or their yearly ${unit}), then call again.`);
+      if (!args.useBenchmarkUsage) {
+        return notFound(
+          "needs_input",
+          `No usage was given. Ask the user for the ${unit} used and the number of days from a recent bill (or their yearly ${unit}), then call again. If they have no bill to hand, you may offer typical usage for a household of their size: ask how many people live there (1 to 5, 5 meaning five or more), then call again with useBenchmarkUsage true and householdSize, and say it is typical usage, not their own.`,
+        );
+      }
+      if (args.householdSize === undefined) return notFound("needs_input", "Typical usage needs the household size. Ask the user how many people live there (1 to 5, 5 meaning five or more), then call again with householdSize.");
+      if (args.peakSharePct !== undefined || args.shoulderSharePct !== undefined || args.offPeakSharePct !== undefined || args.controlledLoadAnnualKwh || args.solarExportAnnualKwh) {
+        return notFound("needs_input", "Peak and off-peak shares, controlled load and solar export come from a bill and cannot be combined with typical usage. Ask the user for the usage on a recent bill, or call again without those figures.");
+      }
     }
+    const useBenchmark = annual === undefined;
     let shares: Usage["shares"];
-    if (args.peakSharePct !== undefined || args.shoulderSharePct !== undefined || args.offPeakSharePct !== undefined) {
+    if (!useBenchmark && (args.peakSharePct !== undefined || args.shoulderSharePct !== undefined || args.offPeakSharePct !== undefined)) {
       if (!elec) return notFound("needs_input", "Peak and off-peak shares apply to electricity only.");
       shares = { peak: args.peakSharePct ?? 0, shoulder: args.shoulderSharePct ?? 0, offPeak: args.offPeakSharePct ?? 0 };
       const sum = shares.peak + shares.shoulder + shares.offPeak;
       if (Math.abs(sum - 100) > 0.5) return notFound("needs_input", `The peak, shoulder and off-peak shares add up to ${sum}%, not 100%. Ask the user to check the split on their bill.`);
     }
-    const usage: Usage = {
+    const buildUsage = (annualUsage: number, basis: UsageBasis): Usage => ({
       fuel: args.fuelType,
-      annualUsage: annual,
+      annualUsage,
+      basis,
       ...(shares ? { shares } : {}),
-      ...(elec && args.controlledLoadAnnualKwh ? { controlledLoadAnnualKwh: args.controlledLoadAnnualKwh } : {}),
-      ...(elec && args.solarExportAnnualKwh ? { solarExportAnnualKwh: args.solarExportAnnualKwh } : {}),
-    };
+      ...(basis === "customer" && elec && args.controlledLoadAnnualKwh ? { controlledLoadAnnualKwh: args.controlledLoadAnnualKwh } : {}),
+      ...(basis === "customer" && elec && args.solarExportAnnualKwh ? { solarExportAnnualKwh: args.solarExportAnnualKwh } : {}),
+    });
 
     return withStore<CompareData>(async (store) => {
+      // Typical usage: look the AER benchmark up first, so a postcode outside it makes no estimate.
+      let figure: BenchmarkFigure | undefined;
+      if (useBenchmark) {
+        const avail = availability(BENCHMARK_DATASET_ID);
+        if (!avail.servable) return notFound("data_unavailable", `Typical usage is not available yet. ${avail.reason}`, { dataset: BENCHMARK_DATASET_ID });
+        const src = getEnergy()?.benchmarks;
+        if (!src) return notFound("data_unavailable", "The typical-usage benchmark data is not configured on this server. Ask the user for the usage on a recent bill instead.");
+        try {
+          const look = lookupBenchmark(await src.data(), { postcode, fuel: args.fuelType, householdSize: args.householdSize! });
+          if (!look.ok) return notFound(look.reason, look.detail);
+          figure = look.figure;
+        } catch (e) {
+          if (e instanceof NoBenchmarkLoad) return notFound("data_unavailable", "The typical-usage benchmark data has not been loaded on this server yet. Ask the user for the usage on a recent bill instead.");
+          throw e;
+        }
+      }
+      if (figure) annual = figure.annual;
+      const usage = buildUsage(annual!, figure ? "benchmark" : "customer");
+
       let plans = (await store.plans({ postcode })).filter((p) => p.fuelType === args.fuelType || p.fuelType === "DUAL");
       if (plans.length === 0) return notFound("outside_coverage", `No ${args.fuelType.toLowerCase()} plans are stored for postcode ${postcode}. The data covers ${COVERAGE_STATES}.`, { states: COVERAGE_STATES });
 
@@ -176,8 +252,9 @@ export const compareEnergyPlans = defineTool({
           conditions: e.conditionalDiscounts,
         }));
       const first = shown[0];
+      const typicalUsageNotice = figure ? typicalNotice(figure) : undefined;
       const summary = first
-        ? `Of ${plans.length} plan${plans.length === 1 ? "" : "s"} available, ${ok.length} could be estimated and ${no.length} could not. The lowest estimate for the usage given is ${dollars(first.totalCents)} a year (${first.brandName}, ${first.displayName}); this ordering is by estimated cost only.`
+        ? `Of ${plans.length} plan${plans.length === 1 ? "" : "s"} available, ${ok.length} could be estimated and ${no.length} could not. The lowest estimate for ${figure ? "typical usage (not the household's own)" : "the usage given"} is ${dollars(first.totalCents)} a year (${first.brandName}, ${first.displayName}); this ordering is by estimated cost only.`
         : `Of ${plans.length} plan${plans.length === 1 ? "" : "s"} available, none could be estimated with the information given.`;
       const data: CompareData = {
         postcode,
@@ -185,13 +262,34 @@ export const compareEnergyPlans = defineTool({
         ...(distributor ? { distributor } : {}),
         ...(matchedRetailer ? { matchedRetailer } : {}),
         usage: {
-          annualUsage: Math.round(annual),
+          annualUsage: Math.round(annual!),
           unit,
+          basis: usage.basis ?? "customer",
           ...(scaledFromBill ? { scaledFromBill } : {}),
           ...(shares ? { shares } : {}),
           ...(usage.controlledLoadAnnualKwh ? { controlledLoadAnnualKwh: usage.controlledLoadAnnualKwh } : {}),
           ...(usage.solarExportAnnualKwh ? { solarExportAnnualKwh: usage.solarExportAnnualKwh } : {}),
+          ...(figure
+            ? {
+                benchmark: {
+                  zone: figure.zone,
+                  zoneLabel: figure.zoneLabel,
+                  zoneKind: figure.zoneKind,
+                  state: figure.state,
+                  householdSize: figure.householdSize,
+                  fiveOrMore: figure.fiveOrMore,
+                  seasons: Object.fromEntries(SEASONS.map((x) => [x.toLowerCase(), figure.seasons[x]])),
+                  annual: figure.annual,
+                  unit: figure.unit,
+                  source: figure.source,
+                  attribution: figure.attribution,
+                  release: figure.releaseLabel,
+                  releaseDate: figure.releaseDate.toISOString().slice(0, 10),
+                },
+              }
+            : {}),
         },
+        ...(typicalUsageNotice ? { typicalUsageNotice } : {}),
         counts: { available: plans.length, estimated: ok.length, notEstimated: no.length, returned: shown.length },
         summary,
         estimates: shown,
@@ -200,20 +298,26 @@ export const compareEnergyPlans = defineTool({
         notEstimatedByReason: byReason,
         ...(unknownPlanIds?.length ? { unknownPlanIds } : {}),
         assumptions: ASSUMPTIONS,
-        omissions: OMISSIONS,
+        omissions: figure ? [...BENCHMARK_OMISSIONS, ...OMISSIONS] : OMISSIONS,
         notice: NOTICE,
       };
-      return found({ data, source, asOf: asOfFor(plans) });
+      if (!figure) return found({ data, source, asOf: asOfFor(plans) });
+      const attribution = [attributionFor([ENERGY_DATASET_ID]), figure.attribution].filter(Boolean).join(" ");
+      const a = availability(BENCHMARK_DATASET_ID);
+      const warnings = [...staleWarnings([BENCHMARK_DATASET_ID]), ...(a.servable && a.warning ? [a.warning] : [])];
+      return found({ data, source: { ...source, attribution }, asOf: asOfFor(plans), ...(warnings.length ? { warnings } : {}) });
     });
   },
   render: (d) => {
     const u = d.usage;
     const out = [
+      ...(d.typicalUsageNotice ? [d.typicalUsageNotice, ""] : []),
       d.summary,
       "",
-      `Usage assumed: ${u.annualUsage} ${u.unit} a year${u.scaledFromBill ? ` (${u.scaledFromBill})` : ""}${u.shares ? `; peak ${u.shares.peak}%, shoulder ${u.shares.shoulder}%, off-peak ${u.shares.offPeak}%` : ""}${u.controlledLoadAnnualKwh ? `; controlled load ${u.controlledLoadAnnualKwh} kWh` : ""}${u.solarExportAnnualKwh ? `; solar export ${u.solarExportAnnualKwh} kWh` : ""}${d.distributor ? `; distributor ${d.distributor}` : ""}.`,
+      `Usage assumed${u.basis === "benchmark" ? " (typical, AER benchmark)" : ""}: ${u.annualUsage} ${u.unit} a year${u.benchmark ? ` (${SEASONS.map((x) => `${x.toLowerCase()} ${Math.round(u.benchmark!.seasons[x.toLowerCase()]!)}`).join(", ")} ${u.unit})` : ""}${u.scaledFromBill ? ` (${u.scaledFromBill})` : ""}${u.shares ? `; peak ${u.shares.peak}%, shoulder ${u.shares.shoulder}%, off-peak ${u.shares.offPeak}%` : ""}${u.controlledLoadAnnualKwh ? `; controlled load ${u.controlledLoadAnnualKwh} kWh` : ""}${u.solarExportAnnualKwh ? `; solar export ${u.solarExportAnnualKwh} kWh` : ""}${d.distributor ? `; distributor ${d.distributor}` : ""}.`,
       "",
     ];
+    if (u.benchmark) out.push(`Benchmark source: ${u.benchmark.source.name} (${u.benchmark.source.url}), ${u.benchmark.release}. ${u.benchmark.source.licence}.`, "");
     if (d.estimates.length) {
       out.push(
         "| # | Retailer | Plan | Est. yearly cost | Supply | Usage | Controlled load | Solar credit | Updated | Plan |",
@@ -261,8 +365,8 @@ export const compareEnergyPlans = defineTool({
       const r = result as Found<CompareData>;
       return inkview.table(
         {
-          title: `Estimated yearly cost, ${r.data.fuelType.toLowerCase()}, postcode ${r.data.postcode}`,
-          caption: NOTICE,
+          title: `Estimated yearly cost${r.data.usage.basis === "benchmark" ? " at typical usage" : ""}, ${r.data.fuelType.toLowerCase()}, postcode ${r.data.postcode}`,
+          caption: r.data.typicalUsageNotice ? `${r.data.typicalUsageNotice} ${NOTICE}` : NOTICE,
           columns: [
             { key: "rank", label: "#", type: "number" },
             { key: "retailer", label: "Retailer" },

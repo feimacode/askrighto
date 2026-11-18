@@ -27,6 +27,8 @@
     "intl:load": "npm run build && node dist/askrighto.js intl:load",
     "homeloans:sync": "npm run build && node dist/askrighto.js homeloans:sync",
     "report:homeloans": "npm run build && node dist/askrighto.js report:homeloans",
+    "benchmarks:validate": "npm run build && node dist/askrighto.js benchmarks:validate",
+    "benchmarks:load": "npm run build && node dist/askrighto.js benchmarks:load",
     "careers:validate": "npm run build && node dist/askrighto.js careers:validate",
     "careers:load": "npm run build && node dist/askrighto.js careers:load",
     "health:validate": "npm run build && node dist/askrighto.js health:validate",

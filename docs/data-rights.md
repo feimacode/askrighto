@@ -161,3 +161,16 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Condition: JSA pages are linked, never framed, altered or reformatted on another site.
 - Condition: Results carry the projections' own caveat: indicative, and not reflecting generative AI.
 - Condition: Legal view outstanding (roadmap Phase 0): information-only use, JSA's no-warranty disclaimer.
+
+## aer-benchmarks
+
+- Owner: Australian Energy Regulator (Simple electricity and gas benchmarks, analysis by Frontier Economics, aer.gov.au)
+- Basis: `open_licence`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-08-01
+- Evidence: https://www.aer.gov.au/about/policies/disclaimer-copyright (read 2026-11-18): all material on the AER website is under CC BY 4.0, except the Coat of Arms, AER logos, content supplied by third parties and material where it is expressly stated otherwise. Attribution "Source: AER © Commonwealth of Australia"; if modified, "Source: Based on AER data". The workbook states no exception. Also https://www.aer.gov.au/documents/frontier-economics-simple-electricity-and-gas-benchmarks-june-2021 (read 2026-11-18): "Simple electricity and gas benchmarks - published December 2020. Updated June 2021 for postcodes" (XLSX). Frontier Economics did the analysis for the AER. No newer edition was found on 18 Nov 2026. The AER must update the benchmarks at least every three years under the National Energy Retail Rules, so a newer edition may be published; the loader is re-run if so.
+- Attribution: Source: AER © Commonwealth of Australia, simple electricity and gas benchmarks (analysis by Frontier Economics), CC BY 4.0. Values re-keyed unchanged.
+- Condition: Only the benchmark values and the postcode-to-zone lists are loaded, re-keyed unchanged. The workbook is not committed or republished; test fixtures are synthetic.
+- Condition: Results call the figure typical household use for that zone and size, never the person's own, and carry the release date (December 2020, postcodes June 2021).
+- Condition: Frontier Economics authored the analysis and the AER publishes it under the site licence; the legal view should note that.
+- Condition: Legal view outstanding (roadmap Phase 0): information-only use.
