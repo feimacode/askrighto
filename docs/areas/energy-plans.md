@@ -285,3 +285,8 @@ on any failed retailer) or the nightly timer. After a normaliser or GST change:
   plans whose source did not change.
 - **Freshness**: results can be up to about a day old by design; the registry warns beyond 48 hours.
 - Tests: `test/energy/*` (client, normaliser, calculator, DB, tools) and `test/e2e/server.test.ts`.
+
+## Typical usage benchmark (add-energy-benchmark-usage)
+
+When there is no bill, `compare_energy_plans` can use the AER's published typical household use for the postcode and household size (`useBenchmarkUsage` plus `householdSize`). The result is labelled typical, not the person's, and carries the zone, four seasonal values, source and release date. Time-of-use plans stay not estimated; controlled load and solar are left out. Data, lookup rule and limits: [`../energy-benchmarks.md`](../energy-benchmarks.md). Rights entry: `aer-benchmarks`.
+

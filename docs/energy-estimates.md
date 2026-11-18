@@ -72,3 +72,13 @@ Each maps to a call in `test/energy/tools.test.ts`.
 - "Compare electricity plans at 3000 on CitiPower; I used 1,000 kWh over 90 days." → `compare_energy_plans`
 - "Same, but I'm on Jemena with a 30/20/50 peak, shoulder and off-peak split and export 500 kWh of solar." → `compare_energy_plans` with a split
 - "Which should I pick?" → the host answers with the lowest estimate and the notice, never "best"
+
+## Typical usage (benchmark)
+
+`Usage.basis` is `"customer"` (a bill or stated figure) or `"benchmark"` (the AER typical
+household figure, only when the person has no usage and asks for it with `useBenchmarkUsage` and
+`householdSize`). The maths is the same either way; only the label differs. With a benchmark,
+time-of-use plans are `needs_time_of_use_split` (no split exists), controlled load and solar export
+are not computed, and the typical-usage notice leads every output form. Details, data and limits:
+[`energy-benchmarks.md`](energy-benchmarks.md).
+
