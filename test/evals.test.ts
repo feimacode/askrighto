@@ -80,3 +80,15 @@ describe("runPrompt", () => {
     }
   });
 });
+
+describe("model endpoint errors", () => {
+  it("names the response when a 200 holds no message", async () => {
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async () => new Response(JSON.stringify({ error: { message: "model not found" } }))) as typeof fetch;
+    try {
+      await expect(runPrompt({ baseUrl: "http://x", apiKey: "k", model: "bad", prompt: "p", tools: [], callTool: async () => ({}) })).rejects.toThrow(/model not found/);
+    } finally {
+      globalThis.fetch = orig;
+    }
+  });
+});

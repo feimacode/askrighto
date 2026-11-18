@@ -13,7 +13,21 @@ async function chat({ baseUrl, apiKey, body }) {
       headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
       body: JSON.stringify(body),
     });
-    if (res.ok) return res.json();
+    if (res.ok) {
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`The model endpoint returned a ${res.status} that is not JSON: ${text.slice(0, 300)}`);
+      }
+      // Some OpenAI-compatible endpoints answer 200 with an error object or a different shape.
+      if (!data.choices?.[0]?.message) {
+        const why = data.error ? JSON.stringify(data.error) : text;
+        throw new Error(`The model endpoint (${url}) returned no message for model "${body.model}": ${why.slice(0, 400)}`);
+      }
+      return data;
+    }
     lastError = new Error(`${res.status} from the model endpoint: ${(await res.text()).slice(0, 300)}`);
     if (res.status !== 429 && res.status < 500) break;
   }
@@ -42,8 +56,7 @@ export async function runPrompt({ baseUrl, apiKey, model, instructions, tools, c
   const toolResults = [];
   for (let turn = 1; turn <= maxTurns; turn++) {
     const data = await chat({ baseUrl, apiKey, body: { model, messages, tools, temperature: 0 } });
-    const msg = data.choices?.[0]?.message;
-    if (!msg) throw new Error("The model endpoint returned no message");
+    const msg = data.choices[0].message;
     messages.push(msg);
     if (!msg.tool_calls?.length) return { answer: msg.content ?? "", toolCalls, toolResults, turns: turn };
     for (const call of msg.tool_calls) {
@@ -62,4 +75,9 @@ export async function runPrompt({ baseUrl, apiKey, model, instructions, tools, c
   }
   const last = messages.filter((m) => m.role === "assistant").at(-1);
   return { answer: last?.content ?? "", toolCalls, toolResults, turns: maxTurns, hitTurnCap: true };
+}
+
+/** One tiny call, so a wrong URL, model id or key stops the run before it spends 80 prompts failing. */
+export async function checkEndpoint({ baseUrl, apiKey, model }) {
+  await chat({ baseUrl, apiKey, body: { model, messages: [{ role: "user", content: "Reply with the word ok." }], max_tokens: 16 } });
 }
