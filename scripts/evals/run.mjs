@@ -14,7 +14,7 @@ import { createServer } from "node:net";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { DEFAULT_SETS, SETS, loadSet, renderReport, scoreRun, summarise, toFunctionTool } from "./lib.mjs";
-import { runPrompt } from "./apiAgent.mjs";
+import { checkEndpoint, runPrompt } from "./apiAgent.mjs";
 
 const ROOT = resolve(import.meta.dirname, "../..");
 const { values: opt } = parseArgs({
@@ -58,6 +58,14 @@ function freePort() {
   });
 }
 
+try {
+  await checkEndpoint({ baseUrl, apiKey, model });
+  console.log(`Model endpoint answers for "${model}"`);
+} catch (e) {
+  console.error(`::error::The model endpoint check failed. Check EVALS_BASE_URL (the URL that /chat/completions is added to), EVALS_MODEL and EVALS_API_KEY. ${e instanceof Error ? e.message : e}`);
+  process.exit(1);
+}
+
 let server;
 let mcpUrl = process.env.EVALS_MCP_URL;
 if (!mcpUrl) {
@@ -97,8 +105,9 @@ mkdirSync(runDir, { recursive: true });
 
 const runs = [];
 let exitCode = 0;
+let errorStreak = 0;
 try {
-  for (const row of rows) {
+  outer: for (const row of rows) {
     for (let n = 1; n <= repeat; n++) {
       let result = { answer: "", toolCalls: [], toolResults: [] };
       let error;
@@ -116,6 +125,12 @@ try {
       runs.push({ row, n: repeat > 1 ? n : 1, score });
       writeFileSync(resolve(runDir, `${row.key.replace(":", "-")}-${n}.json`), JSON.stringify({ prompt: row.prompt, toolResults: result.toolResults, answer: result.answer, toolCalls: result.toolCalls, score }, null, 2));
       console.log(`${score.pass ? "PASS" : "FAIL"} ${row.key}#${n}${error ? ` (${error})` : ""}`);
+      errorStreak = error ? errorStreak + 1 : 0;
+      if (errorStreak >= 5) {
+        console.error("::error::Five model errors in a row; stopping. The endpoint, model or key is probably wrong.");
+        exitCode = 1;
+        break outer;
+      }
     }
   }
 } finally {
