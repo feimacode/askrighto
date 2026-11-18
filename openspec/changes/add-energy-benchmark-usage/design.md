@@ -26,4 +26,4 @@ The workbook (checked 18 Nov 2026) has one long-format sheet per climate zone 1 
 
 - Why does the postcode sheet list no zone 8 postcodes, and where are those postcodes mapped (zone 7 sheet)?
 - Do NSW zone 4 to 6 rows and SA zone rows ever disagree for the same SA postcode? Rule: SA zones win for SA.
-- Should the benchmark also feed gas-only comparison in WA-like unsupported states? No, out of coverage.
+- None on other states: WA and NT are outside the NEM and the AER regime and out of scope (Iven, 18 Nov 2026).

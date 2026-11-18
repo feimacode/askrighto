@@ -23,7 +23,7 @@ Out of scope:
 
 - Interval data upload and CDR data recipient status (parked, see roadmap).
 - Time-of-use splits from benchmarks, controlled load or solar benchmarks.
-- Western Australia and the Northern Territory (not in the AER data).
+- Western Australia and the Northern Territory. They are outside the NEM and the AER regime and out of scope for all energy plan work, so their absence from the AER data is not a gap.
 - Adjusting for pools, heating type, dwelling type or solar presence. The benchmark is a typical household, reweighted by the AER to the population's solar and mains gas share.
 - Concession questions and fixed-dollar discounts (separate changes).
 - Using benchmarks to rank "best" or recommend a plan.
