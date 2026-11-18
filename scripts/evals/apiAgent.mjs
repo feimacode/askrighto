@@ -55,7 +55,7 @@ export async function runPrompt({ baseUrl, apiKey, model, instructions, tools, c
   const toolCalls = [];
   const toolResults = [];
   for (let turn = 1; turn <= maxTurns; turn++) {
-    const data = await chat({ baseUrl, apiKey, body: { model, messages, tools, temperature: 0 } });
+    const data = await chat({ baseUrl, apiKey, body: { model, messages, ...(tools?.length ? { tools, tool_choice: "auto" } : {}) } });
     const msg = data.choices[0].message;
     messages.push(msg);
     if (!msg.tool_calls?.length) return { answer: msg.content ?? "", toolCalls, toolResults, turns: turn };
@@ -77,7 +77,7 @@ export async function runPrompt({ baseUrl, apiKey, model, instructions, tools, c
   return { answer: last?.content ?? "", toolCalls, toolResults, turns: maxTurns, hitTurnCap: true };
 }
 
-/** One tiny call, so a wrong URL, model id or key stops the run before it spends 80 prompts failing. */
+/** One tiny call (no max_tokens: a reasoning model can spend a small cap thinking and return empty content, which some gateways turn into a 500), so a wrong URL, model id or key stops the run before it spends 80 prompts failing. */
 export async function checkEndpoint({ baseUrl, apiKey, model }) {
-  await chat({ baseUrl, apiKey, body: { model, messages: [{ role: "user", content: "Reply with the word ok." }], max_tokens: 16 } });
+  await chat({ baseUrl, apiKey, body: { model, messages: [{ role: "user", content: "Reply with the word ok." }] } });
 }
