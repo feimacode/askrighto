@@ -30,10 +30,11 @@ export function lvrCovered(r: LoanRate, lvrPercent: number | undefined): boolean
 }
 
 const FIXED = new Set(["FIXED", "BUNDLE_DISCOUNT_FIXED"]);
-const VARIABLE = new Set(["VARIABLE", "BUNDLE_DISCOUNT_VARIABLE", "DISCOUNT"]);
+const VARIABLE = new Set(["VARIABLE", "BUNDLE_DISCOUNT_VARIABLE"]);
 
 function typeMatches(r: LoanRate, f: RateFilter): boolean {
-  if (r.type === "OTHER") return false;
+  // A DISCOUNT entry is a margin taken off another rate (real lenders publish 0.05% or 0.10%), not a rate a borrower pays.
+  if (r.type === "OTHER" || r.type === "DISCOUNT") return false;
   const kind = f.kind ?? "any";
   if (kind === "variable") return VARIABLE.has(r.type);
   if (kind === "fixed") {

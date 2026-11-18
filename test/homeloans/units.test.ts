@@ -61,6 +61,14 @@ describe("normalise", () => {
   });
 });
 
+describe("select: margin discounts", () => {
+  it("never offers a DISCOUNT margin (0.05%) as a rate, for any kind", () => {
+    const d = norm("a", { lendingRates: [rate({ rate: "0.0599" }), rate({ lendingRateType: "DISCOUNT", rate: "0.0005", comparisonRate: undefined })] });
+    for (const kind of ["any", "variable"] as const)
+      expect(selectRates(d, { kind }).rates.map((r) => r.rate)).toEqual(["0.0599"]);
+  });
+});
+
 describe("select", () => {
   const p = norm("a", {
     lendingRates: [
