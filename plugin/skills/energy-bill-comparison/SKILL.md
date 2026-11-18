@@ -15,7 +15,8 @@ Compare plans on the user's real usage. Every figure comes from an Ask Righto to
 4. **Time-of-use.** If the user is on or considering time-of-use plans, ask for the peak, shoulder and off-peak split shown on the bill. Without it, those plans are listed as not estimated.
 5. **Solar and controlled load.** Ask whether they have solar (and the feed-in or export figure on the bill) and a controlled-load circuit such as hot water.
 6. **Compare.** Call `compare_energy_plans` with the answers.
-7. **Answer.** Say "lowest estimate for the usage you gave", never "best" or "recommended". Pass on the assumptions, the conditions attached to any discount, and the notice that comes with the result. Give each plan's link.
+7. **Answer.** Say "lowest estimate for the usage you gave", never "best" or "recommended". Pass on the assumptions and the notice that come with the result. Give each plan's link.
+8. **Conditional discounts.** Show the result's "If you meet the conditions" table as a separate table after the main one, with each plan's conditions. Say these costs apply only if the user meets every listed condition (for example paying on time or holding a membership), and ask whether they expect to.
 
 ## Plans that are not estimated
 

@@ -5,4 +5,5 @@ export const ENERGY_INSTRUCTIONS = `Energy plans (search_energy_plans, get_energ
 - For time-of-use plans ask for the peak, shoulder and off-peak split shown on the bill; without it those plans are listed as not estimated.
 - If a postcode has several distributors, ask which one is on the bill. Costs differ by network.
 - Say "lowest estimate for the usage you gave", never "best" or "recommended", and pass on the assumptions, the conditions on discounts and the notice that come with every result.
+- Show the "If you meet the conditions" table separately from the main one: those costs apply only if the user meets every listed condition (such as paying on time or a membership).
 - If energy data is unavailable, say it is temporarily unavailable. Do not quote prices from memory.`;

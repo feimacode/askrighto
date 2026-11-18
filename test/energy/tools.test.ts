@@ -363,6 +363,15 @@ d("compare_energy_plans", () => {
     expect(text).toContain(NOTICE);
     expect(e.conditionalDiscounts[0].condition).toMatch(/pay on time/i);
     expect(e.totalIfConditionsMetCents).toBeLessThan(e.totalCents);
+
+    // Conditional discounts get their own table, ordered by the cost if conditions are met.
+    expect(g.data.ifConditionsMet).toEqual([
+      expect.objectContaining({ rank: 1, mainRank: 1, planId: "A1", totalCents: e.totalCents, totalIfConditionsMetCents: e.totalIfConditionsMetCents, savingCents: e.totalCents - e.totalIfConditionsMetCents }),
+    ]);
+    expect(text).toMatch(/If you meet the conditions/);
+    expect(text).toMatch(/\| Cost if conditions met \| Cost otherwise \|/);
+    // The main table no longer mixes in the conditional cost.
+    expect(text.split("If you meet the conditions")[0]).not.toMatch(/Cost if conditions met/);
   });
 
   it("is deterministic", async () => {

@@ -29,7 +29,9 @@ with a reason.
 5. Solar: export times the feed-in rate, shown as its own negative line, without GST.
 6. Discounts: guaranteed percentage discounts apply (percent of bill or of usage). Conditional
    ones (pay on time, direct debit and so on) are *not* in the ordering cost; each is listed with
-   its condition, and `totalIfConditionsMet` shows the lower cost. Fixed-amount discounts and
+   its condition, and `totalIfConditionsMet` shows the lower cost. `compare_energy_plans` returns
+   these plans again in `ifConditionsMet`, a separate table ordered by the cost if every listed
+   condition is met, with each plan's place in the main ordering and its conditions. Fixed-amount discounts and
    other forms whose basis is unclear are listed under `notIncluded`, not applied.
 7. Fees: recurring membership-type fees only, as published (fees are published including GST).
    One-off fees are listed as left out.
