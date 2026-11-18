@@ -271,6 +271,7 @@ Usage:
   askrighto vce:validate | vce:load
                        check and load the Victorian course index and VCE admissions data from data/
   askrighto health:validate|health:load --dir UNZIPPED_FOLDER [--source-date YYYY-MM-DD] [--source-name NAME]  |  health:rates-validate
+  askrighto benchmarks:validate|benchmarks:load --file AER_BENCHMARKS.xlsx [--source-date YYYY-MM-DD] [--release TEXT] [--source-name NAME]
   askrighto careers:validate|careers:load --file EMPLOYMENT_PROJECTIONS.xlsx [--source-date YYYY-MM-DD] [--source-name NAME]
   askrighto intl:validate|intl:load --cricos COURSES.csv [--course-locations FILE.csv] [--institutions FILE.csv] [--source-date YYYY-MM-DD]
                        check and load the CRICOS course sheet (international students)
@@ -304,6 +305,10 @@ Usage:
     if (args[0] === "health:validate") await cli.cliHealthValidate(args.slice(1));
     else if (args[0] === "health:load") await cli.cliHealthLoad(args.slice(1));
     else if (args[0] === "health:rates-validate") cli.cliHealthRatesValidate();
+  } else if (args[0]?.startsWith("benchmarks:")) {
+    const cli = await import("./energy/benchmarks/cli.js");
+    if (args[0] === "benchmarks:validate") await cli.cliBenchmarksValidate(args.slice(1));
+    else if (args[0] === "benchmarks:load") await cli.cliBenchmarksLoad(args.slice(1));
   } else if (args[0]?.startsWith("careers:")) {
     const cli = await import("./careers/cli.js");
     if (args[0] === "careers:validate") await cli.cliCareersValidate(args.slice(1));

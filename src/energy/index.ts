@@ -7,6 +7,8 @@ import retailersJson from "./retailers.json" with { type: "json" };
 import { registerDataSet } from "../core/registry.js";
 import { addReadinessCheck } from "../core/readiness.js";
 import { notFound, type Grounded } from "../core/grounded.js";
+import { BenchmarkStore } from "./benchmarks/load.js";
+import { BENCHMARK_SOURCE, type BenchmarkData, type BenchmarkSource } from "./benchmarks/types.js";
 import { CdrClient } from "./cdr-client.js";
 import { createDb, dbConfig, schemaCurrent, type Db } from "./db.js";
 import { RetailerLimiter } from "./limiter.js";
@@ -17,6 +19,9 @@ import { runSync, type Retailer } from "./sync.js";
 /** Migration the energy tools need; later migrations belong to other verticals. */
 export const ENERGY_REQUIRED_SCHEMA = 1;
 export const ENERGY_DATASET_ID = "energy-plans";
+export const BENCHMARK_DATASET_ID = "aer-benchmarks";
+/** Migration the benchmark tables need. */
+export const BENCHMARK_REQUIRED_SCHEMA = 8;
 export const ENERGY_SOURCE = {
   name: "Australian Energy Regulator, energy product reference data (Consumer Data Right)",
   url: "https://www.aer.gov.au/energy-product-reference-data",
@@ -29,6 +34,8 @@ export const RETAILERS: Retailer[] = retailersJson as Retailer[];
 export interface EnergyRuntime {
   db: Db;
   store: CachedStore;
+  /** AER typical-usage benchmarks; reads fail with NoBenchmarkLoad until `benchmarks:load` has run. */
+  benchmarks: BenchmarkSource;
   snapshot(): StoreSummary | undefined;
   refresh(): Promise<void>;
   stop(): Promise<void>;
@@ -74,6 +81,42 @@ export async function startEnergy(
   };
   await refresh();
 
+  const benchStore = new BenchmarkStore(db);
+  let benchSnap: { sourceDate: Date; rows: number; postcodes: number } | undefined;
+  const note = (d: BenchmarkData) => {
+    benchSnap = { sourceDate: d.sourceDate, rows: d.rows.length, postcodes: d.postcodes.length };
+    return d;
+  };
+  // Every read refreshes the snapshot the dataset listing and staleness warning use, so a load made after the
+  // server started is seen on the next use.
+  const benchmarks: BenchmarkSource = {
+    data: async () => note(await benchStore.data()),
+    clear: () => benchStore.clear(),
+  };
+  const refreshBenchmarks = async () => {
+    try {
+      benchmarks.clear?.();
+      await benchmarks.data();
+    } catch {
+      benchSnap = undefined; // not loaded yet, or the table is missing: tools say the benchmark is unavailable
+    }
+  };
+  await refreshBenchmarks();
+
+  registerDataSet({
+    id: BENCHMARK_DATASET_ID,
+    vertical: "energy",
+    title: "Typical household electricity and gas use (AER benchmarks)",
+    publisher: "Australian Energy Regulator (analysis by Frontier Economics)",
+    source: { name: BENCHMARK_SOURCE.name, url: BENCHMARK_SOURCE.url, licence: BENCHMARK_SOURCE.licence },
+    coverage:
+      "Seasonal kWh and MJ by climate zone or state, South Australian zone and household size, with a postcode-to-zone map for NSW, VIC, QLD, SA, TAS and the ACT. A fixed reference set (December 2020, postcodes June 2021), not a daily feed.",
+    refreshedAt: () => benchSnap?.sourceDate,
+    // A fixed reference set: stale only if it has been left for ten years.
+    maxAgeHours: 24 * 365 * 10,
+    stats: () => ({ benchmarkValues: benchSnap?.rows ?? 0, postcodes: benchSnap?.postcodes ?? 0 }),
+  });
+
   registerDataSet({
     id: ENERGY_DATASET_ID,
     vertical: "energy",
@@ -101,6 +144,21 @@ export async function startEnergy(
         return snap && snap.plans > 0
           ? { ok: true }
           : { ok: false, reason: "no_data_loaded" };
+      } catch {
+        return { ok: false, reason: "database_unreachable" };
+      }
+    },
+    "energy",
+  );
+  // Benchmarks are optional for the energy tools (bill-based comparison needs none), so a missing load is not
+  // "not ready"; a database without the tables (schema behind) is, as for the other data modules.
+  addReadinessCheck(
+    "energy-benchmarks",
+    async () => {
+      try {
+        if (!(await schemaCurrent(db, BENCHMARK_REQUIRED_SCHEMA))) return { ok: false, reason: "schema_behind" };
+        await refreshBenchmarks();
+        return { ok: true };
       } catch {
         return { ok: false, reason: "database_unreachable" };
       }
@@ -147,6 +205,7 @@ export async function startEnergy(
   runtime = {
     db,
     store,
+    benchmarks,
     snapshot: () => snap,
     refresh,
     stop: async () => {
