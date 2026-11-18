@@ -82,6 +82,17 @@ describe("runPrompt", () => {
 });
 
 describe("model endpoint errors", () => {
+  it("accepts a completion wrapped in a data envelope", async () => {
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async () => new Response(JSON.stringify({ data: { choices: [{ message: { role: "assistant", content: "Ok" } }] } }))) as typeof fetch;
+    try {
+      const r = await runPrompt({ baseUrl: "http://x", apiKey: "k", model: "m", prompt: "p", tools: [], callTool: async () => ({}) });
+      expect(r.answer).toBe("Ok");
+    } finally {
+      globalThis.fetch = orig;
+    }
+  });
+
   it("names the response when a 200 holds no message", async () => {
     const orig = globalThis.fetch;
     globalThis.fetch = (async () => new Response(JSON.stringify({ error: { message: "model not found" } }))) as typeof fetch;

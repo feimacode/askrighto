@@ -18,6 +18,8 @@ async function chat({ baseUrl, apiKey, body }) {
       let data;
       try {
         data = JSON.parse(text);
+        // Some gateways (ClinePass) wrap the completion as { data: { choices: [...] } }.
+        if (!data.choices && data.data?.choices) data = data.data;
       } catch {
         throw new Error(`The model endpoint returned a ${res.status} that is not JSON: ${text.slice(0, 300)}`);
       }
