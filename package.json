@@ -36,6 +36,7 @@
     "guidance:generate": "node scripts/guidance.mjs",
     "guidance:check": "node scripts/guidance.mjs --check",
     "release:check": "node scripts/release-check.mjs",
+    "evals": "npm run build && node scripts/evals/run.mjs",
     "renormalise:energy": "npm run build && node dist/askrighto.js renormalise-energy"
   },
   "repository": {
