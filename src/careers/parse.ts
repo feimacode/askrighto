@@ -59,10 +59,24 @@ export function parseProjectionRows(rows: Cell[][], classification = "ANZSCO"): 
     problems.push('no header row with an "ANZSCO Code" column was found');
     return empty();
   }
-  // A header may be split over two rows, so each column's text is the row above joined with the header row.
-  const above = rows[headerAt - 1] ?? [];
-  const width = Math.max(rows[headerAt]!.length, above.length);
-  const headers = Array.from({ length: width }, (_, i) => `${text(above[i])} ${text(rows[headerAt]![i])}`.toLowerCase().trim());
+  // The real workbook splits the header over two rows: "Baseline" above "May 2025 ('000)", "5-Year Change" above
+  // "Level ('000)" and "%". The sub-header row sits below the "ANZSCO Code" row and has no code of its own, so it is
+  // joined to the header only when that cell is empty (otherwise the next row is data).
+  const headerRow = rows[headerAt]!;
+  const codeAt = headerRow.findIndex((c) => /^anzsco code$/i.test(text(c)));
+  const below = rows[headerAt + 1] ?? [];
+  const subHeader = text(below[codeAt]) === "" && below.some((c) => text(c) !== "");
+  const width = Math.max(headerRow.length, subHeader ? below.length : 0);
+  const clean = (v: Cell) => text(v).replace(/\s+/g, " ");
+  // A group label ("5-Year Change") is merged over its Level and % columns, so it is carried right into an empty cell
+  // that has a sub-header of its own.
+  let group = "";
+  const headers = Array.from({ length: width }, (_, i) => {
+    const top = clean(headerRow[i]);
+    const sub = subHeader ? clean(below[i]) : "";
+    if (top) group = top;
+    return `${top || (sub ? group : "")} ${sub}`.toLowerCase().trim();
+  });
   const col = {
     level: findCol(headers, ["occupation level"]),
     nfd: findCol(headers, ["nfd"]),
