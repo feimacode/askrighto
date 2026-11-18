@@ -37,7 +37,7 @@ A lookup SHALL take a postcode, a fuel and a household size and return the four 
 - **THEN** electricity uses the South Australian zone benchmarks
 
 #### Scenario: Not covered
-- **WHEN** the postcode is in Western Australia, the Northern Territory or has no mapping
+- **WHEN** the postcode has no mapping in the workbook (WA and NT are out of scope for energy)
 - **THEN** the lookup returns `outside_coverage` and no figure
 
 #### Scenario: Pooled cells
