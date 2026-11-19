@@ -67,6 +67,11 @@ export const BENCHMARK_OMISSIONS = [
   "Time-of-use plans are not estimated: they need the peak, shoulder and off-peak split from a bill.",
 ];
 
+/** Short form for the Inkview caption, which is capped at 300 characters (the full notice leads the text and sits in the data). */
+export function typicalCaption(size: number, fiveOrMore: boolean): string {
+  return `Typical usage for a household of ${fiveOrMore ? "5 or more" : size}, not your own.`;
+}
+
 export function typicalNotice(f: Pick<BenchmarkFigure, "householdSize" | "fiveOrMore" | "zoneLabel" | "state" | "unit" | "annual" | "releaseLabel">): string {
   const size = f.fiveOrMore ? "5 or more" : String(f.householdSize);
   return `Typical usage for a household of ${size} in ${f.zoneLabel} (${f.state}), not your own: ${Math.round(f.annual).toLocaleString("en-AU")} ${f.unit} a year, the AER benchmark (${f.releaseLabel}). Real cost can differ a lot from these estimates.`;
@@ -368,7 +373,7 @@ export const compareEnergyPlans = defineTool({
       return inkview.table(
         {
           title: `Estimated yearly cost${r.data.usage.basis === "benchmark" ? " at typical usage" : ""}, ${r.data.fuelType.toLowerCase()}, postcode ${r.data.postcode}`,
-          caption: r.data.typicalUsageNotice ? `${r.data.typicalUsageNotice} ${NOTICE}` : NOTICE,
+          caption: r.data.usage.benchmark ? `${typicalCaption(r.data.usage.benchmark.householdSize, r.data.usage.benchmark.fiveOrMore)} ${NOTICE}` : NOTICE,
           columns: [
             { key: "rank", label: "#", type: "number" },
             { key: "retailer", label: "Retailer" },
