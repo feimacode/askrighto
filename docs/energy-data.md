@@ -128,3 +128,7 @@ A name that matches no known brand is kept as published, with spacing tidied. Th
 untouched. The retailer filter in the tools matches the canonical brand name, so asking for a brand on a
 shared path such as `energy-locals` returns only that brand's plans. After deploying this, run
 `node dist/askrighto.js renormalise-energy` once; it lists the brand names it rewrote.
+
+## Plan links
+
+Not a dataset, so no data-rights section. The tools build a link from the plan id, the postcode the person gave and, for Victoria, a hand-checked retailer website (`website` and `websiteCheckedAt` in `src/energy/retailers.json`). `@EME` plans link to the Energy Made Easy offer page, labelled "Rate sheet on Energy Made Easy"; `@VEC` plans link to the retailer's website only, labelled "Retailer website". No page is fetched, read, stored or republished. The Energy Made Easy URL pattern is not a published API: re-check a sample of offers before shipping (`add-energy-plan-links` task 3.1).

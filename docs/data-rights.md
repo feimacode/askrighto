@@ -174,9 +174,3 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Condition: Results call the figure typical household use for that zone and size, never the person's own, and carry the release date (December 2020, postcodes June 2021).
 - Condition: Frontier Economics authored the analysis and the AER publishes it under the site licence; the legal view should note that.
 - Condition: Legal view outstanding (roadmap Phase 0): information-only use.
-
-## Energy plan links (Energy Made Easy and retailer websites)
-
-- Status: not a dataset. The energy tools build a link from the plan id, the postcode the person gave and, for Victoria, a hand-checked retailer website. No page is fetched, read, stored or republished.
-- Condition: Links are labelled by what they are ("Rate sheet on Energy Made Easy", "Retailer website") and never called the plan page unless they are the Energy Made Easy page for that offer.
-- Condition: The Energy Made Easy URL pattern is not a published API; re-check a sample of offers before shipping (add-energy-plan-links task 3.1).
