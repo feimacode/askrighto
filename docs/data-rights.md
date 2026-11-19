@@ -15,6 +15,7 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Review by: 2027-02-01
 - Evidence: https://www.aer.gov.au/energy-product-reference-data (read 2026-11-11). CDR Rules rule 2.6: a data holder must not restrict use of disclosed product data. Only the Feb 2020 version of the rule was read; confirm it is unchanged.
 - Condition: The Energy Made Easy and Victorian Energy Compare websites are not scraped; the API only.
+- Condition: Links to Energy Made Easy and to retailer websites are links only: those pages are not fetched, read or stored by the server.
 - Condition: Distributor and retailer meter data request pages and the AEMC rule on access to data are linked and paraphrased; nothing is stored from them but the link, the check date and a one-line note.
 
 ## cricos-register

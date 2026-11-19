@@ -1,61 +1,107 @@
 /**
- * Links from a plan result to where its rate sheet can be read. Built when a result is formed;
- * nothing is stored, fetched or read from those pages (AGENTS.md rule 2: links, not scraping).
- *
- * - Plan ids ending `@EME` (national CDR data): the Energy Made Easy page for the offer, which holds
- *   the rate sheet. Needs the postcode the person gave.
- * - Plan ids ending `@VEC` (Victoria): there is no unified rate sheet page, so only the retailer's
- *   own website, labelled as such. A brand with no hand-checked website gets no link, not a guess.
- * - A link the retailer published itself is used first.
+ * Plan links, built when a result is formed. Nothing is fetched, read or stored from the pages they point to.
+ * Rules (add-energy-plan-links, from Iven, 18 Nov 2026):
+ *  - a plan link the retailer published is used first;
+ *  - outside Victoria (id ends @EME) the Energy Made Easy page for the offer at the person's postcode, which holds the rate sheet;
+ *  - Victoria (id ends @VEC, or the postcode is Victorian) has no unified rate sheet page, so the retailer's own website;
+ *  - no link when none can be built, with the reason, never the plan id as a link.
+ * The offer id is the stored id without its `@EME` suffix and its trailing revision digits (stored `ENG1207222MRE2@EME` is
+ * offer `ENG1207222MRE`; every `@EME` id in the 17 Nov 2026 load ends in 1 or 2 revision digits).
  */
-import { RETAILERS } from "./index.js";
+import retailersJson from "./retailers.json" with { type: "json" };
+import { stateOfPostcode } from "./benchmarks/state.js";
+
+export type LinkKind = "retailer_plan_page" | "eme_rate_sheet" | "retailer_website" | "none";
 
 export interface PlanLink {
+  kind: LinkKind;
+  /** Absent when kind is "none". */
   url?: string;
-  /** What the link is, in words the host can repeat. Never "plan page" unless it is the offer's page. */
+  /** What the link is, in the words shown to people. */
   label: string;
-  /** Extra sentence for the person, for example where to find the rate sheet. */
-  note?: string;
+  /** What the person should do or know; always present. */
+  note: string;
 }
 
-export const EME_RATE_SHEET_LABEL = "Rate sheet on Energy Made Easy";
-export const RETAILER_SITE_LABEL = "Retailer website";
-export const RETAILER_SITE_NOTE = "Victoria has no single rate sheet page: find this plan's rate sheet on the retailer's website.";
+export interface LinkRetailer {
+  slug: string;
+  website?: string;
+  websiteCheckedAt?: string;
+  noWebsite?: string;
+  brandWebsites?: Record<string, string>;
+}
 
-const EME_PLAN = "https://www.energymadeeasy.gov.au/plan";
-
-export interface PlanLinkInput {
+export interface LinkPlan {
   planId: string;
+  retailerSlug: string;
   brandName: string;
-  /** The postcode the person gave, if any. */
-  postcode?: string;
-  /** A link the retailer published. */
-  publishedUrl?: string;
+  /** A link the retailer published in the plan record (usually absent). */
+  planUrl?: string;
 }
 
-/** Hand-checked website for a brand, by name; undefined when none is held. */
-export function websiteFor(brandName: string): string | undefined {
-  const r = RETAILERS.find((x) => x.brandName === brandName && x.website);
-  return r?.website;
+export const EME_ORIGIN = "https://www.energymadeeasy.gov.au";
+export const LINK_NOTICE =
+  "Links go to Energy Made Easy or the retailer's own website. Ask Righto does not read or store those pages: check the rate sheet there before you decide.";
+
+const RETAILERS = retailersJson as LinkRetailer[];
+
+/** `ENG1207222MRE2@EME` becomes `ENG1207222MRE`; undefined when the id is not an @EME id of that shape. */
+export function emeOfferId(planId: string): string | undefined {
+  return /^([A-Za-z0-9]*[A-Za-z])\d+@EME$/.exec(planId)?.[1];
 }
 
-export function planLink(i: PlanLinkInput, website: string | undefined = websiteFor(i.brandName)): PlanLink {
-  if (i.publishedUrl) return { url: i.publishedUrl, label: "Link published by the retailer" };
-  const at = i.planId.lastIndexOf("@");
-  const suffix = at >= 0 ? i.planId.slice(at + 1) : "";
-  const offerId = at >= 0 ? i.planId.slice(0, at) : i.planId;
-  if (suffix === "EME") {
-    if (!/^\d{4}$/.test(i.postcode ?? "")) return { label: EME_RATE_SHEET_LABEL, note: "No link: it needs the postcode of the property." };
-    return { url: `${EME_PLAN}?id=${encodeURIComponent(offerId)}&postcode=${i.postcode}`, label: EME_RATE_SHEET_LABEL };
+export function retailerWebsite(plan: Pick<LinkPlan, "retailerSlug" | "brandName">, retailers: readonly LinkRetailer[] = RETAILERS): string | undefined {
+  const r = retailers.find((x) => x.slug === plan.retailerSlug);
+  return r?.brandWebsites?.[plan.brandName] ?? r?.website;
+}
+
+const none = (note: string): PlanLink => ({ kind: "none", label: "No link available", note });
+
+export function planLink(plan: LinkPlan, postcode?: string, retailers: readonly LinkRetailer[] = RETAILERS): PlanLink {
+  if (plan.planUrl) {
+    return { kind: "retailer_plan_page", url: plan.planUrl, label: "Plan page published by the retailer", note: "Link published by the retailer in the plan record." };
   }
-  if (suffix === "VEC") {
-    if (!website) return { label: RETAILER_SITE_LABEL, note: "No link is available for this plan." };
-    return { url: website, label: RETAILER_SITE_LABEL, note: RETAILER_SITE_NOTE };
+  const pc = postcode && /^\d{4}$/.test(postcode.trim()) ? postcode.trim() : undefined;
+  const offer = emeOfferId(plan.planId);
+  const victorian = plan.planId.endsWith("@VEC") || (pc !== undefined && stateOfPostcode(pc) === "VIC");
+  if (offer && !victorian) {
+    if (!pc) return none("Give the postcode of the property to get the Energy Made Easy rate sheet link for this plan.");
+    return {
+      kind: "eme_rate_sheet",
+      url: `${EME_ORIGIN}/plan?id=${encodeURIComponent(offer)}&postcode=${pc}`,
+      label: "Rate sheet on Energy Made Easy",
+      note: `Energy Made Easy (AER) page for this offer at postcode ${pc}.`,
+    };
   }
-  return { label: "No link", note: "No link is available for this plan." };
+  const site = retailerWebsite(plan, retailers);
+  if (!site) return none(`No checked website is on file for ${plan.brandName}, so no link can be given. Look the retailer up directly.`);
+  const why = plan.planId.endsWith("@VEC") || victorian ? "Victoria has no single rate sheet page" : "No plan-level link could be built for this plan";
+  return {
+    kind: "retailer_website",
+    url: site,
+    label: "Retailer website",
+    note: `${why}. This is the retailer's home page, not the plan's page: find this plan's rate sheet there.`,
+  };
 }
 
-/** Markdown for a table cell or line: a labelled link, or the plain statement that none exists. */
+/** One line for markdown: a link with its label, or the reason there is none. */
 export function linkMarkdown(l: PlanLink): string {
-  return l.url ? `[${l.label}](${l.url})` : "no link available";
+  return l.url ? `[${l.label}](${l.url})` : `${l.label} (${l.note})`;
+}
+
+/** Short cell text for tables. */
+export function linkCell(l: PlanLink): string {
+  return l.url ? `[${l.label}](${l.url})` : "No link available";
+}
+
+/** Footer lines for a text result that shows links: the standing notice plus one line for each kind shown that needs explaining. */
+export function linkNotes(links: readonly PlanLink[]): string[] {
+  const out = [LINK_NOTICE];
+  if (links.some((l) => l.kind === "retailer_website")) {
+    out.push("Retailer website links go to the retailer's home page, not the plan's page. Victoria has no single rate sheet page, so find this plan's rate sheet on the retailer's site.");
+  }
+  if (links.some((l) => l.kind === "none")) {
+    out.push("Where no link is available the plan id is shown as text only. Give the postcode of the property for an Energy Made Easy link, or look the retailer up directly.");
+  }
+  return out;
 }
