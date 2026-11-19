@@ -28,7 +28,7 @@ Set once under Settings → Secrets and variables → Actions:
 
 Inputs: `set` (default `domestic,international,health`), `only` (e.g. `D01,H07`), `repeat` (default 1) and a `label`. The report is on the run's summary page; the report and every answer (with its tool results) are uploaded as an artifact for 30 days.
 
-Not in the default sets: **energy** (no prompt set yet) and **home loans**, which need live CDR payloads that the job does not load. `home-loans` can be named in `set`, but its answers will say the data is unavailable.
+Not in the default sets: **energy** (prompts `E01`-`E20` in `docs/energy-evaluation/prompts.md`; name it with `set: energy`; it runs on the synthetic plans in `test/fixtures/energy/`, loaded by `scripts/evals/load-energy-fixtures.mjs`, not on live data) and **home loans**, which need live CDR payloads that the job does not load. `home-loans` can be named in `set`, but its answers will say the data is unavailable.
 
 ## Run it locally
 
@@ -46,3 +46,14 @@ The runner starts `dist/askrighto.js` on a free port with the sets' verticals lo
 - Course prompts that name "Test University" run against the real VIC index in CI, where that provider does not exist; they score how the tools handle "not found", not the fixture answer.
 - No browsing assistant is involved, so index-only answers are scored on what the tools return.
 - Prompt rows with placeholders (home loan "product X") need a person to fill them in.
+
+## Energy without a model or a host
+
+`scripts/evals/smoke-energy.mjs` calls the energy tools directly (no model, no host) against the same synthetic plans and checks what a script can: the readings note appears once, Victorian and non-Victorian plan links are the right kind, WA is out of coverage, refusals are plain, the readings flow works end to end (a year, with `100`/`900` records, with solar), and no NMI or meter serial comes back. It also reports which pasted sizes get through.
+
+```sh
+export DATABASE_URL=postgres://localhost/askrighto_test DATABASE_SCHEMA=askrighto_energy_smoke
+npm run build && node dist/askrighto.js migrate
+node scripts/evals/load-energy-fixtures.mjs
+node scripts/evals/smoke-energy.mjs
+```

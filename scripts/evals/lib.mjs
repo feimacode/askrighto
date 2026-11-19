@@ -8,32 +8,97 @@ const ROOT = resolve(import.meta.dirname, "../..");
 
 /** The prompt sets. `idPattern` picks the rows of a file that belong to the set. */
 export const SETS = {
-  domestic: { file: "docs/use-case-comparison/prompts.md", idPattern: /^D\d+$/, verticals: ["courses-domestic"] },
-  international: { file: "docs/use-case-comparison/prompts.md", idPattern: /^I\d+$/, verticals: ["cricos"] },
-  health: { file: "docs/use-case-comparison/health-prompts.md", idPattern: /^H\d+$/, verticals: ["health-cover"] },
+  domestic: {
+    file: "docs/use-case-comparison/prompts.md",
+    idPattern: /^D\d+$/,
+    verticals: ["courses-domestic"],
+  },
+  international: {
+    file: "docs/use-case-comparison/prompts.md",
+    idPattern: /^I\d+$/,
+    verticals: ["cricos"],
+  },
+  health: {
+    file: "docs/use-case-comparison/health-prompts.md",
+    idPattern: /^H\d+$/,
+    verticals: ["health-cover"],
+  },
+  // Runs on the synthetic plans in test/fixtures/energy (scripts/evals/load-energy-fixtures.mjs), not live data.
+  energy: {
+    file: "docs/energy-evaluation/prompts.md",
+    idPattern: /^E\d+$/,
+    verticals: ["energy"],
+  },
   // Needs lender data from the CDR sync, which CI does not load; run it where that data exists.
-  "home-loans": { file: "docs/home-loan-evaluation/prompts.md", idPattern: /^H\d+$/, verticals: ["home-loans"] },
+  "home-loans": {
+    file: "docs/home-loan-evaluation/prompts.md",
+    idPattern: /^H\d+$/,
+    verticals: ["home-loans"],
+  },
 };
 /** What a run covers when no set is named: the sets whose data CI can load from the repo and fixtures. */
 export const DEFAULT_SETS = ["domestic", "international", "health"];
+
+/**
+ * A small synthetic NEM12 file for the prompts that stand in `{{READINGS_WEEK}}` (7 days, made-up NMI) or
+ * `{{READINGS_NEM13}}` (an accumulation file, which the tool must refuse).
+ */
+export function expandPrompt(prompt) {
+  const week = () => {
+    const L = ["200,4001234567,E1,E1,E1,,SERIAL0001,KWH,30,"];
+    for (let i = 0; i < 7; i++) {
+      const vals = Array.from({ length: 48 }, (_, k) =>
+        (k >= 32 && k < 40 ? 0.5 : 0.1).toFixed(3),
+      );
+      L.push(`300,2026010${i + 1},${vals.join(",")},A,,,20261120010101,`);
+    }
+    return L.join("\n");
+  };
+  const nem13 =
+    "100,NEM13,200301011534,MDP1,Retailer1\n250,1234567890,1141,01,11,11,METSER66,E,000021.2,20031001103230,A,,,000534.5,20040201100000,A,,\n900";
+  return prompt
+    .replace(/\\n/g, "\n")
+    .replace("{{READINGS_WEEK}}", week)
+    .replace("{{READINGS_NEM13}}", nem13);
+}
 
 /** Rows of a markdown table `| Id | Prompt | Expected tools | A grounded answer must |`. */
 export function parsePromptTable(markdown, idPattern) {
   const rows = [];
   for (const line of markdown.split("\n")) {
     if (!line.startsWith("|")) continue;
-    const cells = line.split("|").slice(1, -1).map((c) => c.trim());
+    const cells = line
+      .split("|")
+      .slice(1, -1)
+      .map((c) => c.trim());
     if (cells.length < 4 || !idPattern.test(cells[0])) continue;
-    const tools = cells[2] === "(none)" ? [] : cells[2].split(",").map((t) => t.trim()).filter(Boolean);
-    rows.push({ id: cells[0], prompt: cells[1], expectedTools: tools, must: cells[3] });
+    const tools =
+      cells[2] === "(none)"
+        ? []
+        : cells[2]
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean);
+    rows.push({
+      id: cells[0],
+      prompt: cells[1],
+      expectedTools: tools,
+      must: cells[3],
+    });
   }
   return rows;
 }
 
 export function loadSet(name) {
   const set = SETS[name];
-  if (!set) throw new Error(`Unknown set "${name}" (known: ${Object.keys(SETS).join(", ")})`);
-  const rows = parsePromptTable(readFileSync(resolve(ROOT, set.file), "utf8"), set.idPattern);
+  if (!set)
+    throw new Error(
+      `Unknown set "${name}" (known: ${Object.keys(SETS).join(", ")})`,
+    );
+  const rows = parsePromptTable(
+    readFileSync(resolve(ROOT, set.file), "utf8"),
+    set.idPattern,
+  );
   return rows.map((r) => ({ ...r, set: name, key: `${name}:${r.id}` }));
 }
 
@@ -41,7 +106,11 @@ export function loadSet(name) {
 export function toFunctionTool(tool) {
   return {
     type: "function",
-    function: { name: tool.name, description: tool.description ?? "", parameters: tool.inputSchema ?? { type: "object", properties: {} } },
+    function: {
+      name: tool.name,
+      description: tool.description ?? "",
+      parameters: tool.inputSchema ?? { type: "object", properties: {} },
+    },
   };
 }
 
@@ -49,8 +118,14 @@ export function toFunctionTool(tool) {
 export const BANNED = [
   { name: "best", re: /\bbest\b/i },
   { name: "recommended", re: /\brecommend(?:ed|s|ation)?\b/i },
-  { name: "odds of entry", re: /\b(?:you(?:'ll| will) (?:get|be accepted)|guaranteed (?:a )?(?:place|entry)|chance of (?:getting|entry))\b/i },
-  { name: "aggregate as ATAR", re: /aggregate of \d+[^.]*\bATAR (?:of|is|equals) \d/i },
+  {
+    name: "odds of entry",
+    re: /\b(?:you(?:'ll| will) (?:get|be accepted)|guaranteed (?:a )?(?:place|entry)|chance of (?:getting|entry))\b/i,
+  },
+  {
+    name: "aggregate as ATAR",
+    re: /aggregate of \d+[^.]*\bATAR (?:of|is|equals) \d/i,
+  },
 ];
 
 export function bannedWording(answer) {
@@ -65,11 +140,30 @@ export function scoreRun({ row, toolCalls, toolResults, answer, error }) {
   const called = [...new Set(toolCalls.map((c) => c.name))];
   const missingTools = row.expectedTools.filter((t) => !called.includes(t));
   const unexpectedTools = row.expectedTools.length === 0 ? called : [];
-  const untraced = traceNumbers({ prompt: row.prompt, toolResults, answer }).map((f) => f.raw);
+  const untraced = traceNumbers({
+    prompt: row.prompt,
+    toolResults,
+    answer,
+  }).map((f) => f.raw);
   const banned = bannedWording(answer);
   const noAnswer = !answer.trim();
-  const pass = !error && !noAnswer && missingTools.length === 0 && unexpectedTools.length === 0 && untraced.length === 0;
-  return { key: row.key, pass, error: error ?? null, noAnswer, called, missingTools, unexpectedTools, untraced, banned };
+  const pass =
+    !error &&
+    !noAnswer &&
+    missingTools.length === 0 &&
+    unexpectedTools.length === 0 &&
+    untraced.length === 0;
+  return {
+    key: row.key,
+    pass,
+    error: error ?? null,
+    noAnswer,
+    called,
+    missingTools,
+    unexpectedTools,
+    untraced,
+    banned,
+  };
 }
 
 export function summarise(scores) {
@@ -93,16 +187,44 @@ const cell = (s) => String(s).replace(/\|/g, "\\|").replace(/\n/g, " ");
 export function renderReport({ label, model, startedAt, runs }) {
   const sum = summarise(runs.map((r) => r.score));
   const out = [];
-  out.push(`## Evals ${startedAt}${label ? `: ${label}` : ""}`, "", `Model: \`${model}\`. Sets are our own prompts, not real user questions; a run of this size gives a direction, not statistics.`, "");
-  out.push("| Runs | Passed | Errors | Missing tools | Unexpected tools | Runs with untraced figures | Untraced figures | Runs with flagged wording |", "| --- | --- | --- | --- | --- | --- | --- | --- |");
-  out.push(`| ${sum.runs} | ${sum.passed} | ${sum.errors} | ${sum.missingTools} | ${sum.unexpectedTools} | ${sum.withUntraced} | ${sum.untracedFigures} | ${sum.withBanned} |`, "");
-  out.push("Pass means the expected tools were called (none when none were expected) and every figure in the answer appears in the prompt or a tool result. Flagged wording and the \"must\" column need a person.", "");
-  out.push("| Run | Result | Tools called | Missing | Untraced figures | Flagged wording | A grounded answer must |", "| --- | --- | --- | --- | --- | --- | --- |");
+  out.push(
+    `## Evals ${startedAt}${label ? `: ${label}` : ""}`,
+    "",
+    `Model: \`${model}\`. Sets are our own prompts, not real user questions; a run of this size gives a direction, not statistics.`,
+    "",
+  );
+  out.push(
+    "| Runs | Passed | Errors | Missing tools | Unexpected tools | Runs with untraced figures | Untraced figures | Runs with flagged wording |",
+    "| --- | --- | --- | --- | --- | --- | --- | --- |",
+  );
+  out.push(
+    `| ${sum.runs} | ${sum.passed} | ${sum.errors} | ${sum.missingTools} | ${sum.unexpectedTools} | ${sum.withUntraced} | ${sum.untracedFigures} | ${sum.withBanned} |`,
+    "",
+  );
+  out.push(
+    'Pass means the expected tools were called (none when none were expected) and every figure in the answer appears in the prompt or a tool result. Flagged wording and the "must" column need a person.',
+    "",
+  );
+  out.push(
+    "| Run | Result | Tools called | Missing | Untraced figures | Flagged wording | A grounded answer must |",
+    "| --- | --- | --- | --- | --- | --- | --- |",
+  );
   for (const { row, score: s, n } of runs) {
-    const result = s.error ? `ERROR ${s.error}` : s.noAnswer ? "NO ANSWER" : s.pass ? "PASS" : "FAIL";
-    const missing = [...s.missingTools, ...s.unexpectedTools.map((t) => `unexpected ${t}`)].join(", ");
+    const result = s.error
+      ? `ERROR ${s.error}`
+      : s.noAnswer
+        ? "NO ANSWER"
+        : s.pass
+          ? "PASS"
+          : "FAIL";
+    const missing = [
+      ...s.missingTools,
+      ...s.unexpectedTools.map((t) => `unexpected ${t}`),
+    ].join(", ");
     const banned = s.banned.map((b) => `${b.name}: "${b.quote}"`).join("; ");
-    out.push(`| ${row.key}${n > 1 ? `#${n}` : ""} | ${cell(result)} | ${cell(s.called.join(", ") || "-")} | ${cell(missing || "-")} | ${cell(s.untraced.join(", ") || "-")} | ${cell(banned || "-")} | ${cell(row.must)} |`);
+    out.push(
+      `| ${row.key}${n > 1 ? `#${n}` : ""} | ${cell(result)} | ${cell(s.called.join(", ") || "-")} | ${cell(missing || "-")} | ${cell(s.untraced.join(", ") || "-")} | ${cell(banned || "-")} | ${cell(row.must)} |`,
+    );
   }
   return out.join("\n") + "\n";
 }

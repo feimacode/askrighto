@@ -8,7 +8,7 @@ type Row = { key: string; prompt: string; expectedTools: string[]; must: string;
 
 describe("eval prompt sets", () => {
   it("reads every row of the default sets", () => {
-    for (const [name, min] of [["domestic", 20], ["international", 15], ["health", 20]] as const) {
+    for (const [name, min] of [["domestic", 20], ["international", 15], ["health", 20], ["energy", 20]] as const) {
       const rows = lib.loadSet(name) as Row[];
       expect(rows.length).toBeGreaterThanOrEqual(min);
       for (const r of rows) {

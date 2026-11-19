@@ -7,10 +7,14 @@ async function chat({ baseUrl, apiKey, body }) {
   const url = `${baseUrl.replace(/\/+$/, "")}/chat/completions`;
   let lastError;
   for (let attempt = 0; attempt < 4; attempt++) {
-    if (attempt > 0) await new Promise((r) => setTimeout(r, 2000 * 2 ** attempt));
+    if (attempt > 0)
+      await new Promise((r) => setTimeout(r, 2000 * 2 ** attempt));
     const res = await fetch(url, {
       method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${apiKey}`,
+      },
       body: JSON.stringify(body),
     });
     if (res.ok) {
@@ -21,24 +25,33 @@ async function chat({ baseUrl, apiKey, body }) {
         // Some gateways (ClinePass) wrap the completion as { data: { choices: [...] } }.
         if (!data.choices && data.data?.choices) data = data.data;
       } catch {
-        throw new Error(`The model endpoint returned a ${res.status} that is not JSON: ${text.slice(0, 300)}`);
+        throw new Error(
+          `The model endpoint returned a ${res.status} that is not JSON: ${text.slice(0, 300)}`,
+        );
       }
       // Some OpenAI-compatible endpoints answer 200 with an error object or a different shape.
       if (!data.choices?.[0]?.message) {
         const why = data.error ? JSON.stringify(data.error) : text;
-        throw new Error(`The model endpoint (${url}) returned no message for model "${body.model}": ${why.slice(0, 400)}`);
+        throw new Error(
+          `The model endpoint (${url}) returned no message for model "${body.model}": ${why.slice(0, 400)}`,
+        );
       }
       return data;
     }
-    lastError = new Error(`${res.status} from the model endpoint: ${(await res.text()).slice(0, 300)}`);
+    lastError = new Error(
+      `${res.status} from the model endpoint: ${(await res.text()).slice(0, 300)}`,
+    );
     if (res.status !== 429 && res.status < 500) break;
   }
   throw lastError;
 }
 
 function resultText(result) {
-  const parts = (result.content ?? []).filter((c) => c.type === "text").map((c) => c.text);
-  if (result.structuredContent && parts.length === 0) parts.push(JSON.stringify(result.structuredContent));
+  const parts = (result.content ?? [])
+    .filter((c) => c.type === "text")
+    .map((c) => c.text);
+  if (result.structuredContent && parts.length === 0)
+    parts.push(JSON.stringify(result.structuredContent));
   return parts.join("\n");
 }
 
@@ -46,21 +59,40 @@ function resultText(result) {
  * Runs one prompt. `callTool(name, args)` returns an MCP tool result.
  * Returns { answer, toolCalls, toolResults, turns }.
  */
-export async function runPrompt({ baseUrl, apiKey, model, instructions, tools, callTool, prompt, maxTurns = 8 }) {
+export async function runPrompt({
+  baseUrl,
+  apiKey,
+  model,
+  instructions,
+  tools,
+  callTool,
+  prompt,
+  maxTurns = 8,
+}) {
   const messages = [
     {
       role: "system",
-      content: `${instructions ?? ""}\n\nThere is no interactive user in this run: if you need to ask something, ask it in your answer. Use the tools for every fact; never state a figure from memory.`.trim(),
+      content:
+        `${instructions ?? ""}\n\nThere is no interactive user in this run: if you need to ask something, ask it in your answer. Use the tools for every fact; never state a figure from memory.`.trim(),
     },
     { role: "user", content: prompt },
   ];
   const toolCalls = [];
   const toolResults = [];
   for (let turn = 1; turn <= maxTurns; turn++) {
-    const data = await chat({ baseUrl, apiKey, body: { model, messages, ...(tools?.length ? { tools, tool_choice: "auto" } : {}) } });
+    const data = await chat({
+      baseUrl,
+      apiKey,
+      body: {
+        model,
+        messages,
+        ...(tools?.length ? { tools, tool_choice: "auto" } : {}),
+      },
+    });
     const msg = data.choices[0].message;
     messages.push(msg);
-    if (!msg.tool_calls?.length) return { answer: msg.content ?? "", toolCalls, toolResults, turns: turn };
+    if (!msg.tool_calls?.length)
+      return { answer: msg.content ?? "", toolCalls, toolResults, turns: turn };
     for (const call of msg.tool_calls) {
       let args = {};
       let text;
@@ -76,10 +108,23 @@ export async function runPrompt({ baseUrl, apiKey, model, instructions, tools, c
     }
   }
   const last = messages.filter((m) => m.role === "assistant").at(-1);
-  return { answer: last?.content ?? "", toolCalls, toolResults, turns: maxTurns, hitTurnCap: true };
+  return {
+    answer: last?.content ?? "",
+    toolCalls,
+    toolResults,
+    turns: maxTurns,
+    hitTurnCap: true,
+  };
 }
 
 /** One tiny call (no max_tokens: a reasoning model can spend a small cap thinking and return empty content, which some gateways turn into a 500), so a wrong URL, model id or key stops the run before it spends 80 prompts failing. */
 export async function checkEndpoint({ baseUrl, apiKey, model }) {
-  await chat({ baseUrl, apiKey, body: { model, messages: [{ role: "user", content: "Reply with the word ok." }] } });
+  await chat({
+    baseUrl,
+    apiKey,
+    body: {
+      model,
+      messages: [{ role: "user", content: "Reply with the word ok." }],
+    },
+  });
 }

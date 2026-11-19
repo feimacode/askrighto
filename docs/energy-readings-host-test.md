@@ -20,6 +20,10 @@ Five synthetic files, made-up NMI and serial, same fixed pattern: 0.10 kWh in ea
 
 Expected from `summarise_interval_readings`: the same days, totals and annual figure for any postcode (the file's use is in AEST clock time, so the household-local profile differs by state in summer: with a postcode in NSW, VIC, ACT or TAS the 4pm to 8pm AEST use becomes 5pm to 9pm local in daylight saving months; QLD has no shift). To see that, compare one time-of-use plan with a 6pm to 9pm peak at postcode 4000 and at postcode 3000: the peak share must be higher at 3000.
 
+## Before the hosts: the smoke test
+
+`node scripts/evals/smoke-energy.mjs` (see `docs/evals.md`) runs the tool side without a host. Its size report shows what the server accepts. Finding, 19 Nov 2026: the HTTP route refuses a request body over 256 KB, but the tool's own cap is 600,000 characters, so a larger paste fails as a transport error ("Request body over 256kb") before the tool can answer. A year of one stream (about 115 KB) and two years or a year with solar (about 230 KB) get through; three years (about 340 KB) does not. A year of consumption plus export plus a second consumption stream would be near or over the limit.
+
 ## A. Can the host run a program? (answers the snippet question)
 
 Ask in each host, with a CSV attached: "Run a one-line program that counts the lines in this file and tell me the number." Record: yes or no, on which plan and surface (web, desktop, mobile), whether it works with the Ask Righto connector enabled in the same chat, and whether the sandbox can reach the internet.

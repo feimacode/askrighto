@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       set:
-        description: 'Prompt sets, comma-separated: domestic, international, health, home-loans, or "all"'
+        description: 'Prompt sets, comma-separated: domestic, international, health, energy, home-loans, or "all"'
         required: false
         type: string
         default: 'domestic,international,health'
@@ -100,6 +100,7 @@ jobs:
           load vce:load
           load intl:load --cricos test/fixtures/cricos/intl-sample.csv
           load health:load --dir test/fixtures/health --source-date 2026-11-03 --source-name "Test fixtures"
+          echo "::group::energy fixtures"; node scripts/evals/load-energy-fixtures.mjs || echo "::warning::the energy fixtures failed to load; the energy prompts will see no data"; echo "::endgroup::"
 
       - name: Run the evals
         env:
