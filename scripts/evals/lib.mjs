@@ -13,6 +13,8 @@ export const SETS = {
   health: { file: "docs/use-case-comparison/health-prompts.md", idPattern: /^H\d+$/, verticals: ["health-cover"] },
   // Needs lender data from the CDR sync, which CI does not load; run it where that data exists.
   "home-loans": { file: "docs/home-loan-evaluation/prompts.md", idPattern: /^H\d+$/, verticals: ["home-loans"] },
+  // Runs against synthetic plan fixtures and the synthetic benchmark file (scripts/evals/load-energy-fixtures.mjs).
+  energy: { file: "docs/energy-evaluation/prompts.md", idPattern: /^E\d+$/, verticals: ["energy"] },
 };
 /** What a run covers when no set is named: the sets whose data CI can load from the repo and fixtures. */
 export const DEFAULT_SETS = ["domestic", "international", "health"];
@@ -30,11 +32,35 @@ export function parsePromptTable(markdown, idPattern) {
   return rows;
 }
 
+const NMI_A = "6407000123"; // invented, as are the serials below
+const NMI_B = "6407000999";
+function nem12Day(date, suffix, nmi, serial) {
+  const half = Array.from({ length: 48 }, (_, i) => (i >= 32 && i < 40 ? "0.500" : "0.100"));
+  return { head: `200,${nmi},${suffix},1,${suffix},,${serial},KWH,30,`, row: `300,${date},${half.join(",")},A,,,${date}120000,` };
+}
+/** Small synthetic files the prompts can name: three days of NEM12 data, a two-NMI file and a NEM13 file. Invented identifiers. */
+export const SAMPLE_FILES = {
+  "NEM12:3days": () => {
+    const days = ["20260105", "20260106", "20260107"].map((d) => nem12Day(d, "E1", NMI_A, "SER-0099"));
+    return [days[0].head, ...days.map((d) => d.row)].join("\n");
+  },
+  "NEM12:2nmi": () => {
+    const a = nem12Day("20260105", "E1", NMI_A, "SER-0099");
+    const b = nem12Day("20260105", "E1", NMI_B, "SER-0098");
+    return [a.head, a.row, b.head, b.row].join("\n");
+  },
+  NEM13: () => ["100,NEM13,202611191200,UNITEDP,RETAILX", `250,${NMI_A},E1,1,E1,,SER-0099,20260101,0,10,20,A,,,20260201,0,10,20,A`, "900"].join("\n"),
+};
+/** Replaces {{NEM12:3days}}-style placeholders in a prompt with the sample file. */
+export function expandPrompt(prompt) {
+  return prompt.replace(/\{\{([A-Za-z0-9:]+)\}\}/g, (m, name) => (SAMPLE_FILES[name] ? SAMPLE_FILES[name]() : m)).replace(/\\n/g, "\n");
+}
+
 export function loadSet(name) {
   const set = SETS[name];
   if (!set) throw new Error(`Unknown set "${name}" (known: ${Object.keys(SETS).join(", ")})`);
   const rows = parsePromptTable(readFileSync(resolve(ROOT, set.file), "utf8"), set.idPattern);
-  return rows.map((r) => ({ ...r, set: name, key: `${name}:${r.id}` }));
+  return rows.map((r) => ({ ...r, prompt: expandPrompt(r.prompt), set: name, key: `${name}:${r.id}` }));
 }
 
 /** An MCP tool as an OpenAI function tool. */
