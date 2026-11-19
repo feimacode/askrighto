@@ -6,6 +6,7 @@ import { attributionFor, availability } from "../core/rights.js";
 import { lookupBenchmark, type BenchmarkFigure } from "../energy/benchmarks/lookup.js";
 import { NoBenchmarkLoad } from "../energy/benchmarks/load.js";
 import { SEASONS } from "../energy/benchmarks/types.js";
+import { readingsNote, type ReadingsNote } from "../energy/readings.js";
 import { estimateAnnualCost, type Estimate, type NotEstimated, type Usage, type UsageBasis } from "../energy/calc.js";
 import { linkMarkdown, planLink, RETAILER_SITE_NOTE } from "../energy/links.js";
 import { BENCHMARK_DATASET_ID, ENERGY_DATASET_ID, getEnergy, withStore } from "../energy/index.js";
@@ -110,6 +111,8 @@ export interface CompareData {
   };
   /** Present only for benchmark usage: shown before the figures in every output form. */
   typicalUsageNotice?: string;
+  /** Present for electricity results from a benchmark or a single bill: where to ask for interval readings. */
+  readingsNote?: ReadingsNote;
   counts: { available: number; estimated: number; notEstimated: number; returned: number };
   summary: string;
   estimates: Array<Estimate & { rank: number }>;
@@ -259,6 +262,8 @@ export const compareEnergyPlans = defineTool({
         }));
       const first = shown[0];
       const typicalUsageNotice = figure ? typicalNotice(figure) : undefined;
+      // Interval readings would be more accurate than a benchmark or one bill (electricity only; gas has no interval data here).
+      const note = elec && (figure || scaledFromBill) ? readingsNote(distributor ?? (nets.length === 1 ? nets[0] : undefined)) : undefined;
       const summary = first
         ? `Of ${plans.length} plan${plans.length === 1 ? "" : "s"} available, ${ok.length} could be estimated and ${no.length} could not. The lowest estimate for ${figure ? "typical usage (not the household's own)" : "the usage given"} is ${dollars(first.totalCents)} a year (${first.brandName}, ${first.displayName}); this ordering is by estimated cost only.`
         : `Of ${plans.length} plan${plans.length === 1 ? "" : "s"} available, none could be estimated with the information given.`;
@@ -296,6 +301,7 @@ export const compareEnergyPlans = defineTool({
             : {}),
         },
         ...(typicalUsageNotice ? { typicalUsageNotice } : {}),
+        ...(note ? { readingsNote: note } : {}),
         counts: { available: plans.length, estimated: ok.length, notEstimated: no.length, returned: shown.length },
         summary,
         estimates: shown,
@@ -335,6 +341,7 @@ export const compareEnergyPlans = defineTool({
         "",
         ...(d.estimates.some((e) => e.planId.endsWith("@VEC")) ? [RETAILER_SITE_NOTE, ""] : []),
         "Breakdown per plan also includes guaranteed discounts, recurring fees and GST; each plan's components add up to its total.",
+        ...(d.readingsNote ? ["", `**More accurate comparison.** ${d.readingsNote.text}`] : []),
       );
       for (const e of d.estimates) {
         const extra = [
@@ -399,6 +406,8 @@ export const compareEnergyPlans = defineTool({
             link: ((l) => (l.url ? `${l.label}: ${l.url}` : "no link available"))(planLink({ planId: e.planId, brandName: e.brandName, postcode: r.data.postcode, ...(e.planUrl ? { publishedUrl: e.planUrl } : {}) })),
           })),
           source: inkviewSource(r),
+          // The caption is capped at 300 characters, so the readings note rides in a footnote the table carries.
+          ...(r.data.readingsNote ? { footnote: r.data.readingsNote.text } : {}),
         },
         { limit: 50 },
       );

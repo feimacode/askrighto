@@ -1,0 +1,15 @@
+[
+  {"name": "Ausgrid", "aliases": [], "states": ["NSW"], "requestUrl": "https://www.ausgrid.com.au/your-energy-use/your-meter-and-supply/access-your-meter-data", "checkedAt": "2026-11-19", "note": "Its page says you can ask for up to 2 years of data, that a single NMI is provided within 10 business days of a valid request, and that a fee may apply after 4 requests in 12 months or for other formats."},
+  {"name": "AusNet Services (electricity)", "aliases": ["AusNet Services", "AusNet"], "states": ["VIC"], "requestUrl": "https://www.ausnetservices.com.au/electricity/your-electricity-meter/meter-data", "checkedAt": "2026-11-19"},
+  {"name": "SA Power Networks", "aliases": ["SAPN"], "states": ["SA"], "requestUrl": "https://www.sapowernetworks.com.au/your-power/your-electricity-meter/", "checkedAt": "2026-11-19"},
+  {"name": "Endeavour", "aliases": ["Endeavour Energy"], "states": ["NSW"], "none": "the address found redirects to a general meter page with no request steps"},
+  {"name": "Essential Energy", "aliases": ["Essential Energy Standard", "Essential Energy Far West"], "states": ["NSW", "QLD", "VIC", "ACT"], "none": "the request page answered with a bot check (HTTP 403)"},
+  {"name": "Evoenergy", "aliases": [], "states": ["ACT", "NSW"], "none": "the request page found by search has moved (HTTP 404)"},
+  {"name": "Citipower", "aliases": ["CitiPower"], "states": ["VIC"], "none": "the myEnergy portal did not answer a plain request"},
+  {"name": "Powercor", "aliases": [], "states": ["VIC"], "none": "the myEnergy portal did not answer a plain request"},
+  {"name": "United Energy", "aliases": [], "states": ["VIC"], "none": "the Energy Easy portal did not answer a plain request"},
+  {"name": "Jemena", "aliases": ["Jemena Electricity Networks"], "states": ["VIC"], "none": "the Electricity Outlook portal did not answer a plain request"},
+  {"name": "Energex", "aliases": [], "states": ["QLD"], "none": "the request page answered with a bot check (HTTP 403)"},
+  {"name": "Ergon", "aliases": ["Ergon Energy"], "states": ["QLD"], "none": "the request page answered with a bot check (HTTP 403)"},
+  {"name": "TasNetworks", "aliases": [], "states": ["TAS"], "none": "no request page of its own was found; one source says to ask the retailer, not confirmed"}
+]
