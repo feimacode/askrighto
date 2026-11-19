@@ -2,20 +2,23 @@
 
 ## 1. Verify
 
-- [ ] 1.1 Read the NEM12 sections of the MDFF specification (v27) for 200, 300, 400 records, quality and method flags, and interval lengths; list what the reader must accept beyond the sample
-- [ ] 1.2 Survey time windows in stored plans (17 Nov load): how many plans have complete, non-overlapping windows, how many label bands oddly (AGL SHOULDER/SHOULDER); decide the "not estimated" rules from the numbers
-- [ ] 1.3 Check which hosts can pass a 100 KB tool argument (Claude, ChatGPT, Gemini) and record the answer
+- [ ] 1.1 Re-read the AEMO MDFF specification (NEM12 and NEM13, v2.7 or newer) and record the record layouts, quality and method flags, unit and interval-length rules, and the specification's page link, in `docs/energy-interval-readings.md`; verify against Iven's file that the `200`, `300` and `400` layouts match
+- [ ] 1.2 Check the current AEMO National Metering Identifier Procedure (the copy supplied is V5.1, August 2009, section 7, Table 1) for the data stream suffix rules and record the version and link in the docs; ask Iven for a file from a household with solar (a `B` stream) and, if possible, a full MDP-style file with `100` and `900` records; verify the mapping in design decision 6 (all `E` main consumption, all `B` solar export, controlled load a gap) against them
+- [ ] 1.3 Test how each host (Claude, ChatGPT, Gemini, or the MCP Inspector) passes a 100 KB tool argument and record the largest that works; set the size cap from it
+- [ ] 1.4 Check the daylight saving rules for NSW, VIC, ACT, TAS, QLD and SA and record the market-time to local-clock conversion; verify with the window test cases
 
 ## 2. Build
 
-- [ ] 2.1 NEM12 reader with the sample's quirks (no 100/900, short last line, missing day); verify with an anonymised copy of the sample and the spec's own examples
-- [ ] 2.2 Summary: monthly by hour of day, quality counts, missing days, identifiers dropped; verify no NMI or serial in output or logs
-- [ ] 2.3 `summarise_energy_readings` tool, size cap and error messages; verify each spec scenario
-- [ ] 2.4 Interval costing in `calc.ts` using plan windows, daylight saving and state; verify against a hand-worked plan
-- [ ] 2.5 `compare_energy_plans` accepts the summary, labels the basis, hides the readings prompt; verify markdown and Inkview, including the 300-character caption cap
-- [ ] 2.6 Server instructions, energy bill skill and `docs/energy-readings.md` (what the tool does and does not do)
+- [ ] 2.1 Build the synthetic NEM12 fixture (all record shapes seen: no `100`/`900`, short last line, `V` day with `400` events, a missing day, 5, 15 and 30 minute intervals, `E1`, `E2`, `B1`, `B2` and a net `N1` file) under `test/fixtures/readings/`; verify it never contains a real NMI
+- [ ] 2.2 Write the parser (`src/energy/readings/parse.ts`) and the profile encoder with version, ranges and size cap; verify unit tests for each parser and refusal scenario in the spec
+- [ ] 2.3 Add `summarise_interval_readings` (flat input, read-only hints, verb-first name); verify it logs nothing from the input and returns no identifier (test greps the result and the logs)
+- [ ] 2.4 Add window-share maths with daylight saving per state (`src/energy/readings/windows.ts`); verify tests with a synthetic profile that has a known peak across a daylight saving change for each state
+- [ ] 2.5 Add `readingsProfile` and the `readings` basis to `compare_energy_plans` (markdown and Inkview); verify tests for each scenario in the energy-plan-comparison delta, including a time-of-use plan estimated from the profile and an unmappable plan listed as not estimated
+- [ ] 2.6 Update the tool descriptions, server instructions and energy bill skill; verify the smoke test finds the guidance and that it never asks for the file to be sent anywhere
+- [ ] 2.7 Write `docs/energy-interval-readings.md` and update `docs/areas/energy-plans.md`
 
 ## 3. Before shipping
 
-- [ ] 3.1 Run Iven's real file locally and compare one plan by hand
-- [ ] 3.2 Test the paste size in Claude, ChatGPT and Gemini
+- [ ] 3.1 Run Iven's real file through the tool on a developer machine and check the totals and the time-of-day split against an independent calculation; record the match, not the file
+- [ ] 3.2 Check the AEMO specification link and version still hold
+- [ ] 3.3 Run the three hosts or the Inspector end to end with the real file, confirm no identifier appears in any result or log, and confirm the size limit holds
