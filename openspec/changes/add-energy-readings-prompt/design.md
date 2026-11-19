@@ -18,8 +18,18 @@
 - Some customers cannot find their NMI. The note says it is on the bill and the retailer can give it; nothing more is claimed.
 - A rule renumbering or change after 2014 could alter details; the note avoids the specifics (counts of free requests) unless the distributor page states them.
 
+## Findings (tasks 1.1 to 1.4, 19 Nov 2026)
+
+Full detail in `docs/energy-readings.md`. Summary:
+
+- **Distributors on active plans (1.1):** 13 electricity distributors under 15 spellings (Citipower, AusNet Services (electricity), Essential Energy Standard / Far West / plain, Ergon) and 27 gas distributor names. Gas is out of scope: the note is about electricity interval data, so gas results get no note.
+- **Pages (1.2):** only 3 of 13 electricity distributors have a page I could check with one plain GET and that has real request content (Ausgrid, AusNet, SA Power Networks). Essential, Energex and Ergon answer a bot check; Evoenergy's page has moved; CitiPower, Powercor, United Energy and Jemena portals did not answer; Endeavour's address redirects to a general page; TasNetworks has no page of its own. Those get the generic note, listed with the addresses a person should confirm. The spec's consistency test is met by an explicit `none` reason.
+- **Retailers (1.3):** EnergyAustralia and AGL pages found and read; Origin's answered 404. Not linked yet.
+- **Rule text (1.4):** not re-read. aemc.gov.au answered HTTP 403 (bot check). The note avoids rule numbers, the free-request count and the 10 business day figure unless a distributor's own page states them (Ausgrid's does).
+- **Inkview:** the caption is capped at 300 characters, so the note rides in a `footnote` field on the table, plus the structured data and the text form. This is weaker than the spec's "in both"; flagged in the PR.
+
 ## Open Questions
 
-- Which distributors does the stored plan data name, and how are they spelled? (Task 1.1 lists them from the data.)
+- Answered (1.1): 13 electricity distributors under 15 spellings.
 - Do the retailer-side pages for the biggest retailers say how to request readings? If yes, link the retailer route too; otherwise the note stays generic for retailers.
 - What does a real readings file from Iven's distributor look like (NEM12, CSV, columns)? Needed only for the later upload change.
