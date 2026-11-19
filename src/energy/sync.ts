@@ -26,6 +26,12 @@ export interface Retailer {
   slug: string;
   brandName: string;
   active: boolean;
+  /** Hand-checked official website and the date it was checked (see links.ts); or why there is none. */
+  website?: string;
+  websiteCheckedAt?: string;
+  noWebsite?: string;
+  /** Shared paths serve several brands; a brand listed here uses its own site instead of `website`. */
+  brandWebsites?: Record<string, string>;
 }
 
 export interface RetailerResult {
