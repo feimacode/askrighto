@@ -17,6 +17,7 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Condition: The Energy Made Easy and Victorian Energy Compare websites are not scraped; the API only.
 - Condition: Links to Energy Made Easy and to retailer websites are links only: those pages are not fetched, read or stored by the server.
 - Condition: Distributor and retailer meter data request pages and the AEMC rule on access to data are linked and paraphrased; nothing is stored from them but the link, the check date and a one-line note.
+- Condition: A household's own interval readings, if supplied, are read for that request only: never stored or logged, with the NMI and meter serial dropped. They are the person's own data, not a dataset.
 
 ## cricos-register
 

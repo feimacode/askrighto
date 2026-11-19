@@ -31,6 +31,14 @@ How hosts pass data matters: tool inputs are flat strings and numbers (the stric
 - Solar households: `B` export is reported and costed where the plan's feed-in is a single rate (as now); time-varying and capped feed-in stay listed as not estimated. Export per half hour is kept in the profile (a second set of 48 averages) only so a time-varying feed-in can be costed later; it is not used in v1.
 - Controlled load is left as a gap: a household with a controlled load circuit will have that energy costed at the general rate, which can overstate or understate the cost. The result says controlled load is not costed separately.
 
+## Findings from the build (19 Nov 2026)
+
+- **Postcode on the first tool.** The profile is built on the household's local clock, so `summarise_interval_readings` also takes the postcode (the host already has it): daylight saving is applied per date for the state when the profile is built, and each plan's windows are then read directly. The design said the plan's windows would be converted to market time at comparison time; the result is the same and the comparison needs no state rules. `compare_energy_plans` checks the profile's state matches its postcode.
+- **Shares per tariff period.** `Usage.sharesFor` gives a plan its shares from the months each tariff period covers; `calc.ts` takes them in place of a single split. The maths is unchanged.
+- **Window times.** Retailers write end times both as the last minute (20:59) and as the end (21:00), and some as `2100`; all are read, anything not on a half hour is not estimated.
+- **Check on a real file.** Iven's own file matches an independent calculation (see tasks 3.1).
+- **Not tested on the three hosts** (task 1.3).
+
 ## Open Questions
 
 - Can each host pass a 100 KB tool argument? If not, a second form (a small summary the person or host computes) is needed. To test on the three hosts or the MCP Inspector.

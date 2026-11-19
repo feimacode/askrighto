@@ -290,3 +290,6 @@ on any failed retailer) or the nightly timer. After a normaliser or GST change:
 
 When there is no bill, `compare_energy_plans` can use the AER's published typical household use for the postcode and household size (`useBenchmarkUsage` plus `householdSize`). The result is labelled typical, not the person's, and carries the zone, four seasonal values, source and release date. Time-of-use plans stay not estimated; controlled load and solar are left out. Data, lookup rule and limits: [`../energy-benchmarks.md`](../energy-benchmarks.md). Rights entry: `aer-benchmarks`.
 
+## Interval readings (add-energy-readings-upload)
+
+`summarise_interval_readings` reads a household's own NEM12 file (pasted text and the postcode) into an identifier-free profile string; `compare_energy_plans` takes it as `readingsProfile`, estimates from the household's own half-hourly use and, for the first time, estimates time-of-use plans without a bill split. Nothing is stored. Details, stream rules (E consumption, B solar, controlled load a gap) and limits: [`../energy-interval-readings.md`](../energy-interval-readings.md).
