@@ -128,3 +128,19 @@ A name that matches no known brand is kept as published, with spacing tidied. Th
 untouched. The retailer filter in the tools matches the canonical brand name, so asking for a brand on a
 shared path such as `energy-locals` returns only that brand's plans. After deploying this, run
 `node dist/askrighto.js renormalise-energy` once; it lists the brand names it rewrote.
+
+## Plan links
+
+The CDR plan records hold no plan link: none of the 12,258 plans stored on 17 Nov 2026 has `additionalInformation` or `applicationUri`, and live list and detail responses for the ten biggest retailers had none either (checked 19 Nov 2026; both fields are optional in CDS 1.35.0). So `plan_url` is empty and the tools build a link when a result is formed (`src/energy/links.ts`, nothing stored):
+
+| Plan | Link | Label |
+| --- | --- | --- |
+| The retailer published a link | that link | Plan page published by the retailer |
+| Id ends `@EME`, postcode given, not a Victorian postcode | `https://www.energymadeeasy.gov.au/plan?id=<offerId>&postcode=<postcode>` | Rate sheet on Energy Made Easy |
+| Id ends `@VEC`, or the postcode is Victorian | the retailer's website (`retailers.json`) | Retailer website, with "find this plan's rate sheet there" |
+| `@EME` with no postcode, or no checked website | none | No link available, with what to do |
+
+`<offerId>` is the stored id without `@EME` and without its trailing revision digits, so `ENG1207222MRE2@EME` is offer `ENG1207222MRE` (Iven's example). All 7,808 `@EME` ids end in 1 or 2 digits; all 4,450 `@VEC` ids end in a letter. The pattern is Iven's rule (18 Nov 2026); it is not a published API and may change, so the label promises only an Energy Made Easy page. Details and what was checked: `openspec/changes/add-energy-plan-links/design.md`.
+
+`retailers.json` carries `website` and `websiteCheckedAt` for each brand whose official site was hand-checked (one plain GET per site, 19 Nov 2026), `brandWebsites` where one path serves several brands, or `noWebsite` with the reason (blocked, no answer, ambiguous). A brand with no website gets no retailer link, never a guessed one; a test fails if an active brand has neither. Re-check a site when a retailer is added.
+
