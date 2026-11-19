@@ -9,7 +9,7 @@ Iven (19 Nov 2026) supplied a real file from his own household (United Energy, V
 ## What Changes
 
 - Add a read-only tool `summarise_interval_readings` that takes the text of a NEM12 file the person has downloaded from their distributor or retailer, parses it in memory, and returns a compact, validated **profile** and plain facts about the file: period covered, days present and missing, total kWh, a note on quality flags and outages, and which registers were found. The NMI, meter serial and any other identifier are dropped and never returned, logged or stored.
-- Extend `compare_energy_plans` with an optional `readingsProfile` input (the string the first tool returned). When given, usage comes from the readings: annual kWh from the profile, controlled load and solar export from their registers if present, and **time-of-use plans are estimated for the first time** because the share of use in each plan's peak, shoulder and off-peak windows is worked out from the half-hourly profile, not asked for.
+- Extend `compare_energy_plans` with an optional `readingsProfile` input (the string the first tool returned). When given, usage comes from the readings: annual kWh from the profile (every `E` stream counts as main consumption), solar export from the `B` streams if present, and **time-of-use plans are estimated for the first time** because the share of use in each plan's peak, shoulder and off-peak windows is worked out from the half-hourly profile, not asked for.
 - Mark the usage basis `"readings"` and label every result "from the household's own interval readings, period X to Y", with the missing days and the scaling to a full year stated.
 - Tell the host, in the tool description, server instructions and energy bill skill, when to offer the upload (only after the readings note, only when the person has a file) and what not to do: never ask for a file to be sent anywhere else, never read the figures out of the file itself.
 - Refuse clearly: NEM13 accumulation files (no intervals), files with no consumption register, files over the size cap, text that is not a NEM12 file.
@@ -24,7 +24,7 @@ Out of scope:
 - Requesting data for the person, authorisation forms, or any CDR data recipient role.
 - NEM13 accumulation data, gas, and business customers.
 - Recommending a plan or a usage change; the result stays "lowest estimate for the usage in your readings".
-- Demand charges, controlled load time bands and solar export time-of-use beyond what the profile can support (listed as not estimated, as today).
+- Controlled load. A controlled load circuit that a meter reports as its own `E` stream (usually `E2`) cannot be told apart from main consumption by its suffix, so it is counted as main consumption and the result says controlled load is not costed separately (a gap, listed as an omission). Also out: demand charges and solar export time-of-use beyond what the profile can support (listed as not estimated, as today).
 - Direct file upload (hosts differ; revisited when they offer it).
 
 ## Capabilities

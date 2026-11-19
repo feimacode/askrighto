@@ -32,6 +32,17 @@ With a readings profile the tool SHALL work out the share of use in each time-of
 - **WHEN** a plan's windows cannot be mapped (overlaps, gaps or an unknown band)
 - **THEN** the plan is listed as not estimated with that reason
 
+### Requirement: Solar export and controlled load from readings
+With a readings profile the tool SHALL use the `B` stream total as the solar export figure, and SHALL treat controlled load as not costed separately.
+
+#### Scenario: Solar household
+- **WHEN** the profile has a `B` stream
+- **THEN** the solar export figure used is that stream's annual total and the feed-in credit is worked out as for a stated export figure
+
+#### Scenario: Controlled load left out
+- **WHEN** the profile has more than one `E` stream
+- **THEN** all are main consumption and the omissions say controlled load is not costed separately
+
 ### Requirement: Readings results are labelled as the household's own
 When the basis is readings the result SHALL state the period, the days present and the missing dates, SHALL NOT use the typical-usage notice or the readings prompt, and SHALL say the estimate rests on one past year of use.
 

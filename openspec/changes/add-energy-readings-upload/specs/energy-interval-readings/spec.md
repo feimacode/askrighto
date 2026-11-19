@@ -25,8 +25,27 @@ The `summarise_interval_readings` tool SHALL parse the text of a NEM12 file in m
 - **WHEN** the file has 5 or 15 minute intervals
 - **THEN** they are summed to 30 minutes before the profile is built
 
+### Requirement: Streams are read by their suffix
+The tool SHALL treat every data stream whose suffix starts with `E` as main consumption and every stream whose suffix starts with `B` as solar export, SHALL sum streams that share a first character, SHALL NOT identify controlled load from a suffix, and SHALL state that controlled load is not costed separately.
+
+#### Scenario: Consumption streams
+- **WHEN** a file has `E1` and `E2` streams
+- **THEN** both are summed as main consumption and the result says controlled load is left out of the costing
+
+#### Scenario: Solar export
+- **WHEN** a file has a `B1` stream
+- **THEN** its total is reported as solar export and is not added to consumption
+
+#### Scenario: Net data only
+- **WHEN** a file has only an `N` (net) stream
+- **THEN** consumption is taken as net of the household's own solar, and the result says solar export cannot be separated
+
+#### Scenario: Other streams
+- **WHEN** a file has reactive power, apparent energy or power factor streams
+- **THEN** they are ignored
+
 ### Requirement: Files that cannot give correct figures are refused
-The tool SHALL refuse a file that is not NEM12, has no consumption register, holds more than one NMI, has a non-numeric or misshapen interval line, or exceeds the size cap, and SHALL give no figures.
+The tool SHALL refuse a file that is not NEM12, has no consumption stream (no `E` stream and no `N` stream), holds more than one NMI, has a non-numeric or misshapen interval line, or exceeds the size cap, and SHALL give no figures.
 
 #### Scenario: Accumulation file
 - **WHEN** the file has `250` records (NEM13)
