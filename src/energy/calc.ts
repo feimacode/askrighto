@@ -19,7 +19,7 @@ export type NotEstimatedReason =
   | "missing_rate";
 
 /** Where the usage figure comes from. Labelling only: the estimate maths is the same for both. */
-export type UsageBasis = "customer" | "benchmark";
+export type UsageBasis = "customer" | "benchmark" | "readings";
 
 export interface Usage {
   fuel: "ELECTRICITY" | "GAS";
@@ -29,6 +29,11 @@ export interface Usage {
   basis?: UsageBasis;
   /** Percent of usage in each time band; must sum to 100. Needed for time-of-use plans. */
   shares?: { peak: number; shoulder: number; offPeak: number };
+  /**
+   * Readings basis: share (0 to 1) of use in each time-of-use rate of a tariff period, by index into `tou`.
+   * Throws a Error with the reason when the windows cannot be matched; the estimate then lists the plan as not estimated.
+   */
+  bandShares?: (tou: TimeOfUseRate[], period: TariffPeriod) => number[];
   controlledLoadAnnualKwh?: number;
   solarExportAnnualKwh?: number;
 }
@@ -149,7 +154,19 @@ function singleRateCharge(rates: Rate[], usage: number, days: number): number {
   return windows * blockCharge(rates, usage / windows);
 }
 
-function touCharge(tou: TimeOfUseRate[], usage: number, u: Usage): number {
+function touCharge(tou: TimeOfUseRate[], usage: number, u: Usage, period: TariffPeriod): number {
+  if (u.bandShares) {
+    let shares: number[];
+    try {
+      shares = u.bandShares(tou, period);
+    } catch (e) {
+      throw new Stop("not_fully_understood", e instanceof Error ? e.message : "The time windows could not be matched to the readings.");
+    }
+    return tou.reduce((a, t, i) => {
+      if (t.rates.length !== 1 || t.rates[0]!.volume !== undefined) throw new Stop("missing_rate", `Time-of-use rate ${t.type} has blocks, which are not supported yet.`);
+      return a + usage * shares[i]! * t.rates[0]!.unitPrice;
+    }, 0);
+  }
   if (!u.shares)
     throw new Stop(
       "needs_time_of_use_split",
@@ -217,7 +234,7 @@ function estimate(plan: EnergyPlan, u: Usage): Estimate {
     const periodUsage = u.annualUsage * (days / DAYS);
     if (t.dailySupplyCharge === undefined) throw new Stop("missing_rate", "A tariff period has no daily supply charge.");
     supply += t.dailySupplyCharge * days;
-    if (t.timeOfUse?.length) usageCharge += touCharge(t.timeOfUse, periodUsage, u);
+    if (t.timeOfUse?.length) usageCharge += touCharge(t.timeOfUse, periodUsage, u, t);
     else if (t.singleRate?.length) usageCharge += singleRateCharge(t.singleRate, periodUsage, days);
     else throw new Stop("missing_rate", "A tariff period has no usage rate.");
   }

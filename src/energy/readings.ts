@@ -43,7 +43,7 @@ export interface ReadingsNote {
 export const READINGS_SHORT = "Ask the retailer or distributor for interval readings for a more accurate comparison.";
 
 const GENERIC =
-  "For a more accurate comparison, ask the retailer or the electricity distributor for the interval readings (the household's use in half-hour steps), often for up to the last two years. The NMI printed on a bill is needed. Interval readings are also what would let time-of-use plans be compared. Ask Righto does not request the readings and cannot read the file.";
+  "For a more accurate comparison, ask the retailer or the electricity distributor for the interval readings (the household's use in half-hour steps), often for up to the last two years. The NMI printed on a bill is needed. Interval readings are also what would let time-of-use plans be compared. Ask Righto does not request the readings. Once the household has the file, it can be read here (nothing is stored) to compare plans from its own use.";
 
 /** The note, with the distributor's checked request page where the name matches one. */
 export function readingsNote(distributorName?: string, list: readonly Distributor[] = DISTRIBUTORS): ReadingsNote {

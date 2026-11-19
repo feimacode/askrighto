@@ -21,7 +21,7 @@ Compare plans on the user's real usage. Every figure comes from an Ask Righto to
 
 ## Interval readings
 
-If the comparison used typical usage or a single bill, the result includes a "More accurate comparison" note: the household can ask its retailer or its electricity distributor for interval readings (use in half-hour steps), which also lets time-of-use plans be compared. Offer it once, in the result's words. If it links the distributor's request page, give that link; if not, do not guess one. Never add a fee or a time the note does not state. Ask Righto does not request the readings and cannot read the file, so do not ask the user to send it.
+If the comparison used typical usage or a single bill, the result includes a "More accurate comparison" note: the household can ask its retailer or its electricity distributor for interval readings (use in half-hour steps), which also lets time-of-use plans be compared. Offer it once, in the result's words. If it links the distributor's request page, give that link; if not, do not guess one. Never add a fee or a time the note does not state. Ask Righto does not request the readings. If the household already has the NEM12 file, see "Using the readings file" below.
 
 ## Plans that are not estimated
 
@@ -32,3 +32,7 @@ If a plan comes back as not estimated, say why in the tool's words, give the pla
 Say energy data is temporarily unavailable. Do not quote prices from memory.
 
 See `references/worked-example.md` for the shape of a good answer.
+
+## Using the readings file
+
+If the household already has the file (NEM12, half-hourly kWh), call `summarise_interval_readings` with the file's whole text, then pass the profile string it returns, unchanged, as `readingsProfile` to `compare_energy_plans`. Never add up or read figures out of the file yourself. Say the estimate is from the household's own readings for the period shown (one past year of use, not typical), that controlled load is not costed separately, and that a plan whose time windows cannot be matched is listed as not estimated with the reason. Time-of-use plans are estimated this way. If the tool refuses the file (NEM13 accumulation data, several meter points, over the size limit), relay its message and ask for NEM12 interval data. Do not ask the user to send the file anywhere else.
