@@ -2,12 +2,14 @@ import { z } from "zod";
 import { defineTool } from "../core/define-tool.js";
 import { found, notFound, type Found } from "../core/grounded.js";
 import { ENERGY_DATASET_ID, withStore } from "../energy/index.js";
+import { linkMarkdown, linkNotes, planLink, type PlanLink } from "../energy/links.js";
 import { formatMoney } from "../energy/money.js";
 import type { Contract, Rate, TimeOfUseRate } from "../energy/types.js";
-import { asOfFor, fmtRate, incGst, inkview, inkviewResult, inkviewSource, NOTICE, source, tableMeta } from "./energy-common.js";
+import { asOfFor, checkPostcode, fmtRate, incGst, inkview, inkviewResult, inkviewSource, NOTICE, source, tableMeta } from "./energy-common.js";
 
 const input = z.object({
   planId: z.string().min(1).describe("Plan id from search_energy_plans"),
+  postcode: z.string().optional().describe("Four-digit postcode of the property. Needed for the Energy Made Easy rate sheet link"),
 });
 
 interface ContractView {
@@ -32,6 +34,8 @@ export interface PlanData {
   planType: string;
   distributors: string[];
   planUrl?: string;
+  /** Labelled link to the rate sheet (Energy Made Easy) or the retailer's website; see links.ts. */
+  link: PlanLink;
   sourceLastUpdated: string;
   pricesShown: boolean;
   priceNote: string;
@@ -80,7 +84,7 @@ function view(fuel: "ELECTRICITY" | "GAS", c: Contract): ContractView {
       name: t.displayName ?? "Tariff period",
       ...(t.startDate || t.endDate ? { dates: `${t.startDate ?? "?"} to ${t.endDate ?? "?"}` } : {}),
       ...(t.dailySupplyCharge !== undefined && money(t.dailySupplyCharge) ? { dailySupply: `${money(t.dailySupplyCharge)}/day` } : {}),
-      usage: t.timeOfUse ? touText(c, t.timeOfUse) : t.singleRate ? ratesText(c, t.singleRate) : t.hasDemandCharges ? ["demand charges (see the plan link)"] : [],
+      usage: t.timeOfUse ? touText(c, t.timeOfUse) : t.singleRate ? ratesText(c, t.singleRate) : t.hasDemandCharges ? ["demand charges (see the rate sheet link)"] : [],
     })),
     controlledLoads: c.controlledLoads.map((cl) => {
       const s = money(cl.dailySupplyCharge);
@@ -102,7 +106,7 @@ function view(fuel: "ELECTRICITY" | "GAS", c: Contract): ContractView {
     discounts: c.discounts.map((d) => ({
       name: d.displayName ?? d.category ?? "Discount",
       conditional: d.conditional,
-      condition: d.conditional ? [d.category?.toLowerCase().replace(/_/g, " "), d.description].filter(Boolean).join(": ") || "conditions apply, see the plan link" : "applies without conditions",
+      condition: d.conditional ? [d.category?.toLowerCase().replace(/_/g, " "), d.description].filter(Boolean).join(": ") || "conditions apply, see the rate sheet link" : "applies without conditions",
       ...(d.percent ? { amount: `${Math.round(Number(d.percent) * 1000) / 10}% (${d.method})` } : d.amount !== undefined && published(d.amount) ? { amount: `${published(d.amount)} (${d.method}, as published)` } : {}),
     })),
     fees: c.fees.map((f) => `${(f.type ?? "fee").toLowerCase().replace(/_/g, " ")}${f.term ? ` (${f.term.toLowerCase()})` : ""}${f.amount !== undefined && published(f.amount) ? `: ${published(f.amount)}` : f.rate ? `: ${f.rate}` : ""}${f.description ? ` - ${f.description}` : ""}`),
@@ -121,7 +125,7 @@ export const getEnergyPlan = defineTool({
   name: "get_energy_plan",
   title: "Get energy plan details",
   description:
-    "Shows one energy plan in full from the AER's published plan data: supply charge, usage rates and blocks, time-of-use windows, controlled load, solar feed-in, discounts with their conditions, fees, eligibility and terms, with a link to the retailer's plan page. Use a plan id from search_energy_plans.",
+    "Shows one energy plan in full from the AER's published plan data: supply charge, usage rates and blocks, time-of-use windows, controlled load, solar feed-in, discounts with their conditions, fees, eligibility and terms, with a labelled link to the rate sheet on Energy Made Easy (give the postcode) or, for Victorian plans, to the retailer's website. Use a plan id from search_energy_plans.",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,
@@ -130,6 +134,8 @@ export const getEnergyPlan = defineTool({
   meta: tableMeta("entity_card"),
   handler: (args) =>
     withStore<PlanData>(async (store) => {
+      const pc = args.postcode === undefined ? undefined : checkPostcode(args.postcode);
+      if (args.postcode !== undefined && !pc) return notFound("needs_input", "A postcode is four digits, for example 3000. Ask the user for the postcode of the property, or call again without it.");
       const p = await store.plan(args.planId);
       if (!p) return notFound("not_in_dataset", `No current plan has the id "${args.planId}". Search by postcode with search_energy_plans to find valid plan ids.`);
       const contracts = [p.electricity ? view("ELECTRICITY", p.electricity) : undefined, p.gas ? view("GAS", p.gas) : undefined].filter((x): x is ContractView => !!x);
@@ -142,20 +148,21 @@ export const getEnergyPlan = defineTool({
         planType: p.planType,
         distributors: p.geography.distributors,
         ...(p.planUrl ? { planUrl: p.planUrl } : {}),
+        link: planLink(p, pc),
         sourceLastUpdated: p.sourceLastUpdated,
         pricesShown: !unknown,
         priceNote: unknown
-          ? "Dollar amounts are withheld because whether the published amounts include GST has not been confirmed. Use the plan link for prices."
+          ? "Dollar amounts are withheld because whether the published amounts include GST has not been confirmed. Use the rate sheet link for prices."
           : "Amounts are shown including GST.",
         understood: p.understood,
         notUnderstood: p.notUnderstood,
         contracts,
         notice: NOTICE,
       };
-      return found({ data, source, asOf: asOfFor([p]), ...(p.understood ? {} : { warnings: [`Parts of this plan's structure are not fully understood (${p.notUnderstood.join(", ")}). Check the plan link for the full terms.`] }) });
+      return found({ data, source, asOf: asOfFor([p]), ...(p.understood ? {} : { warnings: [`Parts of this plan's structure are not fully understood (${p.notUnderstood.join(", ")}). Check the rate sheet for the full terms.`] }) });
     }),
   render: (d) => {
-    const out = [`**${d.planName}** (${d.retailer}), ${d.fuelType.toLowerCase()} ${d.planType.toLowerCase()} plan. Plan id: ${d.planId}. Distributors: ${d.distributors.join(", ") || "not stated"}.`, d.planUrl ? `Plan link: ${d.planUrl}` : "No plan link was published.", `Source last updated: ${d.sourceLastUpdated.slice(0, 10)}. ${d.priceNote}`];
+    const out = [`**${d.planName}** (${d.retailer}), ${d.fuelType.toLowerCase()} ${d.planType.toLowerCase()} plan. Plan id: ${d.planId}. Distributors: ${d.distributors.join(", ") || "not stated"}.`, `Link: ${linkMarkdown(d.link)}`, `Source last updated: ${d.sourceLastUpdated.slice(0, 10)}. ${d.priceNote}`];
     for (const c of d.contracts) {
       out.push("", `### ${c.fuel === "ELECTRICITY" ? "Electricity" : "Gas"} (${c.pricingModel})`);
       for (const t of c.periods) out.push(`- ${t.name}${t.dates ? ` (${t.dates})` : ""}${t.dailySupply ? `, supply ${t.dailySupply}` : ""}${t.usage.length ? `; usage: ${t.usage.join("; ")}` : ""}`);
@@ -167,8 +174,8 @@ export const getEnergyPlan = defineTool({
       if (c.eligibility.length) out.push(`- Eligibility: ${c.eligibility.join("; ")}`);
       if (c.terms.length) out.push(`- Terms: ${c.terms.join("; ")}`);
     }
-    if (!d.understood) out.push("", `Not fully understood by Ask Righto: ${d.notUnderstood.join(", ")}. See the plan link for the complete terms.`);
-    out.push("", NOTICE);
+    if (!d.understood) out.push("", `Not fully understood by Ask Righto: ${d.notUnderstood.join(", ")}. See the rate sheet for the complete terms.`);
+    out.push("", ...linkNotes([d.link]), "", NOTICE);
     return out.join("\n");
   },
   decorate: (result) =>
@@ -182,11 +189,12 @@ export const getEnergyPlan = defineTool({
         description: NOTICE,
         facts: [
           { label: "Plan id", value: d.planId },
+          { label: "Link", value: d.link.url ? d.link.label : "No link available (give the postcode)" },
           { label: "Distributors", value: d.distributors.join(", ") || "not stated" },
           { label: "Source last updated", value: d.sourceLastUpdated.slice(0, 10) },
           ...d.contracts.flatMap((c) => c.discounts.slice(0, 3).map((x) => ({ label: `Discount (${x.conditional ? "conditional" : "no conditions"})`, value: `${x.name}: ${x.condition}` }))),
         ].slice(0, 8),
-        ...(d.planUrl ? { links: [{ label: "Plan page", url: d.planUrl }] } : {}),
+        ...(d.link.url ? { links: [{ label: d.link.label, url: d.link.url }] } : {}),
         source: inkviewSource(r),
       });
     }),

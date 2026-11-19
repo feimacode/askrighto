@@ -8,6 +8,7 @@ import { NoBenchmarkLoad } from "../energy/benchmarks/load.js";
 import { SEASONS } from "../energy/benchmarks/types.js";
 import { estimateAnnualCost, type Estimate, type NotEstimated, type Usage, type UsageBasis } from "../energy/calc.js";
 import { BENCHMARK_DATASET_ID, ENERGY_DATASET_ID, getEnergy, withStore } from "../energy/index.js";
+import { linkCell, linkNotes, planLink, type PlanLink } from "../energy/links.js";
 import {
   asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, dollars, inkview, inkviewResult, inkviewSource, matchRetailer, NOTICE, source, tableMeta, uniqueDistributors,
 } from "./energy-common.js";
@@ -79,6 +80,7 @@ export interface IfConditionsMet {
   brandName: string;
   displayName: string;
   planUrl?: string;
+  link: PlanLink;
   totalIfConditionsMetCents: number;
   totalCents: number;
   savingCents: number;
@@ -106,7 +108,7 @@ export interface CompareData {
   typicalUsageNotice?: string;
   counts: { available: number; estimated: number; notEstimated: number; returned: number };
   summary: string;
-  estimates: Array<Estimate & { rank: number }>;
+  estimates: Array<Estimate & { rank: number; link: PlanLink }>;
   /**
    * The plans with conditional discounts, ordered by their cost if every listed condition is met.
    * A separate ranking, so the main ordering stays on the cost without conditions.
@@ -233,7 +235,7 @@ export const compareEnergyPlans = defineTool({
       const byReason: Record<string, number> = {};
       for (const n of no) byReason[n.reason] = (byReason[n.reason] ?? 0) + 1;
       const limit = args.limit ?? 10;
-      const shown = ok.slice(0, limit).map((e, i) => ({ ...e, rank: i + 1 }));
+      const shown = ok.slice(0, limit).map((e, i) => ({ ...e, rank: i + 1, link: planLink(e, postcode) }));
       const ifConditionsMet: IfConditionsMet[] = ok
         .map((e, i) => ({ e, mainRank: i + 1 }))
         .filter(({ e }) => e.conditionalDiscounts.length > 0)
@@ -246,6 +248,7 @@ export const compareEnergyPlans = defineTool({
           brandName: e.brandName,
           displayName: e.displayName,
           ...(e.planUrl ? { planUrl: e.planUrl } : {}),
+          link: planLink(e, postcode),
           totalIfConditionsMetCents: e.totalIfConditionsMetCents,
           totalCents: e.totalCents,
           savingCents: e.totalCents - e.totalIfConditionsMetCents,
@@ -320,11 +323,11 @@ export const compareEnergyPlans = defineTool({
     if (u.benchmark) out.push(`Benchmark source: ${u.benchmark.source.name} (${u.benchmark.source.url}), ${u.benchmark.release}. ${u.benchmark.source.licence}.`, "");
     if (d.estimates.length) {
       out.push(
-        "| # | Retailer | Plan | Est. yearly cost | Supply | Usage | Controlled load | Solar credit | Updated | Plan |",
+        "| # | Retailer | Plan | Est. yearly cost | Supply | Usage | Controlled load | Solar credit | Updated | Link |",
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
         ...d.estimates.map(
           (e) =>
-            `| ${e.rank} | ${e.brandName} | ${e.displayName} | ${dollars(e.totalCents)} | ${dollars(e.breakdown.supplyCents)} | ${dollars(e.breakdown.usageCents)} | ${dollars(e.breakdown.controlledLoadCents)} | ${dollars(e.breakdown.feedInCreditCents)} | ${e.sourceLastUpdated.slice(0, 10)} | ${e.planUrl ?? e.planId} |`,
+            `| ${e.rank} | ${e.brandName} | ${e.displayName} | ${dollars(e.totalCents)} | ${dollars(e.breakdown.supplyCents)} | ${dollars(e.breakdown.usageCents)} | ${dollars(e.breakdown.controlledLoadCents)} | ${dollars(e.breakdown.feedInCreditCents)} | ${e.sourceLastUpdated.slice(0, 10)} | ${linkCell(e.link)} |`,
         ),
         "",
         "Breakdown per plan also includes guaranteed discounts, recurring fees and GST; each plan's components add up to its total.",
@@ -343,11 +346,11 @@ export const compareEnergyPlans = defineTool({
         "",
         "If you meet the conditions: these plans have discounts that apply only when a condition is met (for example paying on time, direct debit or membership). This table orders them by the cost if every listed condition is met. It is a separate ordering; the table above does not count these discounts.",
         "",
-        "| # | Retailer | Plan | Cost if conditions met | Cost otherwise | Difference | Conditions | Plan |",
+        "| # | Retailer | Plan | Cost if conditions met | Cost otherwise | Difference | Conditions | Link |",
         "| --- | --- | --- | --- | --- | --- | --- | --- |",
         ...d.ifConditionsMet.map(
           (x) =>
-            `| ${x.rank} | ${x.brandName} | ${x.displayName} | ${dollars(x.totalIfConditionsMetCents)} | ${dollars(x.totalCents)} (#${x.mainRank} without conditions) | ${dollars(x.savingCents)} | ${x.conditions.map((c) => `${c.name}: ${c.condition}`.replace(/\|/g, "/")).join("; ")} | ${x.planUrl ?? x.planId} |`,
+            `| ${x.rank} | ${x.brandName} | ${x.displayName} | ${dollars(x.totalIfConditionsMetCents)} | ${dollars(x.totalCents)} (#${x.mainRank} without conditions) | ${dollars(x.savingCents)} | ${x.conditions.map((c) => `${c.name}: ${c.condition}`.replace(/\|/g, "/")).join("; ")} | ${linkCell(x.link)} |`,
         ),
       );
     }
@@ -357,7 +360,7 @@ export const compareEnergyPlans = defineTool({
       if (d.notEstimated.length > 15) out.push(`- and ${d.counts.notEstimated - 15} more (see structured data).`);
     }
     if (d.unknownPlanIds?.length) out.push("", `Plan ids not found among the available plans: ${d.unknownPlanIds.join(", ")}.`);
-    out.push("", "Assumptions:", ...d.assumptions.map((a) => `- ${a}`), "Left out:", ...d.omissions.map((a) => `- ${a}`), "", NOTICE);
+    out.push("", ...linkNotes(d.estimates.map((e) => e.link)), "", "Assumptions:", ...d.assumptions.map((a) => `- ${a}`), "Left out:", ...d.omissions.map((a) => `- ${a}`), "", NOTICE);
     return out.join("\n");
   },
   decorate: (result) =>
@@ -377,6 +380,8 @@ export const compareEnergyPlans = defineTool({
             { key: "ifMet", label: "Cost if conditions met", type: "money", currency: "AUD" },
             { key: "conditions", label: "Conditions" },
             { key: "updated", label: "Updated", type: "date" },
+            { key: "linkLabel", label: "Link type" },
+            { key: "link", label: "Link", type: "link" },
           ],
           rows: r.data.estimates.map((e) => ({
             rank: e.rank,
@@ -388,6 +393,8 @@ export const compareEnergyPlans = defineTool({
             ifMet: e.conditionalDiscounts.length ? e.totalIfConditionsMetCents / 100 : null,
             conditions: e.conditionalDiscounts.map((c) => c.name).join("; ") || null,
             updated: e.sourceLastUpdated.slice(0, 10),
+            linkLabel: e.link.url ? e.link.label : "No link available",
+            link: e.link.url ?? null,
           })),
           source: inkviewSource(r),
         },

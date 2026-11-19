@@ -2,6 +2,7 @@ import { z } from "zod";
 import { defineTool } from "../core/define-tool.js";
 import { found, notFound } from "../core/grounded.js";
 import { ENERGY_DATASET_ID, withStore } from "../energy/index.js";
+import { linkCell, linkNotes, planLink, type PlanLink } from "../energy/links.js";
 import type { EnergyPlan } from "../energy/types.js";
 import { asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, inkview, inkviewResult, inkviewSource, matchRetailer, NOTICE, source, tableMeta, uniqueDistributors } from "./energy-common.js";
 
@@ -27,6 +28,8 @@ interface Row {
   distributors: string[];
   sourceLastUpdated: string;
   planUrl?: string;
+  /** What to open to see this plan's rate sheet, labelled by what it is. Built for the postcode searched. */
+  link: PlanLink;
   understood: boolean;
 }
 
@@ -110,6 +113,7 @@ export const searchEnergyPlans = defineTool({
         distributors: p.geography.distributors,
         sourceLastUpdated: p.sourceLastUpdated,
         ...(p.planUrl ? { planUrl: p.planUrl } : {}),
+        link: planLink(p, postcode),
         understood: p.understood,
       }));
       const data: SearchData = {
@@ -133,12 +137,13 @@ export const searchEnergyPlans = defineTool({
     const lines = [
       `${d.total} current residential plan${d.total === 1 ? "" : "s"} at postcode ${d.postcode}${d.matchedRetailer ? ` (retailer matched: ${d.matchedRetailer})` : ""}; showing ${d.returned}.`,
       "",
-      "| Retailer | Plan | Fuel | Type | Tariff | Distributor | Updated | Plan id |",
-      "| --- | --- | --- | --- | --- | --- | --- | --- |",
+      "| Retailer | Plan | Fuel | Type | Tariff | Distributor | Updated | Link | Plan id |",
+      "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
       ...d.plans.map(
-        (p) => `| ${p.retailer} | ${p.planUrl ? `[${p.planName}](${p.planUrl})` : p.planName} | ${p.fuelType} | ${p.planType} | ${p.tariffType} | ${p.distributors.join(", ")} | ${p.sourceLastUpdated.slice(0, 10)} | ${p.planId} |`,
+        (p) => `| ${p.retailer} | ${p.planName} | ${p.fuelType} | ${p.planType} | ${p.tariffType} | ${p.distributors.join(", ")} | ${p.sourceLastUpdated.slice(0, 10)} | ${linkCell(p.link)} | ${p.planId} |`,
       ),
     ];
+    lines.push("", ...linkNotes(d.plans.map((p) => p.link)));
     if (d.askUser) lines.push("", d.askUser);
     if (d.nextCursor) lines.push("", `More plans are available: call again with cursor "${d.nextCursor}".`);
     lines.push("", NOTICE);
@@ -159,9 +164,11 @@ export const searchEnergyPlans = defineTool({
             { key: "tariffType", label: "Tariff" },
             { key: "distributors", label: "Distributor" },
             { key: "updated", label: "Updated", type: "date" },
+            { key: "linkLabel", label: "Link type" },
+            { key: "link", label: "Link", type: "link" },
             { key: "planId", label: "Plan id" },
           ],
-          rows: r.data.plans.map((p) => ({ ...p, distributors: p.distributors.join(", "), updated: p.sourceLastUpdated.slice(0, 10) })),
+          rows: r.data.plans.map(({ link, ...p }) => ({ ...p, distributors: p.distributors.join(", "), updated: p.sourceLastUpdated.slice(0, 10), linkLabel: link.url ? link.label : "No link available", link: link.url ?? null })),
           source: inkviewSource(r),
         },
         { limit: 50 },
