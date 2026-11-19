@@ -2,12 +2,14 @@ import { z } from "zod";
 import { defineTool } from "../core/define-tool.js";
 import { found, notFound, type Found } from "../core/grounded.js";
 import { ENERGY_DATASET_ID, withStore } from "../energy/index.js";
+import { linkMarkdown, planLink, type PlanLink } from "../energy/links.js";
 import { formatMoney } from "../energy/money.js";
 import type { Contract, Rate, TimeOfUseRate } from "../energy/types.js";
-import { asOfFor, fmtRate, incGst, inkview, inkviewResult, inkviewSource, NOTICE, source, tableMeta } from "./energy-common.js";
+import { asOfFor, checkPostcode, fmtRate, incGst, inkview, inkviewResult, inkviewSource, NOTICE, source, tableMeta } from "./energy-common.js";
 
 const input = z.object({
   planId: z.string().min(1).describe("Plan id from search_energy_plans"),
+  postcode: z.string().optional().describe("Four-digit postcode of the property; needed to build the Energy Made Easy rate sheet link"),
 });
 
 interface ContractView {
@@ -32,6 +34,7 @@ export interface PlanData {
   planType: string;
   distributors: string[];
   planUrl?: string;
+  link: PlanLink;
   sourceLastUpdated: string;
   pricesShown: boolean;
   priceNote: string;
@@ -130,6 +133,7 @@ export const getEnergyPlan = defineTool({
   meta: tableMeta("entity_card"),
   handler: (args) =>
     withStore<PlanData>(async (store) => {
+      const pc = args.postcode ? checkPostcode(args.postcode) : undefined;
       const p = await store.plan(args.planId);
       if (!p) return notFound("not_in_dataset", `No current plan has the id "${args.planId}". Search by postcode with search_energy_plans to find valid plan ids.`);
       const contracts = [p.electricity ? view("ELECTRICITY", p.electricity) : undefined, p.gas ? view("GAS", p.gas) : undefined].filter((x): x is ContractView => !!x);
@@ -142,6 +146,7 @@ export const getEnergyPlan = defineTool({
         planType: p.planType,
         distributors: p.geography.distributors,
         ...(p.planUrl ? { planUrl: p.planUrl } : {}),
+        link: planLink({ planId: p.planId, brandName: p.brandName, ...(pc ? { postcode: pc } : {}), ...(p.planUrl ? { publishedUrl: p.planUrl } : {}) }),
         sourceLastUpdated: p.sourceLastUpdated,
         pricesShown: !unknown,
         priceNote: unknown
@@ -155,7 +160,7 @@ export const getEnergyPlan = defineTool({
       return found({ data, source, asOf: asOfFor([p]), ...(p.understood ? {} : { warnings: [`Parts of this plan's structure are not fully understood (${p.notUnderstood.join(", ")}). Check the plan link for the full terms.`] }) });
     }),
   render: (d) => {
-    const out = [`**${d.planName}** (${d.retailer}), ${d.fuelType.toLowerCase()} ${d.planType.toLowerCase()} plan. Plan id: ${d.planId}. Distributors: ${d.distributors.join(", ") || "not stated"}.`, d.planUrl ? `Plan link: ${d.planUrl}` : "No plan link was published.", `Source last updated: ${d.sourceLastUpdated.slice(0, 10)}. ${d.priceNote}`];
+    const out = [`**${d.planName}** (${d.retailer}), ${d.fuelType.toLowerCase()} ${d.planType.toLowerCase()} plan. Plan id: ${d.planId}. Distributors: ${d.distributors.join(", ") || "not stated"}.`, `Link: ${linkMarkdown(d.link)}${d.link.note ? `. ${d.link.note}` : ""}`, `Source last updated: ${d.sourceLastUpdated.slice(0, 10)}. ${d.priceNote}`];
     for (const c of d.contracts) {
       out.push("", `### ${c.fuel === "ELECTRICITY" ? "Electricity" : "Gas"} (${c.pricingModel})`);
       for (const t of c.periods) out.push(`- ${t.name}${t.dates ? ` (${t.dates})` : ""}${t.dailySupply ? `, supply ${t.dailySupply}` : ""}${t.usage.length ? `; usage: ${t.usage.join("; ")}` : ""}`);
@@ -186,7 +191,7 @@ export const getEnergyPlan = defineTool({
           { label: "Source last updated", value: d.sourceLastUpdated.slice(0, 10) },
           ...d.contracts.flatMap((c) => c.discounts.slice(0, 3).map((x) => ({ label: `Discount (${x.conditional ? "conditional" : "no conditions"})`, value: `${x.name}: ${x.condition}` }))),
         ].slice(0, 8),
-        ...(d.planUrl ? { links: [{ label: "Plan page", url: d.planUrl }] } : {}),
+        ...(d.link.url ? { links: [{ label: d.link.label, url: d.link.url }] } : {}),
         source: inkviewSource(r),
       });
     }),

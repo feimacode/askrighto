@@ -26,6 +26,10 @@ export interface Retailer {
   slug: string;
   brandName: string;
   active: boolean;
+  /** Official retailer home page, hand-checked; used only to build a link, never fetched. */
+  website?: string;
+  /** Date (YYYY-MM-DD) the website was checked. */
+  websiteCheckedAt?: string;
 }
 
 export interface RetailerResult {

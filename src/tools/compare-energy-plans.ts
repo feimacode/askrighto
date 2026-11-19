@@ -7,6 +7,7 @@ import { lookupBenchmark, type BenchmarkFigure } from "../energy/benchmarks/look
 import { NoBenchmarkLoad } from "../energy/benchmarks/load.js";
 import { SEASONS } from "../energy/benchmarks/types.js";
 import { estimateAnnualCost, type Estimate, type NotEstimated, type Usage, type UsageBasis } from "../energy/calc.js";
+import { linkMarkdown, planLink, RETAILER_SITE_NOTE } from "../energy/links.js";
 import { BENCHMARK_DATASET_ID, ENERGY_DATASET_ID, getEnergy, withStore } from "../energy/index.js";
 import {
   asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, dollars, inkview, inkviewResult, inkviewSource, matchRetailer, NOTICE, source, tableMeta, uniqueDistributors,
@@ -324,9 +325,10 @@ export const compareEnergyPlans = defineTool({
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
         ...d.estimates.map(
           (e) =>
-            `| ${e.rank} | ${e.brandName} | ${e.displayName} | ${dollars(e.totalCents)} | ${dollars(e.breakdown.supplyCents)} | ${dollars(e.breakdown.usageCents)} | ${dollars(e.breakdown.controlledLoadCents)} | ${dollars(e.breakdown.feedInCreditCents)} | ${e.sourceLastUpdated.slice(0, 10)} | ${e.planUrl ?? e.planId} |`,
+            `| ${e.rank} | ${e.brandName} | ${e.displayName} | ${dollars(e.totalCents)} | ${dollars(e.breakdown.supplyCents)} | ${dollars(e.breakdown.usageCents)} | ${dollars(e.breakdown.controlledLoadCents)} | ${dollars(e.breakdown.feedInCreditCents)} | ${e.sourceLastUpdated.slice(0, 10)} | ${linkMarkdown(planLink({ planId: e.planId, brandName: e.brandName, postcode: d.postcode, ...(e.planUrl ? { publishedUrl: e.planUrl } : {}) }))} |`,
         ),
         "",
+        ...(d.estimates.some((e) => e.planId.endsWith("@VEC")) ? [RETAILER_SITE_NOTE, ""] : []),
         "Breakdown per plan also includes guaranteed discounts, recurring fees and GST; each plan's components add up to its total.",
       );
       for (const e of d.estimates) {
@@ -347,7 +349,7 @@ export const compareEnergyPlans = defineTool({
         "| --- | --- | --- | --- | --- | --- | --- | --- |",
         ...d.ifConditionsMet.map(
           (x) =>
-            `| ${x.rank} | ${x.brandName} | ${x.displayName} | ${dollars(x.totalIfConditionsMetCents)} | ${dollars(x.totalCents)} (#${x.mainRank} without conditions) | ${dollars(x.savingCents)} | ${x.conditions.map((c) => `${c.name}: ${c.condition}`.replace(/\|/g, "/")).join("; ")} | ${x.planUrl ?? x.planId} |`,
+            `| ${x.rank} | ${x.brandName} | ${x.displayName} | ${dollars(x.totalIfConditionsMetCents)} | ${dollars(x.totalCents)} (#${x.mainRank} without conditions) | ${dollars(x.savingCents)} | ${x.conditions.map((c) => `${c.name}: ${c.condition}`.replace(/\|/g, "/")).join("; ")} | ${linkMarkdown(planLink({ planId: x.planId, brandName: x.brandName, postcode: d.postcode, ...(x.planUrl ? { publishedUrl: x.planUrl } : {}) }))} |`,
         ),
       );
     }
@@ -377,6 +379,7 @@ export const compareEnergyPlans = defineTool({
             { key: "ifMet", label: "Cost if conditions met", type: "money", currency: "AUD" },
             { key: "conditions", label: "Conditions" },
             { key: "updated", label: "Updated", type: "date" },
+            { key: "link", label: "Link" },
           ],
           rows: r.data.estimates.map((e) => ({
             rank: e.rank,
@@ -388,6 +391,7 @@ export const compareEnergyPlans = defineTool({
             ifMet: e.conditionalDiscounts.length ? e.totalIfConditionsMetCents / 100 : null,
             conditions: e.conditionalDiscounts.map((c) => c.name).join("; ") || null,
             updated: e.sourceLastUpdated.slice(0, 10),
+            link: ((l) => (l.url ? `${l.label}: ${l.url}` : "no link available"))(planLink({ planId: e.planId, brandName: e.brandName, postcode: r.data.postcode, ...(e.planUrl ? { publishedUrl: e.planUrl } : {}) })),
           })),
           source: inkviewSource(r),
         },

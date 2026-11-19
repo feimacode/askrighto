@@ -287,6 +287,16 @@ d("get_energy_plan", () => {
     expect(c.fees[0]).toMatch(/^reconnection \(fixed\): \$51\.19 /); // "Includes GST", not grossed up again
   });
 
+  it("shows a labelled link, never the plan id as a link: Victorian plan with no checked website has none", async () => {
+    const one = await call("get_energy_plan", { planId: "AGD812605MR@VEC", postcode: "3207" });
+    expect(one.g.data.link.url).toBeUndefined();
+    expect(one.text).toContain("Link: no link available");
+    expect(one.text).not.toMatch(/energymadeeasy/);
+    const list = await call("search_energy_plans", { postcode: "3207" });
+    expect(list.text).toMatch(/\| Updated \| Link \| Plan id \|/);
+    expect(list.g.data.plans[0].link).toMatchObject({ label: "Retailer website" });
+  });
+
   it("treats distributor spellings that differ only by case as one network", () => {
     expect(uniqueDistributors(["CitiPower", "Jemena", "Citipower"])).toEqual(["CitiPower", "Jemena"]);
   });
