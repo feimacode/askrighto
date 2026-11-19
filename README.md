@@ -1,39 +1,78 @@
 # Ask Righto
 
-Everyday Aussie decisions, backed by public data. askrighto.com.au
+**Everyday Aussie decisions, backed by public data.** [askrighto.com.au](https://askrighto.com.au)
 
-One hosted MCP server for the Claude directory, ChatGPT and Gemini. Starts with comparing
-electricity and gas plans; uni course choice comes next.
+Ask Righto lets you ask your AI assistant plain-English questions about everyday Australian
+choices and get answers built from official public data, with the source and date shown. You ask
+in Claude (ChatGPT and Gemini are planned); Ask Righto supplies the figures; your assistant
+explains them.
 
-- Plan: [ROADMAP.md](ROADMAP.md)
-- Working rules for people and agents: [AGENTS.md](AGENTS.md)
-- Feature specs: [openspec/](openspec/) (managed with [OpenSpec](https://github.com/Fission-AI/OpenSpec))
+> **Status: pilot.** Energy plan comparison is the first thing available. Directory listings
+> (Claude first) are in progress, so it may not yet appear where you look.
 
-Status: pilot, pre-alpha. The server core runs; energy plan tools are in progress.
+## What you can ask today: electricity and gas plans
 
-## Run it
+Compare residential electricity and gas plans using the rates retailers publish through the
+government's Consumer Data Right (CDR) energy data. For example:
 
-```sh
-npm install
-npm run build          # bundles dist/askrighto.js
-npm run start:stdio    # developer-only: MCP over stdio, see below
-npm start              # MCP over Streamable HTTP at http://127.0.0.1:3001/mcp (/healthz, /readyz)
-npm test               # build, then unit and end-to-end tests
-```
+- "What energy plans are available at 3000?"
+- "Compare electricity plans at 3000 on CitiPower. I used 1,000 kWh over 90 days."
+- "Same, but I have solar and export 500 kWh a year."
 
-**stdio is for development only** (MCP Inspector, local debugging, the end-to-end test). It is not a way
-to use the product: the tools read plans from PostgreSQL, so stdio needs `DATABASE_URL` and a loaded
-database, and end users never run the server themselves. Claude, ChatGPT and Gemini use the hosted
-HTTP endpoint (`/mcp`).
+You get a yearly cost estimate per plan, worked out from the plan's published supply and usage
+rates and the usage you give it (from your bill, for example), plus a link to each plan's
+official rate sheet where one exists. Plans are ordered by estimated cost only. There are no ads or sponsored placements.
 
-Settings (all optional): `PORT`, `HOST`, `ASKRIGHTO_PUBLIC_URL`, `ASKRIGHTO_BODY_LIMIT` (default 256kb),
-`ASKRIGHTO_RATE_LIMIT` (requests per window per client, default 120), `ASKRIGHTO_RATE_WINDOW_MS` (default 60000),
-`ASKRIGHTO_ALLOWED_HOSTS` (comma-separated host names, e.g. `askrighto.com.au`), `ASKRIGHTO_TRUST_PROXY`,
-`ASKRIGHTO_CLIENT_IP_HEADER` (e.g. `cf-connecting-ip`), `ASKRIGHTO_LOG=off`. The access log never records tool arguments.
+## Coming later
 
-Try asking (see [docs/energy-estimates.md](docs/energy-estimates.md)): "What energy plans are available at 3000?",
-"Compare electricity plans at 3000 on CitiPower, I used 1,000 kWh over 90 days."
+Uni course choice (what your subjects rule in or out, and what last year's cut-offs were), health
+cover, home loans and careers are being built and tested internally. They are not available to
+the public yet.
 
-Victorian uni course tools (internal route only for now, see [docs/course-tools.md](docs/course-tools.md)): "Which engineering courses at RMIT are held, and what was last year's lowest selection rank?", "Compare these three nursing degrees", "I do English, Chemistry and Biology: which of these courses do my subjects rule out?", "When do VTAC preferences close?". Extra settings: `ASKRIGHTO_VERTICALS`, `ASKRIGHTO_PUBLIC_VERTICALS`, `ASKRIGHTO_INTERNAL_TOKEN`, `ASKRIGHTO_ENV`, `ASKRIGHTO_DATA_DIR` (see [docs/deploying.md](docs/deploying.md)). Reuse rights for every dataset: [docs/data-rights.md](docs/data-rights.md).
+## How to use it
 
-Adding a tool: [docs/adding-a-tool.md](docs/adding-a-tool.md). How it fits together, with implementation detail per area (platform, energy, VIC courses, international courses, skills and plugins): [docs/architecture.md](docs/architecture.md).
+Ask Righto is an [MCP](https://modelcontextprotocol.io) connector. Once listed, add **Ask Righto**
+from the connector directory in Claude (Settings, then Connectors), or, if you are testing before the listing is live, add the
+server URL `https://askrighto.com.au/mcp` as a custom connector (check the site first; this address is not guaranteed yet). Then ask your question as you would
+anyone. An optional plugin adds skills that help your assistant read an energy bill and answer
+sensibly.
+
+## What to know about accuracy
+
+- **Every figure comes from a data lookup**, with its source and as-of date. If Ask Righto has
+  no data, it says so rather than guessing. Your assistant explains the result but should not
+  invent numbers.
+- **Estimates, not quotes.** Costs come from published rates and the usage you provide. Real bills
+  also depend on things we do not model: concessions and rebates, one-off fees, sign-up credits,
+  demand tariffs and your actual meter data. Check a plan's official rate sheet before switching.
+- **Discounts.** Discounts guaranteed by the plan are applied. Conditional ones (pay on time,
+  direct debit) are shown separately, with their conditions, as a second ordering.
+- **Time-of-use plans** need your peak, shoulder and off-peak split. Some plans cannot be
+  estimated yet; Ask Righto lists these with the reason instead of skipping them silently.
+- **Where it applies.** Eastern and southern states on the National Electricity Market (NSW, ACT,
+  QLD, VIC, SA, TAS). WA and NT have their own regimes and are out of scope.
+- **Plan data is refreshed daily** from retailers' published product data, residential only.
+- **Comparison, not advice.** Ask Righto does not recommend a plan, and does not cover insurance
+  or credit products that need a financial services licence.
+
+## Privacy
+
+Ask Righto has no accounts, keeps no conversations and builds no profiles. What you ask is
+used to answer the question and is not stored. Server logs record only technical facts such as
+which tool ran, when and for how long, never the details of your question. The only data held is public reference
+data (such as published energy plans).
+
+## Data sources
+
+Open data only: the AER's Consumer Data Right energy plan data, and other public sources with clear reuse terms. Reuse basis for
+each dataset: [docs/data-rights.md](docs/data-rights.md).
+
+## Feedback
+
+Found a wrong figure or a plan that should work and doesn't? Please [open an issue](https://github.com/feimacode/askrighto/issues) with the question you asked and what you saw, leaving out personal details.
+
+## For contributors
+
+How it fits together: [docs/architecture.md](docs/architecture.md). Running, configuring and
+testing locally: [docs/development.md](docs/development.md). Working rules for people and agents:
+[AGENTS.md](AGENTS.md). Plan: [ROADMAP.md](ROADMAP.md). Feature specs: [openspec/](openspec/).
