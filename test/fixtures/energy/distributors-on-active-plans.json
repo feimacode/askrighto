@@ -1,0 +1,8 @@
+{
+  "note": "Electricity distributor names on current plans in the 17 Nov 2026 load (askrighto_local), as retailers spell them. Gas distributors are out of scope for the readings note: gas has no interval data here.",
+  "names": [
+    "Ausgrid", "Endeavour", "Essential Energy Standard", "Essential Energy Far West", "Essential Energy", "Evoenergy",
+    "Citipower", "Powercor", "AusNet Services (electricity)", "United Energy", "Jemena",
+    "Energex", "Ergon", "SA Power Networks", "TasNetworks"
+  ]
+}

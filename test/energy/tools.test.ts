@@ -287,6 +287,17 @@ d("get_energy_plan", () => {
     expect(c.fees[0]).toMatch(/^reconnection \(fixed\): \$51\.19 /); // "Includes GST", not grossed up again
   });
 
+  it("shows a labelled link, never the plan id as a link: a Victorian plan gets the retailer's checked website", async () => {
+    const one = await call("get_energy_plan", { planId: "AGD812605MR@VEC", postcode: "3207" });
+    // AGL's website is hand-checked in retailers.json (a brand with none shows "no link available": see links.test.ts).
+    expect(one.g.data.link.url).toBe("https://www.agl.com.au/");
+    expect(one.text).toContain("Link: [Retailer website](https://www.agl.com.au/)");
+    expect(one.text).not.toMatch(/energymadeeasy/);
+    const list = await call("search_energy_plans", { postcode: "3207" });
+    expect(list.text).toMatch(/\| Updated \| Link \| Plan id \|/);
+    expect(list.g.data.plans[0].link).toMatchObject({ label: "Retailer website" });
+  });
+
   it("treats distributor spellings that differ only by case as one network", () => {
     expect(uniqueDistributors(["CitiPower", "Jemena", "Citipower"])).toEqual(["CitiPower", "Jemena"]);
   });

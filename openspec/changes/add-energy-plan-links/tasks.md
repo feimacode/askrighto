@@ -18,6 +18,7 @@
 - [x] 2.3 Add the consistency test for brand websites; update `docs/energy-data.md` and `docs/data-rights.md`
   - Done: consistency test, `docs/energy-data.md` (Plan links), `docs/data-rights.md` and `src/core/rights.json` (links only).
 
+
 ## 3. Before shipping
 
 - [ ] 3.1 Re-check the EME URL pattern still opens a sample of offers

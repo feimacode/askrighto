@@ -14,7 +14,8 @@
     "attribution": null,
     "conditions": [
       "The Energy Made Easy and Victorian Energy Compare websites are not scraped; the API only.",
-      "Links to Energy Made Easy and to retailer websites are links only: those pages are not fetched, read or stored by the server."
+      "Links to Energy Made Easy and to retailer websites are links only: those pages are not fetched, read or stored by the server.",
+      "Distributor and retailer meter data request pages and the AEMC rule on access to data are linked and paraphrased; nothing is stored from them but the link, the check date and a one-line note."
     ],
     "reviewBy": "2027-02-01"
   },
