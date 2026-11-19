@@ -65,7 +65,7 @@ describe("readingsNote", () => {
   it("never says your usage or your bill, and says Ask Righto does not handle the readings", () => {
     const t = readingsNote("Ausgrid", L).text;
     expect(t).not.toMatch(/your usage|your bill/i);
-    expect(t).toMatch(/does not request the readings and cannot read the file/);
+    expect(t).toMatch(/does not request the readings for the household/);
     expect(t).toMatch(/NMI/);
   });
 });
@@ -112,12 +112,12 @@ describe("guidance", () => {
   it("is in the server instructions", () => {
     const t = serverInstructions();
     expect(t).toMatch(/More accurate comparison/);
-    expect(t).toMatch(/does not request or read the readings/);
+    expect(t).toMatch(/does not request the readings for the household/);
   });
   it("is in the energy bill skill", () => {
     const s = readFileSync(`${process.cwd()}/plugin/skills/energy-bill-comparison/SKILL.md`, "utf8");
     expect(s).toMatch(/Interval readings/);
-    expect(s).toMatch(/cannot read the file/);
+    expect(s).toMatch(/does not request the readings for the household/);
   });
 });
 

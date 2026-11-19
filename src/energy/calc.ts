@@ -19,7 +19,7 @@ export type NotEstimatedReason =
   | "missing_rate";
 
 /** Where the usage figure comes from. Labelling only: the estimate maths is the same for both. */
-export type UsageBasis = "customer" | "benchmark";
+export type UsageBasis = "customer" | "benchmark" | "readings";
 
 export interface Usage {
   fuel: "ELECTRICITY" | "GAS";
@@ -29,6 +29,11 @@ export interface Usage {
   basis?: UsageBasis;
   /** Percent of usage in each time band; must sum to 100. Needed for time-of-use plans. */
   shares?: { peak: number; shoulder: number; offPeak: number };
+  /**
+   * With interval readings the shares are worked out per tariff period from that plan's own windows: a function from
+   * the tariff period to its shares, or the reason it cannot be done. Used instead of `shares` when present.
+   */
+  sharesFor?: (t: TariffPeriod) => { ok: true; shares: { peak: number; shoulder: number; offPeak: number } } | { ok: false; reason: string };
   controlledLoadAnnualKwh?: number;
   solarExportAnnualKwh?: number;
 }
@@ -149,8 +154,8 @@ function singleRateCharge(rates: Rate[], usage: number, days: number): number {
   return windows * blockCharge(rates, usage / windows);
 }
 
-function touCharge(tou: TimeOfUseRate[], usage: number, u: Usage): number {
-  if (!u.shares)
+function touCharge(tou: TimeOfUseRate[], usage: number, u: Usage, shares: Usage["shares"] = u.shares): number {
+  if (!shares)
     throw new Stop(
       "needs_time_of_use_split",
       u.basis === "benchmark"
@@ -166,9 +171,9 @@ function touCharge(tou: TimeOfUseRate[], usage: number, u: Usage): number {
   const shoulder = tou.filter((t) => /^SHOULDER\d*$/.test(t.type));
   if (peak.length + off.length + shoulder.length !== tou.length) throw new Stop("not_fully_understood", "A time-of-use rate has an unrecognised band.");
   if (peak.length > 1 || off.length > 1 || peak.length + off.length === 0) throw new Stop("not_fully_understood", "Time-of-use bands are not in the expected shape.");
-  let peakShare = u.shares.peak;
-  const offShare = u.shares.offPeak;
-  const shoulderShare = u.shares.shoulder;
+  let peakShare = shares.peak;
+  const offShare = shares.offPeak;
+  const shoulderShare = shares.shoulder;
   let total = 0;
   if (shoulder.length === 0) peakShare += shoulderShare; // no shoulder band: shoulder usage is charged at peak
   else total += shoulder.reduce((a, t) => a + ((usage * shoulderShare) / 100 / shoulder.length) * price(t), 0);
@@ -217,7 +222,13 @@ function estimate(plan: EnergyPlan, u: Usage): Estimate {
     const periodUsage = u.annualUsage * (days / DAYS);
     if (t.dailySupplyCharge === undefined) throw new Stop("missing_rate", "A tariff period has no daily supply charge.");
     supply += t.dailySupplyCharge * days;
-    if (t.timeOfUse?.length) usageCharge += touCharge(t.timeOfUse, periodUsage, u);
+    if (t.timeOfUse?.length) {
+      if (u.sharesFor) {
+        const r = u.sharesFor(t);
+        if (!r.ok) throw new Stop("not_fully_understood", `Its time-of-use windows could not be matched to the half-hourly readings: ${r.reason}.`);
+        usageCharge += touCharge(t.timeOfUse, periodUsage, u, r.shares);
+      } else usageCharge += touCharge(t.timeOfUse, periodUsage, u);
+    }
     else if (t.singleRate?.length) usageCharge += singleRateCharge(t.singleRate, periodUsage, days);
     else throw new Stop("missing_rate", "A tariff period has no usage rate.");
   }
