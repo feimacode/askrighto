@@ -154,8 +154,8 @@ function touCharge(tou: TimeOfUseRate[], usage: number, u: Usage): number {
     throw new Stop(
       "needs_time_of_use_split",
       u.basis === "benchmark"
-        ? "This time-of-use plan needs the peak, shoulder and off-peak split from a bill; typical usage has no such split."
-        : "This time-of-use plan needs the share of usage in peak, shoulder and off-peak times.",
+        ? "This time-of-use plan needs the peak, shoulder and off-peak split from a bill; typical usage has no such split. Interval readings from the retailer or distributor would allow it to be compared."
+        : "This time-of-use plan needs the share of usage in peak, shoulder and off-peak times. Interval readings from the retailer or distributor would allow it to be compared.",
     );
   const price = (t: TimeOfUseRate): number => {
     if (t.rates.length !== 1 || t.rates[0]!.volume !== undefined) throw new Stop("missing_rate", `Time-of-use rate ${t.type} has blocks, which are not supported yet.`);
