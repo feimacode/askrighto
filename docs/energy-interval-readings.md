@@ -16,7 +16,7 @@ NEM12 is interval data: records 100 (header), 200 (NMI and stream), 300 (one day
 
 Rules the reader follows:
 - 5, 15 and 30 minute intervals are summed to half hours; Wh and MWh are converted to kWh.
-- More than one NMI, no consumption stream, a non-numeric value, a short interval line, a duplicate date or more than 600,000 characters is refused, naming the line and the problem, never the content.
+- More than one NMI, no consumption stream, a non-numeric value, a short interval line, a duplicate date or more than 250,000 characters is refused, naming the line and the problem, never the content.
 - **Streams** (AEMO *National Metering Identifier Procedure*, section 7, Table 1; the 2009 edition still applies, per Iven, 19 Nov 2026). The first character says the kind and is named from the grid's side: **`E` is energy delivered to the household (main consumption) and `B` is energy the household puts into the grid (solar export)**, the opposite of how "import" and "export" read from the home. All `E` streams are summed as main consumption and all `B` streams as solar export. Averaged and check variants (`D`, `F` for consumption, `A`, `C` for export) are used only when the master stream is absent. A net stream `N` (E minus B) is used only when neither is present, and then solar export cannot be separated. Reactive, apparent and other streams are ignored.
 - **Controlled load is a gap.** A controlled load circuit reported as a separate `E` stream (usually `E2`) cannot be told from main consumption by its suffix, so it is counted as main consumption and costed at the general rate. The result says so.
 
@@ -27,6 +27,13 @@ Rules the reader follows:
 - Solar export (the `B` total, scaled) is costed at the plan's single feed-in rate; a time-varying or capped feed-in stays not estimated, as with a bill.
 - Public holidays are treated as ordinary days. The change-over day for daylight saving uses the new offset for the whole day, a small error on two days a year.
 - The result is labelled "the household's own interval readings", with the period, days present and any scaling. It rests on one past year of use, and the readings prompt and typical-usage notice are not shown with it.
+
+## Size limits
+
+- **Our server:** the HTTP request body is limited to 256 KB (`ASKRIGHTO_BODY_LIMIT`, default `256kb`). Anything larger is refused by the transport before any tool runs, with a `Request body over 256kb` error. Tested 19 Nov 2026: 251 KB was read, 439 KB was refused.
+- **The tool:** the text is limited to 250,000 characters, just under that, so a too-long paste gets a plain message (`needs_input`: the size, the limit, and "send a shorter period or ask for 30-minute intervals"), not a transport error. The limit holds a year of 30-minute data with a solar export stream (about 230,000 characters); one stream for a year is 114 KB; a year of 5-minute data is about 630-730 KB and does not fit, but about four months does.
+- **5-minute and 15-minute data are read as they are** and summed to half hours, so the profile is the same size (about 8 KB) however fine the interval. Fine precision adds nothing for plan windows, which fall on the hour or half hour.
+- **The real bottleneck is the model:** to paste a file it must write it out, roughly 50-70 thousand tokens for a year of 30-minute data. The hosts' own limits on tool arguments are not known; see `energy-readings-host-test.md`. A route where the host's own code or a file reference carries the file would avoid it (proposed, not built).
 
 ## Privacy
 

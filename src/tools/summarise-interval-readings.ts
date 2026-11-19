@@ -7,7 +7,8 @@ import { MAX_READINGS_CHARS, parseNem12 } from "../energy/readings/parse.js";
 import { badPostcode, checkPostcode } from "./energy-common.js";
 
 const input = z.object({
-  readingsText: z.string().min(20).max(MAX_READINGS_CHARS).describe("The text of the household's own NEM12 interval meter data file (CSV), pasted unchanged. Ask the user to get it from their distributor or retailer"),
+  // No schema maximum on purpose: a longer text is refused by the parser with a plain message, not a protocol error.
+  readingsText: z.string().min(20).describe(`The text of the household's own NEM12 interval meter data file (CSV), pasted unchanged, at most ${MAX_READINGS_CHARS.toLocaleString("en-AU")} characters (a year of 30-minute data with solar export fits). Ask the user to get it from their distributor or retailer, for one NMI`),
   postcode: z.string().describe("Four-digit postcode of the property, so daylight saving can be applied to the readings"),
 });
 
@@ -74,7 +75,7 @@ export const summariseIntervalReadings = defineTool({
   name: "summarise_interval_readings",
   title: "Summarise interval readings",
   description:
-    "Reads the household's own NEM12 interval meter data file (half-hourly kWh, a CSV the person gets from their distributor or retailer) and returns the period covered, days present and missing, total and annual kWh, any solar export, and a profile string. Pass the profile unchanged to compare_energy_plans as readingsProfile to estimate plans from the household's own use, including time-of-use plans. The file is read for this request only and nothing is stored; no meter or account identifier is returned. Refuses accumulation (NEM13) files, files with more than one NMI and files with no consumption stream.",
+    "Reads the household's own NEM12 interval meter data file (half-hourly kWh, a CSV the person gets from their distributor or retailer) and returns the period covered, days present and missing, total and annual kWh, any solar export, and a profile string. Pass the profile unchanged to compare_energy_plans as readingsProfile to estimate plans from the household's own use, including time-of-use plans. The file is read for this request only and nothing is stored; no meter or account identifier is returned. Reads 5, 15 and 30 minute intervals (summed to half hours). Refuses accumulation (NEM13) files, files with more than one NMI, files with no consumption stream and text over 250,000 characters (send a shorter period, or ask for 30-minute intervals).",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,
