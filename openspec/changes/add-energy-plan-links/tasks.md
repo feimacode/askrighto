@@ -8,9 +8,11 @@
 
 ## 2. Build
 
-- [ ] 2.1 Add `src/energy/links.ts` (build link and label from plan id, postcode, brand) with unit tests for each spec scenario
-- [ ] 2.2 Use it in `search_energy_plans`, `get_energy_plan` (optional `postcode`) and `compare_energy_plans` for markdown and Inkview; verify tests show the label and no plan-id-as-link
+- [x] 2.1 Add `src/energy/links.ts` (build link and label from plan id, postcode, brand) with unit tests for each spec scenario
+- [x] 2.2 Use it in `search_energy_plans`, `get_energy_plan` (optional `postcode`) and `compare_energy_plans` for markdown and Inkview; verify tests show the label and no plan-id-as-link
 - [ ] 2.3 Add the consistency test for brand websites; update `docs/energy-data.md` and `docs/data-rights.md`
+
+  - Done in cloud (no FengsPC needed): `src/energy/links.ts`, `test/energy/links.test.ts`, one tools test. Tasks 1.1-1.3 and the website half of 2.3 stay open: until `retailers.json` has hand-checked `website` entries, Victorian plans show "no link available".
 
 ## 3. Before shipping
 
