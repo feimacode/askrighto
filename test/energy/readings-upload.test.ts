@@ -256,6 +256,16 @@ describe("window shares", () => {
     // The data uses 0.5 in half hours 30-41 (15:00-21:00) and 0.1 elsewhere: SHOULDER1 spans 10 half hours, SHOULDER2 spans 6, so SHOULDER1 > SHOULDER2.
     expect(r.byBand.SHOULDER1!).toBeGreaterThan(r.byBand.SHOULDER2!);
   });
+  it("refuses two bands with the same name rather than costing both on one share", () => {
+    const r = bandShares(profile, [
+      tou("PEAK", [{ days: all, startTime: "15:00", endTime: "20:59" }]),
+      tou("SHOULDER", [{ days: all, startTime: "07:00", endTime: "14:59" }]),
+      tou("SHOULDER", [{ days: all, startTime: "21:00", endTime: "21:59" }]),
+      tou("OFF_PEAK", []),
+    ], periodMonths({}));
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.reason).toMatch(/same type/);
+  });
   it("maps an overnight off-peak window that wraps midnight", () => {
     const r = bandShares(profile, [tou("PEAK", [{ days: all, startTime: "07:00", endTime: "20:59" }]), tou("OFF_PEAK", [{ days: all, startTime: "21:00", endTime: "06:59" }])], periodMonths({}));
     expect(r.ok && r.shares.offPeak > 0).toBe(true);
