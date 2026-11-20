@@ -146,3 +146,18 @@ describe("get_readings_upload_link", () => {
     expect(wa).toMatchObject({ found: false, reason: "outside_coverage" });
   });
 });
+
+describe("a file sent in part", () => {
+  it("warns the host that only a few days arrived and that a sample must not stand for the file", async () => {
+    const { parseNem12 } = await import("../../src/energy/readings/parse.js");
+    const { buildProfile } = await import("../../src/energy/readings/profile.js");
+    const { summaryOf } = await import("../../src/tools/summarise-interval-readings.js");
+    const p = parseNem12(bigFile(2));
+    if (!p.ok) throw new Error("parse");
+    const s = summaryOf(buildProfile(p, "VIC"), "3128");
+    expect(s.notes.join(" ")).toMatch(/only 2 days/);
+    expect(s.notes.join(" ")).toMatch(/only part of it was sent: do not use this result/);
+    const tool = allTools.find((t) => t.name === "summarise_interval_readings")!;
+    expect(tool.description).toMatch(/never a sample/);
+  });
+});

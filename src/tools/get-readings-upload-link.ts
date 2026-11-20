@@ -24,7 +24,7 @@ export const getReadingsUploadLink = defineTool({
   name: "get_readings_upload_link",
   title: "Get a link to send a large readings file",
   description:
-    "For a household's NEM12 interval readings file that is too long to pass to summarise_interval_readings (over about 250,000 characters, such as a year of 5 or 15 minute data), or when you cannot pass the file text yourself. Returns a one-off address valid for 5 minutes. Send the user's file to it with an HTTP PUT from your code environment (for example curl -T file.csv -H 'Content-Type: text/csv' ADDRESS); it answers with the profile string, which you pass unchanged as readingsProfile to compare_energy_plans. Needs your code environment to reach the address; if it cannot, build the profile as summarise_interval_readings describes. The file is read for the request only and not stored or logged; send nothing else to the address and never share it. Not advice.",
+    "For a household's NEM12 interval readings file that is too long to pass to summarise_interval_readings (over about 250,000 characters, such as a year of 5 or 15 minute data), or when you cannot pass the file text yourself. Returns a one-off address valid for 5 minutes. Send the user's file to it with an HTTP PUT from your code environment (for example curl -T file.csv -H 'Content-Type: text/csv' ADDRESS); it answers with the profile string, which you pass unchanged as readingsProfile to compare_energy_plans. Needs your code environment to reach the address; many sandboxes block it until the user allows the domain, so if the connection is refused, tell the user and offer to retry once they have allowed it, otherwise build the profile as summarise_interval_readings describes. The file is read for the request only and not stored or logged; send nothing else to the address and never share it. Not advice.",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,
@@ -45,7 +45,7 @@ export const getReadingsUploadLink = defineTool({
       steps: [
         `Send the user's readings file to the address with PUT within ${UPLOAD_TTL_SECONDS / 60} minutes, as text/csv, unchanged (curl -T file.csv -H 'Content-Type: text/csv' ADDRESS, or the same with your HTTP library). The file must be under ${Math.round(t.maxBytes / 1_000_000)} MB.`,
         "The reply is JSON with a profile string and a summary. Pass the profile unchanged as readingsProfile to compare_energy_plans with the same postcode and fuelType ELECTRICITY.",
-        "If the address cannot be reached, or it has expired (ask again), say so and build the profile as summarise_interval_readings describes, or ask the user for a shorter period or 30-minute intervals.",
+        "If the connection is refused by a proxy (for example curl: (56) CONNECT tunnel failed, response 403, or a message that the host is not allowed), the host's sandbox blocks outside addresses. Tell the user plainly that the file cannot be sent until they allow this site's domain in the host's settings (in Claude on the web: Settings, Capabilities, allowed domains), and ask whether they want to do that and retry with a new address. If they do not, or the address has expired (ask again), say so and build the profile as summarise_interval_readings describes, or ask the user for a shorter period or 30-minute intervals.",
       ],
     };
     return found({ data, source: READINGS_SOURCE, asOf: new Date() });
