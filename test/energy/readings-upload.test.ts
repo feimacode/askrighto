@@ -453,7 +453,7 @@ d("compare_energy_plans with readings (database)", () => {
     if (!w.ok) throw new Error("windows");
     const fromReadings = (await call("compare_energy_plans", { ...base, readingsProfile: profile })).g.data.estimates.find((e: any) => e.planId === "TOU1");
     const annual = dec.profile.totalKwh;
-    const fromBill = (await call("compare_energy_plans", { ...base, annualUsageKwh: annual, peakSharePct: w.shares.peak, shoulderSharePct: 0, offPeakSharePct: 100 - w.shares.peak })).g.data.estimates.find((e: any) => e.planId === "TOU1");
+    const fromBill = (await call("compare_energy_plans", { ...base, annualUsageKwh: annual, peakSharePct: w.shares.peak, shoulderSharePct: 0, offPeakSharePct: 100 - w.shares.peak, currentPlanId: "TOU1" })).g.data.estimates.find((e: any) => e.planId === "TOU1");
     expect(Math.abs(fromReadings.totalCents - fromBill.totalCents)).toBeLessThanOrEqual(100); // rounding of the shares only
   });
 

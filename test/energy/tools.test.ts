@@ -446,6 +446,7 @@ d("compare_energy_plans", () => {
         shoulderSharePct: 20,
         offPeakSharePct: 50,
         solarExportAnnualKwh: 500,
+        currentPlanId: "O1",
       })
     ).g;
     expect(withSplit.data.estimates[0]).toMatchObject({ planId: "O1" });

@@ -11,8 +11,8 @@ const known = new Set(routeSet(ALL_VERTICALS, ALL_VERTICALS.map((v) => v.id)).to
 describe("energy eval prompt set", () => {
   const rows = lib.loadSet("energy") as Row[];
 
-  it("holds twenty prompts that name only tools that exist and say what a grounded answer holds", () => {
-    expect(rows.map((r) => r.id)).toEqual(Array.from({ length: 20 }, (_, i) => `E${String(i + 1).padStart(2, "0")}`));
+  it("holds twenty-four prompts that name only tools that exist and say what a grounded answer holds", () => {
+    expect(rows.map((r) => r.id)).toEqual(Array.from({ length: 24 }, (_, i) => `E${String(i + 1).padStart(2, "0")}`));
     for (const r of rows) {
       expect(r.must.length, r.id).toBeGreaterThan(20);
       for (const t of r.expectedTools) expect(known.has(t), `${r.id}: ${t}`).toBe(true);
@@ -21,7 +21,7 @@ describe("energy eval prompt set", () => {
 
   it("covers each energy tool and the readings route", () => {
     const used = new Set(rows.flatMap((r) => r.expectedTools));
-    for (const t of ["search_energy_plans", "get_energy_plan", "compare_energy_plans", "summarise_interval_readings"]) expect(used.has(t), t).toBe(true);
+    for (const t of ["search_energy_plans", "get_energy_plan", "compare_energy_plans", "summarise_interval_readings", "list_current_plan_options"]) expect(used.has(t), t).toBe(true);
     expect(rows.some((r) => r.expectedTools.length === 0)).toBe(true);
   });
 
