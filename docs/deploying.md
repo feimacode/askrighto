@@ -77,7 +77,7 @@ Start-up fails on an unknown vertical name, an empty list, or a public vertical 
 
 **Token handling:** the token lives in ansible-vault. Rotate it when a tester leaves and at least every 90 days (change the secret, redeploy, send the new URL directly to the named testers). The access log writes `/mcp-internal/***`. The URL never goes in the repo, docs, plugin bundles or listings.
 
-**Loading course data:** run `node askrighto.js migrate`, then `courses:load` (optionally `--cricos FILE.csv`, the CRICOS course list exported to CSV) and `vce:load` from the VM. The scaling and study grouping tables load only from a permitted file; until VTAC's permission is recorded they exist only as git-ignored copies in `data/local/` and stay `data_unavailable` in production.
+**Loading course data:** run `node askrighto.js migrate`, then `courses:load` (optionally `--cricos FILE.csv --course-locations FILE.csv`, the CRICOS Courses and Course Locations sheets exported to CSV) and `vce:load` from the VM. The scaling and study grouping tables load only from a permitted file; until VTAC's permission is recorded they exist only as git-ignored copies in `data/local/` and stay `data_unavailable` in production.
 
 **Promotion:** a vertical joins `ASKRIGHTO_PUBLIC_VERTICALS` only through a change that records every gate in [promotion-checklist.md](promotion-checklist.md). **Rollback:** remove it from the list and redeploy.
 
