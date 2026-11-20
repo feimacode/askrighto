@@ -76,6 +76,10 @@ export const READINGS_OMISSIONS = [
   "Controlled load is not costed separately: every E stream in the readings is counted as main consumption, so a controlled load circuit is costed at the general rate.",
   "Solar feed-in credit uses the plan's single feed-in rate; a time-varying or capped feed-in is listed as not estimated.",
 ];
+/** Said whenever a readings profile did not come, unchanged, from this server. */
+export const UNVERIFIED_READINGS =
+  "These readings were summarised by the assistant, not by Ask Righto, so the figures are not verified by Ask Righto (the profile was built or changed outside our tool).";
+
 export const READINGS_ASSUMPTIONS = [
   "Time-of-use shares come from the household's own half-hourly readings, matched to each plan's windows in local clock time (daylight saving applied); public holidays are treated as ordinary days.",
   "Annual use is the measured total scaled to 365 days, and is spread evenly across tariff periods.",
@@ -125,7 +129,7 @@ export interface CompareData {
     scaledFromBill?: string;
     shares?: Usage["shares"];
     /** Present only when basis is "readings". */
-    readings?: { from: string; to: string; daysPresent: number; missingCount: number; missingDates: string[]; streams: { consumption: string[]; export: string[] }; netOnly: boolean; ignored?: string };
+    readings?: { verified: boolean; from: string; to: string; daysPresent: number; missingCount: number; missingDates: string[]; streams: { consumption: string[]; export: string[] }; netOnly: boolean; ignored?: string };
     controlledLoadAnnualKwh?: number;
     solarExportAnnualKwh?: number;
     /** Present only when basis is "benchmark". */
@@ -177,6 +181,7 @@ export const compareEnergyPlans = defineTool({
     // The household's own interval readings, if the host passed a profile back. Revalidated here, never trusted.
     let profile: ReadingsProfile | undefined;
     let ignored: string | undefined;
+    let readingsVerified = true;
     if (args.readingsProfile !== undefined) {
       if (!elec) return notFound("needs_input", "Interval readings apply to electricity only. Call again with fuelType ELECTRICITY, or without readingsProfile.");
       const d = decodeProfile(args.readingsProfile);
@@ -184,6 +189,7 @@ export const compareEnergyPlans = defineTool({
       const st = stateOfPostcode(postcode);
       if (st !== d.profile.state) return notFound("needs_input", `The profile was built for a ${d.profile.state} postcode (daylight saving is applied by state) but this postcode is in ${st ?? "an unsupported place"}. Call summarise_interval_readings again with this postcode.`);
       profile = d.profile;
+      readingsVerified = d.verified;
       const dropped = [annualDirect !== undefined || bill !== undefined ? "the bill or yearly usage figure" : "", args.peakSharePct !== undefined || args.shoulderSharePct !== undefined || args.offPeakSharePct !== undefined ? "the peak, shoulder and off-peak split" : ""].filter(Boolean);
       if (dropped.length) ignored = `The readings were used; ${dropped.join(" and ")} given with them was not used.`;
       annual = annualKwh(profile);
@@ -314,7 +320,7 @@ export const compareEnergyPlans = defineTool({
       const first = shown[0];
       const typicalUsageNotice = figure ? typicalNotice(figure) : undefined;
       const readingsNotice = profile
-        ? `Usage is from the household's own interval readings, ${profile.from} to ${profile.to}: ${profile.daysPresent} days present${profile.missingCount ? `, ${profile.missingCount} missing` : ""}, scaled to a year (${Math.round(annual!)} kWh). Time-of-use plans are matched to the half-hourly readings. This rests on one past year of use, which may not repeat.`
+        ? `Usage is from the household's own interval readings, ${profile.from} to ${profile.to}: ${profile.daysPresent} days present${profile.missingCount ? `, ${profile.missingCount} missing` : ""}, scaled to a year (${Math.round(annual!)} kWh). Time-of-use plans are matched to the half-hourly readings. This rests on one past year of use, which may not repeat.${readingsVerified ? "" : ` ${UNVERIFIED_READINGS}`}`
         : undefined;
       // Interval readings would be more accurate than a benchmark or one bill (electricity only; gas has no interval data here).
       const note = elec && (figure || scaledFromBill) ? readingsNote(distributor ?? (nets.length === 1 ? nets[0] : undefined)) : undefined;
@@ -332,7 +338,7 @@ export const compareEnergyPlans = defineTool({
           unit,
           basis: usage.basis ?? "customer",
           ...(scaledFromBill ? { scaledFromBill } : {}),
-          ...(profile ? { readings: { from: profile.from, to: profile.to, daysPresent: profile.daysPresent, missingCount: profile.missingCount, missingDates: profile.missing, streams: profile.streams, netOnly: profile.netOnly, ...(ignored ? { ignored } : {}) } } : {}),
+          ...(profile ? { readings: { verified: readingsVerified, from: profile.from, to: profile.to, daysPresent: profile.daysPresent, missingCount: profile.missingCount, missingDates: profile.missing, streams: profile.streams, netOnly: profile.netOnly, ...(ignored ? { ignored } : {}) } } : {}),
           ...(shares ? { shares } : {}),
           ...(usage.controlledLoadAnnualKwh ? { controlledLoadAnnualKwh: usage.controlledLoadAnnualKwh } : {}),
           ...(usage.solarExportAnnualKwh ? { solarExportAnnualKwh: usage.solarExportAnnualKwh } : {}),

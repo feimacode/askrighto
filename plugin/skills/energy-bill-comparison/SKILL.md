@@ -26,7 +26,14 @@ If the comparison used typical usage or a single bill, the result includes a "Mo
 
 ## If the user has their interval readings
 
-If the user has downloaded interval readings (a NEM12 CSV, half-hourly kWh, from their distributor or retailer), call `summarise_interval_readings` with the file text unchanged and their postcode. It returns the period, days present and missing, totals and a profile. Pass that profile unchanged as `readingsProfile` to `compare_energy_plans`: time-of-use plans are then estimated from the household's own use. Do not add up or restate the half-hourly figures yourself, do not ask the user to send the file anywhere else (do not ask the user to send it to anyone), and say the file is read for the request only and not stored. Controlled load is not costed separately: say so. Accumulation (NEM13) files have no half-hourly figures; ask for interval data instead.
+Follow this ladder, and never add up the half-hourly figures yourself and apply peak or off-peak hours of your own: `compare_energy_plans` matches each plan's own windows, which one set of hours cannot.
+
+1. **A file up to about 30 KB** (roughly 90 days of half-hourly data): call `summarise_interval_readings` with the file text unchanged and their postcode, then pass the profile it returns unchanged as `readingsProfile` to `compare_energy_plans`.
+2. **A longer file, up to 250,000 characters:** the same call works, but writing it out takes a while, so tell the user.
+3. **If you cannot pass the file text, or it is longer than that:** build the profile yourself as the `summarise_interval_readings` description sets out and pass it as `readingsProfile`. The result says it was built by the assistant and is not verified by Ask Righto; pass that on.
+4. **If you cannot do that either:** ask for a shorter period or 30-minute intervals, or use the bill.
+
+Say the file is read for the request only and not stored, and do not ask the user to send it anywhere else. Controlled load is not costed separately: say so. Accumulation (NEM13) files have no half-hourly figures; ask for interval data instead.
 
 ## Plans that are not estimated
 

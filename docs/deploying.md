@@ -55,6 +55,10 @@ schema and repeat steps 4 and 5.
   `NODE_EXTRA_CA_CERTS`.
 - The retailer list holds all 92 CDR energy retailer paths (`docs/energy-data.md`), but the server never starts a first load: run `sync-energy` once on the VM to load the retailers added since AGL.
 
+## Readings profile key
+
+`summarise_interval_readings` signs the profile it returns, so `compare_energy_plans` can tell it from one the assistant rewrote or built by hand (those estimates are labelled "not verified by Ask Righto"). Set `ASKRIGHTO_PROFILE_KEY` to `<id>:<secret>` (an id of up to 16 letters or digits, a secret of at least 32 random characters, for example `k1:` plus `openssl rand -base64 32 | tr '+/' '-_' | tr -d '='`) as an ansible-vault secret. To rotate, set the new key as `ASKRIGHTO_PROFILE_KEY` and move the old one to `ASKRIGHTO_PROFILE_KEY_PREVIOUS` for one rotation. With no key a random one is made at start-up: profiles then verify only on that running server and are all labelled unverified after a restart, which is fine for development and wrong for production. The key is a secret and never goes in the repo or the image.
+
 ## Internal route, verticals and promotion
 
 One image, one instance, two routes. Which verticals load and which each route serves is set by environment variables, so promoting or rolling back a vertical is a settings change and a redeploy, with no code change.
