@@ -107,7 +107,7 @@ d("list_current_plan_options (database)", () => {
     expect(o[0].tariff).toBe("time of use");
     expect(o[0].hours).toMatch(/Peak .* on /);
     expect(o[0].supplyPerDayIncGst).toBe("$1.0450"); // 0.95 + GST
-    expect(o[0].ratesIncGst).toEqual(expect.arrayContaining([{ band: "peak", perUnit: "$0.4950" }]));
+    expect(o[0].ratesIncGst).toEqual(expect.arrayContaining([expect.objectContaining({ band: "peak", perUnit: "$0.4950" })]));
     expect(r.g.data.layouts).toHaveLength(1);
     expect(r.text).toMatch(/none of these|If none of these/);
     expect(r.text).toContain("Amounts include GST");

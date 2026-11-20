@@ -17,6 +17,12 @@ Layouts are the sorted set of (season, band, days, start, end) windows; the id i
 
 Results carry the plan data source link and as-of date like every energy result.
 
+## How the pick list is shown
+
+The result is drawn as a form (Inkview `form`): a select of the options and, for a plan that is not listed, a select of the band hours the retailer uses, each with a "none of these" answer. Form choices are capped at 80 characters, so each carries only a headline (the first plan name and how many more, the daily supply charge and the range of rates, "matches" when the invoice agreed); the full text beside the form carries every rate, its hours, the plan ids and what matched. The agent waits for the user's choice and never picks for them.
+
+A plan whose bands are all labelled SHOULDER (told apart only by their hours) is shown with each band's own hours and rate, not one rate for all; an invoice rate matches when it agrees with any rate of that kind.
+
 ## `compare_energy_plans` with the household's hours
 
 With a bill split (peak, shoulder and off-peak percentages) the host passes `currentPlanId` (the plan id of the option the user picked) or `hoursLayoutId` (the layout the user picked when their plan was not listed), never both. The server compares each time-of-use plan's layout id with the household's:

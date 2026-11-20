@@ -1,12 +1,12 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { defineTool } from "../core/define-tool.js";
-import { found, notFound } from "../core/grounded.js";
+import { found, notFound, type Found } from "../core/grounded.js";
 import { ENERGY_DATASET_ID, withStore } from "../energy/index.js";
-import { describeLayout, layoutId, layoutWindows } from "../energy/layouts.js";
+import { describeLayout, layoutId, layoutWindows, type LayoutWindow } from "../energy/layouts.js";
 import { MONEY_SCALE } from "../energy/money.js";
 import type { Contract, EnergyPlan, TariffPeriod } from "../energy/types.js";
-import { asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, matchRetailer, NOTICE, source, tableMeta, uniqueDistributors } from "./energy-common.js";
+import { asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, inkview, inkviewResult, matchRetailer, NOTICE, source, tableMeta, uniqueDistributors } from "./energy-common.js";
 
 /**
  * add-energy-invoice-first: helps a person say which plan (or which band hours) their invoice is on,
@@ -33,19 +33,37 @@ interface Summary {
   seasonal: boolean;
   /** Dollars per day, GST exclusive as published. */
   supply: number | undefined;
-  /** Band or "single" to dollars per unit, GST exclusive as published (first tariff period). */
-  rates: Record<string, number>;
+  /** Each rate of the first tariff period, GST exclusive as published. A plan can have several bands of one type (every band labelled SHOULDER), told apart by their hours. */
+  rates: RateEntry[];
   layout?: { id: string; hours: string };
   key: string;
 }
 
 const dollars = (scaled: number) => scaled / MONEY_SCALE;
 
-function periodRates(t: TariffPeriod): Record<string, number> {
-  const out: Record<string, number> = {};
+interface RateEntry {
+  /** PEAK, OFF_PEAK, SHOULDER, SHOULDER1 ... or "single". */
+  type: string;
+  /** The hours this rate applies to, in words; absent for a single rate. */
+  hours?: string;
+  value: number;
+}
+
+function periodRates(t: TariffPeriod): RateEntry[] {
+  const out: RateEntry[] = [];
   if (t.timeOfUse?.length) {
-    for (const r of t.timeOfUse) if (r.rates[0]) out[r.type] = dollars(r.rates[0].unitPrice);
-  } else if (t.singleRate?.[0]) out.single = dollars(t.singleRate[0].unitPrice);
+    for (const r of t.timeOfUse) {
+      if (!r.rates[0]) continue;
+      const ws: LayoutWindow[] = (r.windows.length ? r.windows : [{ days: [] }]).map((w) => ({
+        season: "year",
+        band: r.type,
+        days: [...w.days].map((d) => d.toUpperCase()).join(","),
+        start: /^(\d{1,2}):?(\d{2})/.test(w.startTime ?? "") ? (w.startTime as string).replace(/^(\d{1,2}):?(\d{2}).*/, (_m, h: string, m: string) => `${h.padStart(2, "0")}:${m}`) : "",
+        end: /^(\d{1,2}):?(\d{2})/.test(w.endTime ?? "") ? (w.endTime as string).replace(/^(\d{1,2}):?(\d{2}).*/, (_m, h: string, m: string) => `${h.padStart(2, "0")}:${m}`) : "",
+      }));
+      out.push({ type: r.type, hours: describeLayout(ws).replace(/^[A-Za-z0-9 -]+? (?=\d|midnight|noon|all day)/, ""), value: dollars(r.rates[0].unitPrice) });
+    }
+  } else if (t.singleRate?.[0]) out.push({ type: "single", value: dollars(t.singleRate[0].unitPrice) });
   return out;
 }
 
@@ -56,7 +74,7 @@ function summarise(plan: EnergyPlan, fuel: "ELECTRICITY" | "GAS"): Summary | und
   const rates = periodRates(first);
   const w = layoutWindows(plan, fuel);
   const layout = w ? { id: layoutId(w), hours: describeLayout(w) } : undefined;
-  const all = c.tariffPeriods.map((t) => ({ s: t.dailySupplyCharge, r: periodRates(t) }));
+  const all = c.tariffPeriods.map((t) => ({ s: t.dailySupplyCharge, r: periodRates(t).map((x) => [x.type, x.hours ?? "", x.value]) }));
   const key = createHash("sha256").update(JSON.stringify({ all, layout: layout?.id ?? null, gst: c.gstBasis })).digest("hex").slice(0, 8);
   return {
     tariff: w ? "time of use" : "single rate",
@@ -81,7 +99,7 @@ export interface PlanOption {
   tariff: string;
   seasonal: boolean;
   supplyPerDayIncGst?: string;
-  ratesIncGst: Array<{ band: string; perUnit: string }>;
+  ratesIncGst: Array<{ band: string; hours?: string; perUnit: string }>;
   layoutId?: string;
   hours?: string;
   matchedOn: string[];
@@ -114,13 +132,13 @@ export const listCurrentPlanOptions = defineTool({
   name: "list_current_plan_options",
   title: "List the retailer's plans to pick the current one",
   description:
-    "Use after reading the user's latest invoice. Lists a short set of the retailer's plans on the user's network, merging plans with identical rates and hours, each in plain words with its rates and band hours, so the user can pick the one their invoice is on, or say none of these (then pick the band hours from the layouts returned). Pass only the retailer, network, customer type and the rate figures printed on the invoice (they include GST, as invoices do); never pass a name, address, account number or meter identifier. Does not match by plan name. Not advice.",
+    "Use after reading the user's latest invoice. Lists a short set of the retailer's plans on the user's network, merging plans with identical rates and hours, each in plain words with its rates and band hours, so the user can pick the one their invoice is on, or say none of these (then pick the band hours from the layouts returned). Pass only the retailer, network, customer type and the rate figures printed on the invoice (they include GST, as invoices do); never pass a name, address, account number or meter identifier. Does not match by plan name. The result is shown as a form for the user to pick from, with the full details beside it: wait for the user's choice before calling compare_energy_plans, and never pick for them. Not advice.",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,
   openWorldHint: false,
   datasets: [ENERGY_DATASET_ID],
-  meta: tableMeta("data_table"),
+  meta: tableMeta("form"),
   handler: (args) => {
     const postcode = checkPostcode(args.postcode);
     if (!postcode) return badPostcode();
@@ -174,11 +192,17 @@ export const listCurrentPlanOptions = defineTool({
           else notMatched.push(label);
         };
         check("daily supply charge", hint.supply, s.supply, 0.006);
-        check("single rate", hint.single, s.rates.single, 0.0006);
-        check("peak rate", hint.PEAK, s.rates.PEAK, 0.0006);
-        const shoulder = Object.entries(s.rates).find(([k]) => /^SHOULDER/.test(k))?.[1];
-        check("shoulder rate", hint.SHOULDER, shoulder, 0.0006);
-        check("off-peak rate", hint.OFF_PEAK, s.rates.OFF_PEAK, 0.0006);
+        // A hint matches when any rate of that kind agrees: plans with several bands of one type have several values.
+        const vals = (pick: (t: string) => boolean) => s.rates.filter((x) => pick(x.type)).map((x) => x.value);
+        const checkAny = (label: string, h: number | undefined, pubs: number[], tol: number) => {
+          if (h === undefined) return;
+          if (pubs.some((v) => agrees(h, v, mult, tol))) matchedOn.push(label);
+          else notMatched.push(label);
+        };
+        checkAny("single rate", hint.single, vals((t) => t === "single"), 0.0006);
+        checkAny("peak rate", hint.PEAK, vals((t) => t === "PEAK"), 0.0006);
+        checkAny("shoulder rate", hint.SHOULDER, vals((t) => /^SHOULDER/.test(t)), 0.0006);
+        checkAny("off-peak rate", hint.OFF_PEAK, vals((t) => t === "OFF_PEAK"), 0.0006);
         return { s, ps, matchedOn, notMatched };
       });
       ranked.sort((a, b) => b.matchedOn.length - a.matchedOn.length || a.notMatched.length - b.notMatched.length || b.ps.length - a.ps.length || a.s.key.localeCompare(b.s.key));
@@ -194,7 +218,7 @@ export const listCurrentPlanOptions = defineTool({
           tariff: s.tariff,
           seasonal: s.seasonal,
           ...(showAmounts && s.supply !== undefined ? { supplyPerDayIncGst: fmt(s.supply * mult) } : {}),
-          ratesIncGst: showAmounts ? Object.entries(s.rates).map(([band, v]) => ({ band: band === "single" ? "single rate" : band.toLowerCase().replace(/_/g, "-"), perUnit: fmt(v * mult) })) : [],
+          ratesIncGst: showAmounts ? s.rates.map((x) => ({ band: x.type === "single" ? "single rate" : x.type.toLowerCase().replace(/_/g, "-"), ...(x.hours ? { hours: x.hours } : {}), perUnit: fmt(x.value * mult) })) : [],
           ...(s.layout ? { layoutId: s.layout.id, hours: s.layout.hours } : {}),
           matchedOn,
           notMatched,
@@ -237,7 +261,7 @@ export const listCurrentPlanOptions = defineTool({
       out.push(`**Option ${i + 1}** (id ${o.optionId}): ${o.tariff}${o.seasonal ? ", seasonal (first season shown)" : ""}.`);
       out.push(`- Plans: ${o.planNames.join("; ")}${o.moreIds ? ` and ${o.moreIds} more` : ""}. Plan ids: ${o.planIds.join(", ")}.`);
       if (o.supplyPerDayIncGst) out.push(`- Daily supply charge: ${o.supplyPerDayIncGst}/day.`);
-      if (o.ratesIncGst.length) out.push(`- Rates: ${o.ratesIncGst.map((r) => `${r.band} ${r.perUnit}/${d.fuelType === "GAS" ? "MJ" : "kWh"}`).join("; ")}.`);
+      if (o.ratesIncGst.length) out.push(`- Rates: ${o.ratesIncGst.map((r) => `${r.band}${r.hours ? ` ${r.hours}` : ""} ${r.perUnit}/${d.fuelType === "GAS" ? "MJ" : "kWh"}`).join("; ")}.`);
       if (o.hours) out.push(`- Hours: ${o.hours} (hours id ${o.layoutId}).`);
       if (o.matchedOn.length) out.push(`- Matched your invoice on: ${o.matchedOn.join(", ")}.`);
       if (o.notMatched.length) out.push(`- Did not match your invoice on: ${o.notMatched.join(", ")}.`);
@@ -252,4 +276,38 @@ export const listCurrentPlanOptions = defineTool({
     out.push(d.nextStep, "", d.notice);
     return out.join("\n");
   },
+  decorate: (result) =>
+    inkviewResult(result, () => {
+      const d = (result as Found<CurrentPlanData>).data;
+      const unit = d.fuelType === "GAS" ? "MJ" : "kWh";
+      const clip = (t: string, n: number) => (t.length > n ? `${t.slice(0, n - 1)}…` : t);
+      // The form's choices are capped at 80 characters each, so they carry the headline only; the full text beside the form has every rate, hour and plan id.
+      const options = d.options.map((o, i) => {
+        const vals = o.ratesIncGst.map((r) => Number(r.perUnit.slice(1))).filter((v) => Number.isFinite(v));
+        const lo = Math.min(...vals);
+        const hi = Math.max(...vals);
+        const rate = vals.length ? (lo === hi ? `$${lo.toFixed(2)}` : `$${lo.toFixed(2)}-$${hi.toFixed(2)}`) + `/${unit}` : "";
+        const first = clip(o.planNames[0] ?? "plan", 22) + (o.planNames.length + o.moreIds > 1 ? ` +${o.planNames.length - 1 + o.moreIds}` : "");
+        const sup = o.supplyPerDayIncGst ? `$${Number(o.supplyPerDayIncGst.slice(1)).toFixed(2)}/day` : "";
+        return clip(`Option ${i + 1}: ${first}, ${[sup, rate].filter(Boolean).join(", ")}${o.matchedOn.length ? " (matches)" : ""}`, 80);
+      });
+      const none = "None of these is my plan";
+      const fields: Array<Record<string, unknown>> = [
+        { name: "currentPlan", label: "Which option is on your invoice?", type: "select", required: true, options: [...options, none], help: "The rates include GST, as on an invoice." },
+      ];
+      if (d.layouts.length) {
+        fields.push({
+          name: "hours",
+          label: "If none: which band hours match your invoice?",
+          type: "select",
+          options: [...d.layouts.map((l, i) => clip(`Hours ${i + 1}: ${l.hours}`, 80)), "I will tell you the hours"],
+        });
+      }
+      return inkview.form({
+        title: `${d.retailer} ${d.fuelType.toLowerCase()} plans${d.distributor ? ` on ${d.distributor}` : ""}, postcode ${d.postcode}`,
+        intro: clip(`${d.totalPlans} plans in ${d.options.length + d.optionsNotShown} groups of identical rates and hours. Pick the one your invoice is on so the comparison uses your own hours.`, 280),
+        submitLabel: "Use this plan",
+        fields,
+      } as never);
+    }),
 });
