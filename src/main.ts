@@ -17,6 +17,7 @@ import { assertHomeLoanPublicGuard } from "./homeloans/guard.js";
 import { runReadiness } from "./core/readiness.js";
 import { metricsText } from "./core/metrics.js";
 import { createServer } from "./server/create-server.js";
+import { handleReadingsUpload } from "./server/readings-upload.js";
 import { ALL_VERTICALS, setFor } from "./server/route.js";
 import {
   failedVerticals,
@@ -116,6 +117,7 @@ async function startHttp(): Promise<void> {
   const GUARDED = [
     "/mcp",
     "/mcp-internal",
+    "/readings-upload",
     "/readyz-internal",
     "/metrics-internal",
   ];
@@ -216,6 +218,8 @@ async function startHttp(): Promise<void> {
         }
       }
     };
+  // Large interval readings files arrive by address, not through a tool call (add-energy-readings-layers). Only when the energy vertical is public.
+  if (flags.public.includes("energy")) app.all("/readings-upload/:token", handleReadingsUpload);
   app.all("/mcp", serve(publicSet, "public"));
   app.all("/mcp-internal/:token", serve(internalSet, "internal"));
 
