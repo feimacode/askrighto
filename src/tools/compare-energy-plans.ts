@@ -364,7 +364,7 @@ export const compareEnergyPlans = defineTool({
       const first = shown[0];
       const typicalUsageNotice = figure ? typicalNotice(figure) : undefined;
       const readingsNotice = profile
-        ? `Usage is from the household's own interval readings, ${profile.from} to ${profile.to}: ${profile.daysPresent} days present${profile.missingCount ? `, ${profile.missingCount} missing` : ""}, scaled to a year (${Math.round(annual!)} kWh). Time-of-use plans are matched to the half-hourly readings. This rests on one past year of use, which may not repeat.${readingsVerified ? "" : ` ${UNVERIFIED_READINGS}`}`
+        ? `Usage is from the household's own interval readings, ${profile.from} to ${profile.to}: ${profile.daysPresent} days present${profile.missingCount ? `, ${profile.missingCount} missing` : ""}, scaled to a year (${Math.round(annual!)} kWh). Time-of-use plans are matched to the half-hourly readings. ${profile.daysPresent + profile.missingCount < 90 ? `The readings cover only ${profile.daysPresent + profile.missingCount} days, so this is a rough scale-up: say so, and if the user's file is longer, ask for a comparison from the whole file. ` : ""}This rests on one past year of use, which may not repeat.${readingsVerified ? "" : ` ${UNVERIFIED_READINGS}`}`
         : undefined;
       // Interval readings would be more accurate than a benchmark or one bill (electricity only; gas has no interval data here).
       const note = elec && (figure || scaledFromBill) ? readingsNote(distributor ?? (nets.length === 1 ? nets[0] : undefined)) : undefined;
