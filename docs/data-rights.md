@@ -177,3 +177,16 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Condition: Results call the figure typical household use for that zone and size, never the person's own, and carry the release date (December 2020, postcodes June 2021).
 - Condition: Frontier Economics authored the analysis and the AER publishes it under the site licence; the legal view should note that.
 - Condition: Legal view outstanding (roadmap Phase 0): information-only use.
+
+## aemo-material
+
+- Owner: Australian Energy Market Operator (AEMO)
+- Basis: `open_licence`
+- Status: `cleared`
+- Review by: 2027-11-20
+- Evidence: https://www.aemo.com.au/privacy-and-legal-notices/copyright-permissions (read 2026-11-20): AEMO's copyright permissions statement, pasted into the project thread by Iven on 20 Nov 2026: AEMO gives general permission for anyone to use AEMO Material for any purpose, with accurate and appropriate attribution to the material and to AEMO as author, and no specific permission is needed. Confidential documents and reports commissioned by others are not AEMO Material. The page address is as recalled and was not fetched by the assistant; confirm it when next read.
+- Attribution: Meter data file rules and stream codes follow AEMO's Meter Data File Format Specification NEM12 & NEM13 and National Metering Identifier Procedure; distributor names follow AEMO's NMI allocation list. Source: AEMO.
+- Condition: Only AEMO Material is used: the published NEM12/NEM13 specification, the NMI Procedure and the NMI allocation list. Confidential documents and reports commissioned by another body are not used.
+- Condition: What we take is rules and names, written in our own words and code (record types, stream suffix meanings, interval lengths, distributor names). No AEMO document or table is copied into the repo or the product.
+- Condition: Attribution is kept where the material is used: the readings docs and the readings tool's source name say AEMO is the author, and the recipe cites the document and edition it follows.
+- Condition: The household's own readings file is the person's data, not AEMO Material, and is handled as the energy-plans entry says.

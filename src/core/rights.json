@@ -332,5 +332,26 @@
       "Legal view outstanding (roadmap Phase 0): information-only use."
     ],
     "reviewBy": "2027-08-01"
+  },
+  {
+    "datasetId": "aemo-material",
+    "owner": "Australian Energy Market Operator (AEMO)",
+    "basis": "open_licence",
+    "status": "cleared",
+    "evidence": [
+      {
+        "url": "https://www.aemo.com.au/privacy-and-legal-notices/copyright-permissions",
+        "readOn": "2026-11-20",
+        "note": "AEMO's copyright permissions statement, pasted into the project thread by Iven on 20 Nov 2026: AEMO gives general permission for anyone to use AEMO Material for any purpose, with accurate and appropriate attribution to the material and to AEMO as author, and no specific permission is needed. Confidential documents and reports commissioned by others are not AEMO Material. The page address is as recalled and was not fetched by the assistant; confirm it when next read."
+      }
+    ],
+    "attribution": "Meter data file rules and stream codes follow AEMO's Meter Data File Format Specification NEM12 & NEM13 and National Metering Identifier Procedure; distributor names follow AEMO's NMI allocation list. Source: AEMO.",
+    "conditions": [
+      "Only AEMO Material is used: the published NEM12/NEM13 specification, the NMI Procedure and the NMI allocation list. Confidential documents and reports commissioned by another body are not used.",
+      "What we take is rules and names, written in our own words and code (record types, stream suffix meanings, interval lengths, distributor names). No AEMO document or table is copied into the repo or the product.",
+      "Attribution is kept where the material is used: the readings docs and the readings tool's source name say AEMO is the author, and the recipe cites the document and edition it follows.",
+      "The household's own readings file is the person's data, not AEMO Material, and is handled as the energy-plans entry says."
+    ],
+    "reviewBy": "2027-11-20"
   }
 ]
