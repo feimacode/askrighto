@@ -21,7 +21,6 @@ Out of scope:
 - Storing any file, profile or derived figure, or a session between calls.
 - The in-chat file widget and the MCP file upload extension (tracked; hosts do not support them yet).
 - Reading other file formats (CSV from retailers' apps) or gas readings.
-- A bundled reference script for hosts other than Claude.
 
 ## Capabilities
 

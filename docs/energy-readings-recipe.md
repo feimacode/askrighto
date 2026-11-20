@@ -49,6 +49,4 @@ The server key is set with `ASKRIGHTO_PROFILE_KEY` (see `docs/deploying.md`).
 
 Models are now able to do this reliably when the instructions are clear, so the fallback gives the model the rules and the hours instead of asking it to produce a profile. It reads the file by the rules above (NEM12: `200`, `300`, `250` stop, one NMI, E consumption, B export), moves times from market time to the local clock, puts every interval of every day in exactly one band using the **band hours of the user's current plan** (the option or hours layout picked from `list_current_plan_options`, in local time), and calls `compare_energy_plans` with `billUsageKwh` (whole-file total), `billDays`, the three share fields and `currentPlanId` or `hoursLayoutId`. Plans on the same hours are then exact and others approximate, labelled as such. The model must say it summed the file itself. A sample or part of the days is never used.
 
-Fallback B (below, building the profile by the rules above) matches each plan on its own hours and so is better when the model can do it; Fallback A is simpler and is what the instructions lead with.
-
-No script is supplied (Iven, 20 Nov 2026): the agent is given instructions and does the work itself. A reference script with a test that it matched the server was built and then removed for that reason; it is in git history (PR #67) if wanted again.
+Fallback B (building the profile by the rules above) matches each plan on its own hours and so is better when the model can do it; Fallback A is simpler and is what the instructions lead with.
