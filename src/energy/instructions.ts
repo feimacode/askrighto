@@ -1,5 +1,6 @@
 /** Host guidance for the energy vertical. */
 export const ENERGY_INSTRUCTIONS = `Energy plans (search_energy_plans, get_energy_plan, compare_energy_plans):
+- First ask whether the plans are for a home or a business (including small business), and never assume. Pass customerType RESIDENTIAL or BUSINESS. A business is compared only with business plans and a household only with residential plans; say which kind the result covers. There is no typical usage for a business: it needs a bill or interval readings.
 - If the user has not named plans, call search_energy_plans with their postcode first.
 - Before compare_energy_plans, ask for the kWh used and the number of days on a recent bill (gas: MJ). Never assume usage.
 - Ask for the bill first. Only if the user has no bill to hand, and agrees, offer typical usage: ask how many people live there (1 to 5, 5 meaning five or more), then call again with useBenchmarkUsage true and householdSize. Always say it is typical usage for a household of that size in that zone (an AER benchmark), not the user's own, and that real cost can differ a lot. Time-of-use plans cannot be estimated from typical usage, and solar export and controlled load are left out.

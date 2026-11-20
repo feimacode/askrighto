@@ -3,6 +3,7 @@ import type pg from "pg";
 import { stableHash } from "./hash.js";
 import type { Db } from "./db.js";
 import type {
+  CustomerType,
   Contract,
   EnergyPlan,
   FuelType,
@@ -168,7 +169,7 @@ export function rowToPlan(r: Record<string, any>): EnergyPlan {
     displayName: r.display_name,
     fuelType: r.fuel_type as FuelType,
     planType: r.plan_type as PlanType,
-    customerType: "RESIDENTIAL",
+    customerType: r.customer_type === "BUSINESS" ? "BUSINESS" : "RESIDENTIAL",
     geography: {
       includedPostcodes:
         (r.included_postcodes as number[] | undefined)?.map(String) ?? [],
@@ -199,6 +200,8 @@ export interface PlanQuery {
   retailer?: string;
   distributor?: string;
   planType?: PlanType;
+  /** Which customers' plans: a business is only compared with business plans, a household with residential plans. */
+  customerType?: CustomerType;
 }
 
 /** Plans offered at a postcode today. Excluded postcodes, future plans and expired plans are dropped. */
@@ -223,6 +226,7 @@ export async function plansByPostcode(
   if (query.fuelType) add("p.fuel_type = ?", query.fuelType);
   if (query.retailer) add("p.retailer_slug = ?", query.retailer);
   if (query.planType) add("p.plan_type = ?", query.planType);
+  if (query.customerType) add("p.customer_type = ?", query.customerType);
   if (query.distributor) add("? = ANY(c.distributors)", query.distributor);
   const r = await q.query(
     `SELECT ${PLAN_COLUMNS} FROM plans p JOIN coverage_sets c ON c.id = p.coverage_id WHERE ${where.join(" AND ")} ORDER BY p.brand_name, p.display_name, p.plan_id`,

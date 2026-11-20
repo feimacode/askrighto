@@ -12,8 +12,13 @@ Victorian Energy Compare web pages.
 
 ## What is stored
 
-Residential electricity, gas and dual fuel plans (standing, market, regulated) that are current
-or start in the future, per retailer in `src/energy/retailers.json`.
+Residential **and business** electricity, gas and dual fuel plans (standing, market, regulated) that
+are current or start in the future, per retailer in `src/energy/retailers.json`. Each plan keeps its CDR
+`customerType` (`RESIDENTIAL` or `BUSINESS`); the tools take `customerType` (default `RESIDENTIAL`) and never
+mix the two in one result. Until 20 Nov 2026 business plans were dropped at the list stage; the first sync
+after that change adds them (nothing already stored changes), and a business plan is a different plan id.
+The CDR data does not say whether a business plan is for a small or a large business: eligibility text is
+shown beside a plan and not checked. There is no typical usage (benchmark) for a business.
 
 **Retailer list.** The file holds 92 base URI path segments, seeded on 17 Nov 2026 from the AER
 document *Consumer Data Right: Energy Retailer Base URIs and CDR Brands* (January 2026,
@@ -23,7 +28,7 @@ names (Simply Energy, Powerdirect, Circular Energy and others). Brands that shar
 (for example ARCLINE, Cooperative Power, RAA Energy, Indigo Power and Sonnen under
 `/energy-locals/`) are one entry, and each plan keeps its own `brandName`. A path that is not
 served answers 404 and is recorded in `retailers.last_error` without stopping the others, and
-business-only retailers return no residential plans. The main table was checked twice (a
+retailers that sell only to business now return their business plans. The main table was checked twice (a
 summarised read and a parse of the PDF's own content streams on Iven's computer); both gave the
 same 83 rows. The 16 change-log-only brands are in the document's change log but not its main
 table, so check the first sync report for 404s on them. Still to do (task 1.4): compare the list

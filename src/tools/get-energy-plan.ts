@@ -28,6 +28,7 @@ interface ContractView {
 
 export interface PlanData {
   planId: string;
+  customerType: "RESIDENTIAL" | "BUSINESS";
   retailer: string;
   planName: string;
   fuelType: string;
@@ -142,6 +143,7 @@ export const getEnergyPlan = defineTool({
       const unknown = [p.electricity, p.gas].some((c) => c?.gstBasis === "UNKNOWN");
       const data: PlanData = {
         planId: p.planId,
+        customerType: p.customerType,
         retailer: p.brandName,
         planName: p.displayName,
         fuelType: p.fuelType,
@@ -162,7 +164,7 @@ export const getEnergyPlan = defineTool({
       return found({ data, source, asOf: asOfFor([p]), ...(p.understood ? {} : { warnings: [`Parts of this plan's structure are not fully understood (${p.notUnderstood.join(", ")}). Check the rate sheet for the full terms.`] }) });
     }),
   render: (d) => {
-    const out = [`**${d.planName}** (${d.retailer}), ${d.fuelType.toLowerCase()} ${d.planType.toLowerCase()} plan. Plan id: ${d.planId}. Distributors: ${d.distributors.join(", ") || "not stated"}.`, `Link: ${linkMarkdown(d.link)}`, `Source last updated: ${d.sourceLastUpdated.slice(0, 10)}. ${d.priceNote}`];
+    const out = [`**${d.planName}** (${d.retailer}), ${d.customerType.toLowerCase()} ${d.fuelType.toLowerCase()} ${d.planType.toLowerCase()} plan. Plan id: ${d.planId}. Distributors: ${d.distributors.join(", ") || "not stated"}.`, `Link: ${linkMarkdown(d.link)}`, `Source last updated: ${d.sourceLastUpdated.slice(0, 10)}. ${d.priceNote}`];
     for (const c of d.contracts) {
       out.push("", `### ${c.fuel === "ELECTRICITY" ? "Electricity" : "Gas"} (${c.pricingModel})`);
       for (const t of c.periods) out.push(`- ${t.name}${t.dates ? ` (${t.dates})` : ""}${t.dailySupply ? `, supply ${t.dailySupply}` : ""}${t.usage.length ? `; usage: ${t.usage.join("; ")}` : ""}`);

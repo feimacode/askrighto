@@ -124,7 +124,7 @@ export async function startEnergy(
     publisher: "Australian Energy Regulator, via the Consumer Data Right",
     source: ENERGY_SOURCE,
     coverage:
-      "Residential electricity, gas and dual fuel plans from the retailers listed in the AER's product data, across the National Electricity Market states and the ACT",
+      "Residential and business electricity, gas and dual fuel plans from the retailers listed in the AER's product data, across the National Electricity Market states and the ACT",
     refreshedAt: () => snap?.lastSuccessfulSync,
     maxAgeHours: 48,
     stats: () => ({

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { stableHash } from "../../src/energy/hash.js";
 import { formatMoney, parseMoney } from "../../src/energy/money.js";
 import {
-  isResidential,
+  isSupportedCustomer,
   normalisePlan,
   readListItem,
 } from "../../src/energy/normalise.js";
@@ -173,11 +173,18 @@ describe("normalisePlan", () => {
     expect(plan.electricity?.pricingModel).toBe("SPACE_BANDS");
   });
 
-  it("drops business plans at the list stage", () => {
-    expect(isResidential(readListItem(fixture("business-list-item"))!)).toBe(
-      false,
-    );
-    expect(isResidential(readListItem(fixture("single-rate"))!)).toBe(true);
+  it("keeps residential and business plans and drops any other or missing customer type at the list stage", () => {
+    expect(isSupportedCustomer(readListItem(fixture("business-list-item"))!)).toBe(true);
+    expect(isSupportedCustomer(readListItem(fixture("single-rate"))!)).toBe(true);
+    expect(isSupportedCustomer({ customerType: "GOVERNMENT" })).toBe(false);
+    expect(isSupportedCustomer({})).toBe(false);
+  });
+
+  it("carries the customer type onto the plan, from the detail or the list item", () => {
+    const biz = normalisePlan("agl", readListItem(fixture("business-list-item"))!, { ...fixture("single-rate"), customerType: "BUSINESS" }).plan;
+    expect(biz.customerType).toBe("BUSINESS");
+    const home = normalisePlan("agl", readListItem(fixture("single-rate"))!, fixture("single-rate")).plan;
+    expect(home.customerType).toBe("RESIDENTIAL");
   });
 
   it("hash ignores field order", () => {
