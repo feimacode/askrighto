@@ -282,9 +282,9 @@ Built 17 Nov 2026 on the `home-loans` vertical, behind the internal route, from 
 
 | Item | Detail | Change id |
 | --- | --- | --- |
-| NSW and QLD course fact stores | Same own-worded, linked pattern as VIC, built from university guides and course pages. The pilot's UAC and QTAC CSVs are scraped, lack ATARs, and must not ship [F, R] | `add-nsw-course-data`, `add-qld-course-data` |
-| State subject rules | NSW HSC and QLD QCAA subject rules and ATAR calculation; scaling differs by state | `add-nsw-course-data`, `add-qld-course-data` |
-| UAC permission | Ask UAC for written permission in parallel [R] | — |
+| NSW, ACT and QLD course fact stores | Decided 20 Nov 2026 (Iven): cover all universities listed through VTAC, UAC and QTAC. Same own-worded, linked pattern as VIC, built from university guides and course pages. The pilot's UAC and QTAC CSVs are scraped, lack ATARs, and must not ship [F, R] | `extend-courses-to-uac-qtac` (replaces `add-nsw-course-data` and `add-qld-course-data`) |
+| State subject rules | NSW HSC and QLD QCE subject rules; ATAR scaling is not open data and stays unavailable; staged after the index and entry figures | `extend-courses-to-uac-qtac` |
+| Admissions centre permission | Not requested. Decision 20 Nov 2026: re-key strategy only, no permission requests to VTAC, UAC or QTAC | — |
 
 Multi-state content work is the main effort driver; the earlier study put national coverage at
 6 to 12 months [F].
