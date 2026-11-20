@@ -37,7 +37,7 @@ describe("list_current_plan_options inputs", () => {
     const tool = allTools.find((t) => t.name === "list_current_plan_options")!;
     const shape = tool.inputSchema.shape as Record<string, { _def: { typeName?: string }; maxLength?: number | null }>;
     expect(Object.keys(shape).sort()).toEqual(
-      ["customerType", "distributor", "fuelType", "offPeakRatePerUnit", "peakRatePerUnit", "postcode", "ratesIncludeGst", "retailer", "shoulderRatePerUnit", "singleRatePerUnit", "supplyChargePerDay"].sort(),
+      ["customerType", "distributor", "fuelType", "offPeakRatePerUnit", "peakRatePerUnit", "postcode", "retailer", "shoulderRatePerUnit", "singleRatePerUnit", "supplyChargePerDay"].sort(),
     );
     for (const k of Object.keys(shape)) expect(k).not.toMatch(/name|address|account|nmi|meter|serial/i);
     // The only strings are short: a postcode, a retailer and a network name.
@@ -114,13 +114,13 @@ d("list_current_plan_options (database)", () => {
     expect(r.g.source.url).toMatch(/aer\.gov\.au/);
   });
 
-  it("says what matched the invoice, allowing the rates to include or exclude GST", async () => {
-    const withGst = await call({ ...base, distributor: "Jemena", supplyChargePerDay: 1.045, peakRatePerUnit: 0.495 });
-    expect(withGst.g.data.options[0].matchedOn).toEqual(expect.arrayContaining(["daily supply charge", "peak rate"]));
+  it("says what matched the invoice, which always includes GST: stored rates plus 10 per cent", async () => {
+    const hit = await call({ ...base, distributor: "Jemena", supplyChargePerDay: 1.045, peakRatePerUnit: 0.495 });
+    expect(hit.g.data.options[0].matchedOn).toEqual(expect.arrayContaining(["daily supply charge", "peak rate"]));
+    // The stored, GST exclusive figure is not what an invoice shows, so it does not match.
     const excl = await call({ ...base, distributor: "Jemena", supplyChargePerDay: 0.95, peakRatePerUnit: 0.45 });
-    expect(excl.g.data.options[0].matchedOn).toEqual(expect.arrayContaining(["daily supply charge", "peak rate"]));
-    const wrongFlag = await call({ ...base, distributor: "Jemena", peakRatePerUnit: 0.45, ratesIncludeGst: true });
-    expect(wrongFlag.g.data.options[0].notMatched).toContain("peak rate");
+    expect(excl.g.data.options[0].matchedOn).toEqual([]);
+    expect(excl.g.data.options[0].notMatched).toEqual(expect.arrayContaining(["daily supply charge", "peak rate"]));
     const none = await call({ ...base, distributor: "Jemena", peakRatePerUnit: 0.99 });
     expect(none.g.data.options[0].matchedOn).toEqual([]);
     expect(none.g.data.options[0].notMatched).toContain("peak rate");

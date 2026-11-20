@@ -18,12 +18,11 @@ const input = z.object({
   customerType: z.enum(["RESIDENTIAL", "BUSINESS"]).describe("Ask the user whether the plan is for a home or a business (including small business); never assume"),
   retailer: z.string().min(1).max(80).describe("The retailer on the invoice, e.g. Origin"),
   distributor: z.string().max(80).optional().describe("Distribution network from the invoice, required when the postcode has several"),
-  supplyChargePerDay: z.number().min(0).max(20).optional().describe("Daily supply charge from the invoice in dollars per day (for example 1.05 for 105 cents)"),
-  singleRatePerUnit: z.number().min(0).max(5).optional().describe("Usage rate in dollars per kWh (gas: per MJ) if the invoice shows a single rate"),
-  peakRatePerUnit: z.number().min(0).max(5).optional().describe("Peak rate in dollars per kWh from the invoice"),
-  shoulderRatePerUnit: z.number().min(0).max(5).optional().describe("Shoulder rate in dollars per kWh from the invoice"),
-  offPeakRatePerUnit: z.number().min(0).max(5).optional().describe("Off-peak rate in dollars per kWh from the invoice"),
-  ratesIncludeGst: z.boolean().optional().describe("true if the invoice rates include GST (most do), false if they exclude it. Leave out if unclear: both are tried"),
+  supplyChargePerDay: z.number().min(0).max(20).optional().describe("Daily supply charge from the invoice, GST inclusive, in dollars per day (for example 1.05 for 105 cents)"),
+  singleRatePerUnit: z.number().min(0).max(5).optional().describe("Usage rate (GST inclusive, as on the invoice) in dollars per kWh (gas: per MJ) if the invoice shows a single rate"),
+  peakRatePerUnit: z.number().min(0).max(5).optional().describe("Peak rate (GST inclusive, as on the invoice) in dollars per kWh from the invoice"),
+  shoulderRatePerUnit: z.number().min(0).max(5).optional().describe("Shoulder rate (GST inclusive, as on the invoice) in dollars per kWh from the invoice"),
+  offPeakRatePerUnit: z.number().min(0).max(5).optional().describe("Off-peak rate (GST inclusive, as on the invoice) in dollars per kWh from the invoice"),
 });
 
 const OPTION_LIMIT = 8;
@@ -69,11 +68,9 @@ function summarise(plan: EnergyPlan, fuel: "ELECTRICITY" | "GAS"): Summary | und
   };
 }
 
-/** True when the invoice figure equals the published (GST exclusive) value either as published or with GST added. */
-function agrees(hint: number, published: number, includesGst: boolean | undefined, tol: number): boolean {
-  const plain = Math.abs(hint - published) <= tol;
-  const withGst = Math.abs(hint - published * 1.1) <= tol * 1.1;
-  return includesGst === true ? withGst : includesGst === false ? plain : plain || withGst;
+/** Invoice figures include GST (Iven, 2026-11-20): compare with the stored rate with GST added when it is stored exclusive (`gstMultiplier` 1.1). */
+function agrees(hint: number, published: number, gstMultiplier: number, tol: number): boolean {
+  return Math.abs(hint - published * gstMultiplier) <= tol * gstMultiplier;
 }
 
 export interface PlanOption {
@@ -117,7 +114,7 @@ export const listCurrentPlanOptions = defineTool({
   name: "list_current_plan_options",
   title: "List the retailer's plans to pick the current one",
   description:
-    "Use after reading the user's latest invoice. Lists a short set of the retailer's plans on the user's network, merging plans with identical rates and hours, each in plain words with its rates and band hours, so the user can pick the one their invoice is on, or say none of these (then pick the band hours from the layouts returned). Pass only the retailer, network, customer type and the rate figures printed on the invoice; never pass a name, address, account number or meter identifier. Does not match by plan name. Not advice.",
+    "Use after reading the user's latest invoice. Lists a short set of the retailer's plans on the user's network, merging plans with identical rates and hours, each in plain words with its rates and band hours, so the user can pick the one their invoice is on, or say none of these (then pick the band hours from the layouts returned). Pass only the retailer, network, customer type and the rate figures printed on the invoice (they include GST, as invoices do); never pass a name, address, account number or meter identifier. Does not match by plan name. Not advice.",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,
@@ -158,6 +155,9 @@ export const listCurrentPlanOptions = defineTool({
         else groups.set(s.key, { s, plans: [p] });
       }
 
+      const gst = plans[0]?.[args.fuelType === "ELECTRICITY" ? "electricity" : "gas"]?.gstBasis;
+      const mult = gst === "EXCLUSIVE" ? 1.1 : 1;
+      const showAmounts = gst !== "UNKNOWN";
       const hint = {
         supply: args.supplyChargePerDay,
         single: args.singleRatePerUnit,
@@ -170,7 +170,7 @@ export const listCurrentPlanOptions = defineTool({
         const notMatched: string[] = [];
         const check = (label: string, h: number | undefined, pub: number | undefined, tol: number) => {
           if (h === undefined) return;
-          if (pub !== undefined && agrees(h, pub, args.ratesIncludeGst, tol)) matchedOn.push(label);
+          if (pub !== undefined && agrees(h, pub, mult, tol)) matchedOn.push(label);
           else notMatched.push(label);
         };
         check("daily supply charge", hint.supply, s.supply, 0.006);
@@ -183,9 +183,6 @@ export const listCurrentPlanOptions = defineTool({
       });
       ranked.sort((a, b) => b.matchedOn.length - a.matchedOn.length || a.notMatched.length - b.notMatched.length || b.ps.length - a.ps.length || a.s.key.localeCompare(b.s.key));
 
-      const gst = plans[0]?.[args.fuelType === "ELECTRICITY" ? "electricity" : "gas"]?.gstBasis;
-      const mult = gst === "EXCLUSIVE" ? 1.1 : 1;
-      const showAmounts = gst !== "UNKNOWN";
       const options: PlanOption[] = ranked.slice(0, OPTION_LIMIT).map(({ s, ps, matchedOn, notMatched }) => {
         const ids = ps.map((p) => p.planId).sort();
         const names = [...new Set(ps.map((p) => p.displayName))].sort();
