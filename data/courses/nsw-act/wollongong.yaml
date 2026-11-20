@@ -1,0 +1,10 @@
+# University of Wollongong: provider entry for the nsw-act index. CRICOS undergraduate courses come in from the CRICOS file on load;
+# coursesUrl is the provider's own site from the CRICOS Institutions sheet, not a course finder link. Add official course
+# links and curated rows by hand from the university's own pages (never from UAC, QTAC, VTAC or Course Seeker).
+provider:
+  id: wollongong
+  cricosProviderCode: "00102E"
+  name: University of Wollongong
+  coursesUrl: https://www.uow.edu.au/
+  domains: [uow.edu.au]
+courses: []

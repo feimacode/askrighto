@@ -11,7 +11,9 @@ import type {
   PrerequisiteBlock,
   Provider,
   ProviderFile,
+  Region,
 } from "./types.js";
+import { REGIONS } from "./types.js";
 import { dataDir, loadStudies } from "./studies.js";
 import { parseProviderFile } from "./validate.js";
 
@@ -29,19 +31,39 @@ export function readProviderFiles(dir = dataDir()): {
   files: ProviderFile[];
   errors: string[];
 } {
-  const base = join(dir, "courses", "vic");
+  const root = join(dir, "courses");
   const files: ProviderFile[] = [];
   const errors: string[] = [];
   const studies = loadStudies(dir);
-  for (const f of readdirSync(base)
-    .filter((x) => x.endsWith(".yaml"))
+  const seen = new Map<string, string>();
+  for (const region of readdirSync(root, { withFileTypes: true })
+    .filter((e) => e.isDirectory())
+    .map((e) => e.name)
     .sort()) {
-    const r = parseProviderFile(readFileSync(join(base, f), "utf8"), {
-      file: f,
-      studies,
-    });
-    errors.push(...r.errors);
-    if (r.file) files.push(r.file);
+    if (!(REGIONS as readonly string[]).includes(region)) {
+      errors.push(`data/courses/${region}: not a known region (${REGIONS.join(", ")})`);
+      continue;
+    }
+    const base = join(root, region);
+    for (const f of readdirSync(base)
+      .filter((x) => x.endsWith(".yaml"))
+      .sort()) {
+      const r = parseProviderFile(readFileSync(join(base, f), "utf8"), {
+        file: `${region}/${f}`,
+        studies,
+      });
+      errors.push(...r.errors);
+      if (r.file) {
+        const prev = seen.get(r.file.provider.id);
+        if (prev)
+          errors.push(
+            `${region}/${f}: provider id "${r.file.provider.id}" is already used by ${prev}`,
+          );
+        seen.set(r.file.provider.id, `${region}/${f}`);
+        r.file.provider.region = region as Region;
+        files.push(r.file);
+      }
+    }
   }
   return { files, errors };
 }
@@ -184,19 +206,20 @@ export async function loadCourses(
       return { changed: false, report: merged.report };
     }
     await c.query(
-      "DELETE FROM course_campuses; DELETE FROM course_entry_figures; DELETE FROM course_prerequisites; DELETE FROM courses; DELETE FROM providers",
+      "DELETE FROM course_campuses; DELETE FROM course_admissions; DELETE FROM course_entry_figures; DELETE FROM course_prerequisites; DELETE FROM courses; DELETE FROM providers",
     );
     for (const p of merged.providers as Array<
       Provider & { cricosProviderCode?: string }
     >) {
       await c.query(
-        "INSERT INTO providers (id, name, courses_url, search_url, cricos_provider_code) VALUES ($1,$2,$3,$4,$5)",
+        "INSERT INTO providers (id, name, courses_url, search_url, cricos_provider_code, region) VALUES ($1,$2,$3,$4,$5,$6)",
         [
           p.id,
           p.name,
           p.coursesUrl,
           p.searchUrl ?? null,
           p.cricosProviderCode ?? null,
+          p.region ?? "vic",
         ],
       );
     }
@@ -225,6 +248,11 @@ export async function loadCourses(
           x.fromCricos ?? false,
         ],
       );
+      for (const a of x.admissions ?? [])
+        await c.query(
+          "INSERT INTO course_admissions (course_id, centre, code) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING",
+          [x.id, a.centre, a.code],
+        );
       for (const campus of x.campuses)
         await c.query(
           "INSERT INTO course_campuses (course_id, campus) VALUES ($1,$2) ON CONFLICT DO NOTHING",
@@ -311,7 +339,7 @@ export class CourseStore implements CatalogueSource {
     if (this.cached && Date.now() - this.cached.at < this.ttlMs)
       return this.cached.cat;
     const q = this.db.pool;
-    const [prov, courses, camp, figs, pre, load] = await Promise.all([
+    const [prov, courses, camp, figs, pre, load, adm] = await Promise.all([
       q.query("SELECT * FROM providers ORDER BY name"),
       q.query("SELECT * FROM courses ORDER BY name"),
       q.query("SELECT * FROM course_campuses ORDER BY campus"),
@@ -324,6 +352,7 @@ export class CourseStore implements CatalogueSource {
       q.query(
         "SELECT loaded_at, git_sha FROM course_loads ORDER BY id DESC LIMIT 1",
       ),
+      q.query("SELECT * FROM course_admissions ORDER BY centre, code"),
     ]);
     if (!load.rows[0]) throw new NoCourseLoad();
     const group = <T extends { course_id: string }>(rows: T[]) =>
@@ -334,12 +363,14 @@ export class CourseStore implements CatalogueSource {
     const campuses = group(camp.rows);
     const figures = group(figs.rows);
     const prereqs = group(pre.rows);
+    const admissions = group(adm.rows);
     const cat: Catalogue = {
       providers: prov.rows.map((p) => ({
         id: p.id,
         name: p.name,
         coursesUrl: p.courses_url,
         domains: [],
+        region: p.region,
         ...(p.search_url ? { searchUrl: p.search_url } : {}),
       })),
       courses: courses.rows.map(
@@ -357,6 +388,14 @@ export class CourseStore implements CatalogueSource {
             : {}),
           ...(r.cricos_code ? { cricosCode: r.cricos_code } : {}),
           ...(r.vtac_code ? { vtacCode: r.vtac_code } : {}),
+          ...((admissions.get(r.id) ?? []).length
+            ? {
+                admissions: (admissions.get(r.id) ?? []).map((a) => ({
+                  centre: a.centre,
+                  code: a.code,
+                })),
+              }
+            : {}),
           ...(r.official_url ? { officialUrl: r.official_url } : {}),
           ...(r.course_seeker_url
             ? { courseSeekerUrl: r.course_seeker_url }

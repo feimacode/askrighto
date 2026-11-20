@@ -18,7 +18,11 @@ import { matchStudy, loadStudies, type Study } from "../courses/studies.js";
 import type { StudentStudy } from "../courses/prerequisites.js";
 import type { Course, Rule } from "../courses/types.js";
 
-export const COURSE_DATASETS = ["vic-courses"] as const;
+export const COURSE_DATASETS = [
+  "vic-courses",
+  "nsw-act-courses",
+  "qld-courses",
+] as const;
 export const OWN_WORDS = "Facts in our own words; see the official page";
 export const INDEX_SOURCE_URL =
   "https://github.com/feimacode/askrighto/tree/main/data/courses/vic";

@@ -142,6 +142,49 @@ describe("validation", () => {
         ),
       ),
     ).toMatch(/vtac.edu.au is not allowed/));
+  it("rejects UAC and QTAC sources while their rights are pending", () => {
+    for (const host of ["uac.edu.au", "www.qtac.edu.au"])
+      expect(
+        bad(
+          FIXTURE_YAML.replace(
+            "sourceUrl: https://www.testu.edu.au/courses/arts",
+            `sourceUrl: https://${host}/x`,
+          ),
+        ),
+      ).toMatch(/is not allowed/);
+  });
+  it("accepts NESA and QCAA pages as government sources", () => {
+    for (const host of ["www.nesa.nsw.edu.au", "www.qcaa.qld.edu.au"])
+      expect(
+        bad(
+          FIXTURE_YAML.replace(
+            "sourceUrl: https://www.testu.edu.au/courses/arts",
+            `sourceUrl: https://${host}/x`,
+          ),
+        ),
+      ).toBe("");
+  });
+  it("reads admissions codes and keeps the VTAC code", () => {
+    const f = parseProviderFile(
+      FIXTURE_YAML.replace(
+        "    name: Bachelor of Science",
+        "    vtacCode: '1234'\n    admissions:\n      - { centre: uac, code: '5678' }\n    name: Bachelor of Science",
+      ),
+    ).file;
+    expect(f?.courses[0]?.admissions).toEqual([
+      { centre: "uac", code: "5678" },
+      { centre: "vtac", code: "1234" },
+    ]);
+  });
+  it("rejects an unknown admissions centre", () =>
+    expect(
+      parseProviderFile(
+        FIXTURE_YAML.replace(
+          "    name: Bachelor of Science",
+          "    admissions:\n      - { centre: satac, code: '1' }\n    name: Bachelor of Science",
+        ),
+      ).errors.join("\n"),
+    ).toMatch(/admissions centre must be one of/));
   it("rejects a long summary", () =>
     expect(
       bad(
@@ -332,5 +375,112 @@ describe("scaling and aggregate", () => {
       ["Psychology", 30],
     ]);
     expect(r.studies.every((s) => s.reason.length > 0)).toBe(true);
+  });
+});
+
+describe("stand-in match report", () => {
+  it("proposes unique, ambiguous and loose matches and never links", async () => {
+    const { matchStandins } = await import("../../src/courses/standins.js");
+    const mk = (id: string, name: string) => ({
+      id,
+      providerId: "p",
+      origin: "gap_fill" as const,
+      depth: "index_only" as const,
+      name,
+      level: "bachelor",
+      fields: [],
+      campuses: [],
+      entryFigures: [],
+      prerequisites: [],
+      otherCriteria: [],
+    });
+    const cr = (code: string, name: string) => ({
+      cricosCode: code,
+      providerCode: "P1",
+      courseName: name,
+      locations: [],
+    });
+    const m = matchStandins(
+      [
+        {
+          provider: {
+            id: "p",
+            name: "P",
+            coursesUrl: "https://p.edu.au/",
+            domains: ["p.edu.au"],
+            cricosProviderCode: "P1",
+          },
+          courses: [
+            mk("a", "Bachelor of Arts"),
+            mk("b", "Bachelor of Science"),
+            mk("c", "Bachelor of Nursing (First Year Entry Only)"),
+            mk("d", "Bachelor of Law"),
+          ],
+        },
+      ],
+      [
+        cr("1", "Bachelor of Arts"),
+        cr("2", "Bachelor of Science"),
+        cr("3", "Bachelor of Science"),
+        cr("4", "Bachelor of Nursing"),
+      ] as never,
+    );
+    expect(m.map((x) => x.status)).toEqual([
+      "unique",
+      "ambiguous",
+      "loose",
+      "none",
+    ]);
+    expect(m[1]!.candidates.map((x) => x.cricosCode)).toEqual(["2", "3"]);
+  });
+});
+
+describe("region folders", () => {
+  it("reads every region, tags providers and refuses a duplicate id or unknown folder", async () => {
+    const { mkdtempSync, mkdirSync, writeFileSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const { readProviderFiles } = await import("../../src/courses/load.js");
+    const dir = mkdtempSync(join(tmpdir(), "regions-"));
+    for (const r of ["vic", "nsw-act", "bogus"])
+      mkdirSync(join(dir, "courses", r), { recursive: true });
+    const yaml = (id: string) =>
+      `provider: { id: ${id}, name: ${id}, coursesUrl: "https://${id}.edu.au/", domains: [${id}.edu.au] }\ncourses: []\n`;
+    writeFileSync(join(dir, "courses", "vic", "a.yaml"), yaml("a"));
+    writeFileSync(join(dir, "courses", "nsw-act", "b.yaml"), yaml("b"));
+    writeFileSync(join(dir, "courses", "nsw-act", "a.yaml"), yaml("a"));
+    writeFileSync(join(dir, "vce-studies.yaml"), "studies: []\ngroups: []\n");
+    const r = readProviderFiles(dir);
+    expect(r.files.map((f) => `${f.provider.region}/${f.provider.id}`)).toEqual(
+      ["nsw-act/a", "nsw-act/b", "vic/a"],
+    );
+    expect(r.errors.join("\n")).toMatch(/provider id "a" is already used/);
+    expect(r.errors.join("\n")).toMatch(/bogus: not a known region/);
+  });
+  it("filters the catalogue by region", async () => {
+    const { filterCourses } = await import("../../src/courses/catalogue.js");
+    const base = {
+      origin: "cricos" as const,
+      depth: "index_only" as const,
+      level: "bachelor",
+      fields: [],
+      campuses: [],
+      entryFigures: [],
+      prerequisites: [],
+      otherCriteria: [],
+    };
+    const cat = {
+      providers: [
+        { id: "v", name: "V", coursesUrl: "x", domains: [], region: "vic" },
+        { id: "n", name: "N", coursesUrl: "x", domains: [], region: "nsw-act" },
+      ],
+      courses: [
+        { ...base, id: "1", providerId: "v", name: "Arts" },
+        { ...base, id: "2", providerId: "n", name: "Arts" },
+      ],
+      loadedAt: new Date(),
+    } as never;
+    expect(filterCourses(cat, { region: "nsw-act" }).map((c) => c.id)).toEqual(["2"]);
+    expect(filterCourses(cat, {}).length).toBe(2);
   });
 });

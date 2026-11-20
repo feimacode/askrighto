@@ -49,6 +49,28 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Condition: Facts only, in our own words, with a link on every fact.
 - Condition: Legal view on re-keyed facts outstanding (roadmap Phase 0).
 
+## nsw-act-courses
+
+- Owner: Each NSW and ACT university (course pages and admissions transparency pages)
+- Basis: `own_words_facts`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-08-01
+- Evidence: https://uac.edu.au/about/privacy-legal (read 2026-11-21). UAC terms: reproducing website or publication material needs UAC's written permission, apart from fair dealing; no wording on course data extraction. So no UAC content is used; facts come from the universities' own pages, re-keyed in our own words with a link.
+- Condition: Facts only, in our own words, with a link on every fact.
+- Condition: Legal view on re-keyed facts outstanding (roadmap Phase 0).
+- Condition: No permission request to UAC (Iven, 20 Nov 2026).
+
+## qld-courses
+
+- Owner: Each Queensland university (course pages and admissions transparency pages)
+- Basis: `own_words_facts`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-08-01
+- Evidence: https://www.qtac.edu.au/legal-privacy-policies/ (read 2026-11-21). QTAC terms: all rights reserved, one copy for private personal use, no other rights in the content. So no QTAC content is used; facts come from the universities' own pages, re-keyed in our own words with a link.
+- Condition: Facts only, in our own words, with a link on every fact.
+- Condition: Legal view on re-keyed facts outstanding (roadmap Phase 0).
+- Condition: No permission request to QTAC (Iven, 20 Nov 2026).
+
 ## vce-key-dates
 
 - Owner: VCAA and VTAC (key dates pages)
@@ -98,6 +120,22 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Status: `pending`
 - Review by: 2027-02-01
 - Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). Extraction banned without written permission. Used only to block facts sourced from vtac.edu.au pages.
+
+## uac-coursesearch
+
+- Owner: UAC (course search and publications)
+- Basis: `written_permission`
+- Status: `pending`
+- Review by: 2027-02-01
+- Evidence: https://uac.edu.au/about/privacy-legal (read 2026-11-21). Reproduction needs written permission. Used only to block facts sourced from uac.edu.au pages. No request sent.
+
+## qtac-coursesearch
+
+- Owner: QTAC (course search and website content)
+- Basis: `written_permission`
+- Status: `pending`
+- Review by: 2027-02-01
+- Evidence: https://www.qtac.edu.au/legal-privacy-policies/ (read 2026-11-21). All rights reserved; no rights beyond private personal use. Used only to block facts sourced from qtac.edu.au pages. No request sent.
 
 ## course-seeker
 

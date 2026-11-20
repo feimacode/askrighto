@@ -75,6 +75,84 @@
     "reviewBy": "2027-08-01"
   },
   {
+    "datasetId": "nsw-act-courses",
+    "owner": "Each NSW and ACT university (course pages and admissions transparency pages)",
+    "basis": "own_words_facts",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://uac.edu.au/about/privacy-legal",
+        "readOn": "2026-11-21",
+        "note": "UAC terms: reproducing website or publication material needs UAC's written permission, apart from fair dealing; no wording on course data extraction. So no UAC content is used; facts come from the universities' own pages, re-keyed in our own words with a link."
+      }
+    ],
+    "attribution": null,
+    "conditions": [
+      "Facts only, in our own words, with a link on every fact.",
+      "Legal view on re-keyed facts outstanding (roadmap Phase 0).",
+      "No permission request to UAC (Iven, 20 Nov 2026)."
+    ],
+    "reviewBy": "2027-08-01"
+  },
+  {
+    "datasetId": "qld-courses",
+    "owner": "Each Queensland university (course pages and admissions transparency pages)",
+    "basis": "own_words_facts",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://www.qtac.edu.au/legal-privacy-policies/",
+        "readOn": "2026-11-21",
+        "note": "QTAC terms: all rights reserved, one copy for private personal use, no other rights in the content. So no QTAC content is used; facts come from the universities' own pages, re-keyed in our own words with a link."
+      }
+    ],
+    "attribution": null,
+    "conditions": [
+      "Facts only, in our own words, with a link on every fact.",
+      "Legal view on re-keyed facts outstanding (roadmap Phase 0).",
+      "No permission request to QTAC (Iven, 20 Nov 2026)."
+    ],
+    "reviewBy": "2027-08-01"
+  },
+  {
+    "datasetId": "uac-coursesearch",
+    "owner": "UAC (course search and publications)",
+    "basis": "written_permission",
+    "status": "pending",
+    "evidence": [
+      {
+        "url": "https://uac.edu.au/about/privacy-legal",
+        "readOn": "2026-11-21",
+        "note": "Reproduction needs written permission. Used only to block facts sourced from uac.edu.au pages. No request sent."
+      }
+    ],
+    "attribution": null,
+    "conditions": [],
+    "reviewBy": "2027-02-01",
+    "domains": [
+      "uac.edu.au"
+    ]
+  },
+  {
+    "datasetId": "qtac-coursesearch",
+    "owner": "QTAC (course search and website content)",
+    "basis": "written_permission",
+    "status": "pending",
+    "evidence": [
+      {
+        "url": "https://www.qtac.edu.au/legal-privacy-policies/",
+        "readOn": "2026-11-21",
+        "note": "All rights reserved; no rights beyond private personal use. Used only to block facts sourced from qtac.edu.au pages. No request sent."
+      }
+    ],
+    "attribution": null,
+    "conditions": [],
+    "reviewBy": "2027-02-01",
+    "domains": [
+      "qtac.edu.au"
+    ]
+  },
+  {
     "datasetId": "vce-key-dates",
     "owner": "VCAA and VTAC (key dates pages)",
     "basis": "own_words_facts",

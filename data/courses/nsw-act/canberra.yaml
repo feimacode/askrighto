@@ -1,0 +1,10 @@
+# University of Canberra: provider entry for the nsw-act index. CRICOS undergraduate courses come in from the CRICOS file on load;
+# coursesUrl is the provider's own site from the CRICOS Institutions sheet, not a course finder link. Add official course
+# links and curated rows by hand from the university's own pages (never from UAC, QTAC, VTAC or Course Seeker).
+provider:
+  id: canberra
+  cricosProviderCode: "00212K"
+  name: University of Canberra
+  coursesUrl: https://www.canberra.edu.au/
+  domains: [canberra.edu.au]
+courses: []

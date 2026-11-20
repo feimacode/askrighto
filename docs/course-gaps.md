@@ -11,7 +11,7 @@ and the unticked tasks of the course OpenSpec changes. Both verticals stay inter
 ## Needs a machine that reaches data.gov.au, the database or university pages (the WSL)
 | Gap | Vertical | Next step |
 | --- | --- | --- |
-| Domestic CRICOS load done on `askrighto_dev` 21 Nov 2026 (1,183 courses: 1,086 CRICOS, 97 stand-ins, 1 curated; no warnings); stand-ins not yet retired | domestic | Retire stand-ins by reviewed match (see decisions below) |
+| Domestic CRICOS load on `askrighto_dev` 21 Nov 2026 after phase A of `extend-courses-to-uac-qtac`: 3,771 courses (vic 1,189 CRICOS + 97 stand-ins, nsw-act 1,680, qld 805; 1 curated); stand-ins not yet retired | domestic | Run `courses:match-standins`, set `cricosCode` on the matches by hand (task 2.2) |
 | 1 Oct 2026 CRICOS data loaded on `askrighto_dev` 21 Nov 2026 (13,069 courses, 20,087 locations, 664 providers); reloaded with diplomas and VET after `add-intl-diplomas-vet` (see that change) | international | None |
 | Entry figures, prerequisites, summaries: only RMIT Engineering curated | domestic | Curate by hand from official pages, starting where browsing fails (Melbourne, ACU, La Trobe) |
 | Key dates, preference rules, early-entry schemes provisional, not re-read | domestic | Re-read VCAA and VTAC pages, reword, clear `provisional` |

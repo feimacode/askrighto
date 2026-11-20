@@ -271,7 +271,7 @@ Usage:
   askrighto migrate    apply database migrations (needs DATABASE_URL)
   askrighto sync-energy [--record DIR] [--retailer SLUG]
                        load or refresh energy plans; --record saves raw API responses as fixtures
-  askrighto courses:validate | courses:load [--cricos FILE.csv] | courses:check-pages
+  askrighto courses:validate | courses:load [--cricos FILE.csv] | courses:match-standins --cricos FILE.csv | courses:check-pages
   askrighto vce:validate | vce:load
                        check and load the Victorian course index and VCE admissions data from data/
   askrighto health:validate|health:load --dir UNZIPPED_FOLDER [--source-date YYYY-MM-DD] [--source-name NAME]  |  health:rates-validate
@@ -298,6 +298,7 @@ Usage:
       "courses:validate": () => cli.cliCoursesValidate(),
       "courses:load": () => cli.cliCoursesLoad(args.slice(1)),
       "courses:check-pages": () => cli.cliCoursesCheckPages(),
+      "courses:match-standins": () => cli.cliCoursesMatchStandins(args.slice(1)),
       "vce:validate": () => cli.cliVceValidate(),
       "vce:load": () => cli.cliVceLoad(),
     };

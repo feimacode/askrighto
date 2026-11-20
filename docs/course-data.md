@@ -37,3 +37,12 @@ Each March and August: run `courses:check-pages`, re-read each curated course's 
 ## Not done yet
 
 The gap report (`courses:gap-report`) and the full rebuild of the pilot's 109 courses are not implemented or done; see `openspec/changes/add-vic-course-data/tasks.md`.
+
+## Regions, admissions centres and stand-ins (extend-courses-to-uac-qtac, phase A)
+
+- Provider files live in `data/courses/<region>/`, with region one of `vic`, `nsw-act` (UAC) or `qld` (QTAC). A provider id may appear only once across all regions. A university with campuses in several states lives in the folder of its head-office region (ACU stays in `vic/`); campus states are not yet stored separately.
+- A course may list `admissions: [{centre: vtac|uac|qtac, code}]`. `vtacCode` still works and is copied into the list. Table `course_admissions` holds them; `vtac_code` stays for older readers.
+- `nsw-act/` and `qld/` hold provider entries only so far: the CRICOS undergraduate courses of each provider load as `index_only` rows. `coursesUrl` is the provider's own site from the CRICOS Institutions sheet, and no official course links or curated facts exist yet.
+- Sources on uac.edu.au or qtac.edu.au are rejected, like VTAC. nesa.nsw.edu.au and qcaa.qld.edu.au are allowed government sources.
+- `courses:match-standins --cricos FILE [--course-locations FILE] [--json]` lists, for each stand-in row, CRICOS courses of the same provider with the same name (`unique`, `ambiguous`, `loose` when only brackets differ, `none`). It changes nothing: a person checks campus and year and sets `cricosCode` on the stand-in. 21 Nov 2026 file: 97 stand-ins, 44 unique, 11 ambiguous, 12 loose, 30 none.
+- The ACU `cricosProviderCode` was wrong (00004C); the 1 Oct 2026 file has Australian Catholic University as 00004G, which this change fixes, so ACU now loads its CRICOS courses.
