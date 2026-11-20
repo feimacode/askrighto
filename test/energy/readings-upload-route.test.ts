@@ -6,7 +6,6 @@ import type { AddressInfo } from "node:net";
 import type { Server } from "node:http";
 import express from "express";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { MAX_READINGS_CHARS } from "../../src/energy/readings/parse.js";
 import { decodeProfile } from "../../src/energy/readings/profile.js";
 import { setProfileKeys } from "../../src/energy/readings/sign.js";
 import { checkUploadToken, mintUploadToken, UPLOAD_TTL_SECONDS } from "../../src/energy/readings/upload.js";
