@@ -28,7 +28,7 @@ describe("business plans in the guidance", () => {
     expect(t).toMatch(/customerType/);
     expect(t).toMatch(/never assume|do not assume/i);
     expect(t).toMatch(/no typical usage for a business|typical usage is for households only/i);
-    expect(t).toMatch(/large customers are not compared/i);
+    expect(t).toMatch(/large customers are not in the data and are not compared/i);
   });
 });
 

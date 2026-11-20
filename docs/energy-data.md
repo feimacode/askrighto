@@ -17,10 +17,10 @@ are current or start in the future, per retailer in `src/energy/retailers.json`.
 `customerType` (`RESIDENTIAL` or `BUSINESS`); the tools take `customerType` (default `RESIDENTIAL`) and never
 mix the two in one result. Until 20 Nov 2026 business plans were dropped at the list stage; the first sync
 after that change adds them (nothing already stored changes), and a business plan is a different plan id.
-**BUSINESS means small business: large customers are excluded** (Iven, 20 Nov 2026: their contracts are
-negotiated, not published plans, so they are a different thing), and the agent says so and stops. The CDR
-data has only `RESIDENTIAL` and `BUSINESS` and does not separate sizes, so eligibility text is shown beside
-a plan and not checked. There is no typical usage (benchmark) for a business.
+**Every CDR plan is for a residential or a small business customer, so `BUSINESS` means small business, and
+large customers are not in the data** (Iven, 20 Nov 2026). They are not compared either: their contracts are
+negotiated, not published plans, so they are a different thing, and the agent says so and stops. Eligibility
+text is shown beside a plan and not checked. There is no typical usage (benchmark) for a business.
 
 **Retailer list.** The file holds 92 base URI path segments, seeded on 17 Nov 2026 from the AER
 document *Consumer Data Right: Energy Retailer Base URIs and CDR Brands* (January 2026,

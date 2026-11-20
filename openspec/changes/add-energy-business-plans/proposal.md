@@ -18,8 +18,7 @@ Data source: the same AER Consumer Data Right energy product reference data, sam
 
 Out of scope:
 
-- **Large customers:** excluded by decision (Iven, 20 Nov 2026): they are totally different, with negotiated contracts and no published plans to compare. `BUSINESS` means small business; the instructions tell the agent to say so and stop for a large customer.
-- Telling small from large business in the data: the CDR data has only `RESIDENTIAL` and `BUSINESS`, so eligibility is shown as published, not checked.
+- **Large customers:** not in the data and not compared (Iven, 20 Nov 2026: every CDR plan is for a residential or a small business customer, and large customers are totally different, with negotiated contracts). `BUSINESS` means small business; the instructions tell the agent to say so and stop for a large customer.
 - Costing demand tariffs (more common for business): they stay listed as not estimated with the reason.
 - The invoice-first flow, per-band shares and readings layers (separate changes).
 
