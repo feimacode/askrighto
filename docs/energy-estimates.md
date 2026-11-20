@@ -102,7 +102,7 @@ Effect of the per-band change (same data, the same synthetic year of readings an
 
 - **Regression**: for the 4,268 plans with at most one shoulder band, the estimate (or the reason it is not estimated) is identical before and after the change for all three splits (30/20/50, 10/0/90, 45/15/40).
 - **Readings**: plans whose windows map onto a year of half-hourly readings rose from 4,268 (65.7%) to 4,577 (70.4%), not to the 100% a name-based count would suggest.
-- **Bill split**: 2,925 plans are estimated with a split before and after; the new multi-shoulder plans with PEAK and OFF_PEAK added no more because the other refusals (blocks in a band, demand tariffs) apply to them too.
+- **Bill split**: the calculator already split a bill's one shoulder figure equally between shoulder bands before this change, so for the 82 multi-shoulder plans that have PEAK and OFF_PEAK and no blocks the estimate is the same before and after (2,925 plans are estimated with a split either way). The change is in the readings route (a share per band) and in saying the equal split in the notes.
 - **Still refused for a bill split**: 1,924 plans (bands not in the expected shape: no PEAK or OFF_PEAK, or the same type twice), 219 with block rates inside a band, 8 with demand charges. For readings the same all-`SHOULDER` plans are refused because two bands share one type.
 
 Method: the stored `plans` table of the local copy of the 17 Nov 2026 sync (read-only), the pre-change calculator against the current one, residential plans only.
