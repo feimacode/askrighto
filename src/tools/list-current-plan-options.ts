@@ -23,9 +23,13 @@ const input = z.object({
   peakRatePerUnit: z.number().min(0).max(5).optional().describe("Peak rate (GST inclusive, as on the invoice) in dollars per kWh from the invoice"),
   shoulderRatePerUnit: z.number().min(0).max(5).optional().describe("Shoulder rate (GST inclusive, as on the invoice) in dollars per kWh from the invoice"),
   offPeakRatePerUnit: z.number().min(0).max(5).optional().describe("Off-peak rate (GST inclusive, as on the invoice) in dollars per kWh from the invoice"),
+  planCode: z.string().max(40).optional().describe("The plan or offer code printed on the invoice or fact sheet (for example MOM799904MR), if there is one. It identifies a plan exactly"),
+  showAllOptions: z.boolean().optional().describe("Set true only when the user cannot give any figure or code from the invoice: lists the retailer's options without narrowing"),
 });
 
 const OPTION_LIMIT = 8;
+/** When the invoice figures narrow the list, more than this many equally good options means the user should say more. */
+const NARROW_LIMIT = 4;
 const LAYOUT_LIMIT = 9;
 
 interface Summary {
@@ -121,6 +125,10 @@ export interface CurrentPlanData {
   totalPlans: number;
   options: PlanOption[];
   optionsNotShown: number;
+  /** True when invoice figures or a plan code narrowed the list. */
+  narrowed: boolean;
+  /** True when the figures still leave more than a few equally good options: ask the user for more from the invoice. */
+  tooMany: boolean;
   layouts: LayoutChoice[];
   nextStep: string;
   notice: string;
@@ -183,6 +191,14 @@ export const listCurrentPlanOptions = defineTool({
         SHOULDER: args.shoulderRatePerUnit,
         OFF_PEAK: args.offPeakRatePerUnit,
       };
+      const rateHints = [hint.supply, hint.single, hint.PEAK, hint.SHOULDER, hint.OFF_PEAK].some((x) => x !== undefined);
+      const code = args.planCode?.trim().toUpperCase().replace(/@.*$/, "");
+      if (!rateHints && !code && !args.showAllOptions) {
+        return notFound(
+          "needs_input",
+          `${m.brandName} has ${groups.size} different sets of rates and hours on this network, too many to choose from without more. Ask the user to read from their invoice the daily supply charge, the usage rate or rates (a single rate, or peak, shoulder and off-peak), and the plan or offer code if it prints one, then call again with them (they include GST, as printed). Only if the user cannot give any of these, call again with showAllOptions true.`,
+        );
+      }
       const ranked = [...groups.values()].map(({ s, plans: ps }) => {
         const matchedOn: string[] = [];
         const notMatched: string[] = [];
@@ -192,6 +208,10 @@ export const listCurrentPlanOptions = defineTool({
           else notMatched.push(label);
         };
         check("daily supply charge", hint.supply, s.supply, 0.006);
+        if (code) {
+          if (ps.some((p) => p.planId.toUpperCase().replace(/@.*$/, "").startsWith(code))) matchedOn.push("plan code");
+          else notMatched.push("plan code");
+        }
         // A hint matches when any rate of that kind agrees: plans with several bands of one type have several values.
         const vals = (pick: (t: string) => boolean) => s.rates.filter((x) => pick(x.type)).map((x) => x.value);
         const checkAny = (label: string, h: number | undefined, pubs: number[], tol: number) => {
@@ -207,7 +227,18 @@ export const listCurrentPlanOptions = defineTool({
       });
       ranked.sort((a, b) => b.matchedOn.length - a.matchedOn.length || a.notMatched.length - b.notMatched.length || b.ps.length - a.ps.length || a.s.key.localeCompare(b.s.key));
 
-      const options: PlanOption[] = ranked.slice(0, OPTION_LIMIT).map(({ s, ps, matchedOn, notMatched }) => {
+      // With invoice figures, show only the options that agree best: all that agree on every figure given, else those matching the most. Several that tie mean the user should say more.
+      const narrowed = rateHints || Boolean(code);
+      let kept = ranked;
+      if (narrowed) {
+        const best = Math.max(0, ...ranked.map((r) => r.matchedOn.length));
+        kept = best === 0 ? [] : ranked.filter((r) => r.matchedOn.length === best);
+        const exact = kept.filter((r) => r.notMatched.length === 0);
+        if (exact.length) kept = exact;
+      }
+      const tooMany = narrowed && kept.length > NARROW_LIMIT;
+      const shownLimit = narrowed ? NARROW_LIMIT : OPTION_LIMIT;
+      const options: PlanOption[] = kept.slice(0, shownLimit).map(({ s, ps, matchedOn, notMatched }) => {
         const ids = ps.map((p) => p.planId).sort();
         const names = [...new Set(ps.map((p) => p.displayName))].sort();
         return {
@@ -243,10 +274,15 @@ export const listCurrentPlanOptions = defineTool({
         ...(distributor ? { distributor } : nets[0] ? { distributor: nets[0] } : {}),
         totalPlans: plans.length,
         options,
-        optionsNotShown: Math.max(0, groups.size - options.length),
+        optionsNotShown: narrowed ? Math.max(0, kept.length - options.length) : Math.max(0, groups.size - options.length),
+        narrowed,
+        tooMany,
         layouts,
-        nextStep:
-          "Show these options in plain words and ask the user to pick the one their invoice is on, or say none of these. If none, show the band hours below and ask which matches their invoice or fact sheet, or let them state the hours. Then call compare_energy_plans with currentPlanId (an id from the chosen option) or hoursLayoutId. Do not choose for the user and do not match by plan name.",
+        nextStep: tooMany
+          ? "Several options agree equally with the figures given. Do not ask the user to choose yet: ask them for more from the invoice (every rate printed, the daily supply charge, and the plan or offer code if there is one), then call again. Do not match by plan name."
+          : narrowed && options.length === 0
+            ? "Nothing in this retailer's list agrees with the figures given. Check them with the user (rates on an invoice include GST; a rate is per kWh in dollars), or ask for the plan or offer code, or show the band hours below and ask which matches their invoice or fact sheet, or let them state the hours."
+            : "Show these options in plain words and ask the user to pick the one their invoice is on, or say none of these. If none, show the band hours below and ask which matches their invoice or fact sheet, or let them state the hours. Then call compare_energy_plans with currentPlanId (an id from the chosen option) or hoursLayoutId. Do not choose for the user and do not match by plan name.",
         notice: NOTICE,
       };
       return found({ data, source, asOf: asOfFor(plans) });
@@ -267,7 +303,7 @@ export const listCurrentPlanOptions = defineTool({
       if (o.notMatched.length) out.push(`- Did not match your invoice on: ${o.notMatched.join(", ")}.`);
       out.push("");
     });
-    if (d.optionsNotShown) out.push(`${d.optionsNotShown} more option${d.optionsNotShown === 1 ? " is" : "s are"} not shown. Give the rates printed on the invoice to narrow the list.`, "");
+    if (d.optionsNotShown) out.push(`${d.optionsNotShown} more option${d.optionsNotShown === 1 ? " is" : "s are"} not shown. Give more of what is printed on the invoice (every rate, the daily supply charge, the plan or offer code) to narrow the list.`, "");
     if (d.layouts.length) {
       out.push("If none of these is the user's plan, these are the band hours this retailer uses on this network:");
       d.layouts.forEach((l, i) => out.push(`${i + 1}. ${l.hours} (hours id ${l.layoutId}; ${l.plans} plan${l.plans === 1 ? "" : "s"})`));
@@ -276,9 +312,13 @@ export const listCurrentPlanOptions = defineTool({
     out.push(d.nextStep, "", d.notice);
     return out.join("\n");
   },
-  decorate: (result) =>
-    inkviewResult(result, () => {
-      const d = (result as Found<CurrentPlanData>).data;
+  decorate: (result) => {
+    if (!result.found) return undefined;
+    const cur = (result as Found<CurrentPlanData>).data;
+    // Only a short, settled list is drawn as a form: when the figures leave too many, or none, the host asks the user for more instead.
+    if (cur.tooMany || cur.options.length === 0) return undefined;
+    return inkviewResult(result, () => {
+      const d = cur;
       const unit = d.fuelType === "GAS" ? "MJ" : "kWh";
       const clip = (t: string, n: number) => (t.length > n ? `${t.slice(0, n - 1)}…` : t);
       // The form's choices are capped at 80 characters each, so they carry the headline only; the full text beside the form has every rate, hour and plan id.
@@ -309,5 +349,6 @@ export const listCurrentPlanOptions = defineTool({
         submitLabel: "Use this plan",
         fields,
       } as never);
-    }),
+    });
+  },
 });

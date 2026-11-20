@@ -46,12 +46,18 @@ d("list_current_plan_options: a choice the user can make", () => {
     d.geography = { distributors: ["Jemena"], includedPostcodes: ["3000"] };
     return { detail: f };
   };
-  const args = { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", retailer: "Momentum", distributor: "Jemena" };
+  const args = { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", retailer: "Momentum", distributor: "Jemena", showAllOptions: true };
 
   beforeAll(async () => {
     db = createDb({ url: URL!, schema, poolMax: 5 });
     await migrate(db);
-    mock = await startMockCdr({ retailers: { momentum: [allShoulder("M1"), allShoulder("M2"), single("M3")] } });
+    const many = [10, 11, 12, 13, 14, 15].map((n) => {
+      const x = single(`M${n}`);
+      const d = x.detail.data ?? x.detail;
+      d.electricityContract.tariffPeriod[0].singleRate = { displayName: "Usage", rates: [{ unitPrice: `0.${20 + n}`, measureUnit: "KWH" }] };
+      return x;
+    });
+    mock = await startMockCdr({ retailers: { momentum: [allShoulder("M1"), allShoulder("M2"), single("M3"), ...many] } });
     clearDataSets();
     clearReadinessChecks();
     rt = (await startEnergy({ DATABASE_URL: URL, DATABASE_SCHEMA: schema, ASKRIGHTO_SYNC_SCHEDULE: "off" } as NodeJS.ProcessEnv))!;
@@ -108,5 +114,40 @@ d("list_current_plan_options: a choice the user can make", () => {
     expect(pick).toMatch(/Use this plan/);
     // The full text is still there for hosts that draw no component, with the ids the next call needs.
     expect((r.content as Array<{ text: string }>)[0]!.text).toMatch(/Plan ids: .*M[12]/);
+  });
+
+  it("asks for figures from the invoice instead of listing every option, and lists them only on request", async () => {
+    const r = await client.callTool({ name: "list_current_plan_options", arguments: { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", retailer: "Momentum", distributor: "Jemena" } });
+    const g = ((r.structuredContent as any).grounded ?? r.structuredContent) as any;
+    expect(g).toMatchObject({ found: false, reason: "needs_input" });
+    expect(g.message).toMatch(/daily supply charge/);
+    expect(g.message).toMatch(/showAllOptions/);
+  });
+
+  it("keeps only the options that agree with the invoice, and says to ask for more when several tie", async () => {
+    // Every single rate plan has the same supply charge ($1.10, $1.21 with GST), so the supply charge alone cannot tell them apart.
+    const r = await client.callTool({ name: "list_current_plan_options", arguments: { ...args, showAllOptions: undefined, supplyChargePerDay: 1.21 } });
+    const g = ((r.structuredContent as any).grounded ?? r.structuredContent) as any;
+    expect(g.data.narrowed).toBe(true);
+    expect(g.data.tooMany).toBe(true);
+    expect(g.data.options.length).toBeLessThanOrEqual(4);
+    expect(g.data.nextStep).toMatch(/ask them for more from the invoice/);
+    // No form is drawn for a list that is not settled.
+    expect(JSON.stringify(r.structuredContent)).not.toMatch(/Use this plan/);
+    // One more figure settles it.
+    const r2 = await client.callTool({ name: "list_current_plan_options", arguments: { ...args, showAllOptions: undefined, supplyChargePerDay: 1.21, singleRatePerUnit: 0.352 } });
+    const g2 = ((r2.structuredContent as any).grounded ?? r2.structuredContent) as any;
+    expect(g2.data.tooMany).toBe(false);
+    expect(g2.data.options).toHaveLength(1);
+    expect(g2.data.options[0].matchedOn).toEqual(expect.arrayContaining(["daily supply charge", "single rate"]));
+    expect(JSON.stringify(r2.structuredContent)).toMatch(/Use this plan/);
+  });
+
+  it("identifies a plan exactly from the plan code printed on the invoice", async () => {
+    const r = await client.callTool({ name: "list_current_plan_options", arguments: { ...args, showAllOptions: undefined, planCode: "m12" } });
+    const g = ((r.structuredContent as any).grounded ?? r.structuredContent) as any;
+    expect(g.data.options).toHaveLength(1);
+    expect(g.data.options[0].planIds).toEqual(["M12"]);
+    expect(g.data.options[0].matchedOn).toContain("plan code");
   });
 });

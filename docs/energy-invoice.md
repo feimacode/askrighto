@@ -17,6 +17,16 @@ Layouts are the sorted set of (season, band, days, start, end) windows; the id i
 
 Results carry the plan data source link and as-of date like every energy result.
 
+## Narrowing the list
+
+Listing every plan of a retailer is not a choice a person can make (Momentum has 30 plans in 7 groups on one network), so the tool narrows by what the invoice shows:
+
+- **No figures at all**: it answers `needs_input` and asks for the daily supply charge, the usage rate or rates and the plan or offer code. `showAllOptions: true` lists everything, for a user who can give none.
+- **Plan code** (`planCode`, for example `MOM799904MR`): matches the plan id exactly, ignoring the `@VEC` or `@EME` suffix; a code printed on an invoice or fact sheet is the best way to find the plan.
+- **Figures**: only the options that agree with them are listed, all that agree on every figure given, else those that agree on the most. An invoice rate matches any rate of its kind, so a plan with several SHOULDER bands is found by any of their rates.
+- **Too many left**: more than four equally good options is not shown as a form; the result asks the agent to ask the user for more from the invoice and call again.
+- **Nothing agrees**: no options, the band hours the retailer uses, and a note to check the figures (invoice rates include GST) or fall back to the hours.
+
 ## How the pick list is shown
 
 The result is drawn as a form (Inkview `form`): a select of the options and, for a plan that is not listed, a select of the band hours the retailer uses, each with a "none of these" answer. Form choices are capped at 80 characters, so each carries only a headline (the first plan name and how many more, the daily supply charge and the range of rates, "matches" when the invoice agreed); the full text beside the form carries every rate, its hours, the plan ids and what matched. The agent waits for the user's choice and never picks for them.

@@ -37,7 +37,7 @@ describe("list_current_plan_options inputs", () => {
     const tool = allTools.find((t) => t.name === "list_current_plan_options")!;
     const shape = tool.inputSchema.shape as Record<string, { _def: { typeName?: string }; maxLength?: number | null }>;
     expect(Object.keys(shape).sort()).toEqual(
-      ["customerType", "distributor", "fuelType", "offPeakRatePerUnit", "peakRatePerUnit", "postcode", "retailer", "shoulderRatePerUnit", "singleRatePerUnit", "supplyChargePerDay"].sort(),
+      ["customerType", "distributor", "fuelType", "offPeakRatePerUnit", "peakRatePerUnit", "planCode", "postcode", "retailer", "shoulderRatePerUnit", "showAllOptions", "singleRatePerUnit", "supplyChargePerDay"].sort(),
     );
     for (const k of Object.keys(shape)) expect(k).not.toMatch(/name|address|account|nmi|meter|serial/i);
     // The only strings are short: a postcode, a retailer and a network name.
@@ -57,7 +57,7 @@ d("list_current_plan_options (database)", () => {
     const sc = r.structuredContent as any;
     return { text: (r.content as Array<{ text: string }>)[0]!.text, g: sc.grounded ?? sc };
   }
-  const base = { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", retailer: "Origin" };
+  const base = { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", retailer: "Origin", showAllOptions: true };
 
   beforeAll(async () => {
     db = createDb({ url: URL!, schema, poolMax: 5 });
@@ -118,12 +118,13 @@ d("list_current_plan_options (database)", () => {
     const hit = await call({ ...base, distributor: "Jemena", supplyChargePerDay: 1.045, peakRatePerUnit: 0.495 });
     expect(hit.g.data.options[0].matchedOn).toEqual(expect.arrayContaining(["daily supply charge", "peak rate"]));
     // The stored, GST exclusive figure is not what an invoice shows, so it does not match.
+    // With figures given, only options that agree are listed: the stored, GST exclusive figure is not what an invoice shows, so nothing agrees.
     const excl = await call({ ...base, distributor: "Jemena", supplyChargePerDay: 0.95, peakRatePerUnit: 0.45 });
-    expect(excl.g.data.options[0].matchedOn).toEqual([]);
-    expect(excl.g.data.options[0].notMatched).toEqual(expect.arrayContaining(["daily supply charge", "peak rate"]));
+    expect(excl.g.data.options).toEqual([]);
+    expect(excl.g.data.nextStep).toMatch(/Nothing in this retailer's list agrees/);
     const none = await call({ ...base, distributor: "Jemena", peakRatePerUnit: 0.99 });
-    expect(none.g.data.options[0].matchedOn).toEqual([]);
-    expect(none.g.data.options[0].notMatched).toContain("peak rate");
+    expect(none.g.data.options).toEqual([]);
+    expect(none.g.data.layouts.length).toBeGreaterThan(0);
   });
 
   it("lists a single rate plan with no hours, and no layouts", async () => {
