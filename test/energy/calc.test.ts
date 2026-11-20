@@ -188,3 +188,40 @@ describe("properties", () => {
     }
   });
 });
+
+describe("shares per band", () => {
+  /** The time-of-use fixture with its bands replaced: unit prices in dollars per kWh, windows left empty (calc does not read them). */
+  const withBands = (bands: Array<[string, number]>): EnergyPlan => {
+    const p = planFrom("time-of-use");
+    const t = p.electricity!.tariffPeriods[0]!;
+    t.timeOfUse = bands.map(([type, dollars]) => ({ type, rates: [{ unitPrice: Math.round(dollars * 100_000), measureUnit: "KWH" }], windows: [] }));
+    return p;
+  };
+  const usageCents = (e: Estimate) => e.breakdown.usageCents;
+  const split = { peak: 20, shoulder: 40, offPeak: 40 };
+
+  it("one shoulder band is costed exactly as before and carries no assumption note", () => {
+    const e = est(withBands([["PEAK", 0.5], ["SHOULDER", 0.3], ["OFF_PEAK", 0.1]]), elec(1000, { shares: split }));
+    // 1000 kWh: 200 x 0.5 + 400 x 0.3 + 400 x 0.1 = 100 + 120 + 40 = 260.00 (plus nothing else in usage)
+    expect(usageCents(e)).toBe(26000);
+    expect(e.notes.join(" ")).not.toMatch(/split equally/);
+  });
+  it("no shoulder band charges the shoulder share at peak, as before", () => {
+    const e = est(withBands([["PEAK", 0.5], ["OFF_PEAK", 0.1]]), elec(1000, { shares: split }));
+    // peak takes 20% + 40% = 600 kWh x 0.5 = 300.00; off-peak 400 x 0.1 = 40.00
+    expect(usageCents(e)).toBe(34000);
+  });
+  it("several shoulder bands: a bill's shoulder share is split equally between them, and the estimate says so", () => {
+    const e = est(withBands([["PEAK", 0.5], ["SHOULDER1", 0.4], ["SHOULDER2", 0.2], ["OFF_PEAK", 0.1]]), elec(1000, { shares: split }));
+    // 200 x 0.5 + (400 / 2) x 0.4 + (400 / 2) x 0.2 + 400 x 0.1 = 100 + 80 + 40 + 40 = 260.00
+    expect(usageCents(e)).toBe(26000);
+    expect(e.notes.join(" ")).toMatch(/shoulder share \(40%\) was split equally between this plan's 2 shoulder bands \(SHOULDER1, SHOULDER2\)/);
+  });
+  it("readings give each shoulder band its own share, with no assumption note", () => {
+    const plan = withBands([["PEAK", 0.5], ["SHOULDER1", 0.4], ["SHOULDER2", 0.2], ["OFF_PEAK", 0.1]]);
+    const e = est(plan, elec(1000, { sharesFor: () => ({ ok: true, shares: { PEAK: 10, SHOULDER1: 50, SHOULDER2: 10, OFF_PEAK: 30 } }) }));
+    // 100 x 0.5 + 500 x 0.4 + 100 x 0.2 + 300 x 0.1 = 50 + 200 + 20 + 30 = 300.00
+    expect(usageCents(e)).toBe(30000);
+    expect(e.notes.join(" ")).not.toMatch(/split equally/);
+  });
+});

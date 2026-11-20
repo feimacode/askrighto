@@ -246,7 +246,7 @@ export const compareEnergyPlans = defineTool({
         const pr = profile;
         usage.sharesFor = (t) => {
           const r = bandShares(pr, t.timeOfUse ?? [], periodMonths(t));
-          return r.ok ? { ok: true, shares: r.shares } : { ok: false, reason: r.reason };
+          return r.ok ? { ok: true, shares: r.byBand } : { ok: false, reason: r.reason };
         };
         const ex = annualExportKwh(pr) ?? args.solarExportAnnualKwh;
         if (ex) usage.solarExportAnnualKwh = ex;

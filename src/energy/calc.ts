@@ -21,6 +21,15 @@ export type NotEstimatedReason =
 /** Where the usage figure comes from. Labelling only: the estimate maths is the same for both. */
 export type UsageBasis = "customer" | "benchmark" | "readings";
 
+/** The three figures a bill gives: percent of use at peak, shoulder and off-peak times. */
+export interface BillSplit {
+  peak: number;
+  shoulder: number;
+  offPeak: number;
+}
+/** Percent of use in each band of one plan, keyed by that plan's own band types (PEAK, OFF_PEAK, SHOULDER, SHOULDER1, ...). */
+export type BandPct = Record<string, number>;
+
 export interface Usage {
   fuel: "ELECTRICITY" | "GAS";
   /** Yearly kWh (electricity) or MJ (gas). */
@@ -28,12 +37,12 @@ export interface Usage {
   /** "customer": the person's own figure (bill or stated). "benchmark": the AER typical-household figure. Absent means "customer". */
   basis?: UsageBasis;
   /** Percent of usage in each time band; must sum to 100. Needed for time-of-use plans. */
-  shares?: { peak: number; shoulder: number; offPeak: number };
+  shares?: BillSplit;
   /**
    * With interval readings the shares are worked out per tariff period from that plan's own windows: a function from
-   * the tariff period to its shares, or the reason it cannot be done. Used instead of `shares` when present.
+   * the tariff period to its share in each of the plan's bands, or the reason it cannot be done. Used instead of `shares`.
    */
-  sharesFor?: (t: TariffPeriod) => { ok: true; shares: { peak: number; shoulder: number; offPeak: number } } | { ok: false; reason: string };
+  sharesFor?: (t: TariffPeriod) => { ok: true; shares: BandPct } | { ok: false; reason: string };
   controlledLoadAnnualKwh?: number;
   solarExportAnnualKwh?: number;
 }
@@ -154,33 +163,51 @@ function singleRateCharge(rates: Rate[], usage: number, days: number): number {
   return windows * blockCharge(rates, usage / windows);
 }
 
-function touCharge(tou: TimeOfUseRate[], usage: number, u: Usage, shares: Usage["shares"] = u.shares): number {
-  if (!shares)
-    throw new Stop(
-      "needs_time_of_use_split",
-      u.basis === "benchmark"
-        ? "This time-of-use plan needs the peak, shoulder and off-peak split from a bill; typical usage has no such split. Interval readings from the retailer or distributor would allow it to be compared."
-        : "This time-of-use plan needs the share of usage in peak, shoulder and off-peak times. Interval readings from the retailer or distributor would allow it to be compared.",
-    );
+const isShoulder = (t: string) => /^SHOULDER\d*$/.test(t);
+
+/**
+ * A bill's three figures as shares in this plan's own bands. A plan with no shoulder band charges the shoulder share at
+ * peak; a plan with several shoulder bands gets the one shoulder figure split equally between them, which is an
+ * assumption, so the note says so.
+ */
+export function billSplitToBands(tou: readonly TimeOfUseRate[], split: BillSplit): { pct: BandPct; note?: string } {
+  const shoulder = tou.filter((t) => isShoulder(t.type));
+  const pct: BandPct = { PEAK: split.peak + (shoulder.length === 0 ? split.shoulder : 0), OFF_PEAK: split.offPeak };
+  for (const t of shoulder) pct[t.type] = split.shoulder / shoulder.length;
+  return shoulder.length > 1
+    ? { pct, note: `The bill's shoulder share (${split.shoulder}%) was split equally between this plan's ${shoulder.length} shoulder bands (${shoulder.map((t) => t.type).join(", ")}); a bill gives one shoulder figure.` }
+    : { pct };
+}
+
+function touCharge(tou: TimeOfUseRate[], usage: number, u: Usage, bands: BandPct | undefined, notes: string[]): number {
+  let pct = bands;
+  if (!pct) {
+    if (!u.shares)
+      throw new Stop(
+        "needs_time_of_use_split",
+        u.basis === "benchmark"
+          ? "This time-of-use plan needs the peak, shoulder and off-peak split from a bill; typical usage has no such split. Interval readings from the retailer or distributor would allow it to be compared."
+          : "This time-of-use plan needs the share of usage in peak, shoulder and off-peak times. Interval readings from the retailer or distributor would allow it to be compared.",
+      );
+    const b = billSplitToBands(tou, u.shares);
+    pct = b.pct;
+    if (b.note && !notes.includes(b.note)) notes.push(b.note);
+  }
   const price = (t: TimeOfUseRate): number => {
     if (t.rates.length !== 1 || t.rates[0]!.volume !== undefined) throw new Stop("missing_rate", `Time-of-use rate ${t.type} has blocks, which are not supported yet.`);
     return t.rates[0]!.unitPrice;
   };
   const peak = tou.filter((t) => t.type === "PEAK");
   const off = tou.filter((t) => t.type === "OFF_PEAK");
-  const shoulder = tou.filter((t) => /^SHOULDER\d*$/.test(t.type));
+  const shoulder = tou.filter((t) => isShoulder(t.type));
   if (peak.length + off.length + shoulder.length !== tou.length) throw new Stop("not_fully_understood", "A time-of-use rate has an unrecognised band.");
   if (peak.length > 1 || off.length > 1 || peak.length + off.length === 0) throw new Stop("not_fully_understood", "Time-of-use bands are not in the expected shape.");
-  let peakShare = shares.peak;
-  const offShare = shares.offPeak;
-  const shoulderShare = shares.shoulder;
   let total = 0;
-  if (shoulder.length === 0) peakShare += shoulderShare; // no shoulder band: shoulder usage is charged at peak
-  else total += shoulder.reduce((a, t) => a + ((usage * shoulderShare) / 100 / shoulder.length) * price(t), 0);
-  if (peak.length) total += ((usage * peakShare) / 100) * price(peak[0]!);
-  else if (peakShare > 0) throw new Stop("missing_rate", "The plan has no peak rate for the usage given.");
-  if (off.length) total += ((usage * offShare) / 100) * price(off[0]!);
-  else if (offShare > 0) throw new Stop("missing_rate", "The plan has no off-peak rate for the usage given.");
+  for (const t of shoulder) total += ((usage * (pct[t.type] ?? 0)) / 100) * price(t);
+  if (peak.length) total += ((usage * (pct.PEAK ?? 0)) / 100) * price(peak[0]!);
+  else if ((pct.PEAK ?? 0) > 0) throw new Stop("missing_rate", "The plan has no peak rate for the usage given.");
+  if (off.length) total += ((usage * (pct.OFF_PEAK ?? 0)) / 100) * price(off[0]!);
+  else if ((pct.OFF_PEAK ?? 0) > 0) throw new Stop("missing_rate", "The plan has no off-peak rate for the usage given.");
   return total;
 }
 
@@ -226,8 +253,8 @@ function estimate(plan: EnergyPlan, u: Usage): Estimate {
       if (u.sharesFor) {
         const r = u.sharesFor(t);
         if (!r.ok) throw new Stop("not_fully_understood", `Its time-of-use windows could not be matched to the half-hourly readings: ${r.reason}.`);
-        usageCharge += touCharge(t.timeOfUse, periodUsage, u, r.shares);
-      } else usageCharge += touCharge(t.timeOfUse, periodUsage, u);
+        usageCharge += touCharge(t.timeOfUse, periodUsage, u, r.shares, notes);
+      } else usageCharge += touCharge(t.timeOfUse, periodUsage, u, undefined, notes);
     }
     else if (t.singleRate?.length) usageCharge += singleRateCharge(t.singleRate, periodUsage, days);
     else throw new Stop("missing_rate", "A tariff period has no usage rate.");

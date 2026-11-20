@@ -23,7 +23,9 @@ with a reason.
    its days. Block rates apply their threshold per the block's stated period (day, month, quarter,
    year) to that even usage.
 3. Time of use: needs the shares from the bill. A plan with no shoulder rate has the shoulder
-   share charged at peak. Without shares those plans are `needs_time_of_use_split`.
+   share charged at peak. A plan with several shoulder bands (SHOULDER1, SHOULDER2) gets the bill's one
+   shoulder figure split equally between them, and the estimate says so in its notes; readings give
+   each band its own share. Without shares those plans are `needs_time_of_use_split`.
 4. Controlled load: usage times its rate plus its daily supply charge, only when controlled load
    usage is given. A plan without one is `no_controlled_load_rate`.
 5. Solar: export times the feed-in rate, shown as its own negative line, without GST.
