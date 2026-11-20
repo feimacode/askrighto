@@ -76,10 +76,13 @@ d("business and residential plans (database)", () => {
     await admin.end();
   });
 
-  it("stores both customer types, and the store filters by type", async () => {
-    const all = await plansByPostcode(db.pool, { postcode: "3000" });
-    expect(all.map((p) => `${p.planId}:${p.customerType}`).sort()).toEqual(["BIZ1:BUSINESS", "RES1:RESIDENTIAL"]);
-    expect((await plansByPostcode(db.pool, { postcode: "3000", customerType: "BUSINESS" })).map((p) => p.planId)).toEqual(["BIZ1"]);
+  it("stores both customer types, and the store returns residential unless asked for business", async () => {
+    expect((await db.pool.query("SELECT customer_type, count(*)::int AS n FROM plans GROUP BY 1 ORDER BY 1")).rows).toEqual([
+      { customer_type: "BUSINESS", n: 1 },
+      { customer_type: "RESIDENTIAL", n: 1 },
+    ]);
+    expect((await plansByPostcode(db.pool, { postcode: "3000" })).map((p) => p.planId)).toEqual(["RES1"]); // the default is residential
+    expect((await plansByPostcode(db.pool, { postcode: "3000", customerType: "BUSINESS" })).map((p) => `${p.planId}:${p.customerType}`)).toEqual(["BIZ1:BUSINESS"]);
     expect((await plansByPostcode(db.pool, { postcode: "3000", customerType: "RESIDENTIAL" })).map((p) => p.planId)).toEqual(["RES1"]);
   });
 

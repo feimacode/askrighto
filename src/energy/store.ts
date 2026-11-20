@@ -200,7 +200,7 @@ export interface PlanQuery {
   retailer?: string;
   distributor?: string;
   planType?: PlanType;
-  /** Which customers' plans: a business is only compared with business plans, a household with residential plans. */
+  /** Which customers' plans; residential when not given. A business is only compared with business plans, a household with residential plans. */
   customerType?: CustomerType;
 }
 
@@ -226,7 +226,8 @@ export async function plansByPostcode(
   if (query.fuelType) add("p.fuel_type = ?", query.fuelType);
   if (query.retailer) add("p.retailer_slug = ?", query.retailer);
   if (query.planType) add("p.plan_type = ?", query.planType);
-  if (query.customerType) add("p.customer_type = ?", query.customerType);
+  // Residential unless asked otherwise, so a household never sees business plans by accident.
+  add("p.customer_type = ?", query.customerType ?? "RESIDENTIAL");
   if (query.distributor) add("? = ANY(c.distributors)", query.distributor);
   const r = await q.query(
     `SELECT ${PLAN_COLUMNS} FROM plans p JOIN coverage_sets c ON c.id = p.coverage_id WHERE ${where.join(" AND ")} ORDER BY p.brand_name, p.display_name, p.plan_id`,
