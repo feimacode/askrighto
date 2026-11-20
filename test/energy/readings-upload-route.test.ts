@@ -6,7 +6,6 @@ import type { AddressInfo } from "node:net";
 import type { Server } from "node:http";
 import express from "express";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { MAX_READINGS_CHARS } from "../../src/energy/readings/parse.js";
 import { decodeProfile } from "../../src/energy/readings/profile.js";
 import { setProfileKeys } from "../../src/energy/readings/sign.js";
 import { checkUploadToken, mintUploadToken, UPLOAD_TTL_SECONDS } from "../../src/energy/readings/upload.js";
@@ -67,7 +66,7 @@ describe("PUT /readings-upload/<token>", () => {
   beforeAll(async () => {
     setProfileKeys({ current: KEY });
     const app = express();
-    app.use(express.json({ limit: "256kb" }));
+    app.use(express.json({ limit: "2mb" }));
     app.all("/readings-upload/:token", handleReadingsUpload);
     await new Promise<void>((r) => {
       server = app.listen(0, "127.0.0.1", () => r());
@@ -81,7 +80,7 @@ describe("PUT /readings-upload/<token>", () => {
 
   it("turns a file too long for a tool call into a signed profile, with no identifier in the answer", async () => {
     const text = bigFile(200);
-    expect(text.length).toBeGreaterThan(MAX_READINGS_CHARS);
+    expect(text.length).toBeGreaterThan(300_000); // longer than the 250,000 characters a tool call took before 20 Nov 2026
     const t = mintUploadToken("3000");
     const r = await put(t.token, text);
     expect(r.status).toBe(200);

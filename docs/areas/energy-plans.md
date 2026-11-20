@@ -279,7 +279,7 @@ sequenceDiagram
 | `planLink` | `src/energy/links.ts` | Builds the link per plan: retailer's published page, else Energy Made Easy page for the offer and postcode (ids ending `@EME`), else the retailer's website (Victoria, `@VEC`), else none with the reason. Nothing is fetched. |
 | `inkviewResult` | `src/tools/energy-common.ts` | Builds an Inkview table or entity card, carries the grounded envelope under `grounded`, and falls back to the plain result if the component fails validation. |
 | `asOfFor` | `src/tools/energy-common.ts` | The result's as-of date: last successful sync, else the oldest `verified_at` of the plans shown. |
-| `ENERGY_INSTRUCTIONS` | `src/energy/instructions.ts` | Host guidance: ask home or business first; ask for the latest invoice first and read it back; use `list_current_plan_options` for the current plan's hours; ask for kWh and days; ask the split and distributor; the readings ladder (paste up to ~30 KB, longer up to 250,000 characters, else build the profile by recipe and say it is unverified); typical usage only when there is no bill; "lowest estimate for the usage you gave"; no invoice for moving house. |
+| `ENERGY_INSTRUCTIONS` | `src/energy/instructions.ts` | Host guidance: ask home or business first; ask for the latest invoice first and read it back; use `list_current_plan_options` for the current plan's hours; ask for kWh and days; ask the split and distributor; the readings ladder (paste up to ~30 KB, longer up to 2,000,000 characters, else build the profile by recipe and say it is unverified); typical usage only when there is no bill; "lowest estimate for the usage you gave"; no invoice for moving house. |
 | `energyVertical` | `src/energy/vertical.ts` | Registers the five tools, instructions and `start`. |
 
 ### 3.2 Process: operator refresh
@@ -300,7 +300,7 @@ on any failed retailer) or the nightly timer. After a normaliser or GST change:
 - **Estimate accuracy** has not been compared with retailer fact sheets beyond the single AGL plan
   (docs list this as open). **(unverified)** accuracy claim.
 - **Invoice-first is partly built**: the pick list exists, but `currentPlanId` / `hoursLayoutId` on `compare_energy_plans` and the exact-versus-approximate labelling are not built (`add-energy-invoice-first` tasks 2.3 to 2.6). The pick list accepts invoice rates with an optional `ratesIncludeGst` and tries both; Iven's decision (20 Nov 2026) is that invoice rates are always GST-inclusive, so that flag is to be removed.
-- **Upload route not built**: layer 2 of the readings ladder (`get_readings_upload_link` and the signed upload endpoint, `add-energy-readings-layers` task 2.4) does not exist; large files go through paste up to 250,000 characters or the assistant-built profile.
+- **Upload route not built**: layer 2 of the readings ladder (`get_readings_upload_link` and the signed upload endpoint, `add-energy-readings-layers` task 2.4) does not exist; large files go through paste up to 2,000,000 characters or the assistant-built profile.
 - **Host behaviour untested**: the host tests and evals have not been run through real hosts or a model; the agent in Claude web has been seen to sum readings itself.
 - **Legal**: the legal view on the AER licence and on `aer-benchmarks` (`cleared_pending_legal_view`, review by 2027-08-01) is outstanding; `energy-plans` is `cleared`, review by 2027-02-01.
 - **Real fixtures**: one recorded plan (`test/fixtures/energy/recorded/agl-AGD812605MR.json`); the other

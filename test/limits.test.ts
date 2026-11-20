@@ -83,7 +83,7 @@ describe("client key and logging", () => {
 describe("http config", () => {
   it("reads settings with defaults", () => {
     expect(httpConfig({})).toMatchObject({
-      bodyLimit: "256kb",
+      bodyLimit: "2mb",
       rateLimit: 120,
       trustProxy: false,
       log: true,

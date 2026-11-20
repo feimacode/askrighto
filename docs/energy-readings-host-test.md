@@ -35,7 +35,7 @@ Record for each (file, route):
 1. Did the model call `summarise_interval_readings`? With the whole text? Check `daysPresent` in the result against the table: fewer days means the host truncated or dropped lines.
 2. Did it finish, or stop with an error, a size message or a refusal to paste?
 3. Rough cost: how long it took, and any visible token use.
-4. Largest file that arrives complete on each route. Compare it with our limits: the tool refuses text over 250,000 characters with a plain message, and our server refuses a request body over 256 KB with a transport error (`readings-year-5min.csv`, 730 KB, shows which of the two a host gives you, or whether the host stops it first).
+4. Largest file that arrives complete on each route. Compare it with our limits: the tool refuses text over 2,000,000 characters with a plain message, and our server refuses a request body over 2 MB with a transport error (`readings-year-5min.csv`, 730 KB, shows which of the two a host gives you, or whether the host stops it first).
 
 ### B2. The layers for a file too big to paste (`add-energy-readings-layers`)
 

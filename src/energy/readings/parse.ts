@@ -16,12 +16,13 @@
  */
 
 /**
- * The longest text read. Our HTTP body limit is 256 KB (262,144 bytes, ASKRIGHTO_BODY_LIMIT), so this sits just under
- * it: a longer paste is refused here with a plain message, not as a transport error. 250,000 characters holds a year
- * of 30-minute data with a solar export stream (about 230,000), or about 4 months of 5-minute data. A model is unlikely
- * to write out much more than that in one tool call anyway.
+ * The longest text read. Our HTTP body limit is 2 MB (2,097,152 bytes, ASKRIGHTO_BODY_LIMIT), so this sits just under
+ * it: a longer paste is refused here with a plain message, not as a transport error. 2,000,000 characters holds a year
+ * of 5-minute data (628 to 730 KB measured) even with a solar export stream. The limit was 250,000 until 20 Nov 2026;
+ * Iven asked to ease it so that a long file is not cut down before it is read. What a host can actually write out in
+ * one tool call is lower than this and is the practical limit.
  */
-export const MAX_READINGS_CHARS = 250_000;
+export const MAX_READINGS_CHARS = 2_000_000;
 
 export type ParseProblem = { ok: false; problem: string; line?: number };
 
