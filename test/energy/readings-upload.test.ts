@@ -245,6 +245,17 @@ describe("window shares", () => {
       expect(a.shares.peak).toBeGreaterThan(30);
     }
   });
+  it("maps several shoulder bands, each with its own share", () => {
+    const r = bandShares(profile, [tou("PEAK", [{ days: wk, startTime: "15:00", endTime: "20:59" }]), tou("SHOULDER1", [{ days: all, startTime: "07:00", endTime: "11:59" }]), tou("SHOULDER2", [{ days: all, startTime: "12:00", endTime: "14:59" }]), tou("OFF_PEAK", [])], periodMonths({}));
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(Object.keys(r.byBand).sort()).toEqual(["OFF_PEAK", "PEAK", "SHOULDER1", "SHOULDER2"]);
+    expect(Object.values(r.byBand).reduce((a, b) => a + b, 0)).toBeCloseTo(100, 6);
+    // The two shoulders together are the legacy shoulder share.
+    expect(r.byBand.SHOULDER1! + r.byBand.SHOULDER2!).toBeCloseTo(r.shares.shoulder, 9);
+    // The data uses 0.5 in half hours 30-41 (15:00-21:00) and 0.1 elsewhere: SHOULDER1 spans 10 half hours, SHOULDER2 spans 6, so SHOULDER1 > SHOULDER2.
+    expect(r.byBand.SHOULDER1!).toBeGreaterThan(r.byBand.SHOULDER2!);
+  });
   it("maps an overnight off-peak window that wraps midnight", () => {
     const r = bandShares(profile, [tou("PEAK", [{ days: all, startTime: "07:00", endTime: "20:59" }]), tou("OFF_PEAK", [{ days: all, startTime: "21:00", endTime: "06:59" }])], periodMonths({}));
     expect(r.ok && r.shares.offPeak > 0).toBe(true);
@@ -259,7 +270,7 @@ describe("window shares", () => {
     expect(why([tou("PEAK", [{ days: all, startTime: "07:00", endTime: "20:59" }]), tou("OFF_PEAK", [{ days: all, startTime: "20:00", endTime: "06:59" }])])).toMatch(/same half hour/);
     expect(why([tou("PEAK", [{ days: all, startTime: "07:10", endTime: "20:59" }]), tou("OFF_PEAK", [])])).toMatch(/half hour/);
     expect(why([tou("PEAK", [{ days: ["MON", "TUE"], startTime: "07:00", endTime: "20:59" }]), tou("OFF_PEAK", [])])).toMatch(/weekdays/);
-    expect(why([tou("SHOULDER1", [{ days: all, startTime: "07:00", endTime: "11:59" }]), tou("SHOULDER2", [{ days: all, startTime: "12:00", endTime: "14:59" }]), tou("OFF_PEAK", [])])).toMatch(/several shoulder/);
+    expect(why([tou("PEAK", [{ days: all, startTime: "07:00", endTime: "20:59" }]), tou("PEAK", [{ days: all, startTime: "21:00", endTime: "06:59" }])])).toMatch(/two bands of the same type/);
     expect(why([tou("SOLAR_SPONGE", [{ days: all, startTime: "10:00", endTime: "13:59" }]), tou("OFF_PEAK", [])])).toMatch(/cannot be mapped/);
   });
   it("takes shares from the months a seasonal tariff period covers", () => {

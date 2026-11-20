@@ -11,7 +11,8 @@ export interface BandShares {
   shoulder: number;
   offPeak: number;
 }
-export type ShareResult = { ok: true; shares: BandShares; windows: string } | { ok: false; reason: string };
+/** `byBand` is the share of use in each of the plan's own bands (PEAK, OFF_PEAK, SHOULDER, SHOULDER1, ...); `shares` sums them to peak, shoulder and off-peak. */
+export type ShareResult = { ok: true; shares: BandShares; byBand: Record<string, number>; windows: string } | { ok: false; reason: string };
 
 const WEEKDAYS = ["MON", "TUE", "WED", "THU", "FRI"];
 const WEEKEND = ["SAT", "SUN"];
@@ -40,7 +41,7 @@ export function periodMonths(t: Pick<TariffPeriod, "startDate" | "endDate">): nu
 export function bandShares(profile: ReadingsProfile, tou: readonly TimeOfUseRate[], months: readonly number[]): ShareResult {
   const bands = tou.map((t) => ({ t, kind: t.type === "PEAK" ? "peak" : t.type === "OFF_PEAK" ? "offPeak" : /^SHOULDER\d*$/.test(t.type) ? "shoulder" : "" }));
   if (bands.some((b) => !b.kind)) return { ok: false, reason: "a time-of-use band has a type that cannot be mapped" };
-  if (bands.filter((b) => b.kind === "shoulder").length > 1) return { ok: false, reason: "the plan has several shoulder bands, which are not split yet" };
+  if (new Set(bands.map((b) => b.t.type)).size !== bands.length) return { ok: false, reason: "the plan has two bands of the same type" };
   // owner[dayType][slot] = band index, -1 for none
   const owner = [Array<number>(48).fill(-1), Array<number>(48).fill(-1)];
   const described: string[] = [];
@@ -84,17 +85,20 @@ export function bandShares(profile: ReadingsProfile, tou: readonly TimeOfUseRate
         owner[dt]![k] = empty[0]!.i;
       }
   const tot = { peak: 0, shoulder: 0, offPeak: 0 };
+  const perBand = bands.map(() => 0);
   let all = 0;
   for (const m of months)
     for (const dt of [0, 1]) {
       const row = profile.sums[m * 2 + dt]!;
       for (let k = 0; k < 48; k++) {
-        const kind = bands[owner[dt]![k]!]!.kind as keyof typeof tot;
-        tot[kind] += row[k]!;
+        const bi = owner[dt]![k]!;
+        tot[bands[bi]!.kind as keyof typeof tot] += row[k]!;
+        perBand[bi]! += row[k]!;
         all += row[k]!;
       }
     }
   if (all <= 0) return { ok: false, reason: "the readings have no use in the months this tariff period covers" };
   const pct = (x: number) => (x / all) * 100;
-  return { ok: true, shares: { peak: pct(tot.peak), shoulder: pct(tot.shoulder), offPeak: pct(tot.offPeak) }, windows: described.join("; ") };
+  const byBand = Object.fromEntries(bands.map((b, i) => [b.t.type, pct(perBand[i]!)]));
+  return { ok: true, shares: { peak: pct(tot.peak), shoulder: pct(tot.shoulder), offPeak: pct(tot.offPeak) }, byBand, windows: described.join("; ") };
 }
