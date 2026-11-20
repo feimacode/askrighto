@@ -44,3 +44,7 @@ Checks the server makes: the sums add up to `totalKwh` (within 0.5%), every valu
 Profiles built by `summarise_interval_readings` carry a `sig` field. Pass the string back unchanged: changing any character, including the order of numbers, makes the signature fail and the estimate is labelled not verified. A profile built by hand has no `sig`, and is accepted and labelled the same way.
 
 The server key is set with `ASKRIGHTO_PROFILE_KEY` (see `docs/deploying.md`).
+
+## The reference script
+
+`plugin/skills/energy-bill-comparison/references/build_readings_profile.py` does all of the above: `python3 build_readings_profile.py <file> <state>` prints the profile JSON. It is for a host that can run code but cannot reach the upload address or pass the file text. It uses only `sys`, `json`, `math` and `datetime`, makes no network call, runs no other program, evaluates no text and writes no file; a test (`test/energy/readings-script.test.ts`) checks those properties and that its output equals the server's profile on synthetic files in every state, with 5, 15 and 30 minute data, solar, missing and variable days and a net-only file. The server never sends code at run time. Its output has no `sig`, so estimates from it are labelled not verified.
