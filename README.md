@@ -26,7 +26,7 @@ to use the product: the tools read plans from PostgreSQL, so stdio needs `DATABA
 database, and end users never run the server themselves. Claude, ChatGPT and Gemini use the hosted
 HTTP endpoint (`/mcp`).
 
-Settings (all optional): `ASKRIGHTO_PROFILE_KEY` (signs readings profiles; set it in production, see [docs/deploying.md](docs/deploying.md)), `PORT`, `HOST`, `ASKRIGHTO_PUBLIC_URL`, `ASKRIGHTO_BODY_LIMIT` (default 256kb),
+Settings (all optional): `ASKRIGHTO_PROFILE_KEY` (signs readings profiles; set it in production, see [docs/deploying.md](docs/deploying.md)), `PORT`, `HOST`, `ASKRIGHTO_PUBLIC_URL`, `ASKRIGHTO_BODY_LIMIT` (default 2mb),
 `ASKRIGHTO_RATE_LIMIT` (requests per window per client, default 120), `ASKRIGHTO_RATE_WINDOW_MS` (default 60000),
 `ASKRIGHTO_ALLOWED_HOSTS` (comma-separated host names, e.g. `askrighto.com.au`), `ASKRIGHTO_TRUST_PROXY`,
 `ASKRIGHTO_CLIENT_IP_HEADER` (e.g. `cf-connecting-ip`), `ASKRIGHTO_LOG=off`. The access log never records tool arguments.

@@ -163,10 +163,13 @@ describe("NEM12 parser", () => {
     expect(r.consumption.size).toBe(91);
     expect(sum(r.consumption)).toBeCloseTo(91 * 48 * 0.12, 3);
     const year = makeNem12({ start: "20260101", days: 365, streams: [{ per: 5, at: () => 0.1 }] });
-    expect(year.length).toBeGreaterThan(MAX_READINGS_CHARS);
-    const bad = parseNem12(year);
+    expect(year.length).toBeLessThan(MAX_READINGS_CHARS);
+    expect(ok(year).consumption.size).toBe(365);
+    const long = makeNem12({ start: "20260101", days: 1200, streams: [{ per: 5, at: () => 0.1 }] });
+    expect(long.length).toBeGreaterThan(MAX_READINGS_CHARS);
+    const bad = parseNem12(long);
     expect(bad).toMatchObject({ ok: false });
-    expect(!bad.ok && bad.problem).toMatch(/over the limit of 250,000/);
+    expect(!bad.ok && bad.problem).toMatch(/over the limit of 2,000,000/);
     expect(!bad.ok && bad.problem).toMatch(/30-minute/);
   });
   it("refuses a duplicate date, a negative value and an oversize text", () => {
@@ -337,10 +340,10 @@ describe("summarise_interval_readings", () => {
     expect((await call({ readingsText: "this is not a meter file at all", postcode: "3000" })).g.message).toMatch(/NEM12/);
   });
   it("answers an over-long file with a plain needs_input message, not a protocol error", async () => {
-    const big = makeNem12({ start: "20260101", days: 365, streams: [{ per: 5, at: () => 0.1 }] }).slice(0, 252_000); // over our 250,000 limit, under the 256 KB body limit
+    const big = makeNem12({ start: "20260101", days: 1200, streams: [{ per: 5, at: () => 0.1 }] }).slice(0, 2_010_000); // over our 2,000,000 limit
     const { g } = await call({ readingsText: big, postcode: "3000" });
     expect(g).toMatchObject({ found: false, reason: "needs_input" });
-    expect(g.message).toMatch(/over the limit of 250,000/);
+    expect(g.message).toMatch(/over the limit of 2,000,000/);
     expect(g.message).toMatch(/shorter period/);
     expect(JSON.stringify(g)).not.toContain(NMI);
   });
@@ -350,7 +353,7 @@ describe("summarise_interval_readings", () => {
     const skill = readFileSync(`${process.cwd()}/plugin/skills/energy-bill-comparison/SKILL.md`, "utf8");
     for (const text of [serverInstructions(), skill]) {
       expect(text).toMatch(/30 KB/);
-      expect(text).toMatch(/250,000/);
+      expect(text).toMatch(/2,000,000/);
       expect(text).toMatch(/not verified by Ask Righto/);
       expect(text).toMatch(/shorter period/);
       expect(text).toMatch(/peak or off-peak hours of your own/);
