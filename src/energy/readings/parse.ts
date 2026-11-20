@@ -55,11 +55,12 @@ function validDate(s: string): boolean {
 
 type Block = { suffix: string; factor: number; per: number; n: number; use: boolean };
 
-export function parseNem12(text: string): ParsedReadings | ParseProblem {
-  if (text.length > MAX_READINGS_CHARS)
+/** `maxChars` is raised only by the upload route, which takes the file by address instead of through a tool call. */
+export function parseNem12(text: string, maxChars: number = MAX_READINGS_CHARS): ParsedReadings | ParseProblem {
+  if (text.length > maxChars)
     return {
       ok: false,
-      problem: `the text is ${text.length.toLocaleString("en-AU")} characters, over the limit of ${MAX_READINGS_CHARS.toLocaleString("en-AU")} (a year of 30-minute data with solar export is about 230,000; 5-minute data reaches the limit in about 4 months). Send a shorter period, for example the last 12 months at 30-minute intervals, or ask the distributor or retailer for 30-minute intervals`,
+      problem: `the text is ${text.length.toLocaleString("en-AU")} characters, over the limit of ${maxChars.toLocaleString("en-AU")} (a year of 30-minute data with solar export is about 230,000 characters). Send a shorter period, for example the last 12 months, or ask the distributor or retailer for 30-minute intervals`,
     };
   const lines = text.split(/\r?\n/);
   const nmis = new Set<string>();

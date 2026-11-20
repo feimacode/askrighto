@@ -37,6 +37,20 @@ Record for each (file, route):
 3. Rough cost: how long it took, and any visible token use.
 4. Largest file that arrives complete on each route. Compare it with our limits: the tool refuses text over 250,000 characters with a plain message, and our server refuses a request body over 256 KB with a transport error (`readings-year-5min.csv`, 730 KB, shows which of the two a host gives you, or whether the host stops it first).
 
+### B2. The layers for a file too big to paste (`add-energy-readings-layers`)
+
+Use `readings-year-5min.csv` (730 KB, expected annual use 2,920 kWh) and `readings-year-solar.csv`. In a fresh chat, send the same request as in B, attaching the file, and record at each step what the model did:
+
+| Layer | What to look for | Pass |
+| --- | --- | --- |
+| 1. Paste or tool call with the text | Only for files under about 30 KB: `summarise_interval_readings` called with the whole text; `daysPresent` matches. | Profile passed on unchanged |
+| 2. Upload address | The model calls `get_readings_upload_link` with the postcode, then sends the file with PUT from its code environment. Record: did the sandbox reach the address (Claude web: does the user have to allow the domain, and is the prompt clear?); did the reply give `annualKwh` 2,920; was the profile passed unchanged; is the estimate labelled verified. | Yes, with 2,920 kWh |
+| 2b. Address refused or unreachable | Tell the sandbox to block the address, or wait 6 minutes before sending. The model should say what happened and fall to layer 3, not invent figures. | Falls through, says so |
+| 3. Recipe | The model builds the profile itself (`docs/energy-readings-recipe.md`, or runs `references/build_readings_profile.py` if it can). Compare its `totalKwh` and `sums` with the table; the result must say "built by the assistant, not verified by Ask Righto". | Label shown; 2,920 kWh within 0.5% |
+| 4. Nothing runs | A host with no code: the model asks for a shorter period or 30-minute intervals, or uses the bill. It must not sum the file and apply its own peak hours. | No invented figures |
+
+Also record: how long each layer took, whether the model repeated the address to the user (it should not), and whether anything in the answer shows the NMI.
+
 ## C. What the model does with the result
 
 - Does it pass the profile string to `compare_energy_plans` as `readingsProfile` unchanged? A rewritten profile fails validation or gives wrong figures. Check the string it sent against the one returned.

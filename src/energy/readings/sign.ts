@@ -77,3 +77,19 @@ export function verifyBody(profile: Record<string, unknown>): boolean {
   const got = Buffer.from(sig);
   return want.length === got.length && timingSafeEqual(want, got);
 }
+
+/** A short-lived text signature for other purposes (the upload address token): "<key id>.<hex>" under the same keys, domain-separated. */
+export function signText(purpose: string, text: string, k: ProfileKey = profileKeys().current): string {
+  return `${k.id}.${mac(k, `${purpose}|${text}`)}`;
+}
+export function verifyText(purpose: string, text: string, sig: string): boolean {
+  const dot = sig.indexOf(".");
+  if (dot < 1) return false;
+  const id = sig.slice(0, dot);
+  const { current, previous } = profileKeys();
+  const k = [current, previous].find((x) => x && x.id === id);
+  if (!k) return false;
+  const want = Buffer.from(signText(purpose, text, k));
+  const got = Buffer.from(sig);
+  return want.length === got.length && timingSafeEqual(want, got);
+}
