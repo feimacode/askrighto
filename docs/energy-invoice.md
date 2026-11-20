@@ -24,6 +24,8 @@ Listing every plan of a retailer is not a choice a person can make (Momentum has
 - **No figures at all**: it answers `needs_input` and asks for the daily supply charge, the usage rate or rates and the plan or offer code. `showAllOptions: true` lists everything, for a user who can give none.
 - **Plan code** (`planCode`, for example `MOM799904MR`): matches the plan id exactly, ignoring the `@VEC` or `@EME` suffix; a code printed on an invoice or fact sheet is the best way to find the plan.
 - **Figures**: only the options that agree with them are listed, all that agree on every figure given, else those that agree on the most. An invoice rate matches any rate of its kind, so a plan with several SHOULDER bands is found by any of their rates.
+- **How close is a match**: two figures agree when they differ by no more than half a unit of the last digit given, because an invoice prints a rounded figure (1.1187 within 0.00005; 1.12 within 0.005). A fixed loose tolerance made Momentum's Standing Offer and Bill Boss plans, a tenth of a cent apart, look identical.
+- **Bands the invoice names differently**: an invoice says peak, shoulder and off-peak, but a plan whose bands are all labelled SHOULDER has no such band; the rate then matches any rate of the plan's bands.
 - **Too many left**: more than four equally good options is not shown as a form; the result asks the agent to ask the user for more from the invoice and call again.
 - **Nothing agrees**: no options, the band hours the retailer uses, and a note to check the figures (invoice rates include GST) or fall back to the hours.
 
@@ -50,3 +52,7 @@ Invoice rates always include GST (decided by Iven, 20 Nov 2026), for homes and s
 
 - Reading real invoices to confirm the field list (1.2) and the GST handling against them (1.3), and the host trial with Iven's invoice (3.1). These need invoices from Iven.
 - The Inkview output shows one table, so the approximate table is text only there.
+
+## Tests against recorded plans
+
+`test/energy/current-plan-invoices.test.ts` runs the lookup against the 30 recorded Momentum Energy electricity plans on United Energy at postcode 3128 (the AER's data of 17 Nov 2026, `test/fixtures/energy/recorded/momentum-united-energy-3128.json`, public plan data). The first case is Iven's invoice from the 20 Nov 2026 trial: the plan is "NAB Goodies" (time of use), supply $1.1187 a day with GST, and a lookup with its figures must return the one option that lists NAB Goodies. Further cases cover the same plan with the rates named as peak, shoulder and off-peak, the single rate NAB Goodies, a plan code, the Standing Offer, retailer names written six ways, an unknown retailer, figures that match nothing, and a supply charge alone. To add an invoice, add a row to `INVOICES` in that file with the figures printed on it (never a name, address, account number or meter identifier) and what must come back. Other retailers need their own recorded plans: record them with `sync-energy --record` or from a local copy of a sync.

@@ -90,9 +90,20 @@ function summarise(plan: EnergyPlan, fuel: "ELECTRICITY" | "GAS"): Summary | und
   };
 }
 
-/** Invoice figures include GST (Iven, 2026-11-20): compare with the stored rate with GST added when it is stored exclusive (`gstMultiplier` 1.1). */
-function agrees(hint: number, published: number, gstMultiplier: number, tol: number): boolean {
-  return Math.abs(hint - published * gstMultiplier) <= tol * gstMultiplier;
+/**
+ * Invoice figures include GST (Iven, 2026-11-20), so compare with the stored rate with GST added when it is stored exclusive
+ * (`gstMultiplier` 1.1). An invoice prints a rounded figure, so two figures agree when they differ by no more than half a unit
+ * of the last digit given: 1.1187 agrees within 0.00005, and 1.12 within 0.005. A looser fixed tolerance made plans
+ * a tenth of a cent apart look identical.
+ */
+function decimals(n: number): number {
+  const t = String(n);
+  if (/e/i.test(t)) return 6;
+  const dot = t.indexOf(".");
+  return dot < 0 ? 0 : Math.min(6, t.length - dot - 1);
+}
+function agrees(hint: number, published: number, gstMultiplier: number): boolean {
+  return Math.abs(hint - published * gstMultiplier) <= 0.5 * 10 ** -decimals(hint) + 1e-9;
 }
 
 export interface PlanOption {
@@ -202,27 +213,30 @@ export const listCurrentPlanOptions = defineTool({
       const ranked = [...groups.values()].map(({ s, plans: ps }) => {
         const matchedOn: string[] = [];
         const notMatched: string[] = [];
-        const check = (label: string, h: number | undefined, pub: number | undefined, tol: number) => {
+        const check = (label: string, h: number | undefined, pub: number | undefined, _tol: number) => {
           if (h === undefined) return;
-          if (pub !== undefined && agrees(h, pub, mult, tol)) matchedOn.push(label);
+          if (pub !== undefined && agrees(h, pub, mult)) matchedOn.push(label);
           else notMatched.push(label);
         };
-        check("daily supply charge", hint.supply, s.supply, 0.006);
+        check("daily supply charge", hint.supply, s.supply, 0);
         if (code) {
           if (ps.some((p) => p.planId.toUpperCase().replace(/@.*$/, "").startsWith(code))) matchedOn.push("plan code");
           else notMatched.push("plan code");
         }
         // A hint matches when any rate of that kind agrees: plans with several bands of one type have several values.
         const vals = (pick: (t: string) => boolean) => s.rates.filter((x) => pick(x.type)).map((x) => x.value);
-        const checkAny = (label: string, h: number | undefined, pubs: number[], tol: number) => {
+        const checkAny = (label: string, h: number | undefined, pubs: number[], _tol: number) => {
           if (h === undefined) return;
-          if (pubs.some((v) => agrees(h, v, mult, tol))) matchedOn.push(label);
+          if (pubs.some((v) => agrees(h, v, mult))) matchedOn.push(label);
           else notMatched.push(label);
         };
-        checkAny("single rate", hint.single, vals((t) => t === "single"), 0.0006);
-        checkAny("peak rate", hint.PEAK, vals((t) => t === "PEAK"), 0.0006);
-        checkAny("shoulder rate", hint.SHOULDER, vals((t) => /^SHOULDER/.test(t)), 0.0006);
-        checkAny("off-peak rate", hint.OFF_PEAK, vals((t) => t === "OFF_PEAK"), 0.0006);
+        checkAny("single rate", hint.single, vals((t) => t === "single"), 0);
+        // An invoice names bands peak, shoulder and off-peak, but some plans label every band SHOULDER: with no band of the kind named, any band rate may be the one.
+        const anyBand = vals((t) => t !== "single");
+        const kind = (pick: (t: string) => boolean) => (vals(pick).length ? vals(pick) : anyBand);
+        checkAny("peak rate", hint.PEAK, kind((t) => t === "PEAK"), 0);
+        checkAny("shoulder rate", hint.SHOULDER, kind((t) => /^SHOULDER/.test(t)), 0);
+        checkAny("off-peak rate", hint.OFF_PEAK, kind((t) => t === "OFF_PEAK"), 0);
         return { s, ps, matchedOn, notMatched };
       });
       ranked.sort((a, b) => b.matchedOn.length - a.matchedOn.length || a.notMatched.length - b.notMatched.length || b.ps.length - a.ps.length || a.s.key.localeCompare(b.s.key));
@@ -239,12 +253,14 @@ export const listCurrentPlanOptions = defineTool({
       const tooMany = narrowed && kept.length > NARROW_LIMIT;
       const shownLimit = narrowed ? NARROW_LIMIT : OPTION_LIMIT;
       const options: PlanOption[] = kept.slice(0, shownLimit).map(({ s, ps, matchedOn, notMatched }) => {
-        const ids = ps.map((p) => p.planId).sort();
+        // The plan the invoice's code names comes first, so the id passed on to compare is the household's own plan.
+        const isCode = (id: string) => Boolean(code) && id.toUpperCase().replace(/@.*$/, "").startsWith(code!);
+        const ids = ps.map((p) => p.planId).sort((x, y) => Number(isCode(y)) - Number(isCode(x)) || x.localeCompare(y));
         const names = [...new Set(ps.map((p) => p.displayName))].sort();
         return {
           optionId: s.key,
           planIds: ids.slice(0, 3),
-          planNames: names.slice(0, 3),
+          planNames: names.slice(0, 8),
           moreIds: Math.max(0, ids.length - 3),
           tariff: s.tariff,
           seasonal: s.seasonal,
@@ -295,7 +311,7 @@ export const listCurrentPlanOptions = defineTool({
     ];
     d.options.forEach((o, i) => {
       out.push(`**Option ${i + 1}** (id ${o.optionId}): ${o.tariff}${o.seasonal ? ", seasonal (first season shown)" : ""}.`);
-      out.push(`- Plans: ${o.planNames.join("; ")}${o.moreIds ? ` and ${o.moreIds} more` : ""}. Plan ids: ${o.planIds.join(", ")}.`);
+      out.push(`- Plans: ${o.planNames.join("; ")}. Plan ids: ${o.planIds.join(", ")}${o.moreIds ? ` and ${o.moreIds} more` : ""}.`);
       if (o.supplyPerDayIncGst) out.push(`- Daily supply charge: ${o.supplyPerDayIncGst}/day.`);
       if (o.ratesIncGst.length) out.push(`- Rates: ${o.ratesIncGst.map((r) => `${r.band}${r.hours ? ` ${r.hours}` : ""} ${r.perUnit}/${d.fuelType === "GAS" ? "MJ" : "kWh"}`).join("; ")}.`);
       if (o.hours) out.push(`- Hours: ${o.hours} (hours id ${o.layoutId}).`);
@@ -327,7 +343,7 @@ export const listCurrentPlanOptions = defineTool({
         const lo = Math.min(...vals);
         const hi = Math.max(...vals);
         const rate = vals.length ? (lo === hi ? `$${lo.toFixed(2)}` : `$${lo.toFixed(2)}-$${hi.toFixed(2)}`) + `/${unit}` : "";
-        const first = clip(o.planNames[0] ?? "plan", 22) + (o.planNames.length + o.moreIds > 1 ? ` +${o.planNames.length - 1 + o.moreIds}` : "");
+        const first = clip(o.planNames.slice(0, 2).join(" / ") || "plan", 30) + (o.planNames.length > 2 ? ` +${o.planNames.length - 2}` : "");
         const sup = o.supplyPerDayIncGst ? `$${Number(o.supplyPerDayIncGst.slice(1)).toFixed(2)}/day` : "";
         return clip(`Option ${i + 1}: ${first}, ${[sup, rate].filter(Boolean).join(", ")}${o.matchedOn.length ? " (matches)" : ""}`, 80);
       });

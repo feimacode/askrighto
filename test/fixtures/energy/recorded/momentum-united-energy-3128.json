@@ -1,0 +1,7731 @@
+[
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Standing Offer",
+  "effectiveFrom": "2026-06-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "Available to Residential customers in the United Energy distribution area. Offer subject to the having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "9.50",
+     "description": "",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "PAPER_BILL"
+   ],
+   "pricingModel": "SINGLE_RATE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.00"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082909",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.248636"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-06-30T01:26:56Z",
+  "planId": "MOM750980SR@VEC",
+  "type": "STANDING"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Standing Offer",
+  "effectiveFrom": "2026-06-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.156909"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "Available to Residential customers in the United Energy distribution area. Offer subject to the having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "9.50",
+     "description": "",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "PAPER_BILL"
+   ],
+   "pricingModel": "SINGLE_RATE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.00"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082909",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.248636"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-06-30T01:26:56Z",
+  "planId": "MOM750984SR@VEC",
+  "type": "STANDING"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Standing Offer",
+  "effectiveFrom": "2026-06-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "Available to Residential customers in the United Energy distribution area. Offer subject to the having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    },
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "PAPER_BILL"
+   ],
+   "pricingModel": "TIME_OF_USE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.00"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082909",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.366545"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.156909"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.201272"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-06-30T01:26:57Z",
+  "planId": "MOM752779SR@VEC",
+  "type": "STANDING"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Standing Offer",
+  "effectiveFrom": "2026-06-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.156909"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "Available to Residential customers in the United Energy distribution area. Offer subject to the having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    },
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "PAPER_BILL"
+   ],
+   "pricingModel": "TIME_OF_USE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.00"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082909",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.366545"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.156909"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.201272"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-06-30T01:26:57Z",
+  "planId": "MOM752780SR@VEC",
+  "type": "STANDING"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "NAB Goodies",
+  "effectiveFrom": "2026-09-06T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible, you must be a residential customer, be a NAB personal banking customer and provide your unique NAB identifier, sign up a new supply address online, receive monthly bills and communications electronically unless the regulations require otherwise.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "SINGLE_RATE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.017",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.22"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from Terms and Conditions | Momentum Energy or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-08-26T22:09:33Z",
+  "planId": "MOM788118MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "NAB Goodies",
+  "effectiveFrom": "2026-09-06T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.139"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible, you must be a residential customer, be a NAB personal banking customer and provide your unique NAB identifier, sign up a new supply address online, receive monthly bills and communications electronically unless the regulations require otherwise.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "SINGLE_RATE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.017",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.22"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from Terms and Conditions | Momentum Energy or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-08-26T22:09:33Z",
+  "planId": "MOM788119MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Bill Boss Electricity",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must sign up via our third party sales channels or call Momentum directly; and receive bills, notices and communications electronically unless the energy regulations require otherwise; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "SINGLE_RATE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.249"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:22Z",
+  "planId": "MOM799385MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Bill Boss Electricity",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.157"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must sign up via our third party sales channels or call Momentum directly; and receive bills, notices and communications electronically unless the energy regulations require otherwise; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "SINGLE_RATE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.249"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:22Z",
+  "planId": "MOM799387MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Home Comfort Electricity",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must be a residential customer; communicate with us and receive your bills electronically; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "SINGLE_RATE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.017",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.22"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:26Z",
+  "planId": "MOM799438MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Home Comfort Electricity",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.139"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must be a residential customer; communicate with us and receive your bills electronically; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "SINGLE_RATE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.017",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.22"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:26Z",
+  "planId": "MOM799439MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Suit Yourself Electricity",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must be a residential customer; communicate with us and receive your bills electronically; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    },
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    }
+   ],
+   "incentives": [
+    {
+     "category": "OTHER",
+     "description": "30% GreenPower included",
+     "displayName": "30% GreenPower included",
+     "eligibility": "GreenPower comes with this plan. That means you offset 30% of your electricity usage with renewable energy."
+    }
+   ],
+   "intrinsicGreenPower": {
+    "greenPercentage": "0.3"
+   },
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "SINGLE_RATE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.249"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:28Z",
+  "planId": "MOM799474MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Suit Yourself Electricity",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.157"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must be a residential customer; communicate with us and receive your bills electronically; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    },
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    }
+   ],
+   "incentives": [
+    {
+     "category": "OTHER",
+     "description": "30% GreenPower included",
+     "displayName": "30% GreenPower included",
+     "eligibility": "GreenPower comes with this plan. That means you offset 30% of your electricity usage with renewable energy."
+    }
+   ],
+   "intrinsicGreenPower": {
+    "greenPercentage": "0.3"
+   },
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "SINGLE_RATE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.249"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:28Z",
+  "planId": "MOM799475MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Warm Welcome",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "This plan is only available to residential customers who sign up a new supply address, agree to eCommunications and eBilling and have the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "incentives": [
+    {
+     "category": "ACCOUNT_CREDIT",
+     "description": "$50 Welcome credit (GST incl)",
+     "displayName": "$50 Welcome credit (GST incl)",
+     "eligibility": "A one-off $50 (GST incl) sign-up credit will be applied to your first electricity bill. This credit cannot be redeemed for cash or transferred to another supply address."
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "SINGLE_RATE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.017",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.22"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from http://www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:29Z",
+  "planId": "MOM799493MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Warm Welcome",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.139"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "This plan is only available to residential customers who sign up a new supply address, agree to eCommunications and eBilling and have the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "incentives": [
+    {
+     "category": "ACCOUNT_CREDIT",
+     "description": "$50 Welcome credit (GST incl)",
+     "displayName": "$50 Welcome credit (GST incl)",
+     "eligibility": "A one-off $50 (GST incl) sign-up credit will be applied to your first electricity bill. This credit cannot be redeemed for cash or transferred to another supply address."
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "SINGLE_RATE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.017",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.22"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from http://www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:29Z",
+  "planId": "MOM799495MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Bill Boss Electricity",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must sign up via our third party sales channels or call Momentum directly; and receive bills, notices and communications electronically unless the energy regulations require otherwise; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "TIME_OF_USE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.367"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.157"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.201"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:52Z",
+  "planId": "MOM799869MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Bill Boss Electricity",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.157"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must sign up via our third party sales channels or call Momentum directly; and receive bills, notices and communications electronically unless the energy regulations require otherwise; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "TIME_OF_USE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.367"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.157"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.201"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:52Z",
+  "planId": "MOM799871MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Home Comfort Electricity",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must be a residential customer; communicate with us and receive your bills electronically; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "TIME_OF_USE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.017",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.324"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.139"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.178"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:54Z",
+  "planId": "MOM799904MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Home Comfort Electricity",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.139"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must be a residential customer; communicate with us and receive your bills electronically; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "TIME_OF_USE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.017",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.324"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.139"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.178"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:54Z",
+  "planId": "MOM799905MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "NAB Goodies",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible, you must be a residential customer, be a NAB personal banking customer and provide your unique NAB identifier, sign up a new supply address online, receive monthly bills and communications electronically unless the regulations require otherwise.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "TIME_OF_USE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.017",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.324"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.139"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.178"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from Terms and Conditions | Momentum Energy or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:56Z",
+  "planId": "MOM799922MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "NAB Goodies",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.139"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible, you must be a residential customer, be a NAB personal banking customer and provide your unique NAB identifier, sign up a new supply address online, receive monthly bills and communications electronically unless the regulations require otherwise.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "TIME_OF_USE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.017",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.324"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.139"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.178"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from Terms and Conditions | Momentum Energy or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:56Z",
+  "planId": "MOM799923MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Suit Yourself Electricity",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must be a residential customer; communicate with us and receive your bills electronically; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "incentives": [
+    {
+     "category": "OTHER",
+     "description": "30% GreenPower included",
+     "displayName": "30% GreenPower included",
+     "eligibility": "GreenPower comes with this plan. That means you offset 30% of your electricity usage with renewable energy."
+    }
+   ],
+   "intrinsicGreenPower": {
+    "greenPercentage": "0.3"
+   },
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "TIME_OF_USE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.367"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.157"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.201"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:57Z",
+  "planId": "MOM799940MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Suit Yourself Electricity",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.157"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must be a residential customer; communicate with us and receive your bills electronically; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "incentives": [
+    {
+     "category": "OTHER",
+     "description": "30% GreenPower included",
+     "displayName": "30% GreenPower included",
+     "eligibility": "GreenPower comes with this plan. That means you offset 30% of your electricity usage with renewable energy."
+    }
+   ],
+   "intrinsicGreenPower": {
+    "greenPercentage": "0.3"
+   },
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "TIME_OF_USE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.367"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.157"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.201"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:57Z",
+  "planId": "MOM799941MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Warm Welcome",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "This plan is only available to residential customers who sign up a new supply address, agree to eCommunications and eBilling and have the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "incentives": [
+    {
+     "category": "ACCOUNT_CREDIT",
+     "description": "$50 Welcome credit (GST incl)",
+     "displayName": "$50 Welcome credit (GST incl)",
+     "eligibility": "A one-off $50 (GST incl) sign-up credit will be applied to your first electricity bill. This credit cannot be redeemed for cash or transferred to another supply address."
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "TIME_OF_USE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.017",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.324"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.139"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.178"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from http://www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:58Z",
+  "planId": "MOM799959MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Warm Welcome",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.139"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "This plan is only available to residential customers who sign up a new supply address, agree to eCommunications and eBilling and have the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "incentives": [
+    {
+     "category": "ACCOUNT_CREDIT",
+     "description": "$50 Welcome credit (GST incl)",
+     "displayName": "$50 Welcome credit (GST incl)",
+     "eligibility": "A one-off $50 (GST incl) sign-up credit will be applied to your first electricity bill. This credit cannot be redeemed for cash or transferred to another supply address."
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "TIME_OF_USE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.017",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.324"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.139"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.178"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from http://www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-21T01:06:58Z",
+  "planId": "MOM799961MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Midday Power Saver - United TOU",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "effectiveTo": "2027-06-29T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan the Premises must be in Victoria and have a smart meter on site. This plan is restricted to residential customers only.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "PAPER_BILL"
+   ],
+   "pricingModel": "TIME_OF_USE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.00"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082909",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Off-peak",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.220636"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Free usage period",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.00",
+         "volume": 24
+        },
+        {
+         "unitPrice": "0.176273"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "14:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Solar soak",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.176273"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "14:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Peak",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.385909"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-23T22:18:31Z",
+  "planId": "MOM803153SR@VEC",
+  "type": "STANDING"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Midday Power Saver - United TOU + CL",
+  "effectiveFrom": "2026-09-30T14:00:00Z",
+  "effectiveTo": "2027-06-29T14:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.156909"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan the Premises must be in Victoria and have a smart meter on site. This plan is restricted to residential customers only.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "PAPER_BILL"
+   ],
+   "pricingModel": "TIME_OF_USE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.00"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082909",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Off-peak",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.220636"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Free usage period",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.00",
+         "volume": 24
+        },
+        {
+         "unitPrice": "0.176273"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "14:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Solar soak",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.176273"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "14:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Peak",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.385909"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-09-23T22:18:31Z",
+  "planId": "MOM803154SR@VEC",
+  "type": "STANDING"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Bill Boss Electricity",
+  "effectiveFrom": "2026-11-01T13:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must sign up via our third party sales channels or call Momentum directly; and receive bills, notices and communications electronically unless the energy regulations require otherwise; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "TIME_OF_USE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.367"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.157"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.201"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-10-25T21:02:25Z",
+  "planId": "MOM811831MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Bill Boss Electricity",
+  "effectiveFrom": "2026-11-01T13:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.157"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must sign up via our third party sales channels or call Momentum directly; and receive bills, notices and communications electronically unless the energy regulations require otherwise; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "TIME_OF_USE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "timeOfUseRates",
+     "startDate": "01-01",
+     "timeOfUseRates": [
+      {
+       "displayName": "Tariff 1",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.367"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "21:00",
+         "startTime": "16:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 2",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.157"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "16:00",
+         "startTime": "11:00"
+        }
+       ],
+       "type": "SHOULDER"
+      },
+      {
+       "displayName": "Tariff 3",
+       "period": "P1D",
+       "rates": [
+        {
+         "unitPrice": "0.201"
+        }
+       ],
+       "timeOfUse": [
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "00:00",
+         "startTime": "21:00"
+        },
+        {
+         "days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+         ],
+         "endTime": "11:00",
+         "startTime": "00:00"
+        }
+       ],
+       "type": "SHOULDER"
+      }
+     ]
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-10-25T21:02:25Z",
+  "planId": "MOM811832MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Bill Boss Electricity",
+  "effectiveFrom": "2026-11-01T13:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must sign up via our third party sales channels or call Momentum directly; and receive bills, notices and communications electronically unless the energy regulations require otherwise; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "SINGLE_RATE",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.249"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-10-25T21:02:26Z",
+  "planId": "MOM811849MR@VEC",
+  "type": "MARKET"
+ },
+ {
+  "brand": "momentum",
+  "brandName": "Momentum Energy",
+  "customerType": "RESIDENTIAL",
+  "displayName": "Bill Boss Electricity",
+  "effectiveFrom": "2026-11-01T13:00:00Z",
+  "electricityContract": {
+   "billFrequency": [
+    "P1M"
+   ],
+   "controlledLoad": [
+    {
+     "displayName": "Controlled Load",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "All Controlled Load usage",
+      "displayName": "Controlled Load",
+      "rates": [
+       {
+        "unitPrice": "0.157"
+       }
+      ]
+     }
+    }
+   ],
+   "coolingOffDays": 10,
+   "eligibility": [
+    {
+     "information": "To be eligible for this plan you must sign up via our third party sales channels or call Momentum directly; and receive bills, notices and communications electronically unless the energy regulations require otherwise; and is subject to having the necessary metering system configuration.",
+     "type": "OTHER"
+    }
+   ],
+   "fees": [
+    {
+     "amount": "9.50",
+     "description": "GST exempt",
+     "term": "FIXED",
+     "type": "CHEQUE_DISHONOUR"
+    },
+    {
+     "amount": "71.04",
+     "description": "\nFor information on additional fees, a full schedule of charges is available from http://www.momentumenergy.com.au/fees",
+     "term": "FIXED",
+     "type": "DISCONNECTION"
+    },
+    {
+     "amount": "71.04",
+     "description": "",
+     "term": "FIXED",
+     "type": "RECONNECTION"
+    }
+   ],
+   "greenPowerCharges": [
+    {
+     "description": "For an added 3.52 c/kWh incl. GST, you can purchase GreenPower for either 30, 50, 75 or 100% of your usage.",
+     "displayName": "GreenPower 100",
+     "scheme": "GREENPOWER",
+     "tiers": [
+      {
+       "amount": "0.0352",
+       "percentGreen": "1"
+      }
+     ],
+     "type": "FIXED_PER_UNIT"
+    }
+   ],
+   "isFixed": false,
+   "onExpiryDescription": "The agreement continues until terminated by you or us in accordance with your terms and conditions.",
+   "paymentOption": [
+    "OTHER"
+   ],
+   "pricingModel": "SINGLE_RATE_CONT_LOAD",
+   "solarFeedInTariff": [
+    {
+     "description": "General Feed-In Tariff",
+     "displayName": "Current FIT policy",
+     "payerType": "RETAILER",
+     "scheme": "CURRENT",
+     "singleTariff": {
+      "rates": [
+       {
+        "unitPrice": "0.009"
+       }
+      ]
+     },
+     "tariffUType": "singleTariff"
+    }
+   ],
+   "tariffPeriod": [
+    {
+     "dailySupplyCharge": "1.082",
+     "dailySupplyChargeType": "SINGLE",
+     "displayName": "Period",
+     "endDate": "12-31",
+     "rateBlockUType": "singleRate",
+     "singleRate": {
+      "description": "Anytime",
+      "displayName": "Rate",
+      "period": "P1D",
+      "rates": [
+       {
+        "unitPrice": "0.249"
+       }
+      ]
+     },
+     "startDate": "01-01"
+    }
+   ],
+   "terms": "Time of use charges are based on Australian Eastern Standard Time, except when daylight savings applies in which case interval meters are adjusted to Australian Eastern Daylight Time, unless indicated otherwise. Full terms and conditions can be obtained from www.momentumenergy.com.au/terms-and-conditions or by contacting our Customer Care Team on 1800 SWITCH.",
+   "timeZone": "LOCAL",
+   "variation": "We will give you written notice of any variations to your rates & charges under your terms and conditions in accordance with applicable legal requirements."
+  },
+  "fuelType": "ELECTRICITY",
+  "geography": {
+   "distributors": [
+    "United Energy"
+   ],
+   "includedPostcodes": [
+    "3104",
+    "3105",
+    "3106",
+    "3107",
+    "3108",
+    "3109",
+    "3111",
+    "3114",
+    "3122",
+    "3123",
+    "3124",
+    "3125",
+    "3127",
+    "3128",
+    "3129",
+    "3130",
+    "3131",
+    "3132",
+    "3133",
+    "3144",
+    "3145",
+    "3146",
+    "3147",
+    "3148",
+    "3149",
+    "3150",
+    "3151",
+    "3152",
+    "3161",
+    "3162",
+    "3163",
+    "3165",
+    "3166",
+    "3167",
+    "3168",
+    "3169",
+    "3170",
+    "3171",
+    "3172",
+    "3173",
+    "3174",
+    "3175",
+    "3177",
+    "3178",
+    "3179",
+    "3182",
+    "3183",
+    "3184",
+    "3185",
+    "3186",
+    "3187",
+    "3188",
+    "3189",
+    "3190",
+    "3191",
+    "3192",
+    "3193",
+    "3194",
+    "3195",
+    "3196",
+    "3197",
+    "3198",
+    "3199",
+    "3200",
+    "3201",
+    "3202",
+    "3204",
+    "3800",
+    "3802",
+    "3803",
+    "3910",
+    "3911",
+    "3912",
+    "3913",
+    "3915",
+    "3916",
+    "3918",
+    "3919",
+    "3920",
+    "3926",
+    "3927",
+    "3928",
+    "3929",
+    "3930",
+    "3931",
+    "3933",
+    "3934",
+    "3936",
+    "3937",
+    "3938",
+    "3939",
+    "3940",
+    "3941",
+    "3942",
+    "3943",
+    "3944",
+    "3975",
+    "3976",
+    "3977"
+   ]
+  },
+  "lastUpdated": "2026-10-25T21:02:26Z",
+  "planId": "MOM811850MR@VEC",
+  "type": "MARKET"
+ }
+]

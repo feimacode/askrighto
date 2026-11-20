@@ -21,3 +21,5 @@ here. Do not commit any fixture that has not been checked for personal data (the
 - `recorded/agl-AGD812605MR.json`: AGL plan detail (x-v 3) for `AGD812605MR@VEC`, fetched by
   Iven on 16 Nov 2026 (lastUpdated 2026-11-04). Public product data, no personal data. Used
   to confirm the GST basis against the plan's fact sheet.
+
+- `recorded/momentum-united-energy-3128.json`: the 30 Momentum Energy electricity plan details (raw CDR `data`) available on United Energy at postcode 3128 in the AER's data of 17 Nov 2026, taken from a local copy of that sync. Public plan data, no personal data. Used by `test/energy/current-plan-invoices.test.ts`.
