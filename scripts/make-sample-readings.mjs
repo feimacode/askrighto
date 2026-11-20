@@ -11,16 +11,29 @@ const out = resolve(process.argv[2] ?? "evals/readings-samples");
 mkdirSync(out, { recursive: true });
 const pad = (n) => String(n).padStart(2, "0");
 
-function make(startIso, days, withSolar) {
+function make(startIso, days, withSolar, per = 30) {
   const lines = [];
   const stream = (suffix, valueAt) => {
     lines.push(
-      `200,4001234567,${suffix},${suffix},${suffix},,SERIAL0001,KWH,30,`,
+      `200,4001234567,${suffix},${suffix},${suffix},,SERIAL0001,KWH,${per},`,
     );
     const d = new Date(`${startIso}T00:00:00Z`);
     for (let i = 0; i < days; i++) {
       const date = `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}`;
-      const vals = Array.from({ length: 48 }, (_, k) => valueAt(k).toFixed(3));
+      // One value per interval. A half hour's use is split over its 30/per intervals; the last one takes the rounding
+      // remainder, so each half hour (and every total) is exact at any interval length.
+      const n = 30 / per;
+      const vals = [];
+      for (let k = 0; k < 48; k++) {
+        const half = valueAt(k);
+        if (n === 1) {
+          vals.push(half.toFixed(3));
+          continue;
+        }
+        const each = Math.round((half / n) * 1e4) / 1e4;
+        for (let j = 0; j < n - 1; j++) vals.push(each.toFixed(4));
+        vals.push((Math.round(half * 1e4) / 1e4 - each * (n - 1)).toFixed(4));
+      }
       lines.push(`300,${date},${vals.join(",")},A,,,20261120010101,`);
       d.setUTCDate(d.getUTCDate() + 1);
     }
@@ -49,6 +62,13 @@ writeFileSync(
   resolve(out, "readings-year-solar.csv"),
   make("2026-01-01", 365, true),
 );
+// 5-minute intervals: the same use at six times the numbers. The quarter (182 KB) fits under the 250,000 character limit;
+// the year (730 KB) does not: it is over our 256 KB body limit, so the host or server refuses it, which is what to check.
+for (const [name, days] of [["quarter-5min", 91], ["year-5min", 365]]) {
+  const text = make("2026-01-01", days, false, 5);
+  writeFileSync(resolve(out, `readings-${name}.csv`), text);
+  rows.push(`readings-${name}.csv: ${days} days at 5 minutes, ${(text.length / 1024).toFixed(0)} KB, ${days * 8} kWh measured, ${Math.round(365 * 8)} kWh a year`);
+}
 rows.push(
   `readings-year-solar.csv: 365 days with a B1 stream, export 3.6 kWh a day = ${Math.round(365 * 3.6)} kWh a year`,
 );

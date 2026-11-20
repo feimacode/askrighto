@@ -15,7 +15,13 @@
  * is not identified from the suffix: every E stream is main consumption.
  */
 
-export const MAX_READINGS_CHARS = 600_000;
+/**
+ * The longest text read. Our HTTP body limit is 256 KB (262,144 bytes, ASKRIGHTO_BODY_LIMIT), so this sits just under
+ * it: a longer paste is refused here with a plain message, not as a transport error. 250,000 characters holds a year
+ * of 30-minute data with a solar export stream (about 230,000), or about 4 months of 5-minute data. A model is unlikely
+ * to write out much more than that in one tool call anyway.
+ */
+export const MAX_READINGS_CHARS = 250_000;
 
 export type ParseProblem = { ok: false; problem: string; line?: number };
 
@@ -50,7 +56,11 @@ function validDate(s: string): boolean {
 type Block = { suffix: string; factor: number; per: number; n: number; use: boolean };
 
 export function parseNem12(text: string): ParsedReadings | ParseProblem {
-  if (text.length > MAX_READINGS_CHARS) return { ok: false, problem: `the text is longer than ${MAX_READINGS_CHARS.toLocaleString("en-AU")} characters, which is more than a year of half-hourly data; send one year or less` };
+  if (text.length > MAX_READINGS_CHARS)
+    return {
+      ok: false,
+      problem: `the text is ${text.length.toLocaleString("en-AU")} characters, over the limit of ${MAX_READINGS_CHARS.toLocaleString("en-AU")} (a year of 30-minute data with solar export is about 230,000; 5-minute data reaches the limit in about 4 months). Send a shorter period, for example the last 12 months at 30-minute intervals, or ask the distributor or retailer for 30-minute intervals`,
+    };
   const lines = text.split(/\r?\n/);
   const nmis = new Set<string>();
   const streams = new Map<string, Map<string, number[]>>(); // suffix -> date -> 48 values

@@ -155,6 +155,20 @@ describe("NEM12 parser", () => {
     expect(parseNem12(short.join("\n"))).toMatchObject({ ok: false, line: 2 });
     expect(JSON.stringify(parseNem12(short.join("\n")))).not.toContain(SERIAL);
   });
+  it("reads a 5-minute quarter that fits the limit, and refuses a 5-minute year with a plain message about size and what to do", () => {
+    // 0.12 kWh a half hour is exactly 0.020 in each 5-minute interval, so the generator's rounding does not show in the total.
+    const quarter = makeNem12({ start: "20260101", days: 91, streams: [{ per: 5, at: () => 0.12 }] });
+    expect(quarter.length).toBeLessThan(MAX_READINGS_CHARS);
+    const r = ok(quarter);
+    expect(r.consumption.size).toBe(91);
+    expect(sum(r.consumption)).toBeCloseTo(91 * 48 * 0.12, 3);
+    const year = makeNem12({ start: "20260101", days: 365, streams: [{ per: 5, at: () => 0.1 }] });
+    expect(year.length).toBeGreaterThan(MAX_READINGS_CHARS);
+    const bad = parseNem12(year);
+    expect(bad).toMatchObject({ ok: false });
+    expect(!bad.ok && bad.problem).toMatch(/over the limit of 250,000/);
+    expect(!bad.ok && bad.problem).toMatch(/30-minute/);
+  });
   it("refuses a duplicate date, a negative value and an oversize text", () => {
     const lines = makeNem12({ days: 2 }).split("\n");
     expect(parseNem12([lines[0], lines[1], lines[1], lines[2]].join("\n"))).toMatchObject({ ok: false });
@@ -310,6 +324,14 @@ describe("summarise_interval_readings", () => {
     expect((await call({ readingsText: makeNem12({ days: 1 }), postcode: "30" })).g).toMatchObject({ found: false, reason: "needs_input" });
     expect((await call({ readingsText: makeNem12({ days: 1 }), postcode: "6000" })).g).toMatchObject({ found: false, reason: "outside_coverage" });
     expect((await call({ readingsText: "this is not a meter file at all", postcode: "3000" })).g.message).toMatch(/NEM12/);
+  });
+  it("answers an over-long file with a plain needs_input message, not a protocol error", async () => {
+    const big = makeNem12({ start: "20260101", days: 365, streams: [{ per: 5, at: () => 0.1 }] }).slice(0, 252_000); // over our 250,000 limit, under the 256 KB body limit
+    const { g } = await call({ readingsText: big, postcode: "3000" });
+    expect(g).toMatchObject({ found: false, reason: "needs_input" });
+    expect(g.message).toMatch(/over the limit of 250,000/);
+    expect(g.message).toMatch(/shorter period/);
+    expect(JSON.stringify(g)).not.toContain(NMI);
   });
   it("is in the server instructions and the energy skill, and never asks to send the file elsewhere", async () => {
     const { serverInstructions } = await import("../../src/server/instructions.js");
