@@ -12,6 +12,7 @@ import { annualExportKwh, annualKwh, decodeProfile, MAX_PROFILE_CHARS, type Read
 import { bandShares, periodMonths } from "../energy/readings/windows.js";
 import { estimateAnnualCost, type Estimate, type NotEstimated, type Usage, type UsageBasis } from "../energy/calc.js";
 import { BENCHMARK_DATASET_ID, ENERGY_DATASET_ID, getEnergy, withStore } from "../energy/index.js";
+import { layoutId, layoutWindows } from "../energy/layouts.js";
 import { linkCell, linkNotes, planLink, type PlanLink } from "../energy/links.js";
 import {
   asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, dollars, inkview, inkviewResult, inkviewSource, matchRetailer, NOTICE, source, tableMeta, uniqueDistributors,
@@ -37,6 +38,8 @@ const input = z.object({
   distributor: z.string().optional().describe("Distribution network from the user's bill, required when the postcode has several"),
   retailer: z.string().optional().describe("Only compare this retailer's plans"),
   planType: z.enum(["MARKET", "STANDING", "REGULATED"]).optional().describe("Plan type"),
+  currentPlanId: z.string().optional().describe("The plan the user picked from list_current_plan_options as the one on their bill. With a peak, shoulder and off-peak split, the split is applied exactly only to plans whose band hours equal this plan's"),
+  hoursLayoutId: z.string().optional().describe("The hours layout id the user picked from list_current_plan_options when none of the plans fitted. Use instead of currentPlanId"),
   planIds: z.array(z.string()).max(25).optional().describe("Compare only these plan ids"),
   limit: z.number().int().min(1).max(25).optional().describe("Estimates to return, default 10, maximum 25"),
 });
@@ -100,6 +103,9 @@ export function typicalNotice(f: Pick<BenchmarkFigure, "householdSize" | "fiveOr
   return `Typical usage for a household of ${size} in ${f.zoneLabel} (${f.state}), not your own: ${Math.round(f.annual).toLocaleString("en-AU")} ${f.unit} a year, the AER benchmark (${f.releaseLabel}). Real cost can differ a lot from these estimates.`;
 }
 
+export const APPROXIMATE_NOTE = "approximate: this plan's hours differ from the current plan's, so the bill split may not fit it";
+export const APPROXIMATE_UNKNOWN_NOTE = "approximate: the household's own band hours are unknown, so the bill split is applied as given";
+
 export interface IfConditionsMet {
   rank: number;
   /** The plan's place in the main ordering (cost without conditions). */
@@ -149,6 +155,13 @@ export interface CompareData {
    * A separate ranking, so the main ordering stays on the cost without conditions.
    */
   ifConditionsMet: IfConditionsMet[];
+  /**
+   * Time-of-use estimates made from a bill split whose hours are not the household's (the plan's hours differ from the
+   * current plan's, or the current hours are unknown). Listed apart and never ranked beside the exact estimates.
+   */
+  approximate: Array<Estimate & { rank: number; link: PlanLink }>;
+  /** Present when a bill split was given with currentPlanId or hoursLayoutId. */
+  currentHours?: { layoutId: string; source: "plan" | "layout"; planId?: string };
   notEstimated: NotEstimated[];
   notEstimatedByReason: Record<string, number>;
   unknownPlanIds?: string[];
@@ -292,8 +305,33 @@ export const compareEnergyPlans = defineTool({
       }
       if (plans.length === 0) return notFound("not_in_dataset", "No plans match those filters.", unknownPlanIds ? { unknownPlanIds } : undefined);
 
+      // A bill split describes use against the current plan's hours. Plans with other hours get it only as an approximation.
+      let currentHours: CompareData["currentHours"];
+      if (shares && (args.currentPlanId || args.hoursLayoutId)) {
+        if (args.currentPlanId) {
+          const cur = await store.plan(args.currentPlanId);
+          if (!cur) return notFound("not_in_dataset", `No plan ${args.currentPlanId} was found. Ask the user to pick again from list_current_plan_options.`);
+          const lw = layoutWindows(cur, args.fuelType);
+          if (!lw) return notFound("needs_input", "That plan has no time-of-use hours, so a peak, shoulder and off-peak split does not fit it. Ask the user to check their invoice and pick again, or call without the split.");
+          currentHours = { layoutId: layoutId(lw), source: "plan", planId: cur.planId };
+        } else currentHours = { layoutId: args.hoursLayoutId!, source: "layout" };
+      }
+      const byId = new Map(plans.map((p) => [p.planId, p]));
+      const isApproximate = (planId: string): boolean => {
+        if (!shares || profile || figure) return false;
+        const lw = byId.get(planId) ? layoutWindows(byId.get(planId)!, args.fuelType) : undefined;
+        if (!lw) return false;
+        return !currentHours || layoutId(lw) !== currentHours.layoutId;
+      };
       const results = plans.map((p) => estimateAnnualCost(p, usage));
-      const ok = results.filter((r): r is Estimate => r.estimated).sort((a, b) => a.totalCents - b.totalCents || a.brandName.localeCompare(b.brandName) || a.planId.localeCompare(b.planId));
+      const allOk = results.filter((r): r is Estimate => r.estimated);
+      const approxNote = currentHours ? APPROXIMATE_NOTE : APPROXIMATE_UNKNOWN_NOTE;
+      const approxList = allOk
+        .filter((e) => isApproximate(e.planId))
+        .map((e) => ({ ...e, notes: [approxNote, ...e.notes] }))
+        .sort((a, b) => a.totalCents - b.totalCents || a.brandName.localeCompare(b.brandName) || a.planId.localeCompare(b.planId));
+      const approximate = approxList.slice(0, args.limit ?? 10).map((e, i) => ({ ...e, rank: i + 1, link: planLink(e, postcode) }));
+      const ok = allOk.filter((e) => !isApproximate(e.planId)).sort((a, b) => a.totalCents - b.totalCents || a.brandName.localeCompare(b.brandName) || a.planId.localeCompare(b.planId));
       const no = results.filter((r): r is NotEstimated => !r.estimated).sort((a, b) => a.reason.localeCompare(b.reason) || a.brandName.localeCompare(b.brandName) || a.planId.localeCompare(b.planId));
       const byReason: Record<string, number> = {};
       for (const n of no) byReason[n.reason] = (byReason[n.reason] ?? 0) + 1;
@@ -324,9 +362,10 @@ export const compareEnergyPlans = defineTool({
         : undefined;
       // Interval readings would be more accurate than a benchmark or one bill (electricity only; gas has no interval data here).
       const note = elec && (figure || scaledFromBill) ? readingsNote(distributor ?? (nets.length === 1 ? nets[0] : undefined)) : undefined;
+      const approxSummary = approxList.length ? ` ${approxList.length} time-of-use plan${approxList.length === 1 ? "" : "s"} could only be estimated approximately (${currentHours ? "their hours differ from the current plan's" : "the household's own hours are unknown"}); they are listed apart and not ranked with the others.` : "";
       const summary = first
-        ? `Of ${plans.length} plan${plans.length === 1 ? "" : "s"} available, ${ok.length} could be estimated and ${no.length} could not. The lowest estimate for ${figure ? "typical usage (not the household's own)" : profile ? "the household's own readings" : "the usage given"} is ${dollars(first.totalCents)} a year (${first.brandName}, ${first.displayName}); this ordering is by estimated cost only.`
-        : `Of ${plans.length} plan${plans.length === 1 ? "" : "s"} available, none could be estimated with the information given.`;
+        ? `Of ${plans.length} plan${plans.length === 1 ? "" : "s"} available, ${ok.length} could be estimated and ${no.length} could not. The lowest estimate for ${figure ? "typical usage (not the household's own)" : profile ? "the household's own readings" : "the usage given"} is ${dollars(first.totalCents)} a year (${first.brandName}, ${first.displayName}); this ordering is by estimated cost only.${approxSummary}`
+        : `Of ${plans.length} plan${plans.length === 1 ? "" : "s"} available, none could be ranked with the information given.${approxSummary}`;
       const data: CompareData = {
         postcode,
         customerType,
@@ -365,10 +404,12 @@ export const compareEnergyPlans = defineTool({
         ...(typicalUsageNotice ? { typicalUsageNotice } : {}),
         ...(readingsNotice ? { readingsNotice } : {}),
         ...(note ? { readingsNote: note } : {}),
-        counts: { available: plans.length, estimated: ok.length, notEstimated: no.length, returned: shown.length },
+        counts: { available: plans.length, estimated: ok.length + approxList.length, notEstimated: no.length, returned: shown.length },
         summary,
         estimates: shown,
         ifConditionsMet,
+        approximate,
+        ...(currentHours ? { currentHours } : {}),
         notEstimated: no.slice(0, 50),
         notEstimatedByReason: byReason,
         ...(unknownPlanIds?.length ? { unknownPlanIds } : {}),
@@ -426,6 +467,16 @@ export const compareEnergyPlans = defineTool({
           (x) =>
             `| ${x.rank} | ${x.brandName} | ${x.displayName} | ${dollars(x.totalIfConditionsMetCents)} | ${dollars(x.totalCents)} (#${x.mainRank} without conditions) | ${dollars(x.savingCents)} | ${x.conditions.map((c) => `${c.name}: ${c.condition}`.replace(/\|/g, "/")).join("; ")} | ${linkCell(x.link)} |`,
         ),
+      );
+    }
+    if (d.approximate.length) {
+      out.push(
+        "",
+        d.currentHours ? "Approximate: these time-of-use plans have different hours from the current plan, so the bill split may not fit them. They are not ranked with the plans above." : "Approximate: the household's own band hours are unknown, so the bill split is applied as given. These are not ranked with the plans above.",
+        "",
+        "| # | Retailer | Plan | Approx. yearly cost | Link |",
+        "| --- | --- | --- | --- | --- |",
+        ...d.approximate.map((e) => `| ${e.rank} | ${e.brandName} | ${e.displayName} | ${dollars(e.totalCents)} | ${linkCell(e.link)} |`),
       );
     }
     if (d.counts.notEstimated) {

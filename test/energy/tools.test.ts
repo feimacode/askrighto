@@ -446,10 +446,43 @@ d("compare_energy_plans", () => {
         shoulderSharePct: 20,
         offPeakSharePct: 50,
         solarExportAnnualKwh: 500,
+        currentPlanId: "O1",
       })
     ).g;
     expect(withSplit.data.estimates[0]).toMatchObject({ planId: "O1" });
     expect(withSplit.data.estimates[0].breakdown.feedInCreditCents).toBe(-2500);
+    expect(withSplit.data.approximate.map((e: any) => e.planId)).not.toContain("O1");
+  });
+
+  it("labels a bill split approximate unless the plan has the current plan's hours", async () => {
+    const jem = {
+      postcode: "3000",
+      fuelType: "ELECTRICITY",
+      distributor: "Jemena",
+      annualUsageKwh: 4000,
+      peakSharePct: 30,
+      shoulderSharePct: 20,
+      offPeakSharePct: 50,
+    };
+    // Hours unknown: listed apart, not ranked, and the result says so.
+    const unknown = (await call("compare_energy_plans", jem)).g;
+    expect(unknown.data.estimates.map((e: any) => e.planId)).not.toContain("O1");
+    expect(unknown.data.approximate[0]).toMatchObject({ planId: "O1", rank: 1 });
+    expect(unknown.data.approximate[0].notes.join(" ")).toMatch(/hours are unknown/);
+    expect(unknown.data.summary).toMatch(/approximately/);
+    // A layout that is not O1's: different hours, still approximate.
+    const other = (await call("compare_energy_plans", { ...jem, hoursLayoutId: "00000000" })).g;
+    expect(other.data.approximate[0]).toMatchObject({ planId: "O1" });
+    expect(other.data.approximate[0].notes.join(" ")).toMatch(/differ/);
+    // The current plan's own hours: exact.
+    const same = (await call("compare_energy_plans", { ...jem, currentPlanId: "O1" })).g;
+    expect(same.data.estimates[0]).toMatchObject({ planId: "O1" });
+    expect(same.data.currentHours).toMatchObject({ source: "plan", planId: "O1" });
+    // Without a split nothing is labelled approximate for this reason.
+    const flat = (await call("compare_energy_plans", { postcode: "3000", fuelType: "ELECTRICITY", distributor: "Jemena", annualUsageKwh: 4000 })).g;
+    expect(flat.data.approximate).toEqual([]);
+    // An unknown current plan asks again rather than guessing.
+    expect((await call("compare_energy_plans", { ...jem, currentPlanId: "NOPE" })).g).toMatchObject({ found: false, reason: "not_in_dataset" });
   });
 
   it("asks which distributor when there are several", async () => {
