@@ -25,7 +25,7 @@ with a reason.
 3. Time of use: needs the shares from the bill. A plan with no shoulder rate has the shoulder
    share charged at peak. A plan with several shoulder bands (SHOULDER1, SHOULDER2) gets the bill's one
    shoulder figure split equally between them, and the estimate says so in its notes; readings give
-   each band its own share. Without shares those plans are `needs_time_of_use_split`.
+   each band its own share. Without shares those plans are `needs_time_of_use_split`. With a bill split, only plans with the same band hours as the household's current plan (`currentPlanId` or `hoursLayoutId`) are estimated exactly; other time-of-use plans are labelled approximate and listed apart (see `docs/energy-invoice.md`).
 4. Controlled load: usage times its rate plus its daily supply charge, only when controlled load
    usage is given. A plan without one is `no_controlled_load_rate`.
 5. Solar: export times the feed-in rate, shown as its own negative line, without GST.
