@@ -8,7 +8,7 @@ import { asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, inkview, inkviewR
 
 const input = z.object({
   postcode: z.string().describe("Four-digit Australian postcode of the property, e.g. 3000"),
-  customerType: z.enum(["RESIDENTIAL", "BUSINESS"]).optional().describe("Whose plans: RESIDENTIAL (a home, the default) or BUSINESS (including small business). Ask the user which; never assume. A business is only compared with business plans and a household with residential plans"),
+  customerType: z.enum(["RESIDENTIAL", "BUSINESS"]).optional().describe("Whose plans: RESIDENTIAL (a home, the default) or BUSINESS (small business; large customers are not compared). Ask the user which; never assume. A business is only compared with business plans and a household with residential plans"),
   fuelType: z.enum(["ELECTRICITY", "GAS"]).optional().describe("Only plans that include this fuel (dual fuel plans are included)"),
   retailer: z.string().optional().describe("Retailer or brand name, e.g. Origin"),
   distributor: z.string().optional().describe("Distribution network name from the user's bill, e.g. CitiPower"),
