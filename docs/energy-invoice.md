@@ -6,11 +6,11 @@ A bill split ("30% peak") describes use against the hours of the plan the bill c
 
 ## `list_current_plan_options`
 
-Inputs: postcode, fuel, customer type (asked, never assumed), retailer, distributor (asked when the postcode has several), and the rates printed on the invoice (daily supply charge, single, peak, shoulder, off-peak) with an optional `ratesIncludeGst`. It takes no name, address, account number or meter identifier, and a test checks that no input could.
+Inputs: postcode, fuel, customer type (asked, never assumed), retailer, distributor (asked when the postcode has several), and the rates printed on the invoice (daily supply charge, single, peak, shoulder, off-peak). It takes no name, address, account number or meter identifier, and a test checks that no input could.
 
 It returns:
 
-- **Options**: the retailer's plans on that network, with identical rates and hours merged into one option (up to three plan ids each), in plain words with rates including GST. Options are ranked by how many invoice figures they match, allowing the invoice to include or exclude GST (both are tried when `ratesIncludeGst` is not given); each option says what matched and what did not. There is no matching by plan name.
+- **Options**: the retailer's plans on that network, with identical rates and hours merged into one option (up to three plan ids each), in plain words with rates including GST. Options are ranked by how many invoice figures they match, with invoice figures taken as GST inclusive (Iven, 20 Nov 2026) and compared with stored rates plus 10 per cent; each option says what matched and what did not. There is no matching by plan name.
 - **Layouts** (the fallback): the band-hour layouts the retailer uses on that network, in words with a short id, for when the user's plan is not listed.
 
 Layouts are the sorted set of (season, band, days, start, end) windows; the id is a short hash. Times in the plan data are `HHMM`; they are stored as `HH:MM` so equal hours always compare equal.
