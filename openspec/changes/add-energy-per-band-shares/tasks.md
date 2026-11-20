@@ -2,8 +2,8 @@
 
 ## 1. Verify
 
-- [ ] 1.1 Count again, on the data held at the time, the time-of-use plans by number of shoulder bands and record it in `docs/energy-estimates.md`; verify the 34 per cent figure
-- [ ] 1.2 Record, from the 17 Nov plans, a regression set: for plans with at most one shoulder band, the cost from a bill split before the change; verify it is unchanged after
+- [x] 1.1 Count again, on the data held at the time, the time-of-use plans by number of shoulder bands and record it in `docs/energy-estimates.md`; verify the 34 per cent figure
+- [x] 1.2 Record, from the 17 Nov plans, a regression set: for plans with at most one shoulder band, the cost from a bill split before the change; verify it is unchanged after
 
 ## 2. Build
 
@@ -14,5 +14,6 @@
 
 ## 3. Before shipping
 
-- [ ] 3.0 Check the CDR plan data licence and review-by date for `energy-plans` are still current
-- [ ] 3.1 Check that the share of time-of-use plans that readings can estimate has risen from 66 per cent as expected, on the stored data
+- [x] 3.0 Check the CDR plan data licence and review-by date for `energy-plans` are still current
+- [x] 3.1 Check that the share of time-of-use plans that readings can estimate has risen from 66 per cent as expected, on the stored data
+  - Result (20 Nov 2026): 34.3% verified (2,233 of 6,501), but 1,924 of them have every band labelled `SHOULDER`, so only 309 became estimable by readings: the share mappable rose from 65.7% to 70.4%, not as far as expected. Regression: 4,268 plans identical before and after. Licence: `energy-plans` is `cleared`, review by 2027-02-01. Follow-up proposed: price all-`SHOULDER` plans by band position from readings (see `docs/energy-estimates.md`).
