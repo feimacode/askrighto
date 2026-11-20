@@ -84,3 +84,25 @@ time-of-use plans are `needs_time_of_use_split` (no split exists), controlled lo
 are not computed, and the typical-usage notice leads every output form. Details, data and limits:
 [`energy-benchmarks.md`](energy-benchmarks.md).
 
+## Time-of-use plans by shoulder bands (counted 20 Nov 2026 on the 17 Nov 2026 data)
+
+Residential electricity plans stored: 10,552. With a time-of-use tariff: 6,501. By the most shoulder bands a plan has in any tariff period:
+
+| Shoulder bands | Plans |
+| --- | --- |
+| 0 | 1,026 |
+| 1 | 3,242 |
+| 2 | 792 |
+| 3 | 1,136 |
+| 4 | 305 |
+
+So 2,233 plans (34.3% of time-of-use plans) have several shoulder bands, as the proposal said. Nearly all of them (1,924, 29.6%) have **no PEAK or OFF_PEAK band at all**: every band is labelled `SHOULDER` (the AGL style), so the bands cannot be told apart by name. Only 309 of the 2,233 have PEAK and OFF_PEAK plus numbered shoulders, and those are the ones this change made estimable.
+
+Effect of the per-band change (same data, the same synthetic year of readings and three bill splits):
+
+- **Regression**: for the 4,268 plans with at most one shoulder band, the estimate (or the reason it is not estimated) is identical before and after the change for all three splits (30/20/50, 10/0/90, 45/15/40).
+- **Readings**: plans whose windows map onto a year of half-hourly readings rose from 4,268 (65.7%) to 4,577 (70.4%), not to the 100% a name-based count would suggest.
+- **Bill split**: the calculator already split a bill's one shoulder figure equally between shoulder bands before this change, so for the 82 multi-shoulder plans that have PEAK and OFF_PEAK and no blocks the estimate is the same before and after (2,925 plans are estimated with a split either way). The change is in the readings route (a share per band) and in saying the equal split in the notes.
+- **Still refused for a bill split**: 1,924 plans (bands not in the expected shape: no PEAK or OFF_PEAK, or the same type twice), 219 with block rates inside a band, 8 with demand charges. For readings the same all-`SHOULDER` plans are refused because two bands share one type.
+
+Method: the stored `plans` table of the local copy of the 17 Nov 2026 sync (read-only), the pre-change calculator against the current one, residential plans only.
