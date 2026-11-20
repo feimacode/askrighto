@@ -1,0 +1,723 @@
+{
+  "data" : {
+    "productId" : "926fe690-1d02-45b4-a129-744deab92646",
+    "lastUpdated" : "2026-11-16T09:16:16.000+11:00",
+    "productCategory" : "RESIDENTIAL_MORTGAGES",
+    "name" : "Your Way Plus Fixed Home Loan Investor",
+    "description" : "Get flexibility for your investment PLUS take advantage of our package benefits with special low rates and much more. Lock in a rate for up to 5 years.",
+    "brand" : "TMB",
+    "brandName" : "Teachers Mutual Bank",
+    "applicationUri" : "https://www.tmbank.com.au/home-loans/your-way-plus",
+    "isTailored" : false,
+    "additionalInformation" : {
+      "overviewUri" : "https://www.tmbank.com.au/home-loans/your-way-plus",
+      "termsUri" : "https://www.tmbank.com.au/content/dam/documents/collateral/consumer-lending.pdf",
+      "eligibilityUri" : "https://www.tmbank.com.au/join",
+      "feesAndPricingUri" : "https://www.tmbank.com.au/content/dam/documents/collateral/fees-and-charges.pdf"
+    },
+    "features" : [
+      {
+        "featureType" : "REDRAW",
+        "additionalInfo" : "Redraw available"
+      },
+      {
+        "featureType" : "EXTRA_REPAYMENTS",
+        "additionalInfo" : "Additional repayments available up to $10,000"
+      },
+      {
+        "featureType" : "OTHER",
+        "additionalInfo" : "Ability to split loan"
+      },
+      {
+        "featureType" : "OTHER",
+        "additionalInfo" : "Ability to switch loan"
+      },
+      {
+        "featureType" : "OTHER",
+        "additionalInfo" : "Ability to Top Up"
+      },
+      {
+        "featureType" : "DIGITAL_BANKING",
+        "additionalInfo" : "24/7 access via internet banking, mobile app, phone banking"
+      },
+      {
+        "featureType" : "OTHER",
+        "additionalInfo" : "Borrow up to 90% of the property value prior to capitalisation of Lenders Mortgage Insurance"
+      },
+      {
+        "featureType" : "OTHER",
+        "additionalInfo" : "Flexible repayments"
+      },
+      {
+        "featureType" : "OTHER",
+        "additionalInfo" : "Discounted Variable rates for life of the loan"
+      },
+      {
+        "featureType" : "OFFSET",
+        "additionalInfo" : "PLUS 100% offset"
+      },
+      {
+        "featureType" : "COMPLEMENTARY_PRODUCT_DISCOUNTS",
+        "additionalValue" : "Establishment, valuation and top up fees waived",
+        "additionalInfo" : "PLUS establishment, valuation and top up fees waived"
+      },
+      {
+        "featureType" : "COMPLEMENTARY_PRODUCT_DISCOUNTS",
+        "additionalValue" : "Personal loan application fees waived",
+        "additionalInfo" : "PLUS personal loan application fees waived"
+      },
+      {
+        "featureType" : "GUARANTOR"
+      }
+    ],
+    "constraints" : [
+      {
+        "constraintType" : "MIN_LIMIT",
+        "additionalValue" : "150000.00"
+      },
+      {
+        "constraintType" : "MIN_LVR",
+        "additionalValue" : "0.00",
+        "additionalInfo" : "Minimum LVR is 0%"
+      },
+      {
+        "constraintType" : "MAX_LVR",
+        "additionalValue" : "98.00",
+        "additionalInfo" : "Maximum LVR is 98%"
+      }
+    ],
+    "eligibility" : [
+      {
+        "eligibilityType" : "OTHER",
+        "additionalInfo" : "You must be a member. Membership is open to current or retired employees of the Australian education sector or family members of members (i.e. shareholders) of the Bank.",
+        "additionalInfoUri" : "https://www.tmbank.com.au/join"
+      },
+      {
+        "eligibilityType" : "RESIDENCY_STATUS",
+        "additionalValue" : "Individuals must be citizens of permanent residents of Australia."
+      },
+      {
+        "eligibilityType" : "NATURAL_PERSON"
+      },
+      {
+        "eligibilityType" : "MIN_AGE",
+        "additionalValue" : "18"
+      },
+      {
+        "eligibilityType" : "OTHER",
+        "additionalInfo" : "All applications for credit are subject to responsible lending criteria. Fees and charges apply. You can find our Consumer Lending terms and conditions online or from any of our offices."
+      },
+      {
+        "eligibilityType" : "OTHER",
+        "additionalInfo" : "Borrower must have satisfied Your Way Plus Home Loan Package eligibility.",
+        "additionalInfoUri" : "https://www.tmbank.com.au/-/media/global/pdfs/your-way-plus-package-terms-and-conditions.ashx"
+      }
+    ],
+    "fees" : [
+      {
+        "name" : "MORTGAGE_DISCHARGE",
+        "feeType" : "EXIT",
+        "feeMethodUType" : "fixedAmount",
+        "fixedAmount" : {
+          "amount" : "250.00"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "For preparation of discharge documentation on your written request. $250 in NSW and at cost in other states. At Cost."
+      },
+      {
+        "name" : "ADDITIONAL_SECURITY_FEE",
+        "feeType" : "EVENT",
+        "feeMethodUType" : "fixedAmount",
+        "fixedAmount" : {
+          "amount" : "120.00"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "Fee applies for each additional security taken."
+      },
+      {
+        "name" : "DEFAULT_NOTICE_FEE",
+        "feeType" : "EVENT",
+        "feeMethodUType" : "fixedAmount",
+        "fixedAmount" : {
+          "amount" : "25.00"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "Payable when we send you a default notice asking you to remedy a default under your credit contract."
+      },
+      {
+        "name" : "LEGAL_FEES",
+        "feeType" : "UPFRONT",
+        "feeMethodUType" : "variable",
+        "variable" : {
+          "feeMinimum" : "0.00",
+          "feeMaximum" : "9999999.00"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "At cost. For third party professional services used in the preparation of non-standard documents. At Cost."
+      },
+      {
+        "name" : "LENDERS_MORTGAGE_INSURANCE",
+        "feeType" : "UPFRONT",
+        "feeMethodUType" : "variable",
+        "variable" : {
+          "feeMinimum" : "0.00",
+          "feeMaximum" : "9999999.00"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "At cost. If you have less than the required deposit, we may ask you to pay Lender's Mortgage Insurance (LMI). LMI protects the bank in cases of default. The LMI premium is not a bank fee. At Cost."
+      },
+      {
+        "name" : "REGISTRATION_FEE",
+        "feeType" : "UPFRONT",
+        "feeMethodUType" : "variable",
+        "variable" : {
+          "feeMinimum" : "0.00",
+          "feeMaximum" : "9999999.00"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "At cost. A government charge, payable if and when there is a need to register, transfer or discharge an interest on the Certificate of Title. At Cost."
+      },
+      {
+        "name" : "TITLE_SEARCH",
+        "feeType" : "TRANSACTION",
+        "feeMethodUType" : "fixedAmount",
+        "fixedAmount" : {
+          "amount" : "1.00"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "Fee applies for additional title searches that may be required in addition to those already included in the Establishment fee and Top up fee. At Cost."
+      },
+      {
+        "name" : "COLLECTION_CHARGES",
+        "feeType" : "OTHER",
+        "feeMethodUType" : "variable",
+        "variable" : {
+          "feeMinimum" : "0.00",
+          "feeMaximum" : "9999999.00"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "At cost. Payable when we request an agent to assist our efforts to address defaults under your contract before we can commence legal action. At Cost."
+      },
+      {
+        "name" : "STAMP_DUTY",
+        "feeType" : "UPFRONT",
+        "feeMethodUType" : "variable",
+        "variable" : {
+          "feeMinimum" : "0.00",
+          "feeMaximum" : "9999999.00"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "At cost. A government charge payable to State revenue office when we need to stamp your mortgage to accommodate credit provided under this contract at the amount payable under the relevant stamp duty scale. At Cost."
+      },
+      {
+        "name" : "PACKAGE_FEE-HOME_LOANS",
+        "feeType" : "PERIODIC",
+        "feeMethodUType" : "fixedAmount",
+        "fixedAmount" : {
+          "amount" : "300.00"
+        },
+        "currency" : "AUD",
+        "additionalValue" : "P1Y",
+        "additionalInfo" : "Applicable for New loans after 1 August 2019. The package fee for your home loan will be debited from the nominated Everyday Direct account when your home loan is first approved and then on every anniversary thereafter until the end of your home loan."
+      },
+      {
+        "name" : "BREAK_FEE_(HOME_LOAN)",
+        "feeType" : "EXIT",
+        "feeMethodUType" : "variable",
+        "variable" : {
+          "feeMinimum" : "0.00",
+          "feeMaximum" : "9999999.00"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "At cost. Payable on early repayment i.e. during the fixed rate period if you repay the loan in full, you repay part of the loan (except where additional payment threshold applies), you switch from this loan type to another loan type. At Cost."
+      },
+      {
+        "name" : "FIXED_RATE_LOCK_FEE",
+        "feeType" : "UPFRONT",
+        "feeMethodUType" : "rateBased",
+        "rateBased" : {
+          "rateType" : "BALANCE",
+          "rate" : "0.0015"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "Payable if you choose to lock in an interest rate on your fixed rate loan. The interest rate is locked in for a period of up to 90 days from the date of application. The fee is applicable regardless of whether the interest rate at time of settlement has increased or decreased since the date of application. 0.15% of the total amount financed."
+      },
+      {
+        "name" : "FEE_FOR_FULL_VALUATION",
+        "feeType" : "UPFRONT",
+        "feeMethodUType" : "variable",
+        "variable" : {
+          "feeMinimum" : "0.00",
+          "feeMaximum" : "400.00"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "A Full Valuation is where our external valuer physically attends the property to be mortgaged. The mortgage is our security for the loan. If we require a Full Valuation for more than one property, the Fee for Full Valuation is payable for each property offered as security for the loan. At Cost (Maximum $400) per security property."
+      },
+      {
+        "name" : "LOAN_ADMINISTRATION_FEE",
+        "feeType" : "UPFRONT",
+        "feeMethodUType" : "fixedAmount",
+        "fixedAmount" : {
+          "amount" : "250.00"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "Payable for the processing and assessing of your home loan application and the preparation of your loan. Payable at the time of settlement/funding of your loan."
+      },
+      {
+        "name" : "LOAN_VARIATION_FEE",
+        "feeType" : "EVENT",
+        "feeMethodUType" : "fixedAmount",
+        "fixedAmount" : {
+          "amount" : "200.00"
+        },
+        "currency" : "AUD",
+        "additionalInfo" : "Payable when you apply to vary the terms of your loan. Payable when the variation is agreed between us."
+      }
+    ],
+    "lendingRates" : [
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0654",
+        "comparisonRate" : "0.0692",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR up to 60%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.001000",
+            "maximumValue" : "0.600000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P1Y",
+        "additionalInfo" : "Fixed rate for 1 year. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0654",
+        "comparisonRate" : "0.0697",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR >60% to 80%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.601000",
+            "maximumValue" : "0.800000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P1Y",
+        "additionalInfo" : "Fixed rate for 1 year. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0664",
+        "comparisonRate" : "0.0747",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR >80% to 90%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.801000",
+            "maximumValue" : "0.900000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P1Y",
+        "additionalInfo" : "Fixed rate for 1 year. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0689",
+        "comparisonRate" : "0.078",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR above 90%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.901000",
+            "maximumValue" : "0.980000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P1Y",
+        "additionalInfo" : "Fixed rate for 1 year. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0669",
+        "comparisonRate" : "0.0695",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR up to 60%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.001000",
+            "maximumValue" : "0.600000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P2Y",
+        "additionalInfo" : "Fixed rate for 2 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0669",
+        "comparisonRate" : "0.0698",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR >60% to 80%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.601000",
+            "maximumValue" : "0.800000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P2Y",
+        "additionalInfo" : "Fixed rate for 2 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0704",
+        "comparisonRate" : "0.0749",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR >80% to 90%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.801000",
+            "maximumValue" : "0.900000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P2Y",
+        "additionalInfo" : "Fixed rate for 2 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0719",
+        "comparisonRate" : "0.0779",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR above 90%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.901000",
+            "maximumValue" : "0.980000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P2Y",
+        "additionalInfo" : "Fixed rate for 2 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0679",
+        "comparisonRate" : "0.0698",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR up to 60%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.001000",
+            "maximumValue" : "0.600000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P3Y",
+        "additionalInfo" : "Fixed rate for 3 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0679",
+        "comparisonRate" : "0.0701",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR >60% to 80%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.601000",
+            "maximumValue" : "0.800000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P3Y",
+        "additionalInfo" : "Fixed rate for 3 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0704",
+        "comparisonRate" : "0.0747",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR >80% to 90%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.801000",
+            "maximumValue" : "0.900000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P3Y",
+        "additionalInfo" : "Fixed rate for 3 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0724",
+        "comparisonRate" : "0.0777",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR above 90%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.901000",
+            "maximumValue" : "0.980000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P3Y",
+        "additionalInfo" : "Fixed rate for 3 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0699",
+        "comparisonRate" : "0.0707",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR up to 60%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.001000",
+            "maximumValue" : "0.600000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P4Y",
+        "additionalInfo" : "Fixed rate for 4 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0699",
+        "comparisonRate" : "0.071",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR >60% to 80%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.601000",
+            "maximumValue" : "0.800000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P4Y",
+        "additionalInfo" : "Fixed rate for 4 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0729",
+        "comparisonRate" : "0.0755",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR >80% to 90%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.801000",
+            "maximumValue" : "0.900000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P4Y",
+        "additionalInfo" : "Fixed rate for 4 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0734",
+        "comparisonRate" : "0.0778",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR above 90%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.901000",
+            "maximumValue" : "0.980000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P4Y",
+        "additionalInfo" : "Fixed rate for 4 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0704",
+        "comparisonRate" : "0.0711",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR up to 60%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.001000",
+            "maximumValue" : "0.600000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P5Y",
+        "additionalInfo" : "Fixed rate for 5 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0704",
+        "comparisonRate" : "0.0714",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR >60% to 80%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.601000",
+            "maximumValue" : "0.800000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P5Y",
+        "additionalInfo" : "Fixed rate for 5 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0739",
+        "comparisonRate" : "0.076",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR >80% to 90%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.801000",
+            "maximumValue" : "0.900000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P5Y",
+        "additionalInfo" : "Fixed rate for 5 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      },
+      {
+        "lendingRateType" : "FIXED",
+        "rate" : "0.0749",
+        "comparisonRate" : "0.0783",
+        "calculationFrequency" : "P1D",
+        "applicationType" : "PERIODIC",
+        "applicationFrequency" : "P1M",
+        "interestPaymentDue" : "IN_ARREARS",
+        "repaymentType" : "PRINCIPAL_AND_INTEREST",
+        "loanPurpose" : "INVESTMENT",
+        "tiers" : [
+          {
+            "name" : "LVR above 90%",
+            "unitOfMeasure" : "PERCENT",
+            "minimumValue" : "0.901000",
+            "maximumValue" : "0.980000",
+            "rateApplicationMethod" : "WHOLE_BALANCE"
+          }
+        ],
+        "additionalValue" : "P5Y",
+        "additionalInfo" : "Fixed rate for 5 years. Comparison rates quoted are based on $150,000 for a term of 25 years. Rates apply to secured loans only. WARNING: This Comparison rate is true only for the examples given and may not include all fees and charges. Different terms, fees or other loan amounts might result in a different Comparison rate"
+      }
+    ]
+  },
+  "links" : {
+    "self" : "https://ob.tmbl.com.au/tmbank/cds-au/v1/banking/products/926fe690-1d02-45b4-a129-744deab92646"
+  }
+}

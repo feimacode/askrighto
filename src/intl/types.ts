@@ -6,8 +6,17 @@ export const LEVEL_GROUPS = [
   "graduate_diploma",
   "master",
   "doctorate",
+  "advanced_diploma",
+  "diploma",
+  "certificate_iv",
+  "certificate_iii",
+  "certificate_ii",
+  "certificate_i",
 ] as const;
 export type LevelGroup = (typeof LEVEL_GROUPS)[number];
+
+export const SECTORS = ["higher_education", "vet"] as const;
+export type Sector = (typeof SECTORS)[number];
 
 export interface IntlLocation {
   state: string;
@@ -27,6 +36,10 @@ export interface IntlCourse {
   /** Level exactly as the register words it. */
   level: string;
   levelGroup: LevelGroup;
+  /** Training sector. Unset for a diploma the register gives no VET National Code (never inferred). */
+  sector?: Sector;
+  /** VET National Code exactly as published. */
+  vetNationalCode?: string;
   field?: string;
   durationWeeks?: number;
   /** Total tuition fee in whole or fractional AUD, as published. */

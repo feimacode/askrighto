@@ -1,1 +1,74 @@
-[]
+[
+    {
+        "slug":  "cba",
+        "brandName":  "CommBank",
+        "baseUri":  "https://api.commbank.com.au/public",
+        "active":  true
+    },
+    {
+        "slug":  "westpac",
+        "brandName":  "Westpac",
+        "baseUri":  "https://digital-api.westpac.com.au",
+        "active":  true
+    },
+    {
+        "slug":  "nab",
+        "brandName":  "NATIONAL AUSTRALIA BANK",
+        "baseUri":  "https://openbank.api.nab.com.au",
+        "active":  true
+    },
+    {
+        "slug":  "anz",
+        "brandName":  "ANZ",
+        "baseUri":  "https://api.anz",
+        "active":  true
+    },
+    {
+        "slug":  "macquarie",
+        "brandName":  "Macquarie Bank Limited",
+        "baseUri":  "https://api.macquariebank.io",
+        "active":  true
+    },
+    {
+        "slug":  "ing",
+        "brandName":  "ING BANK (Australia) Ltd",
+        "baseUri":  "https://id.ob.ing.com.au",
+        "active":  true
+    },
+    {
+        "slug":  "bendigo",
+        "brandName":  "Bendigo Bank",
+        "baseUri":  "https://api.cdr.bendigobank.com.au",
+        "active":  true
+    },
+    {
+        "slug":  "boq",
+        "brandName":  "Bank of Queensland Limited",
+        "baseUri":  "https://api.cds.boq.com.au",
+        "active":  true
+    },
+    {
+        "slug":  "great-southern",
+        "brandName":  "Great Southern Bank",
+        "baseUri":  "https://api.open-banking.greatsouthernbank.com.au",
+        "active":  true
+    },
+    {
+        "slug":  "teachers-mutual",
+        "brandName":  "Teachers Mutual Bank",
+        "baseUri":  "https://ob.tmbl.com.au/tmbank",
+        "active":  true
+    },
+    {
+        "slug":  "beyond",
+        "brandName":  "Beyond Bank Australia",
+        "baseUri":  "https://public.cdr.api.beyondbank.com.au",
+        "active":  true
+    },
+    {
+        "slug":  "unloan",
+        "brandName":  "Unloan",
+        "baseUri":  "https://public.api.cdr.unloan.com.au",
+        "active":  true
+    }
+]

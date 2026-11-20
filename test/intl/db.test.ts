@@ -52,7 +52,7 @@ d("international store", () => {
     await loadIntl(db, input());
     const data = await new IntlStore(db, 0).data();
     expect(data.sourceDate.toISOString().slice(0, 10)).toBe("2026-02-02");
-    expect(data.courses).toHaveLength(6);
+    expect(data.courses).toHaveLength(7);
     const ds = data.courses.find((c) => c.cricosCode === "000002B")!;
     expect(ds.locations).toHaveLength(2);
     expect(ds.tuitionFeeTotal).toBe(96000);
@@ -97,7 +97,7 @@ d("international store", () => {
     const r = await coverageReport(db, new Date("2026-03-04T00:00:00Z"));
     expect(r.international).toMatchObject({
       loaded: true,
-      courses: 6,
+      courses: 7,
       sourceDate: "2026-02-02",
       sourceAgeDays: 30,
     });

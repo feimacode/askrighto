@@ -5,5 +5,5 @@ CRICOS Provider Code,Institution Name,CRICOS Course Code,Course Name,VET Nationa
 00001X,Test University,000102B,Master of Data Science,,No,02 - Information Technology,0201 - Computer Science,,,,,Masters Degree (Coursework),No,No,,,,English,104,"96,000",1200,"97,200",No
 00001X,Test University,000103C,Bachelor of Arts (Honours),,No,09 - Society and Culture,,,,,,Bachelor Honours Degree,No,No,,,,English,52,,,,No
 00002Y,Example Institute,000104D,Bachelor of Nursing,,No,06 - Health,0603 - Nursing,,,,,Bachelor Degree,No,Yes,10,20,200,English,156,"120,000",2000,"122,000",Yes
-00002Y,Example Institute,000105E,Diploma of Business,,No,08 - Management and Commerce,,,,,,Diploma,No,No,,,,English,52,"14,000",,"14,000",No
+00002Y,Example Institute,000105E,Diploma of Business,XXX50100,No,08 - Management and Commerce,,,,,,Diploma,No,No,,,,English,52,"14,000",,"14,000",No
 00002Y,Example Institute,000106F,Graduate Certificate in Analytics,,No,02 - Information Technology,,,,,,Graduate Certificate,No,No,,,,English,26,"24,000",,"24,000",No
