@@ -4,7 +4,7 @@ The `cricos` vertical answers questions about courses open to international stud
 
 ## What it holds
 
-Higher-education courses only: associate degree, bachelor, graduate certificate, graduate diploma, master, doctorate. School, ELICOS, diploma, VET and non-award rows are counted in the load report and not stored. Per course, as published and never inferred: CRICOS code, provider, level, field of education, duration in weeks, total tuition fee, non-tuition fee, language, work component, expiry and locations (state and campus). A field the file does not publish is stored as null and shown as "not published".
+Higher-education and VET courses (decided 20 Nov 2026, `add-intl-diplomas-vet`): associate degree, bachelor, graduate certificate, graduate diploma, master, doctorate, plus diploma, advanced diploma and Certificate I to IV. School, Non AQF Award and Vocational Short Course rows are counted in the load report (`excludedByLevel`) and not stored. Each course carries a `sector` (`higher_education` or `vet`, from the register: certificates and coded diplomas are VET; a diploma with no VET National Code has no stated sector) and the VET National Code as published.
 
 Fees are labelled "Indicative, as published in CRICOS" with the file date. A yearly figure appears only when fee and duration are both published, labelled "calculated: total fee divided by duration".
 

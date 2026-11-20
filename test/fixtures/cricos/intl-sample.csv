@@ -1,10 +1,10 @@
-CRICOS Course Code,CRICOS Provider Code,Institution Name,Institution Website,Course Name,Course Level,Field of Education,Duration (weeks),Tuition Fee,Non-Tuition Fee,Language of Instruction,Work Component,Expired,Locations
-000001A,00001X,Test University,https://www.testu.edu.au/international,Bachelor of Science,Bachelor Degree,Natural and Physical Sciences,156,"$132,000",$1500,English,N,N,Parkville (VIC)
-000002B,00001X,Test University,https://www.testu.edu.au/international,Master of Data Science,Masters Degree (Coursework),Information Technology,104,"$96,000",$1200,English,N,N,Parkville (VIC); Sydney (NSW)
-000003C,00001X,Test University,https://www.testu.edu.au/international,Bachelor of Arts,Bachelor Degree,Society and Culture,156,,,English,N,N,Parkville (VIC)
-000004D,00002Y,Example Institute,,Graduate Certificate in Data Analytics,Graduate Certificate,Information Technology,26,"$24,000",,English,N,N,Brisbane (QLD)
-000005E,00002Y,Example Institute,,Bachelor of Nursing,Bachelor Degree,Health,156,"$120,000",$2000,English,Y,Y,Brisbane (QLD)
-000006F,00002Y,Example Institute,,Bachelor of Commerce,Bachelor Degree,Management and Commerce,,"$99,000",,English,N,N,
-000007G,00003Z,Sample College,,Diploma of Business,Diploma,Management and Commerce,52,"$14,000",,English,N,N,Melbourne (VIC)
-000008H,00003Z,Sample College,,Senior Secondary Certificate,Senior Secondary,Education,104,"$30,000",,English,N,N,Melbourne (VIC)
-000001A,00001X,Test University,https://www.testu.edu.au/international,Bachelor of Science,Bachelor Degree,Natural and Physical Sciences,156,"$132,000",$1500,English,N,N,Parkville (VIC)
+CRICOS Course Code,CRICOS Provider Code,Institution Name,Institution Website,Course Name,Course Level,VET National Code,Field of Education,Duration (weeks),Tuition Fee,Non-Tuition Fee,Language of Instruction,Work Component,Expired,Locations
+000001A,00001X,Test University,https://www.testu.edu.au/international,Bachelor of Science,Bachelor Degree,,Natural and Physical Sciences,156,"$132,000",$1500,English,N,N,Parkville (VIC)
+000002B,00001X,Test University,https://www.testu.edu.au/international,Master of Data Science,Masters Degree (Coursework),,Information Technology,104,"$96,000",$1200,English,N,N,Parkville (VIC); Sydney (NSW)
+000003C,00001X,Test University,https://www.testu.edu.au/international,Bachelor of Arts,Bachelor Degree,,Society and Culture,156,,,English,N,N,Parkville (VIC)
+000004D,00002Y,Example Institute,,Graduate Certificate in Data Analytics,Graduate Certificate,,Information Technology,26,"$24,000",,English,N,N,Brisbane (QLD)
+000005E,00002Y,Example Institute,,Bachelor of Nursing,Bachelor Degree,,Health,156,"$120,000",$2000,English,Y,Y,Brisbane (QLD)
+000006F,00002Y,Example Institute,,Bachelor of Commerce,Bachelor Degree,,Management and Commerce,,"$99,000",,English,N,N,
+000007G,00003Z,Sample College,,Diploma of Business,Diploma,,Management and Commerce,52,"$14,000",,English,N,N,Melbourne (VIC)
+000008H,00003Z,Sample College,,Senior Secondary Certificate,Senior Secondary,,Education,104,"$30,000",,English,N,N,Melbourne (VIC)
+000001A,00001X,Test University,https://www.testu.edu.au/international,Bachelor of Science,Bachelor Degree,,Natural and Physical Sciences,156,"$132,000",$1500,English,N,N,Parkville (VIC)

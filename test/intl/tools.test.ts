@@ -28,6 +28,20 @@ describe("international tools", () => {
     expect(pub.some((n) => n.includes("intl"))).toBe(false);
   });
 
+  it("finds a diploma and says its sector is not stated when the register gives no code", async () => {
+    const c = await connectIntl();
+    const { data } = await call(c, "search_international_courses", {
+      level: "diploma",
+    });
+    expect(data.found).toBe(true);
+    expect(data.data.courses).toHaveLength(1);
+    expect(data.data.courses[0].cricosCode).toBe("000007G");
+    const none = await call(c, "search_international_courses", {
+      sector: "vet",
+    });
+    expect(none.data.found).toBe(false);
+  });
+
   it("filters by level and location, with fee labels, source date and attribution", async () => {
     const c = await connectIntl();
     const { data, text } = await call(c, "search_international_courses", {
