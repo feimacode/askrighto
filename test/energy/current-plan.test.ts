@@ -148,3 +148,12 @@ d("list_current_plan_options (database)", () => {
     expect((await call({ ...base, postcode: "30" })).g).toMatchObject({ found: false, reason: "needs_input" });
   });
 });
+
+describe("energy vertical serves the pick list", () => {
+  it("lists list_current_plan_options on the public energy route", async () => {
+    const { routeSet } = await import("../../src/verticals.js");
+    const { energyVertical } = await import("../../src/energy/vertical.js");
+    const names = routeSet([energyVertical], ["energy"]).tools.map((t) => t.name);
+    expect(names).toContain("list_current_plan_options");
+  });
+});
