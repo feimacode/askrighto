@@ -221,17 +221,56 @@ Design points:
 
 ## 3. Main functions and how they serve the end-to-end processes
 
-### 3.0 The tools
+### 3.0 The MCP tools
 
-Five energy tools, all on the public `/mcp` route (`src/energy/vertical.ts`), plus the shared `list_data_sources`:
+Six tools are served on the public `/mcp` route for this vertical (`src/energy/vertical.ts` plus the shared `list_data_sources`). All are read-only, take flat inputs, return the figure with its source URL and as-of date (or an explicit not-found), and answer `data_unavailable` when the data store is down.
 
-| Tool | Purpose |
-| --- | --- |
-| `search_energy_plans` | Find plans at a postcode by retailer, fuel, plan type, distributor, solar and controlled-load features. No costs. |
-| `get_energy_plan` | One plan in full, with a link to its rate sheet (Energy Made Easy outside Victoria) or the retailer's site (Victoria). |
-| `list_current_plan_options` | Invoice-first pick list: the retailer's plans on the user's network, identical rates and hours merged, ranked by agreement with the rates on the invoice; falls back to the band-hour layouts the retailer uses. The user picks. |
-| `summarise_interval_readings` | Reads a NEM12 file into a signed, identifier-free profile (24 month-by-weekday/weekend rows of 48 half-hour sums). |
-| `compare_energy_plans` | Costs plans for one usage source: interval readings profile, a bill (kWh and days), a yearly figure, or the labelled AER typical usage for a household size. Takes `customerType`. |
+| Tool | Inputs (main ones) | What it returns |
+| --- | --- | --- |
+| `search_energy_plans` | `postcode`, `customerType`, `fuelType`, `retailer`, `distributor`, `planType`, `hasSolarFeedIn`, `hasControlledLoad`, `limit`, `cursor` | A paged table of plans at the postcode, with `distributorsByFuel` and `needsDistributor`. No costs. |
+| `get_energy_plan` | `planId`, `postcode` | One plan in full (periods, rates and windows, controlled load, feed-in, discounts and conditions, fees, eligibility, terms) with amounts including GST and a link to its rate sheet or the retailer's site. |
+| `list_current_plan_options` | `postcode`, `fuelType`, `customerType`, `retailer`, `distributor`, invoice rates (`supplyChargePerDay`, `singleRatePerUnit`, `peakRatePerUnit`, `shoulderRatePerUnit`, `offPeakRatePerUnit`, `ratesIncludeGst`) | A short pick list of the retailer's plan options on that network (identical rates and hours merged), ranked by agreement with the invoice rates, plus the band-hour layouts as a fallback. The user picks. |
+| `summarise_interval_readings` | `readingsText`, `postcode` | A signed, identifier-free readings profile (about 8 KB) and a summary of the period, streams and gaps. Nothing stored. |
+| `compare_energy_plans` | `postcode`, `customerType`, `fuelType`, one usage source (`readingsProfile`, or `billUsageKwh`/`billUsageMj` with `billDays`, or `annualUsageKwh`/`annualUsageMj`, or `useBenchmarkUsage` with `householdSize`), `peakSharePct`/`shoulderSharePct`/`offPeakSharePct`, `controlledLoadAnnualKwh`, `solarExportAnnualKwh`, `distributor`, `retailer`, `planType`, `planIds`, `limit` | A cost table ordered by the lowest estimate for the usage given, a separate "if you meet the conditions" table, plans not estimated with reasons, links, assumptions and omissions. |
+| `list_data_sources` | none | Every dataset held, its publisher, reuse basis, link, coverage and last refresh. |
+
+### 3.0a A typical service, start to finish
+
+A household in Victoria asks which electricity plan would cost less. The host follows `ENERGY_INSTRUCTIONS`; Ask Righto only answers the tool calls.
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant H as Host agent
+  participant T as Ask Righto tools
+  participant D as PostgreSQL (plans)
+  U->>H: Which plan would suit me?
+  H->>U: Home or business? Latest invoice please
+  U->>H: Home, invoice (retailer, rates, kWh, days, bands, distributor)
+  H->>U: Reads the figures back for confirmation
+  H->>T: search_energy_plans (postcode)
+  T->>D: plansByPostcode
+  T-->>H: plans, distributors (ask which network)
+  H->>T: list_current_plan_options (retailer, distributor, invoice rates)
+  T-->>H: options and layouts
+  H->>U: Which one is your plan? (or none of these)
+  alt has interval readings file
+    H->>T: summarise_interval_readings (file text, postcode)
+    T-->>H: signed profile
+  else only the bill
+    H->>H: use kWh, days and band split from the invoice
+  end
+  H->>T: compare_energy_plans (usage source, split, distributor, customerType)
+  T->>D: plansByPostcode, cost each plan (calc.ts)
+  T-->>H: ranked estimates, conditions table, not estimated, notice
+  H->>U: Lowest estimate for the usage you gave, with assumptions and links
+  opt wants detail
+    H->>T: get_energy_plan (planId)
+    T-->>H: full plan and rate sheet link
+  end
+```
+
+Branches the instructions cover: moving house means no invoice or readings, ask household size and use typical usage (said to be typical); a business has no typical usage, so it needs a bill or readings; a large customer is told they are not compared; if the data store is unavailable the host says so and quotes no prices.
 
 ### 3.1 Process: "What are the cheapest plans for my usage at postcode 3000?"
 
