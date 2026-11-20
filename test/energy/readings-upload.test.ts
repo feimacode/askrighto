@@ -333,6 +333,21 @@ describe("summarise_interval_readings", () => {
     expect(g.message).toMatch(/shorter period/);
     expect(JSON.stringify(g)).not.toContain(NMI);
   });
+  it("states the ladder: paste small, paste long, build by hand, shorter period; never own windows", async () => {
+    const { serverInstructions } = await import("../../src/server/instructions.js");
+    const { readFileSync } = await import("node:fs");
+    const skill = readFileSync(`${process.cwd()}/plugin/skills/energy-bill-comparison/SKILL.md`, "utf8");
+    for (const text of [serverInstructions(), skill]) {
+      expect(text).toMatch(/30 KB/);
+      expect(text).toMatch(/250,000/);
+      expect(text).toMatch(/not verified by Ask Righto/);
+      expect(text).toMatch(/shorter period/);
+      expect(text).toMatch(/peak or off-peak hours of your own/);
+    }
+    const t = (await client.listTools()).tools.find((x) => x.name === "summarise_interval_readings")!;
+    expect(t.description).toMatch(/instead of adding the readings up yourself/);
+    expect(t.description).toMatch(/sums \(24 rows of 48/);
+  });
   it("is in the server instructions and the energy skill, and never asks to send the file elsewhere", async () => {
     const { serverInstructions } = await import("../../src/server/instructions.js");
     const { readFileSync } = await import("node:fs");
@@ -442,6 +457,28 @@ d("compare_energy_plans with readings (database)", () => {
     expect((await call("compare_energy_plans", { ...base, readingsProfile: short })).g.data.usage.readings.daysPresent).toBe(30);
   });
 
+  it("labels a profile the server did not sign or that was changed, and not an untouched one", async () => {
+    const profile = await profileFor(evening(100));
+    const signed = await call("compare_energy_plans", { ...base, readingsProfile: profile });
+    expect(signed.g.data.usage.readings.verified).toBe(true);
+    expect(signed.g.data.readingsNotice).not.toMatch(/not verified/);
+    // Built by hand: same content, no signature.
+    const { sig: _sig, ...bare } = JSON.parse(profile);
+    void _sig;
+    const byHand = await call("compare_energy_plans", { ...base, readingsProfile: JSON.stringify(bare) });
+    expect(byHand.g.found).toBe(true);
+    expect(byHand.g.data.usage.readings.verified).toBe(false);
+    expect(byHand.g.data.readingsNotice).toMatch(/not verified by Ask Righto/);
+    expect(byHand.text).toMatch(/not verified by Ask Righto/);
+    // Same totals, one digit changed inside the sums: still within the totals check, but the signature fails.
+    const nudged = JSON.parse(profile);
+    nudged.sums[0][0] += 0.001;
+    const changed = await call("compare_energy_plans", { ...base, readingsProfile: JSON.stringify(nudged) });
+    expect(changed.g.data.usage.readings.verified).toBe(false);
+    // Key order does not matter.
+    const reordered = JSON.stringify(Object.fromEntries(Object.entries(JSON.parse(profile)).reverse()));
+    expect((await call("compare_energy_plans", { ...base, readingsProfile: reordered })).g.data.usage.readings.verified).toBe(true);
+  });
   it("refuses a malformed, changed, wrong-state or gas profile and makes no estimate", async () => {
     const profile = await profileFor(evening(100));
     const bad = await call("compare_energy_plans", { ...base, readingsProfile: "{}" });

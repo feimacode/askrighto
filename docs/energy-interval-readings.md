@@ -22,6 +22,8 @@ Rules the reader follows:
 
 ## How plans are costed from it
 
+- **Provenance.** The profile the tool returns carries a signature. `compare_energy_plans` marks a profile with a valid signature as verified; a profile built by hand (see [energy-readings-recipe.md](energy-readings-recipe.md)) or changed in any way is accepted if it passes the shape and totals checks, and every estimate from it says it was built by the assistant and is not verified by Ask Righto.
+- **Ladder for the agent.** A file up to about 30 KB (roughly 90 days of half-hourly data) is passed to the tool as text; a longer file, up to 250,000 characters, the same way but slower; if the file text cannot be passed, the agent builds the profile by the recipe; failing that it asks for a shorter period or uses the bill. Upload (a signed address the host sandbox sends the file to) is the next change and is not built yet.
 - Annual use is the measured total scaled from the days present to 365 days, and spread evenly over tariff periods, as for a bill.
 - For a time-of-use plan, the share of use in each band is taken from the profile for the months each tariff period covers, using the plan's windows (days and times, local clock). Windows may end at 20:59 or 21:00; weekday windows must cover all of Monday to Friday and weekend windows both days; overnight windows are read across midnight. A plan whose windows leave half hours uncovered, overlap, fall off a half hour, cover only some weekdays or have several shoulder bands is listed as **not estimated**, with the reason. One band with no windows takes the rest of the day.
 - Solar export (the `B` total, scaled) is costed at the plan's single feed-in rate; a time-varying or capped feed-in stays not estimated, as with a bill.

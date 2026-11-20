@@ -6,6 +6,7 @@
  */
 import type { ParsedReadings } from "./parse.js";
 import type { BenchState } from "../benchmarks/types.js";
+import { signBody, verifyBody } from "./sign.js";
 
 export const PROFILE_VERSION = 1;
 export const MAX_PROFILE_CHARS = 40_000;
@@ -33,6 +34,8 @@ export interface ReadingsProfile {
   outageIntervals: number;
   /** 24 rows (month 0..11 x [weekday, weekend]) of 48 half-hour kWh sums, local clock. */
   sums: number[][];
+  /** Set by the server when it builds the profile: "<key id>.<hex>". Absent on a profile the assistant built. */
+  sig?: string;
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -117,13 +120,14 @@ export function buildProfile(p: ParsedReadings, state: ReadingsState): ReadingsP
   };
 }
 
-export const encodeProfile = (p: ReadingsProfile): string => JSON.stringify(p);
+/** The profile as one string, signed by the server so a later call can tell it was not rewritten. */
+export const encodeProfile = (p: ReadingsProfile): string => JSON.stringify({ ...p, sig: signBody({ ...p }) });
 
 const STATES = new Set(["NSW", "VIC", "QLD", "SA", "TAS", "ACT"]);
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
 /** Revalidates a profile string a host passed back. Returns the profile or the problem. */
-export function decodeProfile(s: string): { ok: true; profile: ReadingsProfile } | { ok: false; problem: string } {
+export function decodeProfile(s: string): { ok: true; profile: ReadingsProfile; verified: boolean } | { ok: false; problem: string } {
   if (s.length > MAX_PROFILE_CHARS) return { ok: false, problem: "the profile is longer than expected" };
   let p: ReadingsProfile;
   try {
@@ -142,7 +146,7 @@ export function decodeProfile(s: string): { ok: true; profile: ReadingsProfile }
   const sum = p.sums.reduce((a, r) => a + r.reduce((x, y) => x + y, 0), 0);
   if (Math.abs(sum - p.totalKwh) > Math.max(1, p.totalKwh * 0.005)) return { ok: false, problem: "the profile totals do not add up; it may have been changed" };
   if (!p.streams || !Array.isArray(p.streams.consumption) || !Array.isArray(p.streams.export)) return { ok: false, problem: "the profile streams are missing" };
-  return { ok: true, profile: p };
+  return { ok: true, profile: p, verified: verifyBody(p as unknown as Record<string, unknown>) };
 }
 
 /** Annual consumption: the measured total scaled from the days present to 365 days. */
