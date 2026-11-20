@@ -8,6 +8,7 @@ import { asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, inkview, inkviewR
 
 const input = z.object({
   postcode: z.string().describe("Four-digit Australian postcode of the property, e.g. 3000"),
+  customerType: z.enum(["RESIDENTIAL", "BUSINESS"]).optional().describe("RESIDENTIAL (default) for a home, BUSINESS for a business or small business. Ask the user which one applies, never infer it from the bill alone. Business and residential plans are never mixed in one result"),
   fuelType: z.enum(["ELECTRICITY", "GAS"]).optional().describe("Only plans that include this fuel (dual fuel plans are included)"),
   retailer: z.string().optional().describe("Retailer or brand name, e.g. Origin"),
   distributor: z.string().optional().describe("Distribution network name from the user's bill, e.g. CitiPower"),
@@ -52,7 +53,7 @@ export const searchEnergyPlans = defineTool({
   name: "search_energy_plans",
   title: "Search energy plans",
   description:
-    "Finds current residential electricity and gas plans available at an Australian postcode, from the AER's published plan data. Use it to list plans, narrow by retailer, fuel, network or features, and get plan ids for get_energy_plan or compare_energy_plans. It shows no costs; use compare_energy_plans for those.",
+    "Finds current electricity and gas plans for homes (or, with customerType BUSINESS, for businesses and small businesses) available at an Australian postcode, from the AER's published plan data. Use it to list plans, narrow by retailer, fuel, network or features, and get plan ids for get_energy_plan or compare_energy_plans. It shows no costs; use compare_energy_plans for those.",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,
@@ -63,7 +64,7 @@ export const searchEnergyPlans = defineTool({
     const postcode = checkPostcode(args.postcode);
     if (!postcode) return badPostcode();
     return withStore<SearchData>(async (store) => {
-      const all = await store.plans({ postcode });
+      const all = await store.plans({ postcode, customerType: args.customerType ?? "RESIDENTIAL" });
       if (all.length === 0) {
         return notFound("outside_coverage", `No plans are stored for postcode ${postcode}. The data covers ${COVERAGE_STATES}.`, { states: COVERAGE_STATES });
       }
@@ -135,7 +136,7 @@ export const searchEnergyPlans = defineTool({
   },
   render: (d) => {
     const lines = [
-      `${d.total} current residential plan${d.total === 1 ? "" : "s"} at postcode ${d.postcode}${d.matchedRetailer ? ` (retailer matched: ${d.matchedRetailer})` : ""}; showing ${d.returned}.`,
+      `${d.total} current plan${d.total === 1 ? "" : "s"} at postcode ${d.postcode}${d.matchedRetailer ? ` (retailer matched: ${d.matchedRetailer})` : ""}; showing ${d.returned}.`,
       "",
       "| Retailer | Plan | Fuel | Type | Tariff | Distributor | Updated | Link | Plan id |",
       "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",

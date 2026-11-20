@@ -12,7 +12,7 @@ Victorian Energy Compare web pages.
 
 ## What is stored
 
-Residential electricity, gas and dual fuel plans (standing, market, regulated) that are current
+Residential and business (small business) electricity, gas and dual fuel plans (standing, market, regulated) that are current
 or start in the future, per retailer in `src/energy/retailers.json`.
 
 **Retailer list.** The file holds 92 base URI path segments, seeded on 17 Nov 2026 from the AER

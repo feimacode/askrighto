@@ -122,6 +122,9 @@ export interface Contract {
   };
 }
 
+/** Who a plan is sold to. Business covers small and large business; the CDR data does not separate them. */
+export type CustomerType = "RESIDENTIAL" | "BUSINESS";
+
 export interface EnergyPlan {
   planId: string;
   retailerSlug: string;
@@ -129,7 +132,7 @@ export interface EnergyPlan {
   displayName: string;
   fuelType: FuelType;
   planType: PlanType;
-  customerType: "RESIDENTIAL";
+  customerType: CustomerType;
   geography: {
     includedPostcodes: string[];
     excludedPostcodes: string[];

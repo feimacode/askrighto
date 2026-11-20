@@ -20,6 +20,7 @@ import {
 const input = z.object({
   postcode: z.string().describe("Four-digit Australian postcode of the property, e.g. 3000"),
   fuelType: z.enum(["ELECTRICITY", "GAS"]).describe("Which fuel to compare"),
+  customerType: z.enum(["RESIDENTIAL", "BUSINESS"]).optional().describe("RESIDENTIAL (default) for a home, BUSINESS for a business or small business. Ask the user which one applies, never infer it from the bill alone. Business and residential plans are never mixed in one result"),
   annualUsageKwh: z.number().positive().max(1_000_000).optional().describe("Electricity used in a year, in kWh"),
   billUsageKwh: z.number().positive().max(1_000_000).optional().describe("Electricity used in one bill period, in kWh. Give billDays too"),
   annualUsageMj: z.number().positive().max(10_000_000).optional().describe("Gas used in a year, in MJ"),
@@ -186,6 +187,12 @@ export const compareEnergyPlans = defineTool({
       annual = (bill * 365) / args.billDays;
       scaledFromBill = `${bill} ${unit} over ${args.billDays} days scaled to a year (x 365/${args.billDays}); real use varies with the seasons`;
     }
+    if (annual === undefined && args.customerType === "BUSINESS") {
+      return notFound(
+        "needs_input",
+        `No usage was given. Typical usage figures exist only for households, so a business needs its own figures. Ask the user for the ${unit} used and the number of days from a recent bill (or their yearly ${unit}), or their interval readings, then call again.`,
+      );
+    }
     if (annual === undefined) {
       if (!args.useBenchmarkUsage) {
         return notFound(
@@ -245,7 +252,7 @@ export const compareEnergyPlans = defineTool({
         if (args.controlledLoadAnnualKwh) usage.controlledLoadAnnualKwh = args.controlledLoadAnnualKwh;
       }
 
-      let plans = (await store.plans({ postcode })).filter((p) => p.fuelType === args.fuelType || p.fuelType === "DUAL");
+      let plans = (await store.plans({ postcode, customerType: args.customerType ?? "RESIDENTIAL" })).filter((p) => p.fuelType === args.fuelType || p.fuelType === "DUAL");
       if (plans.length === 0) return notFound("outside_coverage", `No ${args.fuelType.toLowerCase()} plans are stored for postcode ${postcode}. The data covers ${COVERAGE_STATES}.`, { states: COVERAGE_STATES });
 
       // Network tariffs differ, so a mixed-network ranking would mislead. Distributors come from single-fuel plans.

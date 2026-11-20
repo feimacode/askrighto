@@ -15,6 +15,7 @@ import type {
   EnergyPlan,
   Fee,
   FeedIn,
+  CustomerType,
   FuelType,
   GstBasis,
   Incentive,
@@ -302,7 +303,11 @@ export function readListItem(p: unknown): ListItem | undefined {
   };
 }
 
-/** Only residential plans are stored. A missing customer type is not assumed residential. */
+/** Residential and business plans are stored. A missing or unknown customer type is not assumed to be either. */
+export function customerTypeOf(item: { customerType?: string }): CustomerType | undefined {
+  return item.customerType === "RESIDENTIAL" || item.customerType === "BUSINESS" ? item.customerType : undefined;
+}
+
 export function isResidential(item: { customerType?: string }): boolean {
   return item.customerType === "RESIDENTIAL";
 }
@@ -343,7 +348,7 @@ export function normalisePlan(retailerSlug: string, item: ListItem, detail: unkn
     displayName: str(d.displayName) ?? item.displayName ?? item.planId,
     fuelType: fuelType as FuelType,
     planType: planType as PlanType,
-    customerType: "RESIDENTIAL",
+    customerType: customerTypeOf(item) ?? "RESIDENTIAL",
     geography,
     ...(effectiveFrom ? { effectiveFrom } : {}),
     ...(effectiveTo ? { effectiveTo } : {}),

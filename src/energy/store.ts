@@ -4,6 +4,7 @@ import { stableHash } from "./hash.js";
 import type { Db } from "./db.js";
 import type {
   Contract,
+  CustomerType,
   EnergyPlan,
   FuelType,
   NormalisedPlan,
@@ -168,7 +169,7 @@ export function rowToPlan(r: Record<string, any>): EnergyPlan {
     displayName: r.display_name,
     fuelType: r.fuel_type as FuelType,
     planType: r.plan_type as PlanType,
-    customerType: "RESIDENTIAL",
+    customerType: r.customer_type === "BUSINESS" ? "BUSINESS" : "RESIDENTIAL",
     geography: {
       includedPostcodes:
         (r.included_postcodes as number[] | undefined)?.map(String) ?? [],
@@ -199,6 +200,8 @@ export interface PlanQuery {
   retailer?: string;
   distributor?: string;
   planType?: PlanType;
+  /** Defaults to residential, so a household never sees business plans by accident. */
+  customerType?: CustomerType;
 }
 
 /** Plans offered at a postcode today. Excluded postcodes, future plans and expired plans are dropped. */
@@ -220,6 +223,7 @@ export async function plansByPostcode(
     args.push(v);
     where.push(cond.replace("?", `$${args.length}`));
   };
+  add("p.customer_type = ?", query.customerType ?? "RESIDENTIAL");
   if (query.fuelType) add("p.fuel_type = ?", query.fuelType);
   if (query.retailer) add("p.retailer_slug = ?", query.retailer);
   if (query.planType) add("p.plan_type = ?", query.planType);

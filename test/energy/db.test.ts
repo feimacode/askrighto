@@ -88,19 +88,29 @@ d("sync and store", () => {
     mock.state.pageSize = undefined;
   });
 
-  it("loads residential plans, drops business, flags unknown models, and reports", async () => {
+  it("loads residential and business plans, flags unknown models, and reports", async () => {
     const report = (await sync())!;
     expect(report.ok).toBe(true);
-    expect(report.plans.added).toBe(3);
-    expect(report.plansPerRetailer).toEqual({ agl: 2, origin: 1 });
+    expect(report.plans.added).toBe(4);
+    expect(report.plansPerRetailer).toEqual({ agl: 3, origin: 1 });
     expect(report.plansPerPricingModel).toMatchObject({ SINGLE_RATE: 1, SPACE_BANDS: 1, TIME_OF_USE_CONT_LOAD: 1 });
     expect(report.notUnderstood.byReason["pricingModel:SPACE_BANDS"]).toBe(1);
     expect(report.requests.total).toBeGreaterThan(0);
     expect(report.requests.perRetailer.agl!.requests).toBeGreaterThan(0);
-    expect(report.tableSizes.plans).toBe(3);
+    expect(report.tableSizes.plans).toBe(4);
     const run = await db.pool.query("SELECT ok, report FROM sync_runs");
     expect(run.rows[0].ok).toBe(true);
-    expect(run.rows[0].report.plans.added).toBe(3);
+    expect(run.rows[0].report.plans.added).toBe(4);
+  });
+
+  it("keeps business plans apart: postcode searches default to residential", async () => {
+    await sync();
+    const home = await plansByPostcode(db.pool, { postcode: "3000" });
+    const biz = await plansByPostcode(db.pool, { postcode: "3000", customerType: "BUSINESS" });
+    expect(home.every((p) => p.customerType === "RESIDENTIAL")).toBe(true);
+    expect(biz.length).toBeGreaterThan(0);
+    expect(biz.every((p) => p.customerType === "BUSINESS")).toBe(true);
+    expect(home.length + biz.length).toBe(4);
   });
 
   it("makes no detail call for an unchanged plan, refetches a changed one, removes a withdrawn one", async () => {
