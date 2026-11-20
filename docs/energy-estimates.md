@@ -22,7 +22,7 @@ with a reason.
 2. Usage: yearly usage is spread evenly by day, so a seasonal period gets usage in proportion to
    its days. Block rates apply their threshold per the block's stated period (day, month, quarter,
    year) to that even usage.
-3. Time of use: needs the shares from the bill. A plan with no shoulder rate has the shoulder
+3. Time of use: needs the shares from the bill (with several shoulder bands the one shoulder figure is split equally between them and the estimate says so; interval readings give each band its own share). A plan with no shoulder rate has the shoulder
    share charged at peak. Without shares those plans are `needs_time_of_use_split`.
 4. Controlled load: usage times its rate plus its daily supply charge, only when controlled load
    usage is given. A plan without one is `no_controlled_load_rate`.

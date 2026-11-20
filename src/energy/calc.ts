@@ -28,12 +28,12 @@ export interface Usage {
   /** "customer": the person's own figure (bill or stated). "benchmark": the AER typical-household figure. Absent means "customer". */
   basis?: UsageBasis;
   /** Percent of usage in each time band; must sum to 100. Needed for time-of-use plans. */
-  shares?: { peak: number; shoulder: number; offPeak: number };
+  shares?: BandSplit;
   /**
    * With interval readings the shares are worked out per tariff period from that plan's own windows: a function from
    * the tariff period to its shares, or the reason it cannot be done. Used instead of `shares` when present.
    */
-  sharesFor?: (t: TariffPeriod) => { ok: true; shares: { peak: number; shoulder: number; offPeak: number } } | { ok: false; reason: string };
+  sharesFor?: (t: TariffPeriod) => { ok: true; shares: BandSplit } | { ok: false; reason: string };
   controlledLoadAnnualKwh?: number;
   solarExportAnnualKwh?: number;
 }
@@ -154,7 +154,15 @@ function singleRateCharge(rates: Rate[], usage: number, days: number): number {
   return windows * blockCharge(rates, usage / windows);
 }
 
-function touCharge(tou: TimeOfUseRate[], usage: number, u: Usage, shares: Usage["shares"] = u.shares): number {
+/** Share of use (percent of the whole) by band. `shoulders` splits `shoulder` between a plan's own shoulder bands, by band type. */
+export interface BandSplit {
+  peak: number;
+  shoulder: number;
+  offPeak: number;
+  shoulders?: Record<string, number>;
+}
+
+function touCharge(tou: TimeOfUseRate[], usage: number, u: Usage, shares: Usage["shares"] = u.shares, notes?: string[]): number {
   if (!shares)
     throw new Stop(
       "needs_time_of_use_split",
@@ -176,7 +184,15 @@ function touCharge(tou: TimeOfUseRate[], usage: number, u: Usage, shares: Usage[
   const shoulderShare = shares.shoulder;
   let total = 0;
   if (shoulder.length === 0) peakShare += shoulderShare; // no shoulder band: shoulder usage is charged at peak
-  else total += shoulder.reduce((a, t) => a + ((usage * shoulderShare) / 100 / shoulder.length) * price(t), 0);
+  else if (shoulder.length > 1 && shares.shoulders && shoulder.every((t) => shares.shoulders![t.type] !== undefined))
+    total += shoulder.reduce((a, t) => a + ((usage * shares.shoulders![t.type]!) / 100) * price(t), 0);
+  else {
+    if (shoulder.length > 1 && notes) {
+      const n = `The shoulder share was split equally between this plan's ${shoulder.length} shoulder bands, because the split between them is not known (a bill gives one shoulder figure). Interval readings would give each band its own share.`;
+      if (!notes.includes(n)) notes.push(n);
+    }
+    total += shoulder.reduce((a, t) => a + ((usage * shoulderShare) / 100 / shoulder.length) * price(t), 0);
+  }
   if (peak.length) total += ((usage * peakShare) / 100) * price(peak[0]!);
   else if (peakShare > 0) throw new Stop("missing_rate", "The plan has no peak rate for the usage given.");
   if (off.length) total += ((usage * offShare) / 100) * price(off[0]!);
@@ -226,8 +242,8 @@ function estimate(plan: EnergyPlan, u: Usage): Estimate {
       if (u.sharesFor) {
         const r = u.sharesFor(t);
         if (!r.ok) throw new Stop("not_fully_understood", `Its time-of-use windows could not be matched to the half-hourly readings: ${r.reason}.`);
-        usageCharge += touCharge(t.timeOfUse, periodUsage, u, r.shares);
-      } else usageCharge += touCharge(t.timeOfUse, periodUsage, u);
+        usageCharge += touCharge(t.timeOfUse, periodUsage, u, r.shares, notes);
+      } else usageCharge += touCharge(t.timeOfUse, periodUsage, u, u.shares, notes);
     }
     else if (t.singleRate?.length) usageCharge += singleRateCharge(t.singleRate, periodUsage, days);
     else throw new Stop("missing_rate", "A tariff period has no usage rate.");

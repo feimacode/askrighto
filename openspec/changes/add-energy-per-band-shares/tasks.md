@@ -7,10 +7,10 @@
 
 ## 2. Build
 
-- [ ] 2.1 Change `Usage.shares` to per band with a bill-to-bands helper; verify unit tests for no, one and several shoulder bands
-- [ ] 2.2 Return per-band shares from `windows.ts` and accept several shoulder bands; verify tests, including a plan with SHOULDER1 and SHOULDER2
-- [ ] 2.3 State the equal-split assumption in the estimate's notes for the bill route; verify a test fails if it is missing
-- [ ] 2.4 Update `docs/energy-estimates.md` and `docs/energy-interval-readings.md` (remove "several shoulder bands" from the not-estimated reasons)
+- [x] 2.1 Change `Usage.shares` to per band with a bill-to-bands helper; verify unit tests for no, one and several shoulder bands
+- [x] 2.2 Return per-band shares from `windows.ts` and accept several shoulder bands; verify tests, including a plan with SHOULDER1 and SHOULDER2
+- [x] 2.3 State the equal-split assumption in the estimate's notes for the bill route; verify a test fails if it is missing
+- [x] 2.4 Update `docs/energy-estimates.md` and `docs/energy-interval-readings.md` (remove "several shoulder bands" from the not-estimated reasons)
 
 ## 3. Before shipping
 

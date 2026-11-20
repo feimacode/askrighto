@@ -10,6 +10,8 @@ export interface BandShares {
   peak: number;
   shoulder: number;
   offPeak: number;
+  /** Each shoulder band's own share by band type; present only when the plan has several shoulder bands. */
+  shoulders?: Record<string, number>;
 }
 export type ShareResult = { ok: true; shares: BandShares; windows: string } | { ok: false; reason: string };
 
@@ -40,7 +42,6 @@ export function periodMonths(t: Pick<TariffPeriod, "startDate" | "endDate">): nu
 export function bandShares(profile: ReadingsProfile, tou: readonly TimeOfUseRate[], months: readonly number[]): ShareResult {
   const bands = tou.map((t) => ({ t, kind: t.type === "PEAK" ? "peak" : t.type === "OFF_PEAK" ? "offPeak" : /^SHOULDER\d*$/.test(t.type) ? "shoulder" : "" }));
   if (bands.some((b) => !b.kind)) return { ok: false, reason: "a time-of-use band has a type that cannot be mapped" };
-  if (bands.filter((b) => b.kind === "shoulder").length > 1) return { ok: false, reason: "the plan has several shoulder bands, which are not split yet" };
   // owner[dayType][slot] = band index, -1 for none
   const owner = [Array<number>(48).fill(-1), Array<number>(48).fill(-1)];
   const described: string[] = [];
@@ -84,6 +85,7 @@ export function bandShares(profile: ReadingsProfile, tou: readonly TimeOfUseRate
         owner[dt]![k] = empty[0]!.i;
       }
   const tot = { peak: 0, shoulder: 0, offPeak: 0 };
+  const per = bands.map(() => 0);
   let all = 0;
   for (const m of months)
     for (const dt of [0, 1]) {
@@ -91,10 +93,13 @@ export function bandShares(profile: ReadingsProfile, tou: readonly TimeOfUseRate
       for (let k = 0; k < 48; k++) {
         const kind = bands[owner[dt]![k]!]!.kind as keyof typeof tot;
         tot[kind] += row[k]!;
+        per[owner[dt]![k]!]! += row[k]!;
         all += row[k]!;
       }
     }
   if (all <= 0) return { ok: false, reason: "the readings have no use in the months this tariff period covers" };
   const pct = (x: number) => (x / all) * 100;
-  return { ok: true, shares: { peak: pct(tot.peak), shoulder: pct(tot.shoulder), offPeak: pct(tot.offPeak) }, windows: described.join("; ") };
+  const shoulderBands = bands.map((b, i) => ({ b, i })).filter((x) => x.b.kind === "shoulder");
+  const shoulders = shoulderBands.length > 1 ? Object.fromEntries(shoulderBands.map((x) => [x.b.t.type, pct(per[x.i]!)])) : undefined;
+  return { ok: true, shares: { peak: pct(tot.peak), shoulder: pct(tot.shoulder), offPeak: pct(tot.offPeak), ...(shoulders ? { shoulders } : {}) }, windows: described.join("; ") };
 }

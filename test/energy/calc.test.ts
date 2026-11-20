@@ -188,3 +188,26 @@ describe("properties", () => {
     }
   });
 });
+
+describe("several shoulder bands", () => {
+  const twoShoulders = (): EnergyPlan => {
+    const p = planFrom("time-of-use");
+    const t = p.electricity!.tariffPeriods[0]!;
+    const rate = (type: string, unitPrice: number) => ({ type, rates: [{ unitPrice }], windows: [] }) as unknown as NonNullable<typeof t.timeOfUse>[number];
+    t.timeOfUse = [rate("PEAK", 50000), rate("SHOULDER1", 20000), rate("SHOULDER2", 30000), rate("OFF_PEAK", 10000)];
+    return p;
+  };
+  it("costs each shoulder band from its own share when the split is known", () => {
+    const p = twoShoulders();
+    const withSplit = est(p, elec(1000, { shares: { peak: 20, shoulder: 40, offPeak: 40, shoulders: { SHOULDER1: 30, SHOULDER2: 10 } } }));
+    const equal = est(p, elec(1000, { shares: { peak: 20, shoulder: 40, offPeak: 40 } }));
+    // Own shares price 300 kWh at 0.2 and 100 kWh at 0.3; an equal split prices 200 kWh at each, so the totals differ.
+    expect(withSplit.totalCents).not.toBe(equal.totalCents);
+    expect(Math.abs(equal.totalCents - withSplit.totalCents)).toBeGreaterThan(0);
+    expect(withSplit.notes.some((n) => /split equally/.test(n))).toBe(false);
+  });
+  it("says so when the shoulder share is split equally", () => {
+    const e = est(twoShoulders(), elec(1000, { shares: { peak: 20, shoulder: 40, offPeak: 40 } }));
+    expect(e.notes.filter((n) => /split equally between this plan's 2 shoulder bands/.test(n))).toHaveLength(1);
+  });
+});

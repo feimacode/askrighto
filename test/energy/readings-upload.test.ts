@@ -250,7 +250,7 @@ describe("window shares", () => {
     expect(r.ok && r.shares.offPeak > 0).toBe(true);
     expect(r.ok && r.shares.peak + r.shares.offPeak).toBeCloseTo(100, 6);
   });
-  it("lists a plan as not mappable rather than guessing: gaps, overlaps, odd times, partial weekdays, several shoulders", () => {
+  it("lists a plan as not mappable rather than guessing: gaps, overlaps, odd times, partial weekdays", () => {
     const why = (bands: TimeOfUseRate[]) => {
       const r = bandShares(profile, bands, periodMonths({}));
       return r.ok ? "ok" : r.reason;
@@ -259,8 +259,22 @@ describe("window shares", () => {
     expect(why([tou("PEAK", [{ days: all, startTime: "07:00", endTime: "20:59" }]), tou("OFF_PEAK", [{ days: all, startTime: "20:00", endTime: "06:59" }])])).toMatch(/same half hour/);
     expect(why([tou("PEAK", [{ days: all, startTime: "07:10", endTime: "20:59" }]), tou("OFF_PEAK", [])])).toMatch(/half hour/);
     expect(why([tou("PEAK", [{ days: ["MON", "TUE"], startTime: "07:00", endTime: "20:59" }]), tou("OFF_PEAK", [])])).toMatch(/weekdays/);
-    expect(why([tou("SHOULDER1", [{ days: all, startTime: "07:00", endTime: "11:59" }]), tou("SHOULDER2", [{ days: all, startTime: "12:00", endTime: "14:59" }]), tou("OFF_PEAK", [])])).toMatch(/several shoulder/);
     expect(why([tou("SOLAR_SPONGE", [{ days: all, startTime: "10:00", endTime: "13:59" }]), tou("OFF_PEAK", [])])).toMatch(/cannot be mapped/);
+  });
+  it("gives each of several shoulder bands its own share", () => {
+    const r = bandShares(profile, [
+      tou("PEAK", [{ days: all, startTime: "15:00", endTime: "20:59" }]),
+      tou("SHOULDER1", [{ days: all, startTime: "07:00", endTime: "14:59" }]),
+      tou("SHOULDER2", [{ days: all, startTime: "21:00", endTime: "21:59" }]),
+      tou("OFF_PEAK", []),
+    ], periodMonths({}));
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const sh = r.shares.shoulders!;
+    expect(Object.keys(sh).sort()).toEqual(["SHOULDER1", "SHOULDER2"]);
+    expect(sh.SHOULDER1! + sh.SHOULDER2!).toBeCloseTo(r.shares.shoulder, 6);
+    expect(r.shares.peak + r.shares.shoulder + r.shares.offPeak).toBeCloseTo(100, 6);
+    expect(sh.SHOULDER1!).toBeGreaterThan(sh.SHOULDER2!);
   });
   it("takes shares from the months a seasonal tariff period covers", () => {
     expect(periodMonths({ startDate: "11-01", endDate: "03-31" })).toEqual([0, 1, 2, 10, 11]);
