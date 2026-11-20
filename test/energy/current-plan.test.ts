@@ -1,0 +1,150 @@
+/**
+ * list_current_plan_options (add-energy-invoice-first). Database parts need TEST_DATABASE_URL and run in a throwaway schema.
+ */
+import { randomBytes } from "node:crypto";
+import { Client, InMemoryTransport } from "@modelcontextprotocol/client";
+import pg from "pg";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { clearReadinessChecks } from "../../src/core/readiness.js";
+import { clearDataSets } from "../../src/core/registry.js";
+import { CdrClient } from "../../src/energy/cdr-client.js";
+import { createDb, migrate, type Db } from "../../src/energy/db.js";
+import { startEnergy, type EnergyRuntime } from "../../src/energy/index.js";
+import { RetailerLimiter } from "../../src/energy/limiter.js";
+import { runSync } from "../../src/energy/sync.js";
+import { serverInstructions } from "../../src/server/instructions.js";
+import { allTools } from "../../src/tools/index.js";
+import { createServer } from "../../src/server/create-server.js";
+import { fixture, startMockCdr, type MockCdr } from "./mock-cdr.js";
+
+const URL = process.env.TEST_DATABASE_URL;
+const d = URL ? describe : describe.skip;
+
+describe("invoice-first guidance", () => {
+  it("asks for the invoice first, lists the fields, bans identifiers, and routes moving house to typical usage", () => {
+    const t = serverInstructions();
+    expect(t).toMatch(/latest invoice first/i);
+    expect(t).toMatch(/show back for the user to confirm/i);
+    expect(t).toMatch(/Never put the user's name, address, account number or NMI into any tool/);
+    expect(t).toMatch(/moving house or moving in/);
+    expect(t).toMatch(/list_current_plan_options/);
+    expect(t).toMatch(/never match by plan name/i);
+  });
+});
+
+describe("list_current_plan_options inputs", () => {
+  it("takes no name, address, account number or meter identifier, and no long free text", () => {
+    const tool = allTools.find((t) => t.name === "list_current_plan_options")!;
+    const shape = tool.inputSchema.shape as Record<string, { _def: { typeName?: string }; maxLength?: number | null }>;
+    expect(Object.keys(shape).sort()).toEqual(
+      ["customerType", "distributor", "fuelType", "offPeakRatePerUnit", "peakRatePerUnit", "postcode", "ratesIncludeGst", "retailer", "shoulderRatePerUnit", "singleRatePerUnit", "supplyChargePerDay"].sort(),
+    );
+    for (const k of Object.keys(shape)) expect(k).not.toMatch(/name|address|account|nmi|meter|serial/i);
+    // The only strings are short: a postcode, a retailer and a network name.
+    expect(() => tool.inputSchema.parse({ postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", retailer: "x".repeat(500) })).toThrow();
+  });
+});
+
+d("list_current_plan_options (database)", () => {
+  const schema = `askrighto_test_${randomBytes(4).toString("hex")}`;
+  let db: Db;
+  let mock: MockCdr;
+  let rt: EnergyRuntime;
+  let client: Client;
+  const plan = (name: string, planId: string) => ({ detail: { ...fixture(name), planId } });
+  async function call(args: Record<string, unknown>) {
+    const r = await client.callTool({ name: "list_current_plan_options", arguments: args });
+    const sc = r.structuredContent as any;
+    return { text: (r.content as Array<{ text: string }>)[0]!.text, g: sc.grounded ?? sc };
+  }
+  const base = { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", retailer: "Origin" };
+
+  beforeAll(async () => {
+    db = createDb({ url: URL!, schema, poolMax: 5 });
+    await migrate(db);
+    // Origin: two time-of-use plans with identical rates and hours (Jemena) and one single rate plan (CitiPower).
+    mock = await startMockCdr({ retailers: { origin: [plan("time-of-use", "O1"), plan("time-of-use", "O2"), { detail: { ...fixture("single-rate"), planId: "O3", brandName: "Origin Energy" } }] } });
+    clearDataSets();
+    clearReadinessChecks();
+    rt = (await startEnergy({ DATABASE_URL: URL, DATABASE_SCHEMA: schema, ASKRIGHTO_SYNC_SCHEDULE: "off" } as NodeJS.ProcessEnv))!;
+    await runSync({
+      db,
+      gstBasis: "EXCLUSIVE",
+      client: new CdrClient({ baseUrl: mock.url, limiter: new RetailerLimiter({ rps: 500, maxInFlight: 8 }) }),
+      retailers: [{ slug: "origin", brandName: "Origin Energy", active: true }],
+    });
+    rt.store.clear();
+    await rt.refresh();
+    const [a, b] = InMemoryTransport.createLinkedPair();
+    await createServer().connect(a);
+    client = new Client({ name: "test", version: "1" });
+    await client.connect(b);
+  });
+  afterAll(async () => {
+    await client.close();
+    await mock.close();
+    clearDataSets();
+    clearReadinessChecks();
+    await rt.stop().catch(() => undefined);
+    const admin = new pg.Pool({ connectionString: URL });
+    await admin.query(`DROP SCHEMA IF EXISTS ${schema} CASCADE`);
+    await admin.end();
+  });
+
+  it("asks which network when the postcode has several, before listing anything", async () => {
+    const r = await call(base);
+    expect(r.g).toMatchObject({ found: false, reason: "needs_input" });
+    expect(r.g.message).toMatch(/more than one distributor/);
+    expect(r.g.details ?? r.g.data ?? r.g).toBeTruthy();
+  });
+
+  it("merges plans with identical rates and hours into one option, with plain-words rates and hours", async () => {
+    const r = await call({ ...base, distributor: "Jemena" });
+    expect(r.g.found).toBe(true);
+    const o = r.g.data.options;
+    expect(o).toHaveLength(1);
+    expect(o[0].planIds).toEqual(["O1", "O2"]);
+    expect(o[0].tariff).toBe("time of use");
+    expect(o[0].hours).toMatch(/Peak .* on /);
+    expect(o[0].supplyPerDayIncGst).toBe("$1.0450"); // 0.95 + GST
+    expect(o[0].ratesIncGst).toEqual(expect.arrayContaining([{ band: "peak", perUnit: "$0.4950" }]));
+    expect(r.g.data.layouts).toHaveLength(1);
+    expect(r.text).toMatch(/none of these|If none of these/);
+    expect(r.text).toContain("Amounts include GST");
+    expect(r.g.source.url).toMatch(/aer\.gov\.au/);
+  });
+
+  it("says what matched the invoice, allowing the rates to include or exclude GST", async () => {
+    const withGst = await call({ ...base, distributor: "Jemena", supplyChargePerDay: 1.045, peakRatePerUnit: 0.495 });
+    expect(withGst.g.data.options[0].matchedOn).toEqual(expect.arrayContaining(["daily supply charge", "peak rate"]));
+    const excl = await call({ ...base, distributor: "Jemena", supplyChargePerDay: 0.95, peakRatePerUnit: 0.45 });
+    expect(excl.g.data.options[0].matchedOn).toEqual(expect.arrayContaining(["daily supply charge", "peak rate"]));
+    const wrongFlag = await call({ ...base, distributor: "Jemena", peakRatePerUnit: 0.45, ratesIncludeGst: true });
+    expect(wrongFlag.g.data.options[0].notMatched).toContain("peak rate");
+    const none = await call({ ...base, distributor: "Jemena", peakRatePerUnit: 0.99 });
+    expect(none.g.data.options[0].matchedOn).toEqual([]);
+    expect(none.g.data.options[0].notMatched).toContain("peak rate");
+  });
+
+  it("lists a single rate plan with no hours, and no layouts", async () => {
+    const r = await call({ ...base, distributor: "CitiPower" });
+    expect(r.g.data.options[0]).toMatchObject({ tariff: "single rate", planIds: ["O3"] });
+    expect(r.g.data.options[0].hours).toBeUndefined();
+    expect(r.g.data.layouts).toEqual([]);
+  });
+
+  it("lists only the customer type asked for", async () => {
+    const r = await call({ ...base, distributor: "Jemena", customerType: "BUSINESS" });
+    expect(r.g).toMatchObject({ found: false, reason: "outside_coverage" });
+  });
+
+  it("says plainly when the retailer is not in the data, and sends the user to the band hours", async () => {
+    const r = await call({ ...base, retailer: "Zzyzx Power", distributor: "Jemena" });
+    expect(r.g).toMatchObject({ found: false, reason: "not_in_dataset" });
+    expect(r.g.message).toMatch(/band hours/);
+  });
+
+  it("rejects a bad postcode", async () => {
+    expect((await call({ ...base, postcode: "30" })).g).toMatchObject({ found: false, reason: "needs_input" });
+  });
+});
