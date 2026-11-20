@@ -84,3 +84,7 @@ time-of-use plans are `needs_time_of_use_split` (no split exists), controlled lo
 are not computed, and the typical-usage notice leads every output form. Details, data and limits:
 [`energy-benchmarks.md`](energy-benchmarks.md).
 
+
+## Bill split and the current plan's hours
+
+A peak, shoulder and off-peak split from a bill describes use against the hours of the plan the bill came from. `compare_energy_plans` takes `currentPlanId` or `hoursLayoutId` (from `list_current_plan_options`) and applies the split exactly only to time-of-use plans with the same band hours. Other time-of-use plans, and all of them when the current hours are unknown, are estimated with the same split but listed apart as approximate and never ranked with the exact ones. See [`energy-invoice.md`](energy-invoice.md).

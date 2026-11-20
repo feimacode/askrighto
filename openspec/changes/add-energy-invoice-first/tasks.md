@@ -13,9 +13,9 @@
   - Done in cloud: `src/energy/layouts.ts`, `src/tools/list-current-plan-options.ts`, `test/energy/layouts.test.ts`, `test/energy/current-plan.test.ts`. Layout times are normalised to HH:MM (the data holds "1500"). Seasonal plans: the option shows the first season's rates; the key covers all seasons.
 - [x] 2.3 Add `currentPlanId` and `hoursLayoutId` to `compare_energy_plans`; verify tests for same hours, different hours, unknown hours and readings given
   - Done: `currentPlanId` (looked up, its layout id taken) or `hoursLayoutId`; a bill split is exact only for plans whose layout id equals it; other time-of-use plans, and all of them when neither is given, are listed in a separate `approximate` table with a note and are not ranked or counted in the ordering. Readings and typical usage are unaffected. Tests in `test/energy/tools.test.ts`.
-- [ ] 2.4 (partly done: invoice-first and pick-list bullets are in the server instructions with a guidance test; the `currentPlanId` and `hoursLayoutId` wording, the skill and tool descriptions wait for 2.3) Update server instructions, tool descriptions and the energy skill: invoice first, fields, confirmation, customer type, identifiers, moving house; verify the instructions test and a test that no tool input takes an identifier
-- [ ] 2.5 Add evals and host test prompts for the invoice route (matched, not matched, moving house, business); verify the prompt set runs
-- [ ] 2.6 Write `docs/energy-invoice.md` and update `docs/energy-estimates.md`
+- [x] 2.4 (done in PR for 2.3; was partly done: invoice-first and pick-list bullets are in the server instructions with a guidance test; the `currentPlanId` and `hoursLayoutId` wording, the skill and tool descriptions wait for 2.3) Update server instructions, tool descriptions and the energy skill: invoice first, fields, confirmation, customer type, identifiers, moving house; verify the instructions test and a test that no tool input takes an identifier
+- [x] 2.5 Add evals and host test prompts for the invoice route (matched, not matched, moving house, business); verify the prompt set runs
+- [x] 2.6 Write `docs/energy-invoice.md` and update `docs/energy-estimates.md`
 
 ## 3. Before shipping
 
