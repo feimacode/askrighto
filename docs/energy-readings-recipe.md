@@ -1,4 +1,4 @@
-# Building a readings profile by hand (layer 3)
+# The fallback when the file cannot be passed (layer 3)
 
 `summarise_interval_readings` is the first choice: it reads the file and signs the profile it returns. This recipe is for the case where the assistant cannot pass the file text to the tool (the file is too long to write out, or the tool is not reachable). The assistant then builds the same profile itself and passes it as `readingsProfile`. Ask Righto accepts it after the same shape and totals checks, and **labels every estimate from it "not verified by Ask Righto"**, because the server cannot tell whether the arithmetic was done correctly.
 
@@ -48,3 +48,9 @@ The server key is set with `ASKRIGHTO_PROFILE_KEY` (see `docs/deploying.md`).
 ## The reference script
 
 `plugin/skills/energy-bill-comparison/references/build_readings_profile.py` does all of the above: `python3 build_readings_profile.py <file> <state>` prints the profile JSON. It is for a host that can run code but cannot reach the upload address or pass the file text. It uses only `sys`, `json`, `math` and `datetime`, makes no network call, runs no other program, evaluates no text and writes no file; a test (`test/energy/readings-script.test.ts`) checks those properties and that its output equals the server's profile on synthetic files in every state, with 5, 15 and 30 minute data, solar, missing and variable days and a net-only file. The server never sends code at run time. Its output has no `sig`, so estimates from it are labelled not verified.
+
+## Fallback A: sum by the current plan's hours and pass a bill (Iven, 20 Nov 2026)
+
+Models are now able to do this reliably when the instructions are clear, so the fallback gives the model the rules and the hours instead of asking it to produce a profile. It reads the file by the rules above (NEM12: `200`, `300`, `250` stop, one NMI, E consumption, B export), moves times from market time to the local clock, puts every interval of every day in exactly one band using the **band hours of the user's current plan** (the option or hours layout picked from `list_current_plan_options`, in local time), and calls `compare_energy_plans` with `billUsageKwh` (whole-file total), `billDays`, the three share fields and `currentPlanId` or `hoursLayoutId`. Plans on the same hours are then exact and others approximate, labelled as such. The model must say it summed the file itself. A sample or part of the days is never used.
+
+Fallback B (below, building the profile, or running the reference script) matches each plan on its own hours and so is better when the model can do it; Fallback A is simpler and is what the instructions lead with.
