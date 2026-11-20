@@ -42,7 +42,8 @@ Step by step (`src/energy/sync.ts`, `syncRetailer`):
 
 1. **List.** `CdrClient.listPlans(slug, "CURRENT")` and `"FUTURE"`, following `links.next` on the same
    host only (`src/energy/cdr-client.ts`). Items go through `readListItem`; only
-   `customerType === "RESIDENTIAL"` is kept (`isResidential`).
+   `customerType` of `RESIDENTIAL` or `BUSINESS` is kept (`isSupportedCustomer`); any other or missing type
+   is dropped.
 2. **Decide what to fetch.** Compare each item's `lastUpdated` with the stored `source_last_updated`
    (`storedState`). New or changed plans are fetched. Of the unchanged ones, the longest-unverified
    `ceil(total / 7)` are re-fetched as a **rolling re-check** (`recheckDays`, default 7).

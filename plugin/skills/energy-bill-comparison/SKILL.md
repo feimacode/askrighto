@@ -9,6 +9,7 @@ Compare plans on the user's real usage. Every figure comes from an Ask Righto to
 
 ## Steps
 
+0. **Home or business.** Ask whether the plans are for a home or a business (including small business) and do not assume. Pass `customerType` (`RESIDENTIAL` or `BUSINESS`) to every energy tool. A business is compared only with business plans and a household only with residential plans, and the result says which. Every plan in the data is for a residential or a small business customer, so `BUSINESS` means small business: large customers are not in the data and are not compared (their contracts are negotiated, not published plans), so if the user is a large customer, say so and stop. There is no typical usage for a business: it needs a bill or interval readings.
 1. **Postcode.** Ask for the postcode (or suburb), then call `search_energy_plans`. Do not ask for a name, address or account number.
 2. **Distributor.** If the postcode has more than one distributor, ask which one is on the bill. Costs differ by network.
 3. **Usage from a bill.** Ask for the kWh used and the number of days on a recent bill (gas: MJ). Never assume usage. If the user has no bill, say so and offer a typical-usage estimate, or to wait until they have one. See `references/read-your-bill.md`.

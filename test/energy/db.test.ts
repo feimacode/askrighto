@@ -81,26 +81,26 @@ d("sync and store", () => {
   beforeEach(async () => {
     await reset();
     mock.state.retailers = {
-      agl: [withId("single-rate", "A1"), withId("unknown-model", "A2"), { detail: fixture("business-list-item"), list: {} }],
+      agl: [withId("single-rate", "A1"), withId("unknown-model", "A2"), withId("business-single-rate", "B1"), { detail: { ...fixture("business-list-item"), customerType: "GOVERNMENT", planId: "AGL-SYN-GOV" }, list: {} }],
       origin: [withId("time-of-use", "O1")],
     };
     mock.state.inject = undefined;
     mock.state.pageSize = undefined;
   });
 
-  it("loads residential plans, drops business, flags unknown models, and reports", async () => {
+  it("loads residential and business plans, drops any other customer type, flags unknown models, and reports", async () => {
     const report = (await sync())!;
     expect(report.ok).toBe(true);
-    expect(report.plans.added).toBe(3);
-    expect(report.plansPerRetailer).toEqual({ agl: 2, origin: 1 });
-    expect(report.plansPerPricingModel).toMatchObject({ SINGLE_RATE: 1, SPACE_BANDS: 1, TIME_OF_USE_CONT_LOAD: 1 });
+    expect(report.plans.added).toBe(4);
+    expect(report.plansPerRetailer).toEqual({ agl: 3, origin: 1 });
+    expect(report.plansPerPricingModel).toMatchObject({ SINGLE_RATE: 2, SPACE_BANDS: 1, TIME_OF_USE_CONT_LOAD: 1 });
     expect(report.notUnderstood.byReason["pricingModel:SPACE_BANDS"]).toBe(1);
     expect(report.requests.total).toBeGreaterThan(0);
     expect(report.requests.perRetailer.agl!.requests).toBeGreaterThan(0);
-    expect(report.tableSizes.plans).toBe(3);
+    expect(report.tableSizes.plans).toBe(4);
     const run = await db.pool.query("SELECT ok, report FROM sync_runs");
     expect(run.rows[0].ok).toBe(true);
-    expect(run.rows[0].report.plans.added).toBe(3);
+    expect(run.rows[0].report.plans.added).toBe(4);
   });
 
   it("makes no detail call for an unchanged plan, refetches a changed one, removes a withdrawn one", async () => {
@@ -129,7 +129,7 @@ d("sync and store", () => {
     expect(r.ok).toBe(false);
     expect(r.retailers.find((x) => x.slug === "agl")!.ok).toBe(false);
     expect(r.retailers.find((x) => x.slug === "origin")!.ok).toBe(true);
-    expect((await plansByPostcode(db.pool, { postcode: "3000", retailer: "agl" })).length).toBe(2);
+    expect((await plansByPostcode(db.pool, { postcode: "3000", retailer: "agl", customerType: "RESIDENTIAL" })).length).toBe(2);
     const row = await db.pool.query("SELECT last_sync_ok, last_error FROM retailers WHERE slug = 'agl'");
     expect(row.rows[0].last_sync_ok).toBe(false);
     expect(row.rows[0].last_error).toMatch(/500/);
@@ -213,11 +213,11 @@ d("sync and store", () => {
     await sync();
     let t = Date.now();
     const store = new CachedStore(db, 1000, () => t);
-    expect((await store.plans({ postcode: "3000" })).length).toBe(3);
+    expect((await store.plans({ postcode: "3000", customerType: "RESIDENTIAL" })).length).toBe(3);
     await db.pool.query("DELETE FROM plans WHERE plan_id = 'A1'");
-    expect((await store.plans({ postcode: "3000" })).length).toBe(3); // cached
+    expect((await store.plans({ postcode: "3000", customerType: "RESIDENTIAL" })).length).toBe(3); // cached
     t += 1001;
-    expect((await store.plans({ postcode: "3000" })).length).toBe(2); // expired
+    expect((await store.plans({ postcode: "3000", customerType: "RESIDENTIAL" })).length).toBe(2); // expired
   });
 });
 

@@ -8,7 +8,7 @@ import type { GstBasis } from "./types.js";
 import type { CdrClient } from "./cdr-client.js";
 import type { Db } from "./db.js";
 import {
-  isResidential,
+  isSupportedCustomer,
   normalisePlan,
   readListItem,
   type ListItem,
@@ -109,7 +109,7 @@ export async function syncRetailer(
     for (const eff of ["CURRENT", "FUTURE"] as const) {
       for (const raw of await o.client.listPlans(r.slug, eff)) {
         const item = readListItem(raw);
-        if (item && isResidential(item)) items.set(item.planId, item);
+        if (item && isSupportedCustomer(item)) items.set(item.planId, item);
       }
     }
     res.listed = items.size;

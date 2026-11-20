@@ -302,9 +302,9 @@ export function readListItem(p: unknown): ListItem | undefined {
   };
 }
 
-/** Only residential plans are stored. A missing customer type is not assumed residential. */
-export function isResidential(item: { customerType?: string }): boolean {
-  return item.customerType === "RESIDENTIAL";
+/** Residential and business plans are stored. A missing or other customer type is not assumed to be either. */
+export function isSupportedCustomer(item: { customerType?: string }): boolean {
+  return item.customerType === "RESIDENTIAL" || item.customerType === "BUSINESS";
 }
 
 /**
@@ -343,7 +343,7 @@ export function normalisePlan(retailerSlug: string, item: ListItem, detail: unkn
     displayName: str(d.displayName) ?? item.displayName ?? item.planId,
     fuelType: fuelType as FuelType,
     planType: planType as PlanType,
-    customerType: "RESIDENTIAL",
+    customerType: (str(d.customerType) ?? item.customerType) === "BUSINESS" ? "BUSINESS" : "RESIDENTIAL",
     geography,
     ...(effectiveFrom ? { effectiveFrom } : {}),
     ...(effectiveTo ? { effectiveTo } : {}),
