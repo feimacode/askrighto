@@ -45,12 +45,10 @@ Profiles built by `summarise_interval_readings` carry a `sig` field. Pass the st
 
 The server key is set with `ASKRIGHTO_PROFILE_KEY` (see `docs/deploying.md`).
 
-## The reference script
-
-`plugin/skills/energy-bill-comparison/references/build_readings_profile.py` does all of the above: `python3 build_readings_profile.py <file> <state>` prints the profile JSON. It is for a host that can run code but cannot reach the upload address or pass the file text. It uses only `sys`, `json`, `math` and `datetime`, makes no network call, runs no other program, evaluates no text and writes no file; a test (`test/energy/readings-script.test.ts`) checks those properties and that its output equals the server's profile on synthetic files in every state, with 5, 15 and 30 minute data, solar, missing and variable days and a net-only file. The server never sends code at run time. Its output has no `sig`, so estimates from it are labelled not verified.
-
 ## Fallback A: sum by the current plan's hours and pass a bill (Iven, 20 Nov 2026)
 
 Models are now able to do this reliably when the instructions are clear, so the fallback gives the model the rules and the hours instead of asking it to produce a profile. It reads the file by the rules above (NEM12: `200`, `300`, `250` stop, one NMI, E consumption, B export), moves times from market time to the local clock, puts every interval of every day in exactly one band using the **band hours of the user's current plan** (the option or hours layout picked from `list_current_plan_options`, in local time), and calls `compare_energy_plans` with `billUsageKwh` (whole-file total), `billDays`, the three share fields and `currentPlanId` or `hoursLayoutId`. Plans on the same hours are then exact and others approximate, labelled as such. The model must say it summed the file itself. A sample or part of the days is never used.
 
-Fallback B (below, building the profile, or running the reference script) matches each plan on its own hours and so is better when the model can do it; Fallback A is simpler and is what the instructions lead with.
+Fallback B (below, building the profile by the rules above) matches each plan on its own hours and so is better when the model can do it; Fallback A is simpler and is what the instructions lead with.
+
+No script is supplied (Iven, 20 Nov 2026): the agent is given instructions and does the work itself. A reference script with a test that it matched the server was built and then removed for that reason; it is in git history (PR #67) if wanted again.
