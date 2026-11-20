@@ -91,7 +91,7 @@ d("compare_energy_plans: bill split against the current plan's hours", () => {
   });
 
   it("takes the hours from a layout id when the plan was not listed", async () => {
-    const opts = await client.callTool({ name: "list_current_plan_options", arguments: { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", retailer: "Origin", distributor: "Jemena" } });
+    const opts = await client.callTool({ name: "list_current_plan_options", arguments: { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", retailer: "Origin", distributor: "Jemena", showAllOptions: true } });
     const layouts = ((opts.structuredContent as any).grounded ?? (opts.structuredContent as any)).data.layouts as Array<{ layoutId: string; hours: string }>;
     expect(layouts.length).toBe(2);
     const three = layouts.find((l) => /4pm/.test(l.hours))!;

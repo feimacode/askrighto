@@ -17,6 +17,24 @@ Layouts are the sorted set of (season, band, days, start, end) windows; the id i
 
 Results carry the plan data source link and as-of date like every energy result.
 
+## Narrowing the list
+
+Listing every plan of a retailer is not a choice a person can make (Momentum has 30 plans in 7 groups on one network), so the tool narrows by what the invoice shows:
+
+- **No figures at all**: it answers `needs_input` and asks for the daily supply charge, the usage rate or rates and the plan or offer code. `showAllOptions: true` lists everything, for a user who can give none.
+- **Plan code** (`planCode`, for example `MOM799904MR`): matches the plan id exactly, ignoring the `@VEC` or `@EME` suffix; a code printed on an invoice or fact sheet is the best way to find the plan.
+- **Figures**: only the options that agree with them are listed, all that agree on every figure given, else those that agree on the most. An invoice rate matches any rate of its kind, so a plan with several SHOULDER bands is found by any of their rates.
+- **How close is a match**: two figures agree when they differ by no more than half a unit of the last digit given, because an invoice prints a rounded figure (1.1187 within 0.00005; 1.12 within 0.005). A fixed loose tolerance made Momentum's Standing Offer and Bill Boss plans, a tenth of a cent apart, look identical.
+- **Bands the invoice names differently**: an invoice says peak, shoulder and off-peak, but a plan whose bands are all labelled SHOULDER has no such band; the rate then matches any rate of the plan's bands.
+- **Too many left**: more than four equally good options is not shown as a form; the result asks the agent to ask the user for more from the invoice and call again.
+- **Nothing agrees**: no options, the band hours the retailer uses, and a note to check the figures (invoice rates include GST) or fall back to the hours.
+
+## How the pick list is shown
+
+The result is drawn as a form (Inkview `form`): a select of the options and, for a plan that is not listed, a select of the band hours the retailer uses, each with a "none of these" answer. Form choices are capped at 80 characters, so each carries only a headline (the first plan name and how many more, the daily supply charge and the range of rates, "matches" when the invoice agreed); the full text beside the form carries every rate, its hours, the plan ids and what matched. The agent waits for the user's choice and never picks for them.
+
+A plan whose bands are all labelled SHOULDER (told apart only by their hours) is shown with each band's own hours and rate, not one rate for all; an invoice rate matches when it agrees with any rate of that kind.
+
 ## `compare_energy_plans` with the household's hours
 
 With a bill split (peak, shoulder and off-peak percentages) the host passes `currentPlanId` (the plan id of the option the user picked) or `hoursLayoutId` (the layout the user picked when their plan was not listed), never both. The server compares each time-of-use plan's layout id with the household's:
@@ -34,3 +52,7 @@ Invoice rates always include GST (decided by Iven, 20 Nov 2026), for homes and s
 
 - Reading real invoices to confirm the field list (1.2) and the GST handling against them (1.3), and the host trial with Iven's invoice (3.1). These need invoices from Iven.
 - The Inkview output shows one table, so the approximate table is text only there.
+
+## Tests against recorded plans
+
+`test/energy/current-plan-invoices.test.ts` runs the lookup against the 30 recorded Momentum Energy electricity plans on United Energy at postcode 3128 (the AER's data of 17 Nov 2026, `test/fixtures/energy/recorded/momentum-united-energy-3128.json`, public plan data). The first case is Iven's invoice from the 20 Nov 2026 trial: the plan is "NAB Goodies" (time of use), supply $1.1187 a day with GST, and a lookup with its figures must return the one option that lists NAB Goodies. Further cases cover the same plan with the rates named as peak, shoulder and off-peak, the single rate NAB Goodies, a plan code, the Standing Offer, retailer names written six ways, an unknown retailer, figures that match nothing, and a supply charge alone. To add an invoice, add a row to `INVOICES` in that file with the figures printed on it (never a name, address, account number or meter identifier) and what must come back. Other retailers need their own recorded plans: record them with `sync-energy --record` or from a local copy of a sync.
