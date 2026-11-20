@@ -8,6 +8,7 @@ import type {
   IntlProvider,
   IntlSource,
   LevelGroup,
+  Sector,
 } from "./types.js";
 
 export class NoIntlLoad extends Error {
@@ -48,8 +49,8 @@ export async function loadIntl(
     for (const x of input.courses) {
       await c.query(
         `INSERT INTO intl_courses (cricos_code, provider_id, name, level, level_group, field, duration_weeks,
-           tuition_fee_total, non_tuition_fee, language, work_component, expired)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+           tuition_fee_total, non_tuition_fee, language, work_component, expired, sector, vet_national_code)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
         [
           x.cricosCode,
           x.providerId,
@@ -63,6 +64,8 @@ export async function loadIntl(
           x.language ?? null,
           x.workComponent ?? null,
           x.expired,
+          x.sector ?? null,
+          x.vetNationalCode ?? null,
         ],
       );
       const seen = new Set<string>();
@@ -147,6 +150,10 @@ export class IntlStore implements IntlSource {
           name: r.name,
           level: r.level,
           levelGroup: r.level_group as LevelGroup,
+          ...(r.sector ? { sector: r.sector as Sector } : {}),
+          ...(r.vet_national_code
+            ? { vetNationalCode: r.vet_national_code }
+            : {}),
           ...(r.field ? { field: r.field } : {}),
           ...(r.duration_weeks !== null
             ? { durationWeeks: Number(r.duration_weeks) }

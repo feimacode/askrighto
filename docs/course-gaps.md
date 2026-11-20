@@ -12,7 +12,7 @@ and the unticked tasks of the course OpenSpec changes. Both verticals stay inter
 | Gap | Vertical | Next step |
 | --- | --- | --- |
 | Domestic CRICOS load done on `askrighto_dev` 21 Nov 2026 (1,183 courses: 1,086 CRICOS, 97 stand-ins, 1 curated; no warnings); stand-ins not yet retired | domestic | Retire stand-ins by reviewed match (see decisions below) |
-| 1 Oct 2026 CRICOS data loaded on `askrighto_dev` 21 Nov 2026 (13,069 courses, 20,087 locations, 664 providers); reload needed after the level change | international | Reload when `add-intl-diplomas-vet` is built |
+| 1 Oct 2026 CRICOS data loaded on `askrighto_dev` 21 Nov 2026 (13,069 courses, 20,087 locations, 664 providers); reloaded with diplomas and VET after `add-intl-diplomas-vet` (see that change) | international | None |
 | Entry figures, prerequisites, summaries: only RMIT Engineering curated | domestic | Curate by hand from official pages, starting where browsing fails (Melbourne, ACU, La Trobe) |
 | Key dates, preference rules, early-entry schemes provisional, not re-read | domestic | Re-read VCAA and VTAC pages, reword, clear `provisional` |
 | `vce-studies.yaml` has empty VCAA study `codes` | domestic | Fill from the VCAA study list |

@@ -12,6 +12,7 @@ import { sql as m0005 } from "./migrations/0005-health.js";
 import { sql as m0006 } from "./migrations/0006-home-loans.js";
 import { sql as m0007 } from "./migrations/0007-careers.js";
 import { sql as m0008 } from "./migrations/0008-energy-benchmarks.js";
+import { sql as m0009 } from "./migrations/0009-intl-vet.js";
 
 export interface DbConfig {
   url: string;
@@ -84,6 +85,7 @@ export const MIGRATIONS: ReadonlyArray<{
   { version: 6, name: "home-loans", sql: m0006 },
   { version: 7, name: "careers", sql: m0007 },
   { version: 8, name: "energy-benchmarks", sql: m0008 },
+  { version: 9, name: "intl-vet", sql: m0009 },
 ];
 
 export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1]!.version;

@@ -22,7 +22,7 @@ import {
   INTL_READING_CHECKLIST,
   YEARLY_LABEL,
 } from "../intl/notice.js";
-import { LEVEL_GROUPS, type IntlCourse, type IntlData } from "../intl/types.js";
+import { LEVEL_GROUPS, SECTORS, type IntlCourse, type IntlData } from "../intl/types.js";
 
 const base = {
   readOnlyHint: true,
@@ -48,6 +48,8 @@ export interface IntlView {
   provider: string;
   providerWebsite?: string;
   level: string;
+  sector: string;
+  vetNationalCode?: string;
   field?: string;
   durationWeeks?: number;
   tuitionFeeTotal?: number;
@@ -62,6 +64,12 @@ export interface IntlView {
   domesticCourseId?: string;
 }
 
+const SECTOR_LABEL: Record<string, string> = {
+  higher_education: "higher education",
+  vet: "vocational education and training (VET)",
+  unset: "not stated in CRICOS",
+};
+
 function viewOf(d: IntlData, c: IntlCourse): IntlView {
   const p = d.providers.find((x) => x.id === c.providerId);
   const y = yearlyFee(c);
@@ -71,6 +79,8 @@ function viewOf(d: IntlData, c: IntlCourse): IntlView {
     provider: p?.name ?? c.providerId,
     ...(p?.website ? { providerWebsite: p.website } : {}),
     level: c.level,
+    sector: SECTOR_LABEL[c.sector ?? "unset"]!,
+    ...(c.vetNationalCode ? { vetNationalCode: c.vetNationalCode } : {}),
     ...(c.field ? { field: c.field } : {}),
     ...(c.durationWeeks !== undefined
       ? { durationWeeks: c.durationWeeks }
@@ -142,7 +152,7 @@ export const searchIntlCourses = defineTool({
   name: "search_international_courses",
   title: "Search courses for international students",
   description:
-    "Finds higher-education courses registered for international (overseas, student visa) students in Australia (CRICOS), for people applying from overseas or already in Australia and thinking of switching course, by name or keyword, level, field, state, campus, provider, maximum total tuition fee and maximum duration. Fees are indicative, as published in CRICOS, and some courses have none published. Expired courses are left out. It gives course facts only, no visa or migration advice.",
+    "Finds higher-education and VET courses (degrees, diplomas, advanced diplomas and Certificate I to IV) registered for international (overseas, student visa) students in Australia (CRICOS), for people applying from overseas or already in Australia and thinking of switching course, by name or keyword, level, field, state, campus, provider, maximum total tuition fee and maximum duration. Fees are indicative, as published in CRICOS, and some courses have none published. Expired courses are left out. It gives course facts only, no visa, migration, age or welfare advice. School courses, non-award courses and short courses are not covered.",
   inputSchema: z.object({
     query: z
       .string()
@@ -150,6 +160,10 @@ export const searchIntlCourses = defineTool({
       .optional()
       .describe("Part of a course or provider name, e.g. data science"),
     level: z.enum(LEVEL_GROUPS).optional().describe("Course level"),
+    sector: z
+      .enum(SECTORS)
+      .optional()
+      .describe("higher_education or vet (diplomas with no stated sector match neither)"),
     field: z
       .string()
       .max(60)
@@ -211,6 +225,7 @@ export const searchIntlCourses = defineTool({
           words.every((w) => lower(c.name).includes(w) || prov(c).includes(w)),
         );
       if (a.level) list = list.filter((c) => c.levelGroup === a.level);
+      if (a.sector) list = list.filter((c) => c.sector === a.sector);
       if (a.field)
         list = list.filter((c) => lower(c.field).includes(lower(a.field)));
       if (a.state)
@@ -257,6 +272,7 @@ export const searchIntlCourses = defineTool({
             filters: {
               query: a.query,
               level: a.level,
+              sector: a.sector,
               field: a.field,
               state: a.state,
               campus: a.campus,
@@ -335,7 +351,7 @@ export const searchIntlCourses = defineTool({
 const courseMarkdown = (v: IntlView) =>
   [
     `${v.name}, ${v.provider}. CRICOS course code ${v.cricosCode}.${v.expired ? " This course is marked as expired in CRICOS." : ""}`,
-    `Level: ${v.level}.${v.field ? ` Field of education: ${v.field}.` : ""}`,
+    `Level: ${v.level}. Sector: ${v.sector}.${v.vetNationalCode ? ` VET National Code: ${v.vetNationalCode}.` : ""}${v.field ? ` Field of education: ${v.field}.` : ""}`,
     v.durationWeeks
       ? `Duration: ${v.durationWeeks} weeks.`
       : "Duration: not published.",

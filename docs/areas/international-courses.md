@@ -1,6 +1,6 @@
 # International student courses (vertical `cricos`)
 
-Answers "which higher-education courses registered for international students match my field,
+Answers "which higher-education and VET courses registered for international students match my field,
 level, state or budget, and what does CRICOS say about duration, fee and campus?" It gives no
 visa, migration, work-rights or post-study advice. **Internal route only** until promoted.
 
@@ -45,10 +45,10 @@ Commands (`src/intl/cli.ts`; both need `--cricos`):
 2. Required columns: course code, provider code, course name, level; if one is missing the parse
    returns `problems` and nothing loads. Other missing columns are reported in `columnsMissing` and
    show as "not published".
-3. `levelGroupOf` keeps only associate degree, bachelor (including honours), graduate certificate,
-   graduate diploma, master, doctorate. Everything else (school, ELICOS, diploma, certificate I to
-   IV, VET, non-award) is counted in `excludedByLevel` and not stored. Diplomas could be added by
-   changing this one function.
+3. `levelGroupOf` keeps associate degree, bachelor (including honours), graduate certificate, graduate
+   diploma, master, doctorate, diploma, advanced diploma and Certificate I to IV (literal matches). School,
+   Non AQF Award and Vocational Short Course rows are counted in `excludedByLevel` and not stored. Each
+   course gets a `sector` and the VET National Code as published (a diploma with no code has no stated sector).
 4. Duplicate course codes: the first row wins and the code is listed in `duplicateCodes`.
 5. Locations come from the Course Locations sheet joined on `providerCode|courseCode` (campus is
    "name, city" unless the name already holds the city). Without that sheet the Courses sheet's own
@@ -165,8 +165,7 @@ sequenceDiagram
 
 ## 4. Known limits and open items
 
-- **Level scope**: higher-education only; diplomas, advanced diplomas and VET (5,846 more courses in
-  the 1 Oct 2026 file) are excluded unless `levelGroupOf` changes. Whether to include them is open.
+- **Level scope**: higher education plus diploma, advanced diploma and Certificate I to IV (decided 20 Nov 2026). Non AQF Award (1,707), Vocational Short Course (39) and school levels stay out.
 - **No entry facts**: English tests, country-based entry requirements, intakes, scholarships and
   provider fee pages are outside CRICOS; they are only reachable through the guided-browsing
   checklist, which is untested against real provider sites **(unverified)**.

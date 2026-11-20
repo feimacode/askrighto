@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   levelGroupOf,
+  sectorOf,
   parseIntlCricos,
   parseLocation,
 } from "../../src/intl/parse.js";
@@ -20,9 +21,9 @@ describe("CRICOS international parser", () => {
       "000004D",
       "000005E",
       "000006F",
+      "000007G",
     ]);
     expect(r.report.excludedByLevel).toEqual({
-      Diploma: 1,
       "Senior Secondary": 1,
     });
     expect(r.report.duplicateCodes).toEqual(["000001A"]);
@@ -76,6 +77,20 @@ describe("CRICOS international parser", () => {
     expect(levelGroupOf("Masters Degree (Research)")).toBe("master");
     expect(levelGroupOf("Doctoral Degree")).toBe("doctorate");
     expect(levelGroupOf("ELICOS")).toBeUndefined();
+    expect(levelGroupOf("Graduate Diploma")).toBe("graduate_diploma");
+    expect(levelGroupOf("Diploma")).toBe("diploma");
+    expect(levelGroupOf("Advanced Diploma")).toBe("advanced_diploma");
+    expect(levelGroupOf("Certificate III")).toBe("certificate_iii");
+    expect(levelGroupOf("Certificate I")).toBe("certificate_i");
+    for (const x of [
+      "Non AQF Award",
+      "Vocational Short Course",
+      "Senior Secondary Certificate of Education",
+      "Primary School Studies",
+      "Junior Secondary Studies",
+      "Certificate V",
+    ])
+      expect(levelGroupOf(x)).toBeUndefined();
     expect(parseLocation("VIC: Clayton")).toEqual({
       state: "VIC",
       campus: "Clayton",
@@ -88,6 +103,25 @@ describe("CRICOS international parser", () => {
       state: "",
       campus: "Somewhere",
     });
+  });
+});
+
+describe("sector and VET National Code", () => {
+  it("labels sector as the register states it and never infers it", () => {
+    expect(sectorOf("certificate_iii", "")).toBe("vet");
+    expect(sectorOf("diploma", "XXX50100")).toBe("vet");
+    expect(sectorOf("advanced_diploma", "")).toBeUndefined();
+    expect(sectorOf("bachelor", "")).toBe("higher_education");
+  });
+  it("stores the code as published and leaves it unset when blank", () => {
+    const r = parseIntlCricos(
+      "Course Code,Provider Code,Course Name,Course Level,VET National Code\n1A,P1,Diploma of X,Diploma,XXX50100\n2B,P1,Diploma of Y,Diploma,\n3C,P1,Cert III in Z,Certificate III,",
+    );
+    const by = (c: string) => r.courses.find((x) => x.cricosCode === c)!;
+    expect(by("1A")).toMatchObject({ sector: "vet", vetNationalCode: "XXX50100" });
+    expect(by("2B").sector).toBeUndefined();
+    expect(by("2B").vetNationalCode).toBeUndefined();
+    expect(by("3C").sector).toBe("vet");
   });
 });
 
@@ -109,9 +143,10 @@ describe("CRICOS parser on the real export layout", () => {
       "000102B",
       "000103C",
       "000104D",
+      "000105E",
       "000106F",
     ]);
-    expect(r.report.excludedByLevel).toEqual({ Diploma: 1 });
+    expect(r.report.excludedByLevel).toEqual({});
   });
   it("keeps Honours and expired rows (expired is labelled), and reads fees with thousands separators", () => {
     const r = real();
@@ -151,7 +186,7 @@ describe("CRICOS parser on the real export layout", () => {
       courseLocations: true,
       institutions: true,
     });
-    expect(r.report.withoutLocation).toBe(1);
+    expect(r.report.withoutLocation).toBe(2);
     expect(r.report.columnsMissing).toEqual([]);
   });
   it("maps the broad and narrow field of education", () => {
