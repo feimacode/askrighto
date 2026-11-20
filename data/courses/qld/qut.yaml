@@ -1,0 +1,10 @@
+# Queensland University of Technology: provider entry for the qld index. CRICOS undergraduate courses come in from the CRICOS file on load;
+# coursesUrl is the provider's own site from the CRICOS Institutions sheet, not a course finder link. Add official course
+# links and curated rows by hand from the university's own pages (never from UAC, QTAC, VTAC or Course Seeker).
+provider:
+  id: qut
+  cricosProviderCode: "00213J"
+  name: Queensland University of Technology
+  coursesUrl: https://www.qut.edu.au/
+  domains: [qut.edu.au]
+courses: []

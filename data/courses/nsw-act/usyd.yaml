@@ -1,0 +1,10 @@
+# University of Sydney: provider entry for the nsw-act index. CRICOS undergraduate courses come in from the CRICOS file on load;
+# coursesUrl is the provider's own site from the CRICOS Institutions sheet, not a course finder link. Add official course
+# links and curated rows by hand from the university's own pages (never from UAC, QTAC, VTAC or Course Seeker).
+provider:
+  id: usyd
+  cricosProviderCode: "00026A"
+  name: University of Sydney
+  coursesUrl: https://sydney.edu.au/
+  domains: [sydney.edu.au]
+courses: []

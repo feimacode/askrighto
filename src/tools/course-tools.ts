@@ -19,6 +19,7 @@ import {
   evaluatePrerequisites,
   type PrereqResult,
 } from "../courses/prerequisites.js";
+import { REGIONS } from "../courses/types.js";
 import {
   COURSE_DATASETS,
   courseFound,
@@ -102,6 +103,12 @@ export const searchCourses = defineTool({
       .max(60)
       .optional()
       .describe("Campus or location, e.g. Clayton"),
+    region: z
+      .enum(REGIONS)
+      .optional()
+      .describe(
+        "vic (VTAC universities), nsw-act (UAC universities) or qld (QTAC universities). Leave out to search all",
+      ),
     vceStudies: z
       .array(z.string().max(80))
       .max(10)

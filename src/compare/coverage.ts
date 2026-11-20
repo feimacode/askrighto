@@ -77,6 +77,8 @@ export async function domesticCoverage(
 ): Promise<DomesticCoverage> {
   const datasets = datasetsFor([
     "vic-courses",
+    "nsw-act-courses",
+    "qld-courses",
     "vce-key-dates",
     "vtac-preference-rules",
     "vic-early-entry",

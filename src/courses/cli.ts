@@ -7,6 +7,7 @@ import { sharedRun } from "./verbatim.js";
 import { parseCricos, type CricosCourse } from "./cricos.js";
 import { loadCourses, mergeIndex, readProviderFiles } from "./load.js";
 import { dataDir } from "./studies.js";
+import { matchStandins, standinSummary } from "./standins.js";
 
 const arg = (args: string[], name: string) => {
   const i = args.indexOf(name);
@@ -158,4 +159,34 @@ export async function cliVceLoad(): Promise<void> {
   } finally {
     await db.close();
   }
+}
+
+/** courses:match-standins --cricos FILE [--course-locations FILE] [--json]: proposes CRICOS codes for stand-in rows; changes nothing. */
+export function cliCoursesMatchStandins(args: string[]): void {
+  const { files, errors } = readProviderFiles(dataDir());
+  if (errors.length) fail(errors);
+  const f = arg(args, "--cricos");
+  if (!f) fail(["--cricos FILE.csv is required"]);
+  const loc = arg(args, "--course-locations");
+  const r = parseCricos(
+    readFileSync(f, "utf8"),
+    loc ? readFileSync(loc, "utf8") : undefined,
+  );
+  if (r.problems.length) fail(r.problems.map((p) => `CRICOS file: ${p}`));
+  const m = matchStandins(files, r.courses);
+  if (args.includes("--json")) {
+    console.log(JSON.stringify({ summary: standinSummary(m), matches: m }, null, 2));
+    return;
+  }
+  console.log(JSON.stringify(standinSummary(m)));
+  for (const x of m) {
+    console.log(`${x.status.padEnd(9)} ${x.courseId}  "${x.name}"`);
+    for (const c of x.candidates)
+      console.log(
+        `            ${c.cricosCode}  ${c.name}  [${c.locations.slice(0, 3).join("; ")}${c.locations.length > 3 ? "; ..." : ""}]`,
+      );
+  }
+  console.log(
+    "Nothing was changed. Check campus and year, then set cricosCode on the stand-in in its YAML file.",
+  );
 }

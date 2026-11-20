@@ -32,6 +32,8 @@ export interface SearchFilter {
   field?: string;
   university?: string;
   campus?: string;
+  /** `vic`, `nsw-act` or `qld`: the region of the provider. */
+  region?: string;
 }
 
 /** Matches a university by id, name or a distinctive word of its name ("monash", "RMIT"). */
@@ -55,7 +57,10 @@ export function filterCourses(cat: Catalogue, f: SearchFilter): Course[] {
     : undefined;
   const field = f.field ? norm(f.field) : "";
   const campus = f.campus ? norm(f.campus) : "";
+  const regionOf = (id: string) =>
+    cat.providers.find((p) => p.id === id)?.region ?? "vic";
   return cat.courses.filter((c) => {
+    if (f.region && regionOf(c.providerId) !== f.region) return false;
     if (unis && !unis.has(c.providerId)) return false;
     if (
       field &&

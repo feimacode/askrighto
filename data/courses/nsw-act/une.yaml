@@ -1,0 +1,10 @@
+# University of New England: provider entry for the nsw-act index. CRICOS undergraduate courses come in from the CRICOS file on load;
+# coursesUrl is the provider's own site from the CRICOS Institutions sheet, not a course finder link. Add official course
+# links and curated rows by hand from the university's own pages (never from UAC, QTAC, VTAC or Course Seeker).
+provider:
+  id: une
+  cricosProviderCode: "00003G"
+  name: University of New England
+  coursesUrl: https://www.une.edu.au/
+  domains: [une.edu.au]
+courses: []

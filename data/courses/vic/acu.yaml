@@ -3,7 +3,7 @@
 # official names and codes. Their foundAt is the university's own page.
 provider:
   id: acu
-  cricosProviderCode: "00004C"  # confirm against the CRICOS file on first load
+  cricosProviderCode: "00004G"  # confirmed against the 1 Oct 2026 CRICOS file (was 00004C, which matched nothing)
   name: Australian Catholic University
   coursesUrl: https://www.acu.edu.au/study-at-acu/find-a-course
   searchUrl: https://www.acu.edu.au/study-at-acu/find-a-course
