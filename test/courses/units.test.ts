@@ -204,6 +204,17 @@ describe("CRICOS merge", () => {
     expect(r.problems).toEqual([]);
     expect(r.courses).toHaveLength(2);
   });
+  it("takes locations from the Course Locations sheet of the real export", async () => {
+    const { readFileSync } = await import("node:fs");
+    const dir = `${process.cwd()}/test/fixtures/cricos/real-layout`;
+    const r = parseCricos(
+      readFileSync(`${dir}/courses.csv`, "utf8"),
+      readFileSync(`${dir}/course-locations.csv`, "utf8"),
+    );
+    expect(r.problems).toEqual([]);
+    const first = r.courses.find((c) => c.cricosCode === "000101A");
+    expect(first?.locations).toEqual(["Parkville Campus"]);
+  });
   it("reports a missing column", () =>
     expect(parseCricos("a,b\n1,2").problems.length).toBeGreaterThan(0));
   it("adds undergraduate CRICOS courses as index-only rows and skips others", () => {

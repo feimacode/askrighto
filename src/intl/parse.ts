@@ -138,7 +138,7 @@ export interface IntlParseReport {
   columnsMissing: string[];
 }
 
-const LOC_HEADERS = {
+export const LOC_HEADERS = {
   providerCode: HEADERS.providerCode,
   cricosCode: HEADERS.cricosCode,
   name: ["locationname", "campus", "campusname"],
@@ -151,7 +151,7 @@ const INST_HEADERS = {
 } as const;
 
 /** Reads a sheet with named columns; rows come back as objects keyed by our field names. */
-function readSheet<H extends Record<string, readonly string[]>>(
+export function readSheet<H extends Record<string, readonly string[]>>(
   csv: string,
   headers: H,
 ): Array<Record<keyof H, string>> {

@@ -4,6 +4,8 @@
  * matched loosely because the file layout has not been confirmed against a real download in this repo yet
  * (see docs/course-data.md).
  */
+import { LOC_HEADERS, readSheet } from "../intl/parse.js";
+
 export interface CricosCourse {
   cricosCode: string;
   providerCode: string;
@@ -56,7 +58,10 @@ const HEADERS: Record<keyof CricosCourse, string[]> = {
   locations: ["locations", "courselocations", "location"],
 };
 
-export function parseCricos(csv: string): {
+export function parseCricos(
+  csv: string,
+  courseLocationsCsv?: string,
+): {
   courses: CricosCourse[];
   problems: string[];
 } {
@@ -83,6 +88,20 @@ export function parseCricos(csv: string): {
     const i = col(f);
     return i >= 0 ? (r[i] ?? "").trim() : "";
   };
+  // The real file keeps locations on its own Course Locations sheet (docs/cricos-columns.md).
+  const locByCourse = new Map<string, string[]>();
+  if (courseLocationsCsv)
+    for (const r of readSheet(courseLocationsCsv, LOC_HEADERS)) {
+      if (!r.cricosCode || !r.name) continue;
+      const campus =
+        r.city && !r.name.toLowerCase().includes(r.city.toLowerCase())
+          ? `${r.name}, ${r.city}`
+          : r.name;
+      const k = `${r.providerCode}|${r.cricosCode}`;
+      const list = locByCourse.get(k) ?? [];
+      if (!list.includes(campus)) list.push(campus);
+      locByCourse.set(k, list);
+    }
   const courses: CricosCourse[] = [];
   for (const r of rows.slice(1)) {
     const code = g(r, "cricosCode");
@@ -95,10 +114,12 @@ export function parseCricos(csv: string): {
       courseName: g(r, "courseName"),
       ...(g(r, "level") ? { level: g(r, "level") } : {}),
       ...(Number.isFinite(weeks) && weeks > 0 ? { durationWeeks: weeks } : {}),
-      locations: g(r, "locations")
-        .split(/[;|]/)
-        .map((x) => x.trim())
-        .filter(Boolean),
+      locations: courseLocationsCsv
+        ? (locByCourse.get(`${g(r, "providerCode")}|${code}`) ?? [])
+        : g(r, "locations")
+            .split(/[;|]/)
+            .map((x) => x.trim())
+            .filter(Boolean),
     });
   }
   return { courses, problems };
