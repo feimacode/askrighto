@@ -1,6 +1,6 @@
 # Scorecard
 
-Version 1 (draft). Fill one row per prompt per host. Coverage, freshness and rights readiness come from `npm run compare:usecases`.
+Version 2 (draft; prompts D01–D31 and I01–I30, with mechanical checks). Fill one row per prompt per host. Coverage, freshness and rights readiness come from `npm run compare:usecases`.
 
 ## Data-side measures
 
@@ -12,11 +12,13 @@ Version 1 (draft). Fill one row per prompt per host. Coverage, freshness and rig
 | Source age in days | | |
 | Rights ready in production mode | | |
 | Columns not found (international) | n/a | |
+| Rows by region (vic, nsw-act, qld) | | n/a |
+| Rows by sector (higher education, VET, not stated) | n/a | |
 
 ## Prompt runs
 
-| Prompt | Host | Browsing assistant | Tools called | Outcome counts before to after | Grounded (yes/no) | Completeness (no browsing / with browsing / not answerable) | Notes |
-| --- | --- | --- | --- | --- | --- | --- | --- |
+| Prompt | Host | Browsing assistant | Tools called | Mechanical checks failed (prompt table column 5) | Outcome counts before to after | Grounded (yes/no) | Completeness (no browsing / with browsing / not answerable) | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
 ## Summary per use case
 
@@ -28,6 +30,8 @@ Version 1 (draft). Fill one row per prompt per host. Coverage, freshness and rig
 | Answered only with browsing | | |
 | Not answerable | | |
 | Ungrounded figures seen | | |
+| Prompts with a failed mechanical check | | |
+| Regions and sectors covered (domestic: vic, nsw-act, qld; international: higher education, VET) | | |
 
 ## Decision rules (draft, for Iven to confirm)
 

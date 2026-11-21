@@ -19,6 +19,49 @@ export const SETS = {
 /** What a run covers when no set is named: the sets whose data CI can load from the repo and fixtures. */
 export const DEFAULT_SETS = ["domestic", "international", "health"];
 
+/**
+ * The optional fifth column: `;`-separated mechanical checks, written as plain phrases so a table cell needs no
+ * escaping (no `|`, `;` or `/` inside a phrase; `/` separates alternatives).
+ *   arg:TOOL.KEY=VALUE   some call to TOOL had argument KEY equal to VALUE
+ *   says:A/B             the answer contains at least one of the phrases
+ *   never:A/B            the answer contains none of the phrases
+ *   result:A/B           some tool result contains at least one of the phrases
+ * Phrases match case-insensitively. A cell of `-` or nothing means no checks.
+ */
+export function parseChecks(cell) {
+  if (!cell || cell === "-") return [];
+  return cell
+    .split(";")
+    .map((c) => c.trim())
+    .filter(Boolean)
+    .map((c) => {
+      const i = c.indexOf(":");
+      const kind = c.slice(0, i);
+      const body = c.slice(i + 1).trim();
+      if (kind === "arg") {
+        const m = /^([A-Za-z0-9_]+)\.([A-Za-z0-9_]+)=(.+)$/.exec(body);
+        if (!m) throw new Error(`bad arg check: ${c}`);
+        return { kind, tool: m[1], key: m[2], value: m[3].trim(), raw: c };
+      }
+      if (!["says", "never", "result"].includes(kind)) throw new Error(`unknown check kind: ${c}`);
+      return { kind, phrases: body.split("/").map((p) => p.trim().toLowerCase()).filter(Boolean), raw: c };
+    });
+}
+
+/** The raw text of the checks that failed for one run. */
+export function failedChecks(checks, { toolCalls, toolResults, answer }) {
+  const ans = (answer ?? "").toLowerCase();
+  const res = (toolResults ?? []).map((r) => String(r).toLowerCase());
+  return (checks ?? [])
+    .filter((c) => {
+      if (c.kind === "arg") return !toolCalls.some((t) => t.name === c.tool && String(t.args?.[c.key]) === c.value);
+      if (c.kind === "says") return !c.phrases.some((p) => ans.includes(p));
+      if (c.kind === "never") return c.phrases.some((p) => ans.includes(p));
+      return !c.phrases.some((p) => res.some((r) => r.includes(p)));
+    })
+    .map((c) => c.raw);
+}
+
 /** Rows of a markdown table `| Id | Prompt | Expected tools | A grounded answer must |`. */
 export function parsePromptTable(markdown, idPattern) {
   const rows = [];
@@ -27,7 +70,7 @@ export function parsePromptTable(markdown, idPattern) {
     const cells = line.split("|").slice(1, -1).map((c) => c.trim());
     if (cells.length < 4 || !idPattern.test(cells[0])) continue;
     const tools = cells[2] === "(none)" ? [] : cells[2].split(",").map((t) => t.trim()).filter(Boolean);
-    rows.push({ id: cells[0], prompt: cells[1], expectedTools: tools, must: cells[3] });
+    rows.push({ id: cells[0], prompt: cells[1], expectedTools: tools, must: cells[3], checks: parseChecks(cells[4]) });
   }
   return rows;
 }
@@ -94,8 +137,9 @@ export function scoreRun({ row, toolCalls, toolResults, answer, error }) {
   const untraced = traceNumbers({ prompt: row.prompt, toolResults, answer }).map((f) => f.raw);
   const banned = bannedWording(answer);
   const noAnswer = !answer.trim();
-  const pass = !error && !noAnswer && missingTools.length === 0 && unexpectedTools.length === 0 && untraced.length === 0;
-  return { key: row.key, pass, error: error ?? null, noAnswer, called, missingTools, unexpectedTools, untraced, banned };
+  const checks = failedChecks(row.checks, { toolCalls, toolResults, answer });
+  const pass = !error && !noAnswer && missingTools.length === 0 && unexpectedTools.length === 0 && untraced.length === 0 && checks.length === 0;
+  return { key: row.key, pass, error: error ?? null, noAnswer, called, missingTools, unexpectedTools, untraced, banned, failedChecks: checks };
 }
 
 export function summarise(scores) {
@@ -110,6 +154,7 @@ export function summarise(scores) {
     withUntraced: count((s) => s.untraced.length > 0),
     untracedFigures: scores.reduce((a, s) => a + s.untraced.length, 0),
     withBanned: count((s) => s.banned.length > 0),
+    withFailedChecks: count((s) => (s.failedChecks ?? []).length > 0),
   };
 }
 
@@ -120,15 +165,15 @@ export function renderReport({ label, model, startedAt, runs }) {
   const sum = summarise(runs.map((r) => r.score));
   const out = [];
   out.push(`## Evals ${startedAt}${label ? `: ${label}` : ""}`, "", `Model: \`${model}\`. Sets are our own prompts, not real user questions; a run of this size gives a direction, not statistics.`, "");
-  out.push("| Runs | Passed | Errors | Missing tools | Unexpected tools | Runs with untraced figures | Untraced figures | Runs with flagged wording |", "| --- | --- | --- | --- | --- | --- | --- | --- |");
-  out.push(`| ${sum.runs} | ${sum.passed} | ${sum.errors} | ${sum.missingTools} | ${sum.unexpectedTools} | ${sum.withUntraced} | ${sum.untracedFigures} | ${sum.withBanned} |`, "");
-  out.push("Pass means the expected tools were called (none when none were expected) and every figure in the answer appears in the prompt or a tool result. Flagged wording and the \"must\" column need a person.", "");
-  out.push("| Run | Result | Tools called | Missing | Untraced figures | Flagged wording | A grounded answer must |", "| --- | --- | --- | --- | --- | --- | --- |");
+  out.push("| Runs | Passed | Errors | Missing tools | Unexpected tools | Runs with untraced figures | Untraced figures | Runs with flagged wording | Runs with failed checks |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+  out.push(`| ${sum.runs} | ${sum.passed} | ${sum.errors} | ${sum.missingTools} | ${sum.unexpectedTools} | ${sum.withUntraced} | ${sum.untracedFigures} | ${sum.withBanned} | ${sum.withFailedChecks} |`, "");
+  out.push("Pass means the expected tools were called (none when none were expected), every figure in the answer appears in the prompt or a tool result, and the row's mechanical checks (the prompt tables' optional fifth column) hold. Flagged wording and the \"must\" column need a person.", "");
+  out.push("| Run | Result | Tools called | Missing | Untraced figures | Failed checks | Flagged wording | A grounded answer must |", "| --- | --- | --- | --- | --- | --- | --- | --- |");
   for (const { row, score: s, n } of runs) {
     const result = s.error ? `ERROR ${s.error}` : s.noAnswer ? "NO ANSWER" : s.pass ? "PASS" : "FAIL";
     const missing = [...s.missingTools, ...s.unexpectedTools.map((t) => `unexpected ${t}`)].join(", ");
     const banned = s.banned.map((b) => `${b.name}: "${b.quote}"`).join("; ");
-    out.push(`| ${row.key}${n > 1 ? `#${n}` : ""} | ${cell(result)} | ${cell(s.called.join(", ") || "-")} | ${cell(missing || "-")} | ${cell(s.untraced.join(", ") || "-")} | ${cell(banned || "-")} | ${cell(row.must)} |`);
+    out.push(`| ${row.key}${n > 1 ? `#${n}` : ""} | ${cell(result)} | ${cell(s.called.join(", ") || "-")} | ${cell(missing || "-")} | ${cell(s.untraced.join(", ") || "-")} | ${cell((s.failedChecks ?? []).join("; ") || "-")} | ${cell(banned || "-")} | ${cell(row.must)} |`);
   }
   return out.join("\n") + "\n";
 }

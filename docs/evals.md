@@ -12,7 +12,13 @@ Per run, mechanically:
 - **Untraced figures.** Every figure in the answer appears in the prompt or a tool result (`scripts/trace-numbers.mjs`, deliberately strict).
 - **Flagged wording.** "best", "recommended", odds of entry, an aggregate turned into an ATAR. Flags are for a person to read in context (a refusal may quote the word); they do not fail a run.
 
-A run passes on the first two. The "A grounded answer must" column is not scored: the report repeats it next to each answer for a person to tick. A set of 20 gives a direction, not statistics; model output varies, so use `repeat`.
+A run passes on the first two and on its row's checks (below). The "A grounded answer must" column is not scored: the report repeats it next to each answer for a person to tick. A set of 20 gives a direction, not statistics; model output varies, so use `repeat`.
+
+## Mechanical checks (prompt table column 5)
+
+A row may carry a fifth column, `Checks`: `arg:TOOL.KEY=VALUE` (the model called that tool with that argument, compared as text), `says:A/B` (the answer contains a phrase), `never:A/B` (it contains none) and `result:A/B` (a tool result contains one). Phrases are plain text, matched without case, with no `|`, `;` or `/` inside. A failed check fails the run and is listed in the report. `test/intl/prompts.test.ts` checks that every check parses and that `arg:` names a real tool and argument.
+
+D21 to D31 and I21 to I30 (regions, a two-state provider, ambiguous names, HSC and QCE not built, VTAC not applied to NSW, no figures for index-only courses, diplomas and VET) rely on this. They need the real CRICOS loads; against the CI fixtures they only test not-found handling. Cross-cutting checks that need no model: the public route lists no course or international tools and the regional datasets are registered (`test/courses/regions.test.ts`), the untraced-figure check runs on every run, and `courses:validate`, `courses:match-standins` and `intl:validate` run clean from the command line.
 
 ## Run it from GitHub
 
