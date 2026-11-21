@@ -77,6 +77,9 @@ interface SearchData {
   notice: string;
 }
 
+const NON_VCE_NOTE =
+  "This is a NSW, ACT or Queensland course. Ask Righto has not built HSC or QCE subject rules yet, so it cannot check subjects for it, and VCE studies do not apply. Use the official page.";
+
 export const searchCourses = defineTool({
   name: "search_domestic_courses",
   title: "Search Victorian university courses",
@@ -599,6 +602,22 @@ export const checkCoursePrerequisites = defineTool({
             ? { courseSeekerUrl: view.courseSeekerUrl }
             : {}),
         };
+        const region = cat.providers.find((x) => x.id === c.providerId)?.region;
+        if (region && region !== "vic") {
+          warnings.push(`${c.name}: ${NON_VCE_NOTE}`);
+          rows.push({
+            ...head,
+            result: "cannot_check",
+            missing: [],
+            scoresNeeded: [],
+            otherCriteria: [],
+            ...(view.depth === "index_only"
+              ? { readingChecklist: view.readingChecklist }
+              : {}),
+            note: `${NON_VCE_NOTE} ${view.depth === "index_only" ? view.message : ""}`.trim(),
+          });
+          continue;
+        }
         if (view.depth === "index_only" || !view.prerequisites) {
           rows.push({
             ...head,

@@ -28,6 +28,43 @@ describe("eval prompt sets", () => {
 
 });
 
+describe("mechanical checks", () => {
+  const row = (checks: string) => ({
+    id: "D21", set: "domestic", key: "domestic:D21", prompt: "q", expectedTools: ["search_domestic_courses"], must: "m",
+    checks: lib.parseChecks(checks),
+  });
+  const run = (checks: string, o: Record<string, unknown> = {}) =>
+    lib.scoreRun({
+      row: row(checks),
+      toolCalls: [{ name: "search_domestic_courses", args: { region: "qld", limit: 5 } }],
+      toolResults: ["Sector: VET. HSC or QCE subject rules are not built"],
+      answer: "These rules are not built yet.",
+      ...o,
+    });
+  it("passes when every check holds", () => {
+    expect(run("arg:search_domestic_courses.region=qld; says:not built/cannot; never:you will get in; result:HSC or QCE").pass).toBe(true);
+  });
+  it("compares arguments as text", () => {
+    expect(run("arg:search_domestic_courses.limit=5").pass).toBe(true);
+    expect(run("arg:search_domestic_courses.region=vic").failedChecks).toEqual(["arg:search_domestic_courses.region=vic"]);
+  });
+  it("fails on a missing phrase, a banned phrase or a missing result phrase", () => {
+    expect(run("says:UAC").pass).toBe(false);
+    expect(run("never:not built").pass).toBe(false);
+    expect(run("result:certificate").pass).toBe(false);
+  });
+  it("reads a fifth column and treats - as none", () => {
+    const rows = lib.parsePromptTable(
+      "| Id | P | T | M | C |\n| --- | --- | --- | --- | --- |\n| D01 | q | t | m | - |\n| D02 | q | t | m | says:a/b; never:c |\n| D03 | q | t | m |",
+      /^D\d+$/,
+    ) as { checks: unknown[] }[];
+    expect(rows.map((r) => r.checks.length)).toEqual([0, 2, 0]);
+  });
+  it("rejects an unknown check kind", () => {
+    expect(() => lib.parseChecks("maybe:x")).toThrow(/unknown check kind/);
+  });
+});
+
 describe("scoreRun", () => {
   const row: Row = { id: "D01", set: "domestic", key: "domestic:D01", prompt: "Show courses", expectedTools: ["search_domestic_courses"], must: "m" };
   const base = { row, toolCalls: [{ name: "search_domestic_courses", args: {} }], toolResults: ["rank 80.05 in 2026"], answer: "Rank 80.05 in 2026." };
