@@ -122,8 +122,15 @@ export class IntlStore implements IntlSource {
     const [prov, courses, locs, load] = await Promise.all([
       q.query("SELECT * FROM intl_providers ORDER BY name"),
       q.query(
-        `SELECT i.*, (SELECT c.id FROM courses c WHERE c.cricos_code = i.cricos_code LIMIT 1) AS domestic_id
-         FROM intl_courses i ORDER BY i.name, i.cricos_code`,
+        // One hash join, not a subquery per course: the per-row lookup scanned the whole `courses` table (no index on
+        // cricos_code) and took about 6 seconds for 23,000 courses, past the 3 second statement timeout.
+        `SELECT i.*, d.id AS domestic_id
+         FROM intl_courses i
+         LEFT JOIN (
+           SELECT DISTINCT ON (cricos_code) cricos_code, id
+           FROM courses WHERE cricos_code IS NOT NULL ORDER BY cricos_code, id
+         ) d ON d.cricos_code = i.cricos_code
+         ORDER BY i.name, i.cricos_code`,
       ),
       q.query("SELECT * FROM intl_course_locations ORDER BY state, campus"),
       q.query(
