@@ -24,6 +24,8 @@
     "courses:check-pages": "npm run build && node dist/askrighto.js courses:check-pages",
     "vce:validate": "npm run build && node dist/askrighto.js vce:validate",
     "vce:load": "npm run build && node dist/askrighto.js vce:load",
+    "cricos:refresh": "npm run build && node dist/askrighto.js cricos:refresh",
+    "load-all": "npm run build && node dist/askrighto.js load-all",
     "intl:validate": "npm run build && node dist/askrighto.js intl:validate",
     "intl:load": "npm run build && node dist/askrighto.js intl:load",
     "homeloans:sync": "npm run build && node dist/askrighto.js homeloans:sync",

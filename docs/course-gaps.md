@@ -8,6 +8,9 @@ and the unticked tasks of the course OpenSpec changes. Both verticals stay inter
 - Domestic `courses:load` now takes `--course-locations`, so CRICOS-origin rows get campuses (the real file keeps them on a separate sheet).
 - `courses:check-pages` now reports 12-word verbatim runs against the official page and flags pages with little text.
 
+## Loading is now one command
+`load-all` (or `cricos:refresh`) fetches the CRICOS CSV resources from data.gov.au and loads both verticals; see `docs/deploying.md` and `openspec/changes/add-cricos-refresh`. Tested against the real dataset on `askrighto_dev` on 22 Nov 2026: file dated 2026-11-02, 23,072 international courses (1,139 providers) and 3,699 domestic courses. These counts differ from the 1 Oct XLSX snapshot (23,412 and 3,771) because the published CSVs are the register as last republished.
+
 ## Needs a machine that reaches data.gov.au, the database or university pages (the WSL)
 | Gap | Vertical | Next step |
 | --- | --- | --- |
