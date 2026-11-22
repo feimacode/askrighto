@@ -12,6 +12,7 @@ import {
   maskInternalPath,
   tokenMatches,
 } from "./server/internal.js";
+import { startCricosSchedule } from "./cricos/index.js";
 import { startEnergy } from "./energy/index.js";
 import { assertHomeLoanPublicGuard } from "./homeloans/guard.js";
 import { runReadiness } from "./core/readiness.js";
@@ -56,6 +57,10 @@ async function startVerticals(env: NodeJS.ProcessEnv = process.env) {
         `vertical "${id}" failed to start and is unavailable on the internal route: ${e instanceof Error ? e.message : e}`,
       );
     }
+  }
+  if (flags.loaded.some((id) => id === "courses-domestic" || id === "cricos")) {
+    const stop = startCricosSchedule(env);
+    if (stop) stops.push(stop);
   }
   return {
     flags,
@@ -279,6 +284,10 @@ Usage:
   askrighto careers:validate|careers:load --file EMPLOYMENT_PROJECTIONS.xlsx [--source-date YYYY-MM-DD] [--source-name NAME]
   askrighto intl:validate|intl:load --cricos COURSES.csv [--course-locations FILE.csv] [--institutions FILE.csv] [--source-date YYYY-MM-DD]
                        check and load the CRICOS course sheet (international students)
+  askrighto cricos:refresh [--dry-run] [--force]
+                       fetch the CRICOS dataset from data.gov.au and load the domestic index and the international store
+  askrighto load-all [--force]
+                       migrate, load the VCE admissions files, then cricos:refresh (one command for a fresh database)
   askrighto compare:usecases [--json]
                        coverage report for the domestic and international course data (read-only)
   askrighto homeloans:sync [--record DIR] [--lender SLUG]
@@ -323,6 +332,13 @@ Usage:
     if (args[0] === "intl:validate") cli.cliIntlValidate(args.slice(1));
     else if (args[0] === "intl:load") await cli.cliIntlLoad(args.slice(1));
     else throw new Error(`Unknown command ${args[0]}`);
+  } else if (args[0] === "cricos:refresh" || args[0] === "load-all") {
+    const cli = await import("./cricos/cli.js");
+    const ok =
+      args[0] === "load-all"
+        ? await cli.cliLoadAll(args.slice(1))
+        : await cli.cliCricosRefresh(args.slice(1));
+    if (!ok) process.exitCode = 1;
   } else if (args[0] === "compare:usecases") {
     await (await import("./compare/cli.js")).cliCompareUseCases(args.slice(1));
   } else if (args[0] === "homeloans:sync" || args[0] === "homeloans:cash-rate" || args[0] === "report:homeloans") {

@@ -49,3 +49,7 @@ Export the Courses, Course Locations and Institutions sheets to CSV, then:
 ```
 npm run intl:validate -- --cricos courses.csv --course-locations course-locations.csv --institutions institutions.csv
 ```
+
+## The CSV resources on data.gov.au (checked 22 Nov 2026)
+
+The dataset (`cricos`, CKAN id `e5ae7059-bfa8-4fa4-a5c0-c13cf3520193`) lists separate CSV resources named `CRICOS Courses.csv`, `CRICOS Course Locations.csv`, `CRICOS Institutions.csv` and `CRICOS Locations.csv`. `cricos:refresh` reads the first three. They have the same headers as the XLSX sheets, a UTF-8 byte order mark, no title rows and no report date, so the as-of date is the resource's `last_modified` (2 Nov 2026 at the time). They are the register as last republished, not the 1 Oct snapshot: 25,631 course rows against 25,971, and 23,072 kept against 23,412.
