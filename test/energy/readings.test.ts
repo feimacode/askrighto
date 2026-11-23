@@ -210,10 +210,11 @@ d("the note in compare_energy_plans (database)", () => {
     expect(bench.g.data.notEstimated.find((x: any) => x.reason === "needs_time_of_use_split").detail).toMatch(/Interval readings from the retailer or distributor/);
   });
 
-  it("the Inkview table carries the note (the caption is capped at 300 characters, so it rides in a footnote)", async () => {
-    const { sc } = await call({ postcode: "3000", fuelType: "ELECTRICITY", distributor: "CitiPower", billUsageKwh: 900, billDays: 90 });
-    expect(sc.component).toBe("data_table");
-    expect(JSON.stringify(sc)).toContain("footnote");
+  it("the readings note stays in the grounded result and the text (the card list has no footnote)", async () => {
+    const { sc, text } = await call({ postcode: "3000", fuelType: "ELECTRICITY", distributor: "CitiPower", billUsageKwh: 900, billDays: 90 });
+    expect(sc.component).toBe("listings");
+    expect(JSON.stringify(sc.grounded)).toContain("readingsNote");
+    expect(text).toMatch(/[Ii]nterval readings/);
   });
 
 });
