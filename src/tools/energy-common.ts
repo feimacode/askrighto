@@ -93,6 +93,9 @@ export function asOfFor(plans: EnergyPlan[]): Date {
 
 export const source = ENERGY_SOURCE;
 
+/** Most rows a table is drawn for. Above this, the result is text and structured data only. */
+export const UI_MAX_ROWS = 10;
+
 /**
  * Builds the Inkview component for a found result and carries our grounded envelope beside it,
  * so hosts that draw components get the view and every host still gets source, date and notice.
@@ -101,8 +104,14 @@ export const source = ENERGY_SOURCE;
 export function inkviewResult(
   result: Grounded<unknown>,
   build: () => CallToolResult,
+  opts: { rowsKey?: string } = {},
 ): Partial<CallToolResult> | undefined {
   if (!result.found) return undefined;
+  // A long list is not drawn: the text and structured data still carry every row, and the host narrates them.
+  if (opts.rowsKey) {
+    const rows = (result.data as Record<string, unknown> | null)?.[opts.rowsKey];
+    if (Array.isArray(rows) && rows.length > UI_MAX_ROWS) return undefined;
+  }
   try {
     const ink = build();
     return { structuredContent: { ...(ink.structuredContent ?? {}), grounded: result as unknown as Record<string, unknown> } };

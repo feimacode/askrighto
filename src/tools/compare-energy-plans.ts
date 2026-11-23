@@ -537,5 +537,5 @@ export const compareEnergyPlans = defineTool({
         },
         { limit: 50 },
       );
-    }),
+    }, { rowsKey: "estimates" }),
 });

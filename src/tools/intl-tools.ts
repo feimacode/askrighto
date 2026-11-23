@@ -344,7 +344,7 @@ export const searchIntlCourses = defineTool({
         },
         { limit: 50 },
       );
-    }),
+    }, { rowsKey: "courses" }),
 });
 
 // ---------------------------------------------------------------- get_international_course
