@@ -354,7 +354,7 @@ d("compare_energy_plans with typical usage", () => {
     expect(g.data.usage).toMatchObject({ basis: "benchmark", unit: "MJ" });
     expect(JSON.stringify(sc)).toContain("Typical usage for a household of 2");
     // The Inkview table must actually render (its caption is capped at 300 characters) and lead with the typical-usage line.
-    expect(sc.component).toBe("data_table");
+    expect(sc.component).toBe("listings");
     expect(JSON.stringify(sc)).toMatch(/"caption":"Typical usage for a household of 2, not your own\. These figures/);
     // The worst case: the longest SA zone name and five or more people still fit.
     const worst = `Typical usage for a household of 5 or more, not your own. ${NOTICE}`;

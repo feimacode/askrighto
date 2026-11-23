@@ -184,18 +184,32 @@ export const getEnergyPlan = defineTool({
     inkviewResult(result, () => {
       const r = result as Found<PlanData>;
       const d = r.data;
+      const clip = (t: string, n: number) => (t.length > n ? `${t.slice(0, n - 1)}…` : t);
+      const dual = d.contracts.length > 1;
+      // Rates first: supply, usage, feed-in and discounts for each fuel, as in the text. Rates include GST as on an invoice.
+      const rateFacts = d.contracts.flatMap((c) => {
+        const tag = dual ? `${c.fuel === "ELECTRICITY" ? "Electricity" : "Gas"} ` : "";
+        const supply = [...new Set(c.periods.map((t) => t.dailySupply).filter((x): x is string => !!x))];
+        const usage = c.periods.flatMap((t) => (c.periods.length > 1 ? t.usage.map((u) => `${t.name}: ${u}`) : t.usage));
+        return [
+          ...(supply.length ? [{ label: `${tag}daily supply (inc GST)`, value: clip(supply.join("; "), 200) }] : []),
+          ...(usage.length ? [{ label: `${tag}usage rates (inc GST)`, value: clip(usage.join("; "), 200) }] : []),
+          ...(c.controlledLoads.length ? [{ label: `${tag}controlled load`, value: clip(c.controlledLoads.join("; "), 200) }] : []),
+          ...(c.solarFeedIn.length ? [{ label: `${tag}solar feed-in (as published)`, value: clip(c.solarFeedIn.join("; "), 200) }] : []),
+          ...(c.discounts.length
+            ? [{ label: `${tag}discounts`, value: clip(c.discounts.map((x) => `${x.name}${x.amount ? ` ${x.amount}` : ""} (${x.conditional ? "conditions apply" : "no conditions"})`).join("; "), 200) }]
+            : []),
+        ];
+      });
+      const facts = [
+        ...(d.pricesShown ? rateFacts : [{ label: "Prices", value: clip(d.priceNote, 200) }]),
+      ].slice(0, 7);
       return inkview.entityCard({
         name: d.planName,
         kind: "other",
-        tagline: `${d.retailer} · ${d.fuelType.toLowerCase()} · ${d.planType.toLowerCase()}`,
+        tagline: clip(`${d.retailer} · ${d.fuelType.toLowerCase()} · ${d.planType.toLowerCase()}${d.distributors.length ? ` · ${d.distributors.join(", ")}` : ""}`, 200),
         description: NOTICE,
-        facts: [
-          { label: "Plan id", value: d.planId },
-          { label: "Link", value: d.link.url ? d.link.label : "No link available (give the postcode)" },
-          { label: "Distributors", value: d.distributors.join(", ") || "not stated" },
-          { label: "Source last updated", value: d.sourceLastUpdated.slice(0, 10) },
-          ...d.contracts.flatMap((c) => c.discounts.slice(0, 3).map((x) => ({ label: `Discount (${x.conditional ? "conditional" : "no conditions"})`, value: `${x.name}: ${x.condition}` }))),
-        ].slice(0, 8),
+        facts: [...facts, { label: "Plan id", value: d.planId }],
         ...(d.link.url ? { links: [{ label: d.link.label, url: d.link.url }] } : {}),
         source: inkviewSource(r),
       });

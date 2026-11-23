@@ -174,7 +174,7 @@ export const compareEnergyPlans = defineTool({
   destructiveHint: false,
   openWorldHint: false,
   datasets: [ENERGY_DATASET_ID],
-  meta: tableMeta("data_table"),
+  meta: tableMeta("listings"),
   handler: (args) => {
     const postcode = checkPostcode(args.postcode);
     if (!postcode) return badPostcode();
@@ -499,43 +499,32 @@ export const compareEnergyPlans = defineTool({
     return out.join("\n");
   },
   decorate: (result) =>
-    inkviewResult(result, () => {
-      const r = result as Found<CompareData>;
-      return inkview.table(
-        {
-          title: `Estimated yearly cost${r.data.usage.basis === "benchmark" ? " at typical usage" : ""}, ${r.data.fuelType.toLowerCase()}, postcode ${r.data.postcode}`,
-          caption: r.data.usage.benchmark ? `${typicalCaption(r.data.usage.benchmark.householdSize, r.data.usage.benchmark.fiveOrMore)} ${NOTICE}` : NOTICE,
-          columns: [
-            { key: "rank", label: "#", type: "number" },
-            { key: "retailer", label: "Retailer" },
-            { key: "plan", label: "Plan" },
-            { key: "total", label: "Est. yearly cost", type: "money", currency: "AUD" },
-            { key: "supply", label: "Supply", type: "money", currency: "AUD" },
-            { key: "usage", label: "Usage", type: "money", currency: "AUD" },
-            { key: "ifMet", label: "Cost if conditions met", type: "money", currency: "AUD" },
-            { key: "conditions", label: "Conditions" },
-            { key: "updated", label: "Updated", type: "date" },
-            { key: "linkLabel", label: "Link type" },
-            { key: "link", label: "Link", type: "link" },
-          ],
-          rows: r.data.estimates.map((e) => ({
-            rank: e.rank,
-            retailer: e.brandName,
-            plan: e.displayName,
-            total: e.totalCents / 100,
-            supply: e.breakdown.supplyCents / 100,
-            usage: e.breakdown.usageCents / 100,
-            ifMet: e.conditionalDiscounts.length ? e.totalIfConditionsMetCents / 100 : null,
-            conditions: e.conditionalDiscounts.map((c) => c.name).join("; ") || null,
-            updated: e.sourceLastUpdated.slice(0, 10),
-            linkLabel: e.link.url ? e.link.label : "No link available",
-            link: e.link.url ?? null,
+    inkviewResult(
+      result,
+      () => {
+        const r = result as Found<CompareData>;
+        const clip = (t: string, n: number) => (t.length > n ? `${t.slice(0, n - 1)}…` : t);
+        const d = r.data;
+        // One card per plan, in the ranking order. Dollar figures are the estimate's own; the link is the labelled plan page.
+        return inkview.listings({
+          title: clip(`Estimated yearly cost${d.usage.basis === "benchmark" ? " at typical usage" : ""}, ${d.fuelType.toLowerCase()}, postcode ${d.postcode}`, 120),
+          kind: "service",
+          caption: d.usage.benchmark ? `${typicalCaption(d.usage.benchmark.householdSize, d.usage.benchmark.fiveOrMore)} ${NOTICE}` : NOTICE,
+          listings: d.estimates.map((e) => ({
+            id: e.planId.slice(0, 60),
+            title: clip(e.displayName, 160),
+            badges: [`#${e.rank}`, clip(e.brandName, 24)],
+            price: { amount: e.totalCents / 100, currency: "AUD", unit: "total" },
+            priceNote: "estimated yearly cost",
+            detail: clip(
+              `Supply ${dollars(e.breakdown.supplyCents)}, usage ${dollars(e.breakdown.usageCents)}.${e.conditionalDiscounts.length ? ` ${dollars(e.totalIfConditionsMetCents)} if you meet: ${e.conditionalDiscounts.map((c) => c.name).join("; ")}.` : ""} Plan id ${e.planId}.`,
+              300,
+            ),
+            ...(e.link.url ? { url: e.link.url } : {}),
           })),
           source: inkviewSource(r),
-          // The caption is capped at 300 characters, so the readings note rides in a footnote the table carries.
-          ...(r.data.counts.approximate ? { footnote: `${r.data.counts.approximate} time-of-use plans were estimated only approximately because their hours differ from, or may differ from, the household's own; they are not in this table (see the full result).` } : r.data.readingsNote ? { footnote: r.data.readingsNote.text } : {}),
-        },
-        { limit: 50 },
-      );
-    }, { rowsKey: "estimates" }),
+        } as never);
+      },
+      { rowsKey: "estimates" },
+    ),
 });

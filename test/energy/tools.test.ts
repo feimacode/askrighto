@@ -266,6 +266,11 @@ d("get_energy_plan", () => {
     expect(text).toMatch(/Discount, conditional: Pay on time/);
     expect(text).toContain(NOTICE);
     expect(sc.component).toBe("entity_card");
+    // The card carries the rates (GST inclusive), not only identity facts.
+    const facts = JSON.stringify(sc);
+    expect(facts).toContain("$1.21/day");
+    expect(facts).toContain("0.3080/kWh");
+    expect(facts).toContain("Pay on time");
     expect(g.data.planUrl).toBe("https://example.test/plan/single");
   });
 
@@ -503,12 +508,12 @@ d("standard notice and components", () => {
           distributor: "CitiPower",
           annualUsageKwh: 4000,
         },
-        "data_table",
+        "listings",
       ],
       [
         "compare_energy_plans",
         { postcode: "3000", fuelType: "GAS", annualUsageMj: 20000 },
-        "data_table",
+        "listings",
       ],
     ];
     for (const [name, args, component] of calls) {
