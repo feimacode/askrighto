@@ -322,12 +322,14 @@ d("get_energy_plan", () => {
     expect(odd.warnings.join(" ")).toMatch(/not fully understood/);
   });
 
-  it("withholds dollar amounts while the GST basis is unconfirmed", async () => {
+  it("reads a plan stored while the GST basis was unconfirmed with the confirmed basis, so its prices are shown", async () => {
+    // The stored contracts say UNKNOWN (loaded before 16 Nov 2026); the confirmed basis in gst.ts applies at read time, so no
+    // price is withheld before renormalise-energy has rewritten them (seen in production on 23 Nov 2026).
     await load("UNKNOWN");
     const { g, text } = await call("get_energy_plan", { planId: "A1" });
-    expect(g.data.pricesShown).toBe(false);
-    expect(text).not.toMatch(/\$\d/);
-    expect(text).toMatch(/withheld/);
+    expect(g.data.pricesShown).toBe(true);
+    expect(text).toMatch(/\$\d/);
+    expect(text).not.toMatch(/price withheld/);
     const cmp = (
       await call("compare_energy_plans", {
         postcode: "3000",
@@ -336,8 +338,8 @@ d("get_energy_plan", () => {
         annualUsageKwh: 4000,
       })
     ).g;
-    expect(cmp.data.counts.estimated).toBe(0);
-    expect(cmp.data.notEstimatedByReason.gst_basis_unknown).toBeGreaterThan(0);
+    expect(cmp.data.counts.estimated).toBeGreaterThan(0);
+    expect(cmp.data.notEstimatedByReason.gst_basis_unknown).toBeUndefined();
     await load("EXCLUSIVE");
   });
 });

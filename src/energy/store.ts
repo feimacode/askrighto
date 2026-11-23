@@ -1,4 +1,5 @@
 /** Typed reads and writes over the energy tables. Reads hide plans outside their effective dates. */
+import { GST_BASIS } from "./gst.js";
 import type pg from "pg";
 import { stableHash } from "./hash.js";
 import type { Db } from "./db.js";
@@ -155,12 +156,23 @@ export async function markRetailer(
   );
 }
 
+/**
+ * A contract stored while the GST basis was unconfirmed carries "UNKNOWN" and would have every price withheld until
+ * `renormalise-energy` rewrites it. The basis is now confirmed for all CDR plan rates (src/energy/gst.ts), so a stored
+ * UNKNOWN is read as that confirmed basis: no plan stays priceless because a rewrite has not been run yet. A stored
+ * EXCLUSIVE or INCLUSIVE is kept as it is.
+ */
+function withConfirmedGst(c: Contract | null): Contract | null {
+  return c && c.gstBasis === "UNKNOWN" && GST_BASIS !== "UNKNOWN" ? { ...c, gstBasis: GST_BASIS } : c;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function rowToPlan(r: Record<string, any>): EnergyPlan {
-  const contract = r.contract as {
+  const stored = r.contract as {
     electricity: Contract | null;
     gas: Contract | null;
   };
+  const contract = { electricity: withConfirmedGst(stored.electricity), gas: withConfirmedGst(stored.gas) };
   const iso = (d: Date | null) => (d ? new Date(d).toISOString() : undefined);
   return {
     planId: r.plan_id,
