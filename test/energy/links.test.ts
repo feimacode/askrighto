@@ -174,8 +174,7 @@ d("links in the three tools (database)", () => {
     expect(text).toContain("[Rate sheet on Energy Made Easy](https://www.energymadeeasy.gov.au/plan?id=ORI1012345MRE&postcode=2000)");
     expect(text).toMatch(/does not read or store those pages/);
     expect(text).not.toMatch(/\]\(ORI1012345MRE3@EME\)/);
-    expect(sc.component ?? sc.type ?? JSON.stringify(sc)).toBeTruthy();
-    expect(JSON.stringify(sc)).toContain("linkLabel"); // the Inkview table rendered with the link columns
+    expect(sc.component).toBeUndefined(); // no UI for this pass-through lookup; the link rides in the data
   });
 
   it("search: a Victorian plan gets the retailer website, and the text says to find the rate sheet there", async () => {
