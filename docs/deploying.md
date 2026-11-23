@@ -48,8 +48,11 @@ schema and repeat steps 4 and 5.
 ## Known limits of this deployment
 
 - `gstBasis` is `EXCLUSIVE` since 16 Nov 2026 (`docs/cdr-schemas.md`). Plans loaded before that
-  carry `UNKNOWN` until `node dist/askrighto.js renormalise-energy` is run once after deploy (then
-  restart); until then the server shows no cost estimates for them.
+  carry `UNKNOWN` in the database. Since 23 Nov 2026 the server reads a stored `UNKNOWN` as the
+  confirmed basis, so prices and estimates show without a rewrite; run
+  `docker exec prod-askrighto node askrighto.js renormalise-energy` once anyway (dry run first with
+  `--dry-run`) so the stored data matches, then restart or wait 5 minutes for the cache. Before that
+  change (seen on 23 Nov 2026) the tools withheld every price for such a plan.
 - Azure PostgreSQL requires TLS; the server verifies the certificate. If the connection fails with a
   certificate error, the Azure CA chain is not in Node's bundle: tell us, and we add it through
   `NODE_EXTRA_CA_CERTS`.
