@@ -53,7 +53,6 @@ export const findOccupations = defineTool({
     limit: z.number().int().min(1).max(30).optional().describe("Occupations to return, default 10"),
   }),
   ...base,
-  meta: tableMeta("data_table"),
   handler: (a) =>
     withCareers<FindData>((d) => {
       const words = lower(a.query).split(/\s+/).filter(Boolean);
@@ -86,24 +85,6 @@ export const findOccupations = defineTool({
         .filter(Boolean)
         .join("\n"),
     ),
-  decorate: (result) =>
-    inkviewResult(result, () => {
-      const r = result as Found<FindData>;
-      return inkview.table(
-        {
-          title: "Occupations",
-          caption: CAREER_CAPTION,
-          columns: [
-            { key: "name", label: "Occupation" },
-            { key: "code", label: "Code" },
-            { key: "skill", label: "Skill level" },
-          ],
-          rows: r.data.occupations.map((o) => ({ name: o.name, code: o.code, skill: o.skillLevel ?? "Not published" })),
-          source: inkviewSource(r),
-        },
-        { limit: 30 },
-      );
-    }),
 });
 
 // ---------------------------------------------------------------- get_occupation_outlook

@@ -4,7 +4,7 @@ import { found, notFound } from "../core/grounded.js";
 import { ENERGY_DATASET_ID, withStore } from "../energy/index.js";
 import { linkCell, linkNotes, planLink, type PlanLink } from "../energy/links.js";
 import type { EnergyPlan } from "../energy/types.js";
-import { asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, inkview, inkviewResult, inkviewSource, matchRetailer, NOTICE, source, tableMeta, uniqueDistributors } from "./energy-common.js";
+import { asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, matchRetailer, NOTICE, source, uniqueDistributors } from "./energy-common.js";
 
 const input = z.object({
   postcode: z.string().describe("Four-digit Australian postcode of the property, e.g. 3000"),
@@ -60,7 +60,6 @@ export const searchEnergyPlans = defineTool({
   destructiveHint: false,
   openWorldHint: false,
   datasets: [ENERGY_DATASET_ID],
-  meta: tableMeta("data_table"),
   handler: (args) => {
     const postcode = checkPostcode(args.postcode);
     if (!postcode) return badPostcode();
@@ -153,29 +152,4 @@ export const searchEnergyPlans = defineTool({
     lines.push("", NOTICE);
     return lines.join("\n");
   },
-  decorate: (result) =>
-    inkviewResult(result, () => {
-      const r = result as import("../core/grounded.js").Found<SearchData>;
-      return inkview.table(
-        {
-          title: `Energy plans at ${r.data.postcode}`,
-          caption: NOTICE,
-          columns: [
-            { key: "retailer", label: "Retailer" },
-            { key: "planName", label: "Plan" },
-            { key: "fuelType", label: "Fuel", type: "badge" },
-            { key: "planType", label: "Type", type: "badge" },
-            { key: "tariffType", label: "Tariff" },
-            { key: "distributors", label: "Distributor" },
-            { key: "updated", label: "Updated", type: "date" },
-            { key: "linkLabel", label: "Link type" },
-            { key: "link", label: "Link", type: "link" },
-            { key: "planId", label: "Plan id" },
-          ],
-          rows: r.data.plans.map(({ link, ...p }) => ({ ...p, distributors: p.distributors.join(", "), updated: p.sourceLastUpdated.slice(0, 10), linkLabel: link.url ? link.label : "No link available", link: link.url ?? null })),
-          source: inkviewSource(r),
-        },
-        { limit: 50 },
-      );
-    }),
 });

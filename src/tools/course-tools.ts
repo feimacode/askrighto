@@ -305,7 +305,7 @@ export const searchCourses = defineTool({
         },
         { limit: 50 },
       );
-    }),
+    }, { rowsKey: "courses" }),
 });
 
 const SHORT: Record<string, string> = {
@@ -704,7 +704,7 @@ export const checkCoursePrerequisites = defineTool({
         })),
         source: inkviewSource(r),
       });
-    }),
+    }, { rowsKey: "courses" }),
 });
 
 export type { Catalogue };

@@ -132,9 +132,14 @@ d("tools are listed with annotations and the Inkview view", () => {
         openWorldHint: false,
       });
       expect(t.title).toBeTruthy();
-      expect((t._meta as any)?.ui?.resourceUri).toBe(
-        "ui://inkview/v1/app.html",
-      );
+      // search_energy_plans only hands plan ids to the next call, so it draws no component.
+      if (n === "search_energy_plans") {
+        expect((t._meta as any)?.ui?.resourceUri).toBeUndefined();
+      } else {
+        expect((t._meta as any)?.ui?.resourceUri).toBe(
+          "ui://inkview/v1/app.html",
+        );
+      }
     }
   });
 
@@ -145,7 +150,7 @@ d("tools are listed with annotations and the Inkview view", () => {
 });
 
 d("search_energy_plans", () => {
-  it("returns plans with source, date, notice and a table component", async () => {
+  it("returns plans with source, date, notice and no component", async () => {
     const { text, sc, g } = await call("search_energy_plans", {
       postcode: "3000",
       fuelType: "ELECTRICITY",
@@ -162,7 +167,7 @@ d("search_energy_plans", () => {
     expect(Date.parse(g.asOf)).not.toBeNaN();
     expect(text).toContain(NOTICE);
     expect(g.data.notice).toBe(NOTICE);
-    expect(sc.component).toBe("data_table");
+    expect(sc.component).toBeUndefined(); // a pass-through lookup draws no UI
     expect(text).toMatch(/\| Retailer \| Plan \|/); // markdown table for text-only hosts
   });
 
@@ -489,7 +494,6 @@ d("compare_energy_plans", () => {
 d("standard notice and components", () => {
   it("every found energy result carries the notice in both forms and a component for MCP Apps hosts", async () => {
     const calls: Array<[string, Record<string, unknown>, string]> = [
-      ["search_energy_plans", { postcode: "3000" }, "data_table"],
       ["get_energy_plan", { planId: "A1" }, "entity_card"],
       [
         "compare_energy_plans",

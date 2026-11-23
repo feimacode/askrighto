@@ -56,7 +56,6 @@ export const getSubjectScaling = defineTool({
   }),
   ...ro,
   datasets: ["vce-scaling"],
-  meta: tableMeta("data_table"),
   handler: (a) =>
     withVce<ScalingData>((d) => {
       const m = matchStudy(a.study);
@@ -102,23 +101,6 @@ export const getSubjectScaling = defineTool({
     }),
   render: (d) =>
     `${d.study}, ${d.studyYear} scaling: ${d.points.map((p) => `raw ${p.rawStudyScore} scales to ${p.scaledScore}`).join("; ")}.\n${d.note}\n\n${d.notice}`,
-  decorate: (result) =>
-    inkviewResult(result, () => {
-      const r = result as Found<ScalingData>;
-      return inkview.table({
-        title: `${r.data.study}: scaling, study year ${r.data.studyYear}`,
-        caption: r.data.notice,
-        columns: [
-          { key: "raw", label: "Raw study score", type: "number" },
-          { key: "scaled", label: "Scaled score", type: "number" },
-        ],
-        rows: r.data.points.map((p) => ({
-          raw: p.rawStudyScore,
-          scaled: p.scaledScore,
-        })),
-        source: inkviewSource(r),
-      });
-    }),
 });
 
 // ---------------------------------------------------------------- estimate_vce_aggregate
@@ -261,7 +243,7 @@ export const estimateVceAggregate = defineTool({
         })),
         source: inkviewSource(r),
       });
-    }),
+    }, { rowsKey: "studies" }),
 });
 
 // ---------------------------------------------------------------- get_vce_key_dates

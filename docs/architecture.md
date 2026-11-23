@@ -260,6 +260,8 @@ in `structuredContent` and carries the grounded envelope beside it, so every hos
 date and notice in the text. A component that fails validation is skipped and the plain result is
 returned.
 
+Not every result is drawn. Lookups that only hand an id to the next call (`search_energy_plans`, `get_subject_scaling`, `find_occupations`) have no component. Browse and result tables are drawn only up to `UI_MAX_ROWS` (10) rows; above that the host gets text and structured data only. The current-plan picker form is the one component the user must act on.
+
 ### 7.4 Scale and operations
 
 The server is stateless, so more instances only need a load balancer; the advisory lock keeps energy
