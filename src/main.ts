@@ -5,6 +5,7 @@
  *                      tests. The product is the hosted HTTP endpoint; stdio would need database credentials.
  *   askrighto --http   streamable HTTP on PORT (default 3001), path /mcp
  */
+import { CHALLENGE_PATH, challengeResponse } from "./server/challenge.js";
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 import { httpConfig } from "./config.js";
 import {
@@ -158,6 +159,12 @@ async function startHttp(): Promise<void> {
     next();
   });
 
+  // ChatGPT portal domain check. Outside the host guard on purpose, like /healthz. The token is
+  // in the response only, never in the path, so the access log does not record it.
+  app.get(CHALLENGE_PATH, (_req: Request, res: Response) => {
+    const r = challengeResponse();
+    res.status(r.status).type("text/plain").send(r.body);
+  });
   app.get("/", (_req: Request, res: Response) => {
     res
       .type("text/plain")

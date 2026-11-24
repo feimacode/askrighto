@@ -1,0 +1,18 @@
+{
+  "name": "askrighto",
+  "version": "0.1.0",
+  "description": "Ask Righto answers everyday Australian questions from public data. These skills help the assistant use its tools: quote only tool results, show the source and date, and never guess.",
+  "homepage": "https://askrighto.com.au",
+  "repository": "https://github.com/feimacode/askrighto",
+  "keywords": ["australia", "energy", "public-data"],
+  "serverUrl": "https://askrighto.feimacode.com/mcp",
+  "serverName": "askrighto",
+  "publicSkills": ["ask-righto-grounding", "energy-bill-comparison"],
+  "marketplace": {
+    "name": "askrighto",
+    "description": "Ask Righto skills: grounded answers from public Australian data.",
+    "owner": "Ask Righto",
+    "pluginDescription": "Skills and the Ask Righto server for grounded answers from public Australian data.",
+    "internalDescription": "Course, health cover and home loan skills for testers while those tools are internal-only. Not for public listing. Add the internal connector by hand: its address holds a secret token."
+  }
+}

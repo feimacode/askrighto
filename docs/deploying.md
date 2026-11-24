@@ -70,6 +70,7 @@ One image, one instance, two routes. Which verticals load and which each route s
 | --- | --- |
 | `ASKRIGHTO_VERTICALS` | Verticals the process loads. Default `energy`. Example: `energy,courses-domestic`. Verticals: `energy`, `courses-domestic`, `cricos` (courses for international students). The earlier ids `courses` and `international` are still accepted with a warning. |
 | `ASKRIGHTO_PUBLIC_VERTICALS` | Verticals `/mcp` serves. Must be a subset of the loaded list. Default: all loaded. Example: `energy`. |
+| `ASKRIGHTO_OPENAI_CHALLENGE` | The token the ChatGPT plugin portal shows when you submit the endpoint. Served as plain text at `/.well-known/openai-apps-challenge`; with no value the path answers 404. A deployment secret: set it through feima-infra, never in the repo or the image. Re-verify it after the move to `askrighto.com.au`. |
 | `ASKRIGHTO_INTERNAL_TOKEN` | At least 43 characters (32 random bytes, base64url). Turns on `/mcp-internal/<token>`, `/readyz-internal/<token>` and `/metrics-internal/<token>`. With no token those paths do not exist (404). |
 | `ASKRIGHTO_ENV=production` | The data rights gate applies on both routes (pending datasets answer `data_unavailable`). `NODE_ENV=production` has the same effect. |
 | `ASKRIGHTO_DATA_DIR` | Where `data/` lives. The image sets `/app/data`. |
@@ -91,3 +92,7 @@ The course tools are a work in progress. Answers may be incomplete: many courses
 ## Private health cover (internal vertical)
 
 Add `health-cover` to `ASKRIGHTO_VERTICALS` (not to `ASKRIGHTO_PUBLIC_VERTICALS`) to serve it on the internal route. Each month: unzip the PrivateHealth.gov.au ZIP, `health:validate --dir FOLDER`, then `health:load --dir FOLDER` (open products only; add `--include-closed` to keep closed ones; allow a few minutes and about 1 GB of memory for the full file) (see [health-cover-columns.md](health-cover-columns.md)). After each 1 April and 1 July run `health:rates-validate`. Rates are read from `data/health/rates.yaml`, which the image already copies.
+
+## Plugin packages
+
+`plugin/askrighto.config.json` is the single source for the plugin packages, including the public server URL (`https://askrighto.feimacode.com/mcp` until the new domain is ready). To change the domain, edit `serverUrl`, run `npm run plugin:sync` (rewrites the committed GitHub marketplace files, `plugin:check` fails CI if they are stale) and `npm run plugin:build` (writes `dist/plugins/claude`, `dist/plugins/chatgpt` with `askrighto-chatgpt.zip`, and `dist/plugins/gemini/registration.md`). The packages hold only the public skills; the internal route and internal skills are never included.

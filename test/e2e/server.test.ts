@@ -349,3 +349,46 @@ describe("courses loaded but internal-only", () => {
     await client.close();
   });
 });
+
+describe("ChatGPT domain check route", () => {
+  const TOKEN = "challenge-" + "x".repeat(30);
+  let p4: ChildProcess;
+  let base = "";
+  let log4 = "";
+
+  beforeAll(async () => {
+    const port = String(6100 + Math.floor(Math.random() * 300));
+    base = `http://127.0.0.1:${port}`;
+    p4 = spawn(process.execPath, [BUNDLE, "--http"], {
+      env: {
+        ...cleanEnv(),
+        PORT: port,
+        HOST: "127.0.0.1",
+        ASKRIGHTO_OPENAI_CHALLENGE: TOKEN,
+      },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    p4.stderr!.on("data", (d) => (log4 += String(d)));
+    await new Promise<void>((ok) =>
+      p4.stdout!.on("data", (d) => String(d).includes("listening") && ok()),
+    );
+  });
+  afterAll(() => p4.kill());
+
+  it("serves the token as plain text and keeps it out of the log", async () => {
+    const res = await fetch(`${base}/.well-known/openai-apps-challenge`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toMatch(/^text\/plain/);
+    expect(await res.text()).toBe(TOKEN);
+    // The access line is written when the response finishes: give it a moment.
+    for (let i = 0; i < 20 && !log4.includes("openai-apps-challenge"); i++)
+      await new Promise((r) => setTimeout(r, 50));
+    expect(log4).toContain("/.well-known/openai-apps-challenge");
+    expect(log4).not.toContain(TOKEN);
+  });
+
+  it("is a 404 on a server with no token set", async () => {
+    const res = await fetch(`${URL_BASE}/.well-known/openai-apps-challenge`);
+    expect(res.status).toBe(404);
+  });
+});
