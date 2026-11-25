@@ -156,7 +156,7 @@ export const listCurrentPlanOptions = defineTool({
   name: "list_current_plan_options",
   title: "List the retailer's plans to pick the current one",
   description:
-    "Use after reading the user's latest invoice. Lists a short set of the retailer's plans on the user's network, merging plans with identical rates and hours, each in plain words with its rates and band hours, so the user can pick the one their invoice is on, or say none of these (then pick the band hours from the layouts returned). Pass only the retailer, network, customer type and the rate figures printed on the invoice (they include GST, as invoices do); never pass a name, address, account number or meter identifier. Does not select a plan by name: a plan name the user states (planName) only narrows the list when no invoice is at hand. The result is shown as a form for the user to pick from, with the full details beside it: wait for the user's choice before calling compare_energy_plans, and never pick for them. Not advice.",
+    "Lists a short set of the retailer's plans on the user's network, merging identical rates and hours, each with its rates and band hours, for the user to pick the one they are on (or none of these, then pick the hours). Pass the retailer, network, customer type and the rates printed on the invoice (GST inclusive), or planName if there is no invoice; never a name, address, account or meter identifier. Never selects a plan itself. Not advice.",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,

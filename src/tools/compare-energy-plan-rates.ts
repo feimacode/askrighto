@@ -46,6 +46,8 @@ export interface RatesData {
   pricesShown: boolean;
   priceNote: string;
   closing: string;
+  /** What to offer next: a yearly cost needs usage. */
+  nextSteps: string[];
   notice: string;
 }
 
@@ -77,7 +79,7 @@ export const compareEnergyPlanRates = defineTool({
   name: "compare_energy_plan_rates",
   title: "Compare energy plan rates side by side",
   description:
-    "Lines up the published rates of 2 to 5 named energy plans side by side, with no usage: daily supply charge, usage rates and each band's hours, controlled load, solar feed-in, discounts with their conditions, fees, contract length and eligibility, each with its plan link and source date. Use it when the user names plans to compare and has no bill or readings (including a small business with neither). Gives no yearly cost, total or ranking and marks no plan better or worse; for a cost, use compare_energy_plans with usage. The plans must share a fuel, a customer type and a distributor. Not advice.",
+    "Lines up the published rates of 2 to 5 named plans side by side with no usage: supply charge, usage rates and band hours, controlled load, feed-in, discounts with conditions, fees, contract length and eligibility, each with its plan link. The plans must share a fuel, customer type and distributor. Gives no yearly cost, total or ranking and marks no plan better or worse. For a cost, use compare_energy_plans. Not advice.",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,
@@ -135,6 +137,7 @@ export const compareEnergyPlanRates = defineTool({
         pricesShown: !unknown,
         priceNote: unknown ? "Dollar amounts are withheld because whether the published amounts include GST has not been confirmed. Use the plan links for prices." : "Usage and supply rates include GST, as on an invoice; feed-in credits and fees are as published.",
         closing: RATES_CLOSING,
+        nextSteps: ["Offer a cost comparison: ask for usage from a bill or interval readings, then call compare_energy_plans with these plan ids."],
         notice: NOTICE,
       };
       return found({ data, source, asOf: asOfFor(plans) });

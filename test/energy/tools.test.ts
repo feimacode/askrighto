@@ -145,7 +145,7 @@ d("tools are listed with annotations and the Inkview view", () => {
 
   it("server instructions carry the energy guidance", () => {
     expect(client.getInstructions()).toMatch(/search_energy_plans/);
-    expect(client.getInstructions()).toMatch(/never "best" or "recommended"/);
+    expect(client.getInstructions()).toMatch(/never "best"/);
   });
 });
 
@@ -533,6 +533,16 @@ d("compare_energy_plans usage source", () => {
       expect(text.indexOf(g.data.usage.accuracy)).toBeLessThan(text.indexOf("Usage assumed"));
       expect(g.data.warnings).toEqual([]);
     }
+  });
+
+  it("names the next step in the result and the text, for a single bill and a yearly figure", async () => {
+    const bill = await call("compare_energy_plans", { ...base, usageSource: "bill", usage: 900, usageDays: 90 });
+    expect(bill.g.data.nextSteps.join(" ")).toMatch(/summarise_interval_readings/);
+    expect(bill.g.data.nextSteps.join(" ")).toMatch(/list_current_plan_options/);
+    expect(bill.text).toMatch(/Next steps:\n- /);
+    for (const s of bill.g.data.nextSteps) expect(s.length).toBeLessThanOrEqual(300);
+    const yearly = await call("compare_energy_plans", { ...base, usageSource: "yearly", usage: 4000 });
+    expect(yearly.g.data.nextSteps.join(" ")).not.toMatch(/summarise_interval_readings/);
   });
 
   it("refuses a field from another source and makes no estimate", async () => {

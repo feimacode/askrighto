@@ -109,15 +109,16 @@ describe("distributors.json consistency", () => {
 });
 
 describe("guidance", () => {
-  it("is in the server instructions", () => {
+  it("is in the server instructions, briefly", () => {
     const t = serverInstructions();
-    expect(t).toMatch(/More accurate comparison/);
-    expect(t).toMatch(/does not request the readings for the household/);
+    expect(t).toMatch(/summarise_interval_readings/);
+    expect(t).toMatch(/nextSteps/);
   });
-  it("is in the energy bill skill", () => {
-    const s = readFileSync(`${process.cwd()}/plugin/skills/energy-bill-comparison/SKILL.md`, "utf8");
-    expect(s).toMatch(/Interval readings/);
-    expect(s).toMatch(/does not request the readings for the household/);
+  it("is in the readings and compare skills", () => {
+    const readings = readFileSync(`${process.cwd()}/plugin/skills/energy-readings/SKILL.md`, "utf8");
+    expect(readings).toMatch(/does not request the readings for the household/);
+    const compare = readFileSync(`${process.cwd()}/plugin/skills/energy-compare/SKILL.md`, "utf8");
+    expect(compare).toMatch(/More accurate comparison/);
   });
 });
 

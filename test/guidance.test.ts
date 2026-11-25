@@ -85,7 +85,7 @@ describe("vertical skills", () => {
   });
 
   it("labels the energy worked example as invented and uses no currency amounts", () => {
-    const text = readFileSync(join(SKILLS, "energy-bill-comparison/references/worked-example.md"), "utf8");
+    const text = readFileSync(join(SKILLS, "energy-compare/references/worked-example.md"), "utf8");
     expect(text).toMatch(/invented/i);
     expect(text).not.toMatch(/\$\s?\d/);
   });

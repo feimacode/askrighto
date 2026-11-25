@@ -16,6 +16,7 @@ import { plansByPostcode } from "../../src/energy/store.js";
 import { runSync } from "../../src/energy/sync.js";
 import { serverInstructions } from "../../src/server/instructions.js";
 import { createServer } from "../../src/server/create-server.js";
+import { journeyBody } from "../../src/guidance/energy/index.js";
 import { fixture, startMockCdr, type MockCdr } from "./mock-cdr.js";
 
 const URL = process.env.TEST_DATABASE_URL;
@@ -27,8 +28,10 @@ describe("business plans in the guidance", () => {
     expect(t).toMatch(/home or a business/i);
     expect(t).toMatch(/customerType/);
     expect(t).toMatch(/never assume|do not assume/i);
-    expect(t).toMatch(/no typical usage for a business|typical usage is for households only/i);
-    expect(t).toMatch(/large customers are not in the data and are not compared/i);
+    expect(t).toMatch(/large customers are not in the data/i);
+    const start = journeyBody("energy-start");
+    expect(start).toMatch(/no typical usage for a business/i);
+    expect(start).toMatch(/Large customers are not in the data/);
   });
 });
 

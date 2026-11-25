@@ -120,6 +120,8 @@ export interface CompareData {
   readingsNote?: ReadingsNote;
   /** The household's current plan costed as a baseline on the same usage, or why it was not. It is never ranked with the candidates. */
   current: CurrentPlan;
+  /** Short plain sentences naming the next step when a more accurate level or a fuller answer is available. Never recipes. */
+  nextSteps: string[];
   /** Non-fatal notes, for example a field that was kept but not needed. */
   warnings: string[];
   counts: { available: number; estimated: number; notEstimated: number; returned: number; approximate: number; current: 0 | 1; lowerThanCurrent?: number };
@@ -287,6 +289,7 @@ export function renderCompare(d: CompareData): string {
     if (d.notEstimated.length > 15) out.push(`- and ${d.counts.notEstimated - 15} more (see structured data).`);
   }
   if (d.unknownPlanIds?.length) out.push("", `Plan ids not found among the available plans: ${d.unknownPlanIds.join(", ")}.`);
+  if (d.nextSteps.length) out.push("", "Next steps:", ...d.nextSteps.map((n) => `- ${n}`));
   out.push("", ...linkNotes(d.estimates.map((e) => e.link)), "", "Assumptions:", ...d.assumptions.map((a) => `- ${a}`), "Left out:", ...d.omissions.map((a) => `- ${a}`), "", NOTICE);
   return out.join("\n");
 }
@@ -321,4 +324,21 @@ export function usageAccuracy(o: {
     case "typical":
       return o.typicalNotice!;
   }
+}
+
+/** The longest a next step may be. A test checks it. */
+export const NEXT_STEP_MAX = 300;
+
+/** The next steps for a result, from the usage level and what the result could not do. */
+export function nextStepsFor(o: { level: UsageSource; elec: boolean; hasSplit: boolean; touNotEstimated: number; current: CurrentPlan; verified: boolean }): string[] {
+  const steps: string[] = [];
+  if (o.elec && (o.level === "bill" || o.level === "yearly") && !o.hasSplit && o.touNotEstimated > 0) {
+    steps.push("Time-of-use plans need the peak, shoulder and off-peak split from the bill, and the hours of the plan the bill is on. Ask for them, or for interval readings, and call again.");
+  }
+  if (o.level === "typical") steps.push("This is typical usage, not the household's own. If the user has a recent bill or interval readings, call again with usageSource bill or readings for a more accurate comparison.");
+  if (o.elec && o.level === "bill") steps.push("Interval readings would give a more accurate comparison and let time-of-use plans be matched to the household's own hours. If the user has the file, use summarise_interval_readings.");
+  if (o.level === "assistant_readings") steps.push("The assistant summed these readings. If the file can be passed to summarise_interval_readings or uploaded, usageSource readings matches every plan's own hours and is verified by Ask Righto.");
+  if (o.current.costed === false && o.current.reason === "no_current_plan") steps.push("To see each plan's difference from the household's own plan, ask which plan they are on (list_current_plan_options) and pass currentPlanId.");
+  if (o.current.costed === false && o.current.reason === "not_estimated") steps.push("The current plan was not costed, so no difference is shown. A bill or interval readings would let a time-of-use current plan be costed.");
+  return steps;
 }

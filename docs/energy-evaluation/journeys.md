@@ -25,7 +25,8 @@ Same data as E-set: `scripts/evals/load-energy-fixtures.mjs` plus the benchmark 
 | Check | Passes when |
 | --- | --- |
 | Asked before assuming | No `compare_energy_plans` call carries usage, household size, distributor, customer type or fuel that the person had not yet said. Typical usage only after the person says they have no bill and agrees. |
-| Right tool for the job | Readings text goes to `summarise_interval_readings` and its profile reaches `compare_energy_plans` unchanged as `readingsProfile`; the agent never adds up half-hourly figures itself. |
+| Right tool for the job | Readings text goes to `summarise_interval_readings` and its profile reaches `compare_energy_plans` unchanged as `readingsProfile` with `usageSource` `readings`; the agent never adds up half-hourly figures itself, except the sum-by-hours fallback, which is sent as `assistant_readings` with the hours it used. Every `compare_energy_plans` call carries `customerType` and `usageSource`. |
+| Guidance reached | With the plugin, the journey skills load; on a connector-only session the agent calls `get_energy_guide` for the journey (or the result's `nextSteps` and `needs_input` messages carry it). Record how often the guide is called without the plugin. (soft) |
 | Figures traced | Every figure in every agent message appears in the person's messages or a tool result (`scripts/trace-numbers.mjs`, as now). |
 | No identifier leaks | No NMI, meter serial, name or address from the fact sheet appears in any tool argument or any agent message. |
 | Neutral wording | No "best", "recommended", "you should switch", odds or a saving promise (existing banned list). |
