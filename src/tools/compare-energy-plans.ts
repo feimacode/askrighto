@@ -11,9 +11,9 @@ import { MAX_PROFILE_CHARS } from "../energy/readings/profile.js";
 import { BENCHMARK_DATASET_ID, ENERGY_DATASET_ID, getEnergy, withStore } from "../energy/index.js";
 import {
   BENCHMARK_OMISSIONS, ASSUMPTIONS, BUSINESS_ASSUMPTIONS, OMISSIONS, READINGS_ASSUMPTIONS, READINGS_OMISSIONS, UNVERIFIED_READINGS,
-  rank, renderCompare, typicalCaption, typicalNotice, type CompareData,
+  rank, renderCompare, usageAccuracy, typicalCaption, typicalNotice, type CompareData,
 } from "../energy/compare/rank.js";
-import { resolveUsage, toCalcUsage } from "../energy/compare/resolve-usage.js";
+import { resolveUsage, toCalcUsage, USAGE_SOURCES } from "../energy/compare/resolve-usage.js";
 import { resolveHours, selectPlans } from "../energy/compare/select-plans.js";
 import {
   asOfFor, badPostcode, checkPostcode, dollars, inkview, inkviewResult, inkviewSource, NOTICE, source, tableMeta,
@@ -25,23 +25,20 @@ export type { BenchmarkUsage, CompareData, IfConditionsMet } from "../energy/com
 
 const input = z.object({
   postcode: z.string().describe("Four-digit Australian postcode of the property, e.g. 3000"),
-  customerType: z.enum(["RESIDENTIAL", "BUSINESS"]).optional().describe("Whose plans: RESIDENTIAL (a home, the default) or BUSINESS (small business; large customers are not compared). Ask the user which; never assume. A business is only compared with business plans and a household with residential plans"),
+  customerType: z.enum(["RESIDENTIAL", "BUSINESS"]).describe("Whose plans: RESIDENTIAL (a home) or BUSINESS (small business; large customers are not compared). Required: ask the user which, never assume. A business is only compared with business plans and a household with residential plans"),
   fuelType: z.enum(["ELECTRICITY", "GAS"]).describe("Which fuel to compare"),
-  annualUsageKwh: z.number().positive().max(1_000_000).optional().describe("Electricity used in a year, in kWh"),
-  billUsageKwh: z.number().positive().max(1_000_000).optional().describe("Electricity used in one bill period, in kWh. Give billDays too"),
-  annualUsageMj: z.number().positive().max(10_000_000).optional().describe("Gas used in a year, in MJ"),
-  billUsageMj: z.number().positive().max(10_000_000).optional().describe("Gas used in one bill period, in MJ. Give billDays too"),
-  billDays: z.number().int().min(1).max(400).optional().describe("Number of days the bill covers"),
-  peakSharePct: z.number().min(0).max(100).optional().describe("Percent of electricity used at peak times, from the bill. Needed for time-of-use plans"),
-  shoulderSharePct: z.number().min(0).max(100).optional().describe("Percent used at shoulder times (0 if none)"),
-  offPeakSharePct: z.number().min(0).max(100).optional().describe("Percent used at off-peak times"),
-  householdSize: z.number().int().min(1).max(5).optional().describe("Number of people in the household, 1 to 5 (5 means five or more). Only used with useBenchmarkUsage"),
-  useBenchmarkUsage: z.boolean().optional().describe("Set true only when the user has no bill figures and agrees to typical usage for a household of their size. Needs householdSize. Ignored if usage is given"),
-  readingsProfile: z.string().max(MAX_PROFILE_CHARS).optional().describe("The profile string returned by summarise_interval_readings, passed unchanged. Uses the household's own half-hourly readings, which also lets time-of-use plans be estimated. Takes the place of bill figures"),
-  currentPlanId: z.string().max(80).optional().describe("The plan id the household is on now, taken from the option the user picked in list_current_plan_options. With a peak, shoulder and off-peak split, only plans with the same band hours as this plan are estimated exactly; other time-of-use plans are labelled approximate and listed apart"),
-  hoursLayoutId: z.string().max(16).optional().describe("The band-hours layout id the user picked in list_current_plan_options when their plan was not listed. Used like currentPlanId. Give one or the other, not both"),
-  controlledLoadAnnualKwh: z.number().min(0).max(1_000_000).optional().describe("Yearly controlled load kWh (for example a hot water system), if the household has one"),
-  solarExportAnnualKwh: z.number().min(0).max(1_000_000).optional().describe("Yearly kWh exported to the grid by solar panels, if any"),
+  usageSource: z.enum(USAGE_SOURCES).describe("What the usage rests on, best first: readings (a profile from summarise_interval_readings), assistant_readings (readings you summed yourself because the file was too big to send; needs usage, usageDays, the split and the hours), bill (one bill's usage and its days), yearly (a year's usage), typical (no usage: the AER benchmark for householdSize, only if the user has no bill and agrees). Each field below says which sources use it; a field from another source is refused"),
+  usage: z.number().positive().max(10_000_000).optional().describe("bill, assistant_readings, yearly: energy used, in kWh for electricity and MJ for gas. For bill and assistant_readings it covers usageDays; for yearly it is a year"),
+  usageDays: z.number().int().min(1).max(400).optional().describe("bill, assistant_readings: number of days that usage covers. Not used with yearly"),
+  peakSharePct: z.number().min(0).max(100).optional().describe("bill, yearly, assistant_readings (electricity): percent used at peak times, from the bill. Needed for time-of-use plans"),
+  shoulderSharePct: z.number().min(0).max(100).optional().describe("bill, yearly, assistant_readings (electricity): percent used at shoulder times (0 if none)"),
+  offPeakSharePct: z.number().min(0).max(100).optional().describe("bill, yearly, assistant_readings (electricity): percent used at off-peak times"),
+  householdSize: z.number().int().min(1).max(5).optional().describe("typical only: number of people in the household, 1 to 5 (5 means five or more)"),
+  readingsProfile: z.string().max(MAX_PROFILE_CHARS).optional().describe("readings only (electricity): the profile string returned by summarise_interval_readings, passed unchanged. Uses the household's own half-hourly readings, which also lets time-of-use plans be estimated"),
+  currentPlanId: z.string().max(80).optional().describe("assistant_readings (required, or hoursLayoutId), bill, yearly (with a split): the plan id the household is on now, taken from the option the user picked in list_current_plan_options. With a split, only plans with the same band hours as this plan are estimated exactly; other time-of-use plans are labelled approximate and listed apart"),
+  hoursLayoutId: z.string().max(16).optional().describe("Used like currentPlanId, when the user's plan was not listed: the band-hours layout id the user picked in list_current_plan_options. Give one or the other, not both"),
+  controlledLoadAnnualKwh: z.number().min(0).max(1_000_000).optional().describe("readings, bill, yearly, assistant_readings (electricity): yearly controlled load kWh (for example a hot water system), if the household has one"),
+  solarExportAnnualKwh: z.number().min(0).max(1_000_000).optional().describe("bill, yearly, assistant_readings (electricity): yearly kWh exported to the grid by solar panels, if any. With readings the profile carries the export, so do not send it"),
   distributor: z.string().optional().describe("Distribution network from the user's bill, required when the postcode has several"),
   retailer: z.string().optional().describe("Only compare this retailer's plans"),
   planType: z.enum(["MARKET", "STANDING", "REGULATED"]).optional().describe("Plan type"),
@@ -53,7 +50,7 @@ export const compareEnergyPlans = defineTool({
   name: "compare_energy_plans",
   title: "Compare energy plan costs",
   description:
-    "Estimates the yearly cost of the current energy plans at a postcode for the usage the user gives (kWh or MJ from a recent bill), ordered from the lowest estimate to the highest, with a cost breakdown, conditional discounts and the plans that cannot be estimated. Needs usage figures; time-of-use plans also need the peak, shoulder and off-peak split from the bill. Only if the user has no bill, and agrees, set useBenchmarkUsage with householdSize to use the AER's typical household use instead; the result is then labelled typical usage, not theirs, and time-of-use plans are not estimated. If the user has interval readings, call summarise_interval_readings first and pass its profile as readingsProfile: usage then comes from their own half-hourly readings and time-of-use plans are estimated. Estimates only, not advice.",
+    "Estimates the yearly cost of the current energy plans at a postcode, ordered from the lowest estimate to the highest, with a cost breakdown, conditional discounts and the plans that cannot be estimated. Always set usageSource to say what the usage rests on: readings (call summarise_interval_readings first and pass its profile as readingsProfile; time-of-use plans are matched to the half-hourly readings), assistant_readings (readings you summed yourself because the file was too big to send: usage, usageDays, the peak, shoulder and off-peak split, and currentPlanId or hoursLayoutId), bill (usage and usageDays from a recent bill, with the split for time-of-use plans), yearly (usage for a year) or typical (only if the user has no bill and agrees: householdSize, and the AER's typical household use is used; the result is labelled typical usage, not theirs, and time-of-use plans are not estimated). A field that does not belong to the usageSource is refused, not ignored. The result states the usage level and how far to trust it. Estimates only, not advice.",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,
@@ -63,16 +60,16 @@ export const compareEnergyPlans = defineTool({
   handler: (args) => {
     const postcode = checkPostcode(args.postcode);
     if (!postcode) return badPostcode();
-    const customerType = args.customerType ?? "RESIDENTIAL";
+    const customerType = args.customerType;
     const elec = args.fuelType === "ELECTRICITY";
     const resolved = resolveUsage(args, { postcode, customerType });
     if (!resolved.ok) return resolved.result;
-    const { profile, readingsVerified, ignored, scaledFromBill, shares, unit } = resolved.usage;
+    const { level, profile, readingsVerified, scaledFromBill, shares, unit, days, warnings: usageWarnings } = resolved.usage;
 
     return withStore<CompareData>(async (store) => {
       // Typical usage: look the AER benchmark up first, so a postcode outside it makes no estimate.
       let figure: BenchmarkFigure | undefined;
-      if (resolved.usage.useBenchmark) {
+      if (level === "typical") {
         const avail = availability(BENCHMARK_DATASET_ID);
         if (!avail.servable) return notFound("data_unavailable", `Typical usage is not available yet. ${avail.reason}`, { dataset: BENCHMARK_DATASET_ID });
         const src = getEnergy()?.benchmarks;
@@ -107,7 +104,7 @@ export const compareEnergyPlans = defineTool({
         ? `Usage is from the household's own interval readings, ${profile.from} to ${profile.to}: ${profile.daysPresent} days present${profile.missingCount ? `, ${profile.missingCount} missing` : ""}, scaled to a year (${Math.round(annual)} kWh). Time-of-use plans are matched to the half-hourly readings. ${profile.daysPresent + profile.missingCount < 90 ? `The readings cover only ${profile.daysPresent + profile.missingCount} days, so this is a rough scale-up: say so, and if the user's file is longer, ask for a comparison from the whole file. ` : ""}This rests on one past year of use, which may not repeat.${readingsVerified ? "" : ` ${UNVERIFIED_READINGS}`}`
         : undefined;
       // Interval readings would be more accurate than a benchmark or one bill (electricity only; gas has no interval data here).
-      const note = elec && (figure || scaledFromBill) ? readingsNote(distributor ?? (nets.length === 1 ? nets[0] : undefined)) : undefined;
+      const note = elec && (figure || (level === "bill" && scaledFromBill)) ? readingsNote(distributor ?? (nets.length === 1 ? nets[0] : undefined)) : undefined;
       const summary = first
         ? `Of ${plans.length} plan${plans.length === 1 ? "" : "s"} available, ${allOk.length} could be estimated${approxAll.length ? ` (${approxAll.length} only approximately, listed apart)` : ""} and ${no.length} could not. The lowest estimate for ${figure ? "typical usage (not the household's own)" : profile ? "the household's own readings" : "the usage given"} is ${dollars(first.totalCents)} a year (${first.brandName}, ${first.displayName}); this ordering is by estimated cost only.`
         : approxAll.length
@@ -120,11 +117,13 @@ export const compareEnergyPlans = defineTool({
         ...(distributor ? { distributor } : {}),
         ...(matchedRetailer ? { matchedRetailer } : {}),
         usage: {
+          level,
+          accuracy: usageAccuracy({ level, unit, annual, days, hasSplit: !!shares, hoursFrom: hoursBasis?.from, profile, verified: readingsVerified, typicalNotice: typicalUsageNotice }),
           annualUsage: Math.round(annual),
           unit,
           basis: usage.basis ?? "customer",
           ...(scaledFromBill ? { scaledFromBill } : {}),
-          ...(profile ? { readings: { verified: readingsVerified, from: profile.from, to: profile.to, daysPresent: profile.daysPresent, missingCount: profile.missingCount, missingDates: profile.missing, streams: profile.streams, netOnly: profile.netOnly, ...(ignored ? { ignored } : {}) } } : {}),
+          ...(profile ? { readings: { verified: readingsVerified, from: profile.from, to: profile.to, daysPresent: profile.daysPresent, missingCount: profile.missingCount, missingDates: profile.missing, streams: profile.streams, netOnly: profile.netOnly } } : {}),
           ...(shares ? { shares } : {}),
           ...(usage.controlledLoadAnnualKwh ? { controlledLoadAnnualKwh: usage.controlledLoadAnnualKwh } : {}),
           ...(usage.solarExportAnnualKwh ? { solarExportAnnualKwh: usage.solarExportAnnualKwh } : {}),
@@ -151,6 +150,7 @@ export const compareEnergyPlans = defineTool({
         ...(typicalUsageNotice ? { typicalUsageNotice } : {}),
         ...(readingsNotice ? { readingsNotice } : {}),
         ...(note ? { readingsNote: note } : {}),
+        warnings: usageWarnings,
         counts: { available: plans.length, estimated: allOk.length, notEstimated: no.length, returned: shown.length, approximate: approxAll.length },
         approximateHours,
         ...(hoursBasis ? { hoursBasis } : {}),

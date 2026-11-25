@@ -40,7 +40,7 @@ d("compare_energy_plans: bill split against the current plan's hours", () => {
     return { detail: f };
   };
   async function compare(args: Record<string, unknown>) {
-    const r = await client.callTool({ name: "compare_energy_plans", arguments: { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "Jemena", billUsageKwh: 900, billDays: 90, peakSharePct: 30, shoulderSharePct: 0, offPeakSharePct: 70, ...args } });
+    const r = await client.callTool({ name: "compare_energy_plans", arguments: { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "Jemena", usageSource: "bill", usage: 900, usageDays: 90, peakSharePct: 30, shoulderSharePct: 0, offPeakSharePct: 70, ...args } });
     const sc = r.structuredContent as any;
     return { text: (r.content as Array<{ text: string }>)[0]!.text, g: sc.grounded ?? sc };
   }
@@ -88,6 +88,33 @@ d("compare_energy_plans: bill split against the current plan's hours", () => {
     expect(r.g.data.counts).toMatchObject({ estimated: 4, approximate: 1 });
     expect(r.text).toMatch(/approximate: different hours/);
     expect(r.text).toMatch(/not ranked with the table above/);
+  });
+
+  it("assistant_readings: exact for the current plan's hours, approximate for the others, and labelled not verified", async () => {
+    const r = await compare({ usageSource: "assistant_readings", usage: 4100, usageDays: 365, currentPlanId: "T1" });
+    expect(r.g.found).toBe(true);
+    expect(ids(r.g.data.estimates)).toEqual(["S1", "T1", "T2"]);
+    expect(ids(r.g.data.approximateHours)).toEqual(["T3"]);
+    expect(r.g.data.usage).toMatchObject({ level: "assistant_readings", annualUsage: 4100 });
+    expect(r.g.data.usage.accuracy).toMatch(/^Your own readings, summed by the assistant, not verified by Ask Righto: 365 days of readings scaled to 4,100 kWh a year; plans with the same hours as Origin Energy/);
+    expect(r.text.startsWith(r.g.data.usage.accuracy)).toBe(true);
+    expect(r.text).toMatch(/approximate: different hours/);
+  });
+
+  it("assistant_readings: every time-of-use plan is approximate when the hours are only a layout id the user could not match", async () => {
+    const opts = await client.callTool({ name: "list_current_plan_options", arguments: { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", retailer: "Origin", distributor: "Jemena", showAllOptions: true } });
+    const layouts = ((opts.structuredContent as any).grounded ?? (opts.structuredContent as any)).data.layouts as Array<{ layoutId: string }>;
+    const r = await compare({ usageSource: "assistant_readings", usage: 4100, usageDays: 365, hoursLayoutId: layouts[0]!.layoutId });
+    expect(r.g.found).toBe(true);
+    expect(r.g.data.hoursBasis.known).toBe(true);
+    expect(r.g.data.usage.level).toBe("assistant_readings");
+  });
+
+  it("assistant_readings: without currentPlanId or hoursLayoutId it asks which hours the readings were banded by", async () => {
+    const r = await compare({ usageSource: "assistant_readings", usage: 4100, usageDays: 365 });
+    expect(r.g).toMatchObject({ found: false, reason: "needs_input" });
+    expect(r.g.message).toMatch(/`currentPlanId` or `hoursLayoutId`/);
+    expect(r.g.message).toMatch(/hours the readings were banded by/);
   });
 
   it("takes the hours from a layout id when the plan was not listed", async () => {

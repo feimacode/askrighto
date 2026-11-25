@@ -210,14 +210,14 @@ d("links in the three tools (database)", () => {
   });
 
   it("compare: each estimate carries its link in the table and the structured data", async () => {
-    const { g, text } = await call("compare_energy_plans", { postcode: "3000", fuelType: "ELECTRICITY", distributor: "CitiPower", annualUsageKwh: 4000 });
+    const { g, text } = await call("compare_energy_plans", { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "CitiPower", usageSource: "yearly", usage: 4000 });
     expect(g.found).toBe(true);
     const e = g.data.estimates[0];
     expect(e.link).toMatchObject({ kind: "retailer_website", url: "https://www.agl.com.au/" });
     expect(text).toMatch(/\| Link \|/);
     expect(text).toContain("[Retailer website](https://www.agl.com.au/)");
     expect(text).not.toMatch(/\| AGD812605MR@VEC \|\s*$/m); // the plan id is no longer the last column standing in for a link
-    const nsw = await call("compare_energy_plans", { postcode: "2000", fuelType: "ELECTRICITY", annualUsageKwh: 4000 });
+    const nsw = await call("compare_energy_plans", { postcode: "2000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", usageSource: "yearly", usage: 4000 });
     expect(nsw.g.found).toBe(true);
     for (const x of [...nsw.g.data.estimates, ...nsw.g.data.ifConditionsMet]) expect(["eme_rate_sheet", "retailer_plan_page"]).toContain(x.link.kind);
     expect(nsw.g.data.estimates.some((x: any) => x.link.kind === "eme_rate_sheet")).toBe(true);

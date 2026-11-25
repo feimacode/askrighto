@@ -333,9 +333,9 @@ d("get_energy_plan", () => {
     const cmp = (
       await call("compare_energy_plans", {
         postcode: "3000",
-        fuelType: "ELECTRICITY",
+        fuelType: "ELECTRICITY", customerType: "RESIDENTIAL",
         distributor: "CitiPower",
-        annualUsageKwh: 4000,
+        usageSource: "yearly", usage: 4000,
       })
     ).g;
     expect(cmp.data.counts.estimated).toBeGreaterThan(0);
@@ -347,14 +347,14 @@ d("get_energy_plan", () => {
 d("compare_energy_plans", () => {
   const base = {
     postcode: "3000",
-    fuelType: "ELECTRICITY",
+    fuelType: "ELECTRICITY", customerType: "RESIDENTIAL",
     distributor: "CitiPower",
   };
 
   it("estimates from yearly usage, with breakdown that sums, ordering, counts and assumptions", async () => {
     const { g, text } = await call("compare_energy_plans", {
       ...base,
-      annualUsageKwh: 4000,
+      usageSource: "yearly", usage: 4000,
     });
     expect(g.found).toBe(true);
     expect(g.data.counts).toMatchObject({
@@ -400,11 +400,11 @@ d("compare_energy_plans", () => {
   it("is deterministic", async () => {
     const a = await call("compare_energy_plans", {
       ...base,
-      annualUsageKwh: 4000,
+      usageSource: "yearly", usage: 4000,
     });
     const b = await call("compare_energy_plans", {
       ...base,
-      annualUsageKwh: 4000,
+      usageSource: "yearly", usage: 4000,
     });
     expect(a.g.data).toEqual(b.g.data);
   });
@@ -413,25 +413,25 @@ d("compare_energy_plans", () => {
     const r = (
       await call("compare_energy_plans", {
         ...base,
-        billUsageKwh: 1000,
-        billDays: 90,
+        usageSource: "bill", usage: 1000,
+        usageDays: 90,
       })
     ).g;
     expect(r.data.usage.annualUsage).toBe(4056);
     expect(r.data.usage.scaledFromBill).toMatch(/scaled to a year/);
-    expect((await call("compare_energy_plans", base)).g).toMatchObject({
+    expect((await call("compare_energy_plans", { ...base, usageSource: "bill" })).g).toMatchObject({
       found: false,
       reason: "needs_input",
     });
     expect(
-      (await call("compare_energy_plans", { ...base, billUsageKwh: 100 })).g
+      (await call("compare_energy_plans", { ...base, usageSource: "bill", usage: 100 })).g
         .message,
-    ).toMatch(/billDays/);
+    ).toMatch(/`usageDays`/);
     expect(
       (
         await call("compare_energy_plans", {
           ...base,
-          annualUsageKwh: 4000,
+          usageSource: "yearly", usage: 4000,
           peakSharePct: 50,
           offPeakSharePct: 30,
         })
@@ -442,9 +442,9 @@ d("compare_energy_plans", () => {
   it("estimates time-of-use plans only with a split", async () => {
     const jem = {
       postcode: "3000",
-      fuelType: "ELECTRICITY",
+      fuelType: "ELECTRICITY", customerType: "RESIDENTIAL",
       distributor: "Jemena",
-      annualUsageKwh: 4000,
+      usageSource: "yearly", usage: 4000,
     };
     const without = (await call("compare_energy_plans", jem)).g;
     expect(without.data.notEstimated[0]).toMatchObject({
@@ -469,8 +469,8 @@ d("compare_energy_plans", () => {
     const r = (
       await call("compare_energy_plans", {
         postcode: "3000",
-        fuelType: "ELECTRICITY",
-        annualUsageKwh: 4000,
+        fuelType: "ELECTRICITY", customerType: "RESIDENTIAL",
+        usageSource: "yearly", usage: 4000,
       })
     ).g;
     expect(r).toMatchObject({ found: false, reason: "needs_input" });
@@ -481,20 +481,93 @@ d("compare_energy_plans", () => {
     const gas = (
       await call("compare_energy_plans", {
         postcode: "3000",
-        fuelType: "GAS",
-        annualUsageMj: 20000,
+        fuelType: "GAS", customerType: "RESIDENTIAL",
+        usageSource: "yearly", usage: 20000,
       })
     ).g;
     expect(gas.data.estimates[0].totalCents).toBe(104720);
     const narrowed = (
       await call("compare_energy_plans", {
         ...base,
-        annualUsageKwh: 4000,
+        usageSource: "yearly", usage: 4000,
         planIds: ["A1", "ZZ"],
       })
     ).g;
     expect(narrowed.data.counts.available).toBe(1);
     expect(narrowed.data.unknownPlanIds).toEqual(["ZZ"]);
+  });
+});
+
+d("compare_energy_plans usage source", () => {
+  const base = { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "CitiPower" };
+  const split = { peakSharePct: 30, shoulderSharePct: 0, offPeakSharePct: 70 };
+
+  it("rejects a call without customerType or usageSource at the schema", async () => {
+    const noCustomer: Record<string, unknown> = { ...base };
+    delete noCustomer.customerType;
+    const a = await client.callTool({ name: "compare_energy_plans", arguments: { ...noCustomer, usageSource: "yearly", usage: 4000 } });
+    expect(a.isError).toBe(true);
+    expect(JSON.stringify(a.content)).toMatch(/customerType/);
+    const b = await client.callTool({ name: "compare_energy_plans", arguments: { ...base, usage: 4000 } });
+    expect(b.isError).toBe(true);
+    expect(JSON.stringify(b.content)).toMatch(/usageSource/);
+  });
+
+  it("states the level and the accuracy sentence first, for every source", async () => {
+    const cases: Array<[string, Record<string, unknown>, RegExp]> = [
+      ["yearly", { usageSource: "yearly", usage: 4000 }, /^Your own yearly figure of 4,000 kWh a year/],
+      ["bill", { usageSource: "bill", usage: 900, usageDays: 90 }, /^Your own bill for 90 days, scaled to 3,650 kWh a year/],
+      ["bill", { usageSource: "bill", usage: 900, usageDays: 90, ...split, currentPlanId: "A1" }, /time-of-use plans with different hours/],
+    ];
+    for (const [level, extra, rx] of cases) {
+      const { g, text } = await call("compare_energy_plans", { ...base, ...extra });
+      expect(g.found).toBe(true);
+      expect(g.data.usage.level).toBe(level);
+      expect(g.data.usage.accuracy).toMatch(rx);
+      expect(text.startsWith(g.data.usage.accuracy)).toBe(true);
+      expect(text.indexOf(g.data.usage.accuracy)).toBeLessThan(text.indexOf("Usage assumed"));
+      expect(g.data.warnings).toEqual([]);
+    }
+  });
+
+  it("refuses a field from another source and makes no estimate", async () => {
+    const r = await call("compare_energy_plans", { ...base, usageSource: "typical", householdSize: 2, ...split });
+    expect(r.g).toMatchObject({ found: false, reason: "needs_input" });
+    expect(r.g.message).toMatch(/`peakSharePct` is not used with usageSource `typical`/);
+    expect(r.g.data).toBeUndefined();
+    const days = await call("compare_energy_plans", { ...base, usageSource: "yearly", usage: 4000, usageDays: 365 });
+    expect(days.g.message).toMatch(/`usageDays` is not used with usageSource `yearly`/);
+  });
+
+  it("reads gas usage in MJ, not kWh", async () => {
+    const gas = { postcode: "3000", fuelType: "GAS", customerType: "RESIDENTIAL" };
+    const { g } = await call("compare_energy_plans", { ...gas, usageSource: "bill", usage: 5000, usageDays: 60 });
+    expect(g.found).toBe(true);
+    expect(g.data.usage).toMatchObject({ level: "bill", unit: "MJ", annualUsage: Math.round((5000 * 365) / 60) });
+    const kwh = await call("compare_energy_plans", { ...gas, usageSource: "bill", usage: 5000, usageDays: 60, solarExportAnnualKwh: 1 });
+    expect(kwh.g.message).toMatch(/`solarExportAnnualKwh` applies to electricity only/);
+  });
+
+  it("keeps a current plan with no split, and warns that its hours were not needed", async () => {
+    const { g, text } = await call("compare_energy_plans", { ...base, usageSource: "bill", usage: 900, usageDays: 90, currentPlanId: "A1" });
+    expect(g.found).toBe(true);
+    expect(g.data.warnings).toHaveLength(1);
+    expect(g.data.warnings[0]).toMatch(/`currentPlanId` was given without a peak, shoulder and off-peak split/);
+    expect(text).toMatch(/Note: `currentPlanId` was given without/);
+  });
+
+  it("labels readings summed by the assistant, and needs the hours", async () => {
+    const need = await call("compare_energy_plans", { ...base, usageSource: "assistant_readings", usage: 4100, usageDays: 365, ...split });
+    expect(need.g).toMatchObject({ found: false, reason: "needs_input" });
+    expect(need.g.message).toMatch(/`currentPlanId` or `hoursLayoutId`/);
+    const { g, text } = await call("compare_energy_plans", { ...base, usageSource: "assistant_readings", usage: 4100, usageDays: 365, ...split, currentPlanId: "A1" });
+    expect(g.found).toBe(true);
+    expect(g.data.usage.level).toBe("assistant_readings");
+    expect(g.data.usage.annualUsage).toBe(4100);
+    expect(g.data.usage.accuracy).toMatch(/^Your own readings, summed by the assistant, not verified by Ask Righto: 365 days of readings scaled to 4,100 kWh a year/);
+    expect(text.startsWith(g.data.usage.accuracy)).toBe(true);
+    expect(g.data.hoursBasis).toBeDefined(); // A1 is single-rate, so its hours are not known; compare-hours.test.ts covers a time-of-use plan
+    expect(g.data.readingsNote).toBeUndefined();
   });
 });
 
@@ -506,15 +579,15 @@ d("standard notice and components", () => {
         "compare_energy_plans",
         {
           postcode: "3000",
-          fuelType: "ELECTRICITY",
+          fuelType: "ELECTRICITY", customerType: "RESIDENTIAL",
           distributor: "CitiPower",
-          annualUsageKwh: 4000,
+          usageSource: "yearly", usage: 4000,
         },
         "listings",
       ],
       [
         "compare_energy_plans",
-        { postcode: "3000", fuelType: "GAS", annualUsageMj: 20000 },
+        { postcode: "3000", fuelType: "GAS", customerType: "RESIDENTIAL", usageSource: "yearly", usage: 20000 },
         "listings",
       ],
     ];
@@ -539,9 +612,9 @@ d("outage", () => {
         "compare_energy_plans",
         {
           postcode: "3000",
-          fuelType: "ELECTRICITY",
+          fuelType: "ELECTRICITY", customerType: "RESIDENTIAL",
           distributor: "CitiPower",
-          annualUsageKwh: 4000,
+          usageSource: "yearly", usage: 4000,
         },
       ],
     ] as const) {

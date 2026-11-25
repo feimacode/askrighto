@@ -5,6 +5,7 @@ import { layoutId, layoutWindows } from "../layouts.js";
 import { linkCell, linkNotes, planLink, type PlanLink } from "../links.js";
 import type { ReadingsNote } from "../readings.js";
 import type { EnergyPlan } from "../types.js";
+import type { UsageSource } from "./resolve-usage.js";
 import { dollars, NOTICE } from "../../tools/energy-common.js";
 
 export const ASSUMPTIONS = [
@@ -92,10 +93,14 @@ export interface CompareData {
     unit: "kWh" | "MJ";
     /** "customer" is the person's own figure; "benchmark" is the AER's typical-household figure. */
     basis: UsageBasis;
+    /** Which evidence the usage rests on (the call's usageSource). */
+    level: UsageSource;
+    /** One sentence saying how far to trust the usage, shown before the figures. */
+    accuracy: string;
     scaledFromBill?: string;
     shares?: Usage["shares"];
     /** Present only when basis is "readings". */
-    readings?: { verified: boolean; from: string; to: string; daysPresent: number; missingCount: number; missingDates: string[]; streams: { consumption: string[]; export: string[] }; netOnly: boolean; ignored?: string };
+    readings?: { verified: boolean; from: string; to: string; daysPresent: number; missingCount: number; missingDates: string[]; streams: { consumption: string[]; export: string[] }; netOnly: boolean };
     controlledLoadAnnualKwh?: number;
     solarExportAnnualKwh?: number;
     /** Present only when basis is "benchmark". */
@@ -107,6 +112,8 @@ export interface CompareData {
   readingsNotice?: string;
   /** Present for electricity results from a benchmark or a single bill: where to ask for interval readings. */
   readingsNote?: ReadingsNote;
+  /** Non-fatal notes, for example a field that was kept but not needed. */
+  warnings: string[];
   counts: { available: number; estimated: number; notEstimated: number; returned: number; approximate: number };
   summary: string;
   estimates: Array<Estimate & { rank: number; link: PlanLink }>;
@@ -192,11 +199,14 @@ export function rank(plans: EnergyPlan[], usage: Usage, opts: { fuelType: string
 export function renderCompare(d: CompareData): string {
   const u = d.usage;
   const out = [
-    ...(d.typicalUsageNotice ? [d.typicalUsageNotice, ""] : []),
-    ...(d.readingsNotice ? [d.readingsNotice, ...(u.readings?.ignored ? [u.readings.ignored] : []), ""] : []),
+    u.accuracy,
+    "",
+    ...(d.typicalUsageNotice && d.typicalUsageNotice !== u.accuracy ? [d.typicalUsageNotice, ""] : []),
+    ...(d.readingsNotice ? [d.readingsNotice, ""] : []),
+    ...(d.warnings.length ? [...d.warnings.map((w) => `Note: ${w}`), ""] : []),
     d.summary,
     "",
-    `Usage assumed${u.basis === "benchmark" ? " (typical, AER benchmark)" : u.basis === "readings" ? " (the household's own interval readings)" : ""}: ${u.annualUsage} ${u.unit} a year${u.benchmark ? ` (${SEASONS.map((x) => `${x.toLowerCase()} ${Math.round(u.benchmark!.seasons[x.toLowerCase()]!)}`).join(", ")} ${u.unit})` : ""}${u.scaledFromBill ? ` (${u.scaledFromBill})` : ""}${u.shares ? `; peak ${u.shares.peak}%, shoulder ${u.shares.shoulder}%, off-peak ${u.shares.offPeak}%` : ""}${u.controlledLoadAnnualKwh ? `; controlled load ${u.controlledLoadAnnualKwh} kWh` : ""}${u.solarExportAnnualKwh ? `; solar export ${u.solarExportAnnualKwh} kWh` : ""}${d.distributor ? `; distributor ${d.distributor}` : ""}; ${d.customerType.toLowerCase()} plans only.`,
+    `Usage assumed${u.basis === "benchmark" ? " (typical, AER benchmark)" : u.basis === "readings" ? " (the household's own interval readings)" : u.level === "assistant_readings" ? " (the household's own readings, summed by the assistant, not verified by Ask Righto)" : ""}: ${u.annualUsage} ${u.unit} a year${u.benchmark ? ` (${SEASONS.map((x) => `${x.toLowerCase()} ${Math.round(u.benchmark!.seasons[x.toLowerCase()]!)}`).join(", ")} ${u.unit})` : ""}${u.scaledFromBill ? ` (${u.scaledFromBill})` : ""}${u.shares ? `; peak ${u.shares.peak}%, shoulder ${u.shares.shoulder}%, off-peak ${u.shares.offPeak}%` : ""}${u.controlledLoadAnnualKwh ? `; controlled load ${u.controlledLoadAnnualKwh} kWh` : ""}${u.solarExportAnnualKwh ? `; solar export ${u.solarExportAnnualKwh} kWh` : ""}${d.distributor ? `; distributor ${d.distributor}` : ""}; ${d.customerType.toLowerCase()} plans only.`,
     "",
   ];
   if (u.benchmark) out.push(`Benchmark source: ${u.benchmark.source.name} (${u.benchmark.source.url}), ${u.benchmark.release}. ${u.benchmark.source.licence}.`, "");
@@ -255,4 +265,36 @@ export function renderCompare(d: CompareData): string {
   if (d.unknownPlanIds?.length) out.push("", `Plan ids not found among the available plans: ${d.unknownPlanIds.join(", ")}.`);
   out.push("", ...linkNotes(d.estimates.map((e) => e.link)), "", "Assumptions:", ...d.assumptions.map((a) => `- ${a}`), "Left out:", ...d.omissions.map((a) => `- ${a}`), "", NOTICE);
   return out.join("\n");
+}
+
+/** The labels the result leads with, one per level. The assistant-summed level reuses UNVERIFIED_READINGS' wording. */
+export const ASSISTANT_READINGS_LABEL = "own readings, summed by the assistant, not verified by Ask Righto";
+
+export function usageAccuracy(o: {
+  level: UsageSource;
+  unit: "kWh" | "MJ";
+  annual: number;
+  days?: number;
+  hasSplit: boolean;
+  hoursFrom?: string;
+  profile?: { from: string; to: string; daysPresent: number };
+  verified?: boolean;
+  typicalNotice?: string;
+}): string {
+  const yr = `${Math.round(o.annual).toLocaleString("en-AU")} ${o.unit} a year`;
+  const tou = o.hasSplit
+    ? "time-of-use plans with different hours from the household's own are approximate"
+    : "time-of-use plans need the peak, shoulder and off-peak split and are not estimated without it";
+  switch (o.level) {
+    case "readings":
+      return `Your own interval readings, ${o.profile!.from} to ${o.profile!.to} (${o.profile!.daysPresent} days), scaled to ${yr}${o.verified === false ? ", not verified by Ask Righto" : ""}; time-of-use plans are matched to the half-hourly readings.`;
+    case "assistant_readings":
+      return `Your ${ASSISTANT_READINGS_LABEL}: ${o.days} days of readings scaled to ${yr}; plans with the same hours${o.hoursFrom ? ` as ${o.hoursFrom}` : " as the household's current plan"} are exact and other time-of-use plans are approximate.`;
+    case "bill":
+      return `Your own bill for ${o.days} days, scaled to ${yr}; ${tou}.`;
+    case "yearly":
+      return `Your own yearly figure of ${yr}; ${tou}.`;
+    case "typical":
+      return o.typicalNotice!;
+  }
 }

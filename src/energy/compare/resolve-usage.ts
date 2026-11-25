@@ -5,106 +5,148 @@ import type { Usage, UsageBasis } from "../calc.js";
 import { annualExportKwh, annualKwh, decodeProfile, type ReadingsProfile } from "../readings/profile.js";
 import { bandShares, periodMonths } from "../readings/windows.js";
 
+/**
+ * The ladder of usage evidence, best first (restructure-energy-compare-usage). Each level ends in the same result,
+ * a yearly cost per plan; only the evidence behind the usage changes.
+ */
+export const USAGE_SOURCES = ["readings", "assistant_readings", "bill", "yearly", "typical"] as const;
+export type UsageSource = (typeof USAGE_SOURCES)[number];
+
 /** The fields of the compare input that say how much energy the household uses. */
 export interface UsageArgs {
   fuelType: "ELECTRICITY" | "GAS";
-  annualUsageKwh?: number;
-  billUsageKwh?: number;
-  annualUsageMj?: number;
-  billUsageMj?: number;
-  billDays?: number;
+  usageSource: UsageSource;
+  /** kWh for electricity, MJ for gas. A bill's figure for `bill` and `assistant_readings`, a year's for `yearly`. */
+  usage?: number;
+  usageDays?: number;
   peakSharePct?: number;
   shoulderSharePct?: number;
   offPeakSharePct?: number;
   householdSize?: number;
-  useBenchmarkUsage?: boolean;
   readingsProfile?: string;
+  currentPlanId?: string;
+  hoursLayoutId?: string;
   controlledLoadAnnualKwh?: number;
   solarExportAnnualKwh?: number;
 }
 
 export interface ResolvedUsage {
+  level: UsageSource;
   unit: "kWh" | "MJ";
-  /** Undefined when typical usage was asked for: the handler looks the AER benchmark up in the store. */
+  /** Undefined for typical usage: the handler looks the AER benchmark up in the store. */
   annual?: number;
-  useBenchmark: boolean;
+  /** Days a bill or the assistant's readings cover. */
+  days?: number;
   scaledFromBill?: string;
   profile?: ReadingsProfile;
   readingsVerified: boolean;
-  ignored?: string;
   shares?: Usage["shares"];
+  /** Non-fatal notes for the result. */
+  warnings: string[];
 }
 
 export type UsageResolution = { ok: true; usage: ResolvedUsage } | { ok: false; result: ReturnType<typeof notFound> };
 
 const refuse = (message: string): UsageResolution => ({ ok: false, result: notFound("needs_input", message) });
 
+/** Fields a source may be given, besides `fuelType` and the plan filters. Anything else is refused. */
+const BILL_FIELDS = ["usage", "usageDays", "peakSharePct", "shoulderSharePct", "offPeakSharePct", "currentPlanId", "hoursLayoutId", "controlledLoadAnnualKwh", "solarExportAnnualKwh"] as const;
+const ALLOWED: Record<UsageSource, readonly string[]> = {
+  readings: ["readingsProfile", "controlledLoadAnnualKwh", "currentPlanId", "hoursLayoutId"],
+  assistant_readings: BILL_FIELDS,
+  bill: BILL_FIELDS,
+  yearly: BILL_FIELDS.filter((f) => f !== "usageDays"),
+  typical: ["householdSize"],
+};
+const CHECKED = ["readingsProfile", "usage", "usageDays", "peakSharePct", "shoulderSharePct", "offPeakSharePct", "householdSize", "currentPlanId", "hoursLayoutId", "controlledLoadAnnualKwh", "solarExportAnnualKwh"] as const;
+/** Fields that only mean something for electricity. */
+const ELECTRICITY_ONLY = ["readingsProfile", "peakSharePct", "shoulderSharePct", "offPeakSharePct", "controlledLoadAnnualKwh", "solarExportAnnualKwh"] as const;
+
+const SPLIT = ["peakSharePct", "shoulderSharePct", "offPeakSharePct"] as const;
+const DAYS_FIELD_HINT = "Ask the user for the number of days the figure covers.";
+
 /**
- * Works out which usage evidence the call carries: readings, a yearly figure, a bill scaled by its days, or typical usage.
- * Pure: it reads no store. Fields that do not fit the path taken are dropped, as the handler always did.
+ * Works out which usage evidence the call carries and checks every field against it. A field that does not belong to
+ * the chosen source, or to the fuel, is refused with its name, never dropped. Pure: it reads no store.
  */
 export function resolveUsage(args: UsageArgs, ctx: { postcode: string; customerType: "RESIDENTIAL" | "BUSINESS" }): UsageResolution {
   const { postcode, customerType } = ctx;
+  const source = args.usageSource;
   const elec = args.fuelType === "ELECTRICITY";
-  const annualDirect = elec ? args.annualUsageKwh : args.annualUsageMj;
-  const bill = elec ? args.billUsageKwh : args.billUsageMj;
   const unit = elec ? "kWh" : "MJ";
-  let annual = annualDirect;
-  let scaledFromBill: string | undefined;
-  // The household's own interval readings, if the host passed a profile back. Revalidated here, never trusted.
-  let profile: ReadingsProfile | undefined;
-  let ignored: string | undefined;
-  let readingsVerified = true;
-  if (args.readingsProfile !== undefined) {
-    if (!elec) return refuse("Interval readings apply to electricity only. Call again with fuelType ELECTRICITY, or without readingsProfile.");
+  const given = (f: string) => (args as unknown as Record<string, unknown>)[f] !== undefined;
+
+  if (!elec && (source === "readings" || source === "assistant_readings")) {
+    return refuse(`usageSource \`${source}\` is for electricity only: interval readings have no gas equivalent here. Call again with fuelType ELECTRICITY, or with usageSource \`bill\` or \`yearly\` for gas.`);
+  }
+  for (const f of CHECKED) {
+    if (given(f) && !ALLOWED[source].includes(f)) {
+      return refuse(`\`${f}\` is not used with usageSource \`${source}\`. Call again without it, or with the source it belongs to.`);
+    }
+  }
+  if (!elec) {
+    for (const f of ELECTRICITY_ONLY) {
+      if (given(f)) return refuse(`\`${f}\` applies to electricity only, not gas. Call again without it.`);
+    }
+  }
+  if (source === "typical" && customerType === "BUSINESS") {
+    return refuse("Typical usage is for households only: there is no benchmark for a business. Ask the user for the usage on a recent bill, or their interval readings, then call again.");
+  }
+
+  const warnings: string[] = [];
+  const base = { level: source, unit, warnings, readingsVerified: true } as const;
+
+  if (source === "typical") {
+    if (args.householdSize === undefined) return refuse("usageSource `typical` needs `householdSize`. Ask the user how many people live there (1 to 5, 5 meaning five or more), then call again.");
+    return { ok: true, usage: { ...base } };
+  }
+
+  if (source === "readings") {
+    if (args.readingsProfile === undefined) return refuse("usageSource `readings` needs `readingsProfile`: the profile string returned by summarise_interval_readings, passed unchanged.");
+    // The household's own interval readings, if the host passed a profile back. Revalidated here, never trusted.
     const d = decodeProfile(args.readingsProfile);
     if (!d.ok) return refuse(`The readings profile could not be used: ${d.problem}. Ask the user for their readings file and call summarise_interval_readings again, then pass its profile unchanged.`);
     const st = stateOfPostcode(postcode);
     if (st !== d.profile.state) return refuse(`The profile was built for a ${d.profile.state} postcode (daylight saving is applied by state) but this postcode is in ${st ?? "an unsupported place"}. Call summarise_interval_readings again with this postcode.`);
-    profile = d.profile;
-    readingsVerified = d.verified;
-    const dropped = [annualDirect !== undefined || bill !== undefined ? "the bill or yearly usage figure" : "", args.peakSharePct !== undefined || args.shoulderSharePct !== undefined || args.offPeakSharePct !== undefined ? "the peak, shoulder and off-peak split" : ""].filter(Boolean);
-    if (dropped.length) ignored = `The readings were used; ${dropped.join(" and ")} given with them was not used.`;
-    annual = annualKwh(profile);
+    keepHoursWarning(args, warnings);
+    return { ok: true, usage: { ...base, annual: annualKwh(d.profile), profile: d.profile, readingsVerified: d.verified } };
   }
-  if (!profile && annual === undefined && bill !== undefined) {
-    if (!args.billDays) return refuse(`A bill's ${unit} figure needs the number of days the bill covers. Ask the user for billDays.`);
-    annual = (bill * 365) / args.billDays;
-    scaledFromBill = `${bill} ${unit} over ${args.billDays} days scaled to a year (x 365/${args.billDays}); real use varies with the seasons`;
+
+  // bill, assistant_readings and yearly all start from `usage`.
+  if (args.usage === undefined) return refuse(`usageSource \`${source}\` needs \`usage\`: the ${unit} ${source === "yearly" ? "used in a year" : source === "bill" ? "on the bill" : "summed from the readings"}. Ask the user for it, then call again.`);
+  if (elec && args.usage > 1_000_000) return refuse("`usage` is more than 1,000,000 kWh, which is out of range for a household or small business. Check the figure with the user.");
+
+  let annual = args.usage;
+  let days: number | undefined;
+  let scaledFromBill: string | undefined;
+  if (source !== "yearly") {
+    if (!args.usageDays) return refuse(`usageSource \`${source}\` needs \`usageDays\`, the number of days the \`usage\` covers. ${DAYS_FIELD_HINT}`);
+    days = args.usageDays;
+    annual = (args.usage * 365) / days;
+    scaledFromBill = source === "bill"
+      ? `${args.usage} ${unit} over ${days} days scaled to a year (x 365/${days}); real use varies with the seasons`
+      : `${args.usage} ${unit} from the household's own readings over ${days} days, summed by the assistant, scaled to a year (x 365/${days}); real use varies with the seasons`;
   }
-  if (annual === undefined) {
-    if (!args.useBenchmarkUsage) {
-      return refuse(
-        `No usage was given. Ask the user for the ${unit} used and the number of days from a recent bill (or their yearly ${unit}), then call again. ${customerType === "BUSINESS" ? "There is no typical usage for a business: if there is no bill, ask for interval readings or a bill." : "If they have no bill to hand, you may offer typical usage for a household of their size: ask how many people live there (1 to 5, 5 meaning five or more), then call again with useBenchmarkUsage true and householdSize, and say it is typical usage, not their own."}`,
-      );
-    }
-    if (customerType === "BUSINESS") return refuse("Typical usage is for households only: there is no benchmark for a business. Ask the user for the usage on a recent bill, or their interval readings, then call again.");
-    if (args.householdSize === undefined) return refuse("Typical usage needs the household size. Ask the user how many people live there (1 to 5, 5 meaning five or more), then call again with householdSize.");
-    if (args.peakSharePct !== undefined || args.shoulderSharePct !== undefined || args.offPeakSharePct !== undefined || args.controlledLoadAnnualKwh || args.solarExportAnnualKwh) {
-      return refuse("Peak and off-peak shares, controlled load and solar export come from a bill and cannot be combined with typical usage. Ask the user for the usage on a recent bill, or call again without those figures.");
-    }
-  }
-  const useBenchmark = annual === undefined;
+
   let shares: Usage["shares"];
-  if (!useBenchmark && !profile && (args.peakSharePct !== undefined || args.shoulderSharePct !== undefined || args.offPeakSharePct !== undefined)) {
-    if (!elec) return refuse("Peak and off-peak shares apply to electricity only.");
+  if (SPLIT.some(given)) {
     shares = { peak: args.peakSharePct ?? 0, shoulder: args.shoulderSharePct ?? 0, offPeak: args.offPeakSharePct ?? 0 };
     const sum = shares.peak + shares.shoulder + shares.offPeak;
     if (Math.abs(sum - 100) > 0.5) return refuse(`The peak, shoulder and off-peak shares add up to ${sum}%, not 100%. Ask the user to check the split on their bill.`);
   }
-  return {
-    ok: true,
-    usage: {
-      unit,
-      ...(annual !== undefined ? { annual } : {}),
-      useBenchmark,
-      ...(scaledFromBill ? { scaledFromBill } : {}),
-      ...(profile ? { profile } : {}),
-      readingsVerified,
-      ...(ignored ? { ignored } : {}),
-      ...(shares ? { shares } : {}),
-    },
-  };
+  if (source === "assistant_readings") {
+    if (!shares) return refuse("usageSource `assistant_readings` needs the peak, shoulder and off-peak split (`peakSharePct`, `shoulderSharePct`, `offPeakSharePct`) of the readings, banded by the household's current plan's hours.");
+    if (!args.currentPlanId && !args.hoursLayoutId) return refuse("usageSource `assistant_readings` needs `currentPlanId` or `hoursLayoutId`: the hours the readings were banded by decide which time-of-use plans are exact. Call list_current_plan_options and let the user pick, then call again.");
+  }
+  if (!shares) keepHoursWarning(args, warnings);
+
+  return { ok: true, usage: { ...base, annual, ...(days ? { days } : {}), ...(scaledFromBill ? { scaledFromBill } : {}), ...(shares ? { shares } : {}) } };
+}
+
+/** A current plan or hours layout needs a split to matter; it is kept for the baseline, and the result says it was not needed. */
+function keepHoursWarning(args: UsageArgs, warnings: string[]): void {
+  const f = args.currentPlanId ? "currentPlanId" : args.hoursLayoutId ? "hoursLayoutId" : undefined;
+  if (f) warnings.push(`\`${f}\` was given without a peak, shoulder and off-peak split, so the current plan's hours were not needed for this comparison.`);
 }
 
 /** The cost model's usage, from the resolved evidence and, for typical usage, the benchmark figure the handler looked up. */
@@ -126,7 +168,8 @@ export function toCalcUsage(r: ResolvedUsage, args: UsageArgs, figure?: Benchmar
       const b = bandShares(pr, t.timeOfUse ?? [], periodMonths(t));
       return b.ok ? { ok: true, shares: b.byBand } : { ok: false, reason: b.reason };
     };
-    const ex = annualExportKwh(pr) ?? args.solarExportAnnualKwh;
+    // The profile carries export from its own B streams; a controlled load total is the one extra a readings call may add.
+    const ex = annualExportKwh(pr);
     if (ex) usage.solarExportAnnualKwh = ex;
     if (args.controlledLoadAnnualKwh) usage.controlledLoadAnnualKwh = args.controlledLoadAnnualKwh;
   }

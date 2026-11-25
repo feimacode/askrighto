@@ -88,9 +88,10 @@ the real database on purpose; the tests use `askrighto_test` schemas.
 
 ## How `compare_energy_plans` uses it
 
-- Without any usage figure and without `useBenchmarkUsage`, the "needs usage" error stays; it now tells the host it may offer typical usage and ask the household size (1 to 5, 5 meaning five or more).
-- With `useBenchmarkUsage: true` and `householdSize`, and no usage figure, it uses the annual benchmark. Without `householdSize` it asks for it. A usage figure, if given, always wins and the benchmark is ignored.
-- Bill-only inputs (peak/off-peak shares, controlled load, solar export) cannot be combined with typical usage; the tool asks for the bill instead.
+- Typical usage is a usage source: `usageSource: "typical"` with `householdSize` (1 to 5, 5 meaning five or more). Without `householdSize` it asks for it. It replaces the old `useBenchmarkUsage` flag.
+- Any field that belongs to another source (`usage`, `usageDays`, the peak/off-peak split, controlled load, solar export, a readings profile, the current plan) is refused with a message naming the field and `typical`. It is not dropped, and a usage figure no longer "wins" silently.
+- A business is refused: there is no business benchmark.
+- The result's `usage.level` is `typical` and `usage.accuracy` is the typical-usage sentence, which leads the text.
 - The result has `usage.basis` (`"customer"` or `"benchmark"`), `usage.benchmark` (zone, state, household size, four seasons, annual, source, release) and `typicalUsageNotice`. The notice leads the markdown text and the Inkview caption, and the result source carries the AER attribution.
 - The estimate maths is unchanged; only the label differs.
 - **Time-of-use plans** are listed as not estimated (`needs_time_of_use_split`: they need the split from a bill). **Controlled load and solar export** are not computed and the omissions say so.
