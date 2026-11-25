@@ -23,7 +23,7 @@ flowchart TB
 
   subgraph PUB["plugin/ (public, name askrighto)"]
     G["ask-righto-grounding"]
-    E["energy-bill-comparison<br/>+ references/read-your-bill.md<br/>+ references/worked-example.md"]
+    E["energy-start, energy-current-plan, energy-readings,<br/>energy-compare, energy-plan-rates<br/>(+ references/read-your-bill.md, worked-example.md)"]
   end
   subgraph INT["plugin-internal/ (name askrighto-internal, testers only)"]
     V["vce-course-research"]
@@ -40,7 +40,7 @@ flowchart TB
 
 | Piece | Path | Notes |
 | --- | --- | --- |
-| Public plugin | `plugin/.claude-plugin/plugin.json`, `plugin/skills/` | Name `askrighto`, version 0.1.0. Skills: `ask-righto-grounding`, `energy-bill-comparison`. Safe to list: energy is the only public vertical. |
+| Public plugin | `plugin/.claude-plugin/plugin.json`, `plugin/skills/` | Name `askrighto`, version 0.1.0. Skills: `ask-righto-grounding` and the five energy journey skills. Safe to list: energy is the only public vertical. |
 | Internal plugin | `plugin-internal/.claude-plugin/plugin.json`, `plugin-internal/skills/` | Name `askrighto-internal`. Skills: `vce-course-research`, `intl-course-finder`. Its manifest says it is for testers while the course tools are internal-only, to be installed alongside the public plugin. Not for public listing. |
 | Marketplace | `.claude-plugin/marketplace.json` | One marketplace named `askrighto` with both plugins as relative sources (`./plugin`, `./plugin-internal`). |
 | Maintainer answer-checker | `.claude/skills/ask-righto-answer-review/SKILL.md`, `scripts/trace-numbers.mjs` | Project-level skill for people working in this repo; it is not in either plugin, so users never get it. See [`review-and-comparison.md`](review-and-comparison.md). |
@@ -92,7 +92,11 @@ flowchart LR
 | Skill | Triggers on (from its `description`) | Process it drives |
 | --- | --- | --- |
 | `ask-righto-grounding` | Any time an Ask Righto result is about to be quoted, summarised or compared, or a tool found nothing | Call the tool before saying anything factual; quote figures exactly with source name, link and as-of date; relay `found: false` plainly and give any official link; describe what the data shows, never "best" or "recommended"; for pages the host reads for the user, follow `references/rules.md`. |
-| `energy-bill-comparison` | Comparing electricity or gas plans, paying less on a power bill, retailers for a postcode | 1 postcode then `search_energy_plans`; 2 ask distributor if several; 3 ask kWh and days from a bill (never assume usage); 4 time-of-use split; 5 solar and controlled load; 6 `compare_energy_plans`; 7 answer as "lowest estimate for the usage you gave", pass on assumptions, discount conditions, the notice and plan links. Non-estimated plans: give the reason and link, never work out a cost. References: how to read a bill, and a worked example labelled invented with no currency amounts (tested). |
+| `energy-start` | Electricity or gas plans, a power bill, paying less, retailers in Australia | Home or business (never assumed); latest invoice first; postcode, fuel, distributor; routes to the other journeys |
+| `energy-current-plan` | Someone has an invoice or says which plan they are on | Read and confirm the invoice fields; `list_current_plan_options` (or `planName` with no invoice); the user picks; carry `currentPlanId` on |
+| `energy-readings` | Interval meter readings (NEM12) to compare on their own use | `summarise_interval_readings` up to about 30 KB; `get_readings_upload_link` for long files; the sum-by-hours fallback as `assistant_readings`; never own peak hours |
+| `energy-compare` | The yearly cost of plans for the user's usage, or whether a plan costs less than their own | Choose `usageSource`; call `compare_energy_plans`; lead with the accuracy sentence; baseline wording; conditions table; follow `nextSteps` |
+| `energy-plan-rates` | Named plans to line up with no usage, or a business with no bill or readings | `compare_energy_plan_rates`; no total or ranking; say a cost needs usage |
 | `vce-course-research` (internal) | Victorian VCE student or parent asking about courses, prerequisites, entry figures, VTAC dates, early entry, aggregate | `search_domestic_courses` first; ask studies before `check_domestic_course_prerequisites`; scores only for a scored check or aggregate; quote figures with kind and intake year; an aggregate is not an ATAR; describe early entry, never say eligible; never "will get in", odds, or choosing subjects; index-only courses: links, and if browsing, read only the checklist, university page first, then Course Seeker, never VTAC; stop at a bot check. |
 | `intl-course-finder` (internal) | International student or family asking about CRICOS courses, providers, fees, duration, entry checklists | `search_international_courses` first; `get_international_course` and `compare_international_courses`; fees always "indicative, as published in CRICOS" with file date; never convert currency or add fees; use `get_international_entry_checklist` for what Ask Righto does not hold; no visa, migration, work-rights or post-study advice (point to Home Affairs); no ranking. |
 
@@ -127,3 +131,17 @@ instructions are the part that every host receives with the connector, even with
   **(inferred)**: only the base rules are generated.
 - **Deferred**: a Claude-only course-page-reader agent, until guided browsing is tested in Claude in
   Chrome.
+
+## 3.2 Energy guidance: one source per journey (split-energy-host-guidance)
+
+Each channel has one job, with no text in two places:
+
+| Channel | Holds | Budget |
+| --- | --- | --- |
+| Tool description | the contract: what it returns, what each input means, what must come first | 500 characters each (test) |
+| Server instructions (energy) | core rules: home or business, invoice first, never assume, no identifiers, neutral wording, readings route, where the steps are | 1.5 KB (test) |
+| Tool result | what to ask or offer next: `needs_input` messages and a short `nextSteps` list on compare and rates results | 300 characters a step (test) |
+| Skill (plugin) | one journey's steps, loaded when the journey begins | none; under 3.5 KB (5 KB for readings) |
+| `get_energy_guide` | the same text as the skill, for hosts without the plugin | same |
+
+The source of each journey is `src/guidance/energy/<journey>.md` (one `description` line of frontmatter, then the steps). `npm run guidance:generate` writes `plugin/skills/<journey>/SKILL.md` and `src/guidance/energy/journeys.generated.ts` (which `get_energy_guide` reads); `npm run guidance:check` and `test/guidance.test.ts` fail when either is stale. A tool, not an MCP prompt or resource, because tool calls work in Claude, ChatGPT and Gemini and prompts are usually user-triggered. The tool is read-only and returns guidance, not facts.

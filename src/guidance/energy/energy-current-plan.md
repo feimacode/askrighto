@@ -1,0 +1,13 @@
+---
+description: Use when someone has a power or gas invoice, or says which plan they are on, and you need to read it and find their current plan. Reads the invoice, confirms the figures with the user and lets them pick their plan.
+---
+
+# Energy: the current plan
+
+A bill's peak, shoulder and off-peak split describes use against the hours of the plan the bill came from, and those hours differ between plans. So find which plan, or which hours, the user is on before comparing.
+
+1. **Read the invoice.** If it is attached (a PDF, photo or screenshot), read it yourself rather than asking the user to retype it; if it cannot be read, ask for the figures. Read and show back for the user to confirm: the retailer and plan name, the plan or offer code if printed, the usage and the days it covers, the usage in each peak, shoulder and off-peak band, the rates and daily supply charge (invoice rates include GST), any solar export and the distributor. See `references/read-your-bill.md` for where to look. Never pass the user's name, address, account number or NMI, and do not repeat them.
+2. **Find the plan.** Call `list_current_plan_options` with the retailer, distributor and customer type, the daily supply charge and every usage rate printed, and the plan or offer code if there is one. It lists only options that agree with those figures. If it asks for figures, or says several options agree equally, ask the user to read more from the invoice and call again; use `showAllOptions` only if they cannot give any.
+3. **No invoice but a plan name.** Pass the name the user gives as `planName`. It narrows the options to those whose names share words with it, for the user to pick from. A name never selects a plan.
+4. **Let the user pick.** Show the options in plain words (a form is drawn where the host can; wait for their choice) and let them pick their plan, or "none of these" (then show the band hours it returns and let them pick or state the hours). Never choose for them and never match by plan name.
+5. **Carry the pick on.** Pass the option's plan id as `currentPlanId` (or the hours id as `hoursLayoutId`) to `compare_energy_plans`: see `energy-compare`.

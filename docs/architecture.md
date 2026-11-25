@@ -177,7 +177,7 @@ rights gate applies on both routes in production. Promotion is a settings change
 ### 5.6 Skills and plugins
 
 Server instructions go to every host on `initialize`; skills add multi-turn intake and wording. The
-public plugin (`plugin/`) holds `ask-righto-grounding` and `energy-bill-comparison`. The internal
+public plugin (`plugin/`) holds `ask-righto-grounding` and five energy journey skills (`energy-start`, `energy-current-plan`, `energy-readings`, `energy-compare`, `energy-plan-rates`), each generated from one source in `src/guidance/energy/` that `get_energy_guide` also serves. The internal
 plugin (`plugin-internal/`) holds `vce-course-research` and `intl-course-finder` for testers. The
 base rules come from one file, `src/guidance/shared.ts`, which feeds both the server instructions and
 a generated `rules.md`; CI fails if the generated copy is stale. A maintainer-only skill

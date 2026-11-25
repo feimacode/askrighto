@@ -15,6 +15,7 @@ import { runSync } from "../../src/energy/sync.js";
 import { serverInstructions } from "../../src/server/instructions.js";
 import { allTools } from "../../src/tools/index.js";
 import { createServer } from "../../src/server/create-server.js";
+import { journeyBody } from "../../src/guidance/energy/index.js";
 import { fixture, startMockCdr, type MockCdr } from "./mock-cdr.js";
 
 const URL = process.env.TEST_DATABASE_URL;
@@ -23,12 +24,13 @@ const d = URL ? describe : describe.skip;
 describe("invoice-first guidance", () => {
   it("asks for the invoice first, lists the fields, bans identifiers, and routes moving house to typical usage", () => {
     const t = serverInstructions();
-    expect(t).toMatch(/latest invoice first/i);
-    expect(t).toMatch(/show back for the user to confirm/i);
+    expect(t).toMatch(/latest invoice before any tool call/i);
     expect(t).toMatch(/Never put the user's name, address, account number or NMI into any tool/);
-    expect(t).toMatch(/moving house or moving in/);
-    expect(t).toMatch(/list_current_plan_options/);
-    expect(t).toMatch(/never match by plan name/i);
+    expect(journeyBody("energy-start")).toMatch(/moving house or moving in/);
+    const steps = journeyBody("energy-current-plan");
+    expect(steps).toMatch(/show back for the user to confirm/i);
+    expect(steps).toMatch(/list_current_plan_options/);
+    expect(steps).toMatch(/never match by plan name/i);
   });
 });
 

@@ -24,6 +24,7 @@ import { runSync } from "../../src/energy/sync.js";
 import { serverInstructions } from "../../src/server/instructions.js";
 import { createServer } from "../../src/server/create-server.js";
 import { NOTICE } from "../../src/tools/energy-common.js";
+import { journeyBody } from "../../src/guidance/energy/index.js";
 import { fixture, startMockCdr, type MockCdr } from "./mock-cdr.js";
 
 const FIXTURE = `${process.cwd()}/test/fixtures/benchmarks/aer_benchmarks_synthetic.xlsx`;
@@ -373,8 +374,12 @@ d("compare_energy_plans with typical usage", () => {
 
   it("is in the server instructions", () => {
     const text = serverInstructions();
-    expect(text).toMatch(/usageSource typical and householdSize/);
-    expect(text).toMatch(/Ask for the bill first/);
-    expect(text).toMatch(/not the user's own/);
+    expect(text).toMatch(/get_energy_guide/);
+    expect(text).toMatch(/never assume usage or household size/i);
+    // The steps live in the journey, served as a skill and by get_energy_guide.
+    const steps = journeyBody("energy-compare");
+    expect(steps).toMatch(/`typical`: only if the user has no bill/);
+    expect(steps).toMatch(/householdSize/);
+    expect(steps).toMatch(/not the user's own/);
   });
 });

@@ -11,7 +11,7 @@ import { MAX_PROFILE_CHARS } from "../energy/readings/profile.js";
 import { BENCHMARK_DATASET_ID, ENERGY_DATASET_ID, getEnergy, withStore } from "../energy/index.js";
 import {
   BENCHMARK_OMISSIONS, ASSUMPTIONS, BUSINESS_ASSUMPTIONS, OMISSIONS, READINGS_ASSUMPTIONS, READINGS_OMISSIONS, UNVERIFIED_READINGS,
-  rank, renderCompare, signed, usageAccuracy, typicalCaption, typicalNotice, type CompareData,
+  nextStepsFor, rank, renderCompare, signed, usageAccuracy, typicalCaption, typicalNotice, type CompareData,
 } from "../energy/compare/rank.js";
 import { resolveUsage, toCalcUsage, USAGE_SOURCES } from "../energy/compare/resolve-usage.js";
 import { CURRENT_PLAN_NOTE, resolveCurrent } from "../energy/compare/current.js";
@@ -51,7 +51,7 @@ export const compareEnergyPlans = defineTool({
   name: "compare_energy_plans",
   title: "Compare energy plan costs",
   description:
-    "Estimates the yearly cost of the current energy plans at a postcode, ordered from the lowest estimate to the highest, with a cost breakdown, conditional discounts and the plans that cannot be estimated. Always set usageSource to say what the usage rests on: readings (call summarise_interval_readings first and pass its profile as readingsProfile; time-of-use plans are matched to the half-hourly readings), assistant_readings (readings you summed yourself because the file was too big to send: usage, usageDays, the peak, shoulder and off-peak split, and currentPlanId or hoursLayoutId), bill (usage and usageDays from a recent bill, with the split for time-of-use plans), yearly (usage for a year) or typical (only if the user has no bill and agrees: householdSize, and the AER's typical household use is used; the result is labelled typical usage, not theirs, and time-of-use plans are not estimated). A field that does not belong to the usageSource is refused, not ignored. With currentPlanId (the plan the user picked in list_current_plan_options) it also costs the current plan on the same usage as a baseline, shown on its own line and not ranked, and each plan shows its difference from it (a lower or higher estimate for the usage given); never say better, save, switch or recommended. The result states the usage level and how far to trust it. Estimates only, not advice.",
+    "Estimates the yearly cost of the current plans at a postcode on the usage given, lowest estimate first, with a cost breakdown, conditional discounts and the plans that cannot be estimated. Needs customerType and usageSource (readings, assistant_readings, bill, yearly or typical); each input says which sources use it, and a field from another source is refused. With currentPlanId it also costs the current plan as a baseline and shows each plan's difference from it. Estimates only, not advice.",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,
@@ -157,6 +157,7 @@ export const compareEnergyPlans = defineTool({
         ...(typicalUsageNotice ? { typicalUsageNotice } : {}),
         ...(readingsNotice ? { readingsNotice } : {}),
         ...(note ? { readingsNote: note } : {}),
+        nextSteps: nextStepsFor({ level, elec, hasSplit: !!shares, touNotEstimated: byReason.needs_time_of_use_split ?? 0, current, verified: readingsVerified }),
         warnings: usageWarnings,
         current,
         counts: { available: plans.length, estimated: allOk.length, notEstimated: no.length, returned: shown.length, approximate: approxAll.length, current: current.costed ? 1 : 0, ...(lowerThanCurrent !== undefined ? { lowerThanCurrent } : {}) },

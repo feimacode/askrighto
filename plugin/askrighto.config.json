@@ -7,7 +7,7 @@
   "keywords": ["australia", "energy", "public-data"],
   "serverUrl": "https://askrighto.feimacode.com/mcp",
   "serverName": "askrighto",
-  "publicSkills": ["ask-righto-grounding", "energy-bill-comparison"],
+  "publicSkills": ["ask-righto-grounding", "energy-start", "energy-current-plan", "energy-readings", "energy-compare", "energy-plan-rates"],
   "marketplace": {
     "name": "askrighto",
     "description": "Ask Righto skills: grounded answers from public Australian data.",

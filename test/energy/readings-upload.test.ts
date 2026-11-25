@@ -348,11 +348,11 @@ describe("summarise_interval_readings", () => {
     expect(g.message).toMatch(/shorter period/);
     expect(JSON.stringify(g)).not.toContain(NMI);
   });
-  it("states the ladder: paste small, paste long, build by hand, shorter period; never own windows", async () => {
-    const { serverInstructions } = await import("../../src/server/instructions.js");
+  it("states the ladder: paste small, paste long, sum by hand, shorter period; never own windows", async () => {
+    const { journeyBody } = await import("../../src/guidance/energy/index.js");
     const { readFileSync } = await import("node:fs");
-    const skill = readFileSync(`${process.cwd()}/plugin/skills/energy-bill-comparison/SKILL.md`, "utf8");
-    for (const text of [serverInstructions(), skill]) {
+    const skill = readFileSync(`${process.cwd()}/plugin/skills/energy-readings/SKILL.md`, "utf8");
+    for (const text of [journeyBody("energy-readings"), skill]) {
       expect(text).toMatch(/30 KB/);
       expect(text).toMatch(/2,000,000/);
       expect(text).toMatch(/not verified by Ask Righto/);
@@ -360,16 +360,16 @@ describe("summarise_interval_readings", () => {
       expect(text).toMatch(/peak or off-peak hours of your own/);
     }
     const t = (await client.listTools()).tools.find((x) => x.name === "summarise_interval_readings")!;
-    expect(t.description).toMatch(/instead of adding the readings up yourself/);
-    expect(t.description).toMatch(/sums \(24 rows of 48/);
+    expect(t.description).toMatch(/never a sample/);
+    expect(t.description).toMatch(/2,000,000 characters/);
   });
-  it("is in the server instructions and the energy skill, and never asks to send the file elsewhere", async () => {
+  it("is in the server instructions and the readings skill, and never asks to send the file elsewhere", async () => {
     const { serverInstructions } = await import("../../src/server/instructions.js");
     const { readFileSync } = await import("node:fs");
     expect(serverInstructions()).toMatch(/summarise_interval_readings/);
-    const skill = readFileSync(`${process.cwd()}/plugin/skills/energy-bill-comparison/SKILL.md`, "utf8");
+    const skill = readFileSync(`${process.cwd()}/plugin/skills/energy-readings/SKILL.md`, "utf8");
     expect(skill).toMatch(/summarise_interval_readings/);
-    expect(skill).toMatch(/do not ask the user to send the file anywhere else|not ask the user to send/i);
+    expect(skill).toMatch(/do not ask the user to send it anywhere else|not ask the user to send/i);
   });
 });
 

@@ -1,6 +1,7 @@
 import type { AnyToolDefinition } from "../core/define-tool.js";
 import { compareEnergyPlanRates } from "./compare-energy-plan-rates.js";
 import { compareEnergyPlans } from "./compare-energy-plans.js";
+import { getEnergyGuide } from "./get-energy-guide.js";
 import { getEnergyPlan } from "./get-energy-plan.js";
 import { getReadingsUploadLink } from "./get-readings-upload-link.js";
 import { listDataSources } from "./list-data-sources.js";
@@ -17,5 +18,6 @@ export const allTools: readonly AnyToolDefinition[] = [
   summariseIntervalReadings,
   listCurrentPlanOptions,
   getReadingsUploadLink,
+  getEnergyGuide,
   listDataSources,
 ];
