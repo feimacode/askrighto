@@ -3,12 +3,12 @@
 ## 1. Evidence
 
 - [ ] 1.1 On the WSL, run `npm run evals -- --set energy` against the current schema with at least two Claude models. Count compare calls that send a field the handler drops or misreads (the cases in the proposal), and record the count in `docs/energy-evaluation/` as the baseline
-- [ ] 1.2 Check the counts in the design still hold on the code at the time (handler length, field list, the 8 test files)
+- [x] 1.2 Check the counts in the design still hold on the code at the time (handler length, field list, the 8 test files)
 
 ## 2. Refactor with no schema change
 
-- [ ] 2.1 Extract `resolveUsage`, `selectPlans` and `rank` from the handler with today's schema. All existing compare tests pass unchanged
-- [ ] 2.2 Add unit tests for `resolveUsage` covering every path in today's handler, including the silent drops (as tests of current behaviour)
+- [x] 2.1 Extract `resolveUsage`, `selectPlans` and `rank` from the handler with today's schema. All existing compare tests pass unchanged
+- [x] 2.2 Add unit tests for `resolveUsage` covering every path in today's handler, including the silent drops (as tests of current behaviour)
 
 ## 3. New input
 
