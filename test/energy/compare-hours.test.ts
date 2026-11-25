@@ -81,11 +81,12 @@ d("compare_energy_plans: bill split against the current plan's hours", () => {
   it("applies the split exactly to plans with the current plan's hours and lists the others apart as approximate", async () => {
     const r = await compare({ currentPlanId: "T1" });
     expect(r.g.found).toBe(true);
-    expect(ids(r.g.data.estimates)).toEqual(["S1", "T1", "T2"]);
+    expect(ids(r.g.data.estimates)).toEqual(["S1", "T2"]); // T1 is the current plan: the baseline, not a candidate
+    expect(r.g.data.current).toMatchObject({ costed: true, planId: "T1" });
     expect(ids(r.g.data.approximateHours)).toEqual(["T3"]);
     expect(r.g.data.approximateHours[0].hours).toBe("different");
     expect(r.g.data.hoursBasis.known).toBe(true);
-    expect(r.g.data.counts).toMatchObject({ estimated: 4, approximate: 1 });
+    expect(r.g.data.counts).toMatchObject({ estimated: 3, approximate: 1, current: 1 });
     expect(r.text).toMatch(/approximate: different hours/);
     expect(r.text).toMatch(/not ranked with the table above/);
   });
@@ -93,7 +94,8 @@ d("compare_energy_plans: bill split against the current plan's hours", () => {
   it("assistant_readings: exact for the current plan's hours, approximate for the others, and labelled not verified", async () => {
     const r = await compare({ usageSource: "assistant_readings", usage: 4100, usageDays: 365, currentPlanId: "T1" });
     expect(r.g.found).toBe(true);
-    expect(ids(r.g.data.estimates)).toEqual(["S1", "T1", "T2"]);
+    expect(ids(r.g.data.estimates)).toEqual(["S1", "T2"]);
+    expect(r.g.data.current).toMatchObject({ costed: true, planId: "T1" });
     expect(ids(r.g.data.approximateHours)).toEqual(["T3"]);
     expect(r.g.data.usage).toMatchObject({ level: "assistant_readings", annualUsage: 4100 });
     expect(r.g.data.usage.accuracy).toMatch(/^Your own readings, summed by the assistant, not verified by Ask Righto: 365 days of readings scaled to 4,100 kWh a year; plans with the same hours as Origin Energy/);
@@ -115,6 +117,46 @@ d("compare_energy_plans: bill split against the current plan's hours", () => {
     expect(r.g).toMatchObject({ found: false, reason: "needs_input" });
     expect(r.g.message).toMatch(/`currentPlanId` or `hoursLayoutId`/);
     expect(r.g.message).toMatch(/hours the readings were banded by/);
+  });
+
+  const banned = /\b(save|saves|saving|savings|better|switch|recommended)\b/i;
+
+  it("costs the current plan as a baseline, keeps it out of the ranking and shows each difference", async () => {
+    const { g, text } = await compare({ currentPlanId: "S1" });
+    const cur = g.data.current;
+    expect(cur).toMatchObject({ costed: true, planId: "S1" });
+    expect(cur.link).toBeDefined();
+    expect(cur.sourceLastUpdated).toBeTruthy();
+    expect(ids(g.data.estimates)).not.toContain("S1");
+    for (const e of [...g.data.estimates, ...g.data.approximateHours]) expect(e.differenceFromCurrentCents).toBe(e.totalCents - cur.totalCents);
+    for (const e of g.data.approximateHours) expect(e.differenceApproximate).toBe(true);
+    const lower = g.data.estimates.filter((e: any) => e.differenceFromCurrentCents < 0).length;
+    expect(g.data.counts).toMatchObject({ current: 1, lowerThanCurrent: lower });
+    expect(g.data.summary).toMatch(lower === 0 ? /No plan in the main table has a lower estimate than your current plan for the usage given/ : /lower estimate than your current plan for the usage given/);
+    expect(g.data.assumptions.join(" ")).toMatch(/today's published rates/);
+    expect(text).toMatch(/Your current plan: Origin Energy .* is estimated at \$/);
+    expect(text).toMatch(/Vs current plan \(approx\.\)/);
+    expect(text).toMatch(/Vs current plan/);
+    expect(text).not.toMatch(banned);
+  });
+
+  it("is costed even when a filter would exclude it, and a time-of-use current plan sets the hours", async () => {
+    const { g } = await compare({ currentPlanId: "T1", planIds: ["T2"] });
+    expect(g.data.current).toMatchObject({ costed: true, planId: "T1" });
+    expect(ids(g.data.estimates)).toEqual(["T2"]);
+    expect(g.data.estimates[0].differenceFromCurrentCents).toBe(g.data.estimates[0].totalCents - g.data.current.totalCents);
+  });
+
+  it("compares the conditions table with both sides' conditions met", async () => {
+    const { g } = await compare({ currentPlanId: "T1" });
+    expect(g.data.ifConditionsMet.length).toBeGreaterThan(0); // S1 has a conditional discount; T1 has none, so its own figure is its plain cost
+    expect(g.data.current.totalIfConditionsMetCents).toBe(g.data.current.totalCents);
+    const withConditions = (await compare({ currentPlanId: "S1" })).g.data.current;
+    expect(withConditions.conditionalDiscounts.length).toBeGreaterThan(0);
+    expect(withConditions.totalIfConditionsMetCents).toBeLessThan(withConditions.totalCents);
+    for (const x of g.data.ifConditionsMet) {
+      expect(x.differenceIfConditionsMetCents).toBe(x.totalIfConditionsMetCents - g.data.current.totalIfConditionsMetCents);
+    }
   });
 
   it("takes the hours from a layout id when the plan was not listed", async () => {

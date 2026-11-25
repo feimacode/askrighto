@@ -287,6 +287,16 @@ d("compare_energy_plans with typical usage", () => {
     expect(g.message).toMatch(/how many people/);
   });
 
+  it("gives no baseline for a time-of-use current plan under typical usage, and still ranks the plans", async () => {
+    const { g, text } = await call({ ...base, distributor: "Jemena", usageSource: "typical", householdSize: 3, currentPlanId: "O1" });
+    expect(g.found).toBe(true);
+    expect(g.data.current).toMatchObject({ costed: false, reason: "not_estimated", planId: "O1" });
+    expect(g.data.current.detail).toMatch(/needs_time_of_use_split/);
+    expect(g.data.counts.current).toBe(0);
+    for (const e of g.data.estimates) expect(e.differenceFromCurrentCents).toBeUndefined();
+    expect(text).toMatch(/Your current plan: The current plan Origin Energy .* could not be costed/);
+  });
+
   it("estimates from the benchmark annual figure, labelled typical, with the notice above the table", async () => {
     const { g, text } = await call({ ...base, usageSource: "typical", householdSize: 3 });
     expect(g.found).toBe(true);

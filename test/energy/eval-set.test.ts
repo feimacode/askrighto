@@ -11,8 +11,8 @@ const known = new Set(routeSet(ALL_VERTICALS, ALL_VERTICALS.map((v) => v.id)).to
 describe("energy eval prompt set", () => {
   const rows = lib.loadSet("energy") as Row[];
 
-  it("holds twenty-five prompts that name only tools that exist and say what a grounded answer holds", () => {
-    expect(rows.map((r) => r.id)).toEqual(Array.from({ length: 25 }, (_, i) => `E${String(i + 1).padStart(2, "0")}`));
+  it("holds twenty-eight prompts that name only tools that exist and say what a grounded answer holds", () => {
+    expect(rows.map((r) => r.id)).toEqual(Array.from({ length: 28 }, (_, i) => `E${String(i + 1).padStart(2, "0")}`));
     for (const r of rows) {
       expect(r.must.length, r.id).toBeGreaterThan(20);
       for (const t of r.expectedTools) expect(known.has(t), `${r.id}: ${t}`).toBe(true);

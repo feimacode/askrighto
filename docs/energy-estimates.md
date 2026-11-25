@@ -98,6 +98,12 @@ too big to send (`energy-readings-recipe.md`): the assistant bands the readings 
 hours and sums them, and the result is labelled "own readings, summed by the assistant, not verified by
 Ask Righto". `customerType` is required.
 
+## Current plan baseline
+
+With `currentPlanId`, `compare_energy_plans` costs that plan with the same estimator on the same usage and returns it in `current` (its estimate, breakdown, conditional discounts, link and as-of date). It is looked up by id whatever the filters are, and is never in `estimates`, `approximateHours` or `ifConditionsMet`; `counts.current` is 1. Each estimate then has `differenceFromCurrentCents` (its cost minus the current plan's, no conditions met on either side); a row in the conditions table has `differenceIfConditionsMetCents` (both sides with their own conditions met). An approximate (different hours) row carries `differenceApproximate`. The summary counts the plans in the main table with a lower estimate (`counts.lowerThanCurrent`). The wording is "lower or higher estimate than your current plan for the usage given", never "better", "save", "switch" or "recommended" (a test checks the text).
+
+When the plan cannot be costed, `current` is `{ costed: false, reason, detail }` and the ranking runs without differences: `no_current_plan`, `not_in_data` (the CDR data holds current offers only), `other_fuel_or_network` (another fuel, customer type or distributor than the comparison) or `not_estimated` (for example a time-of-use plan under typical usage). The baseline uses today's published rates, which may differ from the household's invoice; one assumption line says so. Discounts follow whatever the estimator applies, on both sides, so the difference is like for like.
+
 ## Typical usage (benchmark)
 
 `Usage.basis` is `"customer"` (a bill or stated figure) or `"benchmark"` (the AER typical

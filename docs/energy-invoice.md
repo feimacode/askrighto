@@ -35,6 +35,10 @@ The result is drawn as a form (Inkview `form`): a select of the options and, for
 
 A plan whose bands are all labelled SHOULDER (told apart only by their hours) is shown with each band's own hours and rate, not one rate for all; an invoice rate matches when it agrees with any rate of that kind.
 
+## A stated plan name
+
+A user with no invoice can state their plan name. `list_current_plan_options` takes it as `planName` (up to 80 characters), splits it into words (ignoring filler such as "plan" and "energy") and, with no invoice figures or code, lists the retailer's options on the network whose plan names share a word with it, most shared words first, each marked "words of the plan name you gave". The user still picks. With invoice figures the name only breaks ties and never rescues options the figures rule out. With no shared word the result says so and offers the band-hour layouts. A name never selects a plan by itself (the 20 Nov 2026 decision not to match by name stands).
+
 ## `compare_energy_plans` with the household's hours
 
 With a split (peak, shoulder and off-peak percentages) on a `bill`, `yearly` or `assistant_readings` usage source, the host passes `currentPlanId` (the plan id of the option the user picked) or `hoursLayoutId` (the layout the user picked when their plan was not listed), never both. The server compares each time-of-use plan's layout id with the household's:

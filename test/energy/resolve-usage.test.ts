@@ -107,12 +107,15 @@ describe("usageSource: typical", () => {
   it("refuses everything else in the table, naming the field and the source", () => {
     const extras: Array<Partial<UsageArgs>> = [
       { usage: 4000 }, { usageDays: 90 }, { peakSharePct: 50 }, { shoulderSharePct: 10 }, { offPeakSharePct: 50 },
-      { readingsProfile: "x" }, { controlledLoadAnnualKwh: 500 }, { solarExportAnnualKwh: 800 }, { currentPlanId: "P1" }, { hoursLayoutId: "L1" },
+      { readingsProfile: "x" }, { controlledLoadAnnualKwh: 500 }, { solarExportAnnualKwh: 800 }, { hoursLayoutId: "L1" },
     ];
     for (const e of extras) {
       const field = Object.keys(e)[0]!;
       expect(refused(args({ usageSource: "typical", householdSize: 2, ...e }))).toBe(`\`${field}\` is not used with usageSource \`typical\`. Call again without it, or with the source it belongs to.`);
     }
+  });
+  it("keeps a current plan, which is costed as a baseline and needs no hours", () => {
+    expect(ok(args({ usageSource: "typical", householdSize: 2, currentPlanId: "P1" })).level).toBe("typical");
   });
   it("is refused for a business, which has no benchmark", () => {
     expect(refused(args({ usageSource: "typical", householdSize: 2 }), { postcode: "3000", customerType: "BUSINESS" })).toMatch(/no benchmark for a business/);
