@@ -37,12 +37,13 @@ A plan whose bands are all labelled SHOULDER (told apart only by their hours) is
 
 ## `compare_energy_plans` with the household's hours
 
-With a bill split (peak, shoulder and off-peak percentages) the host passes `currentPlanId` (the plan id of the option the user picked) or `hoursLayoutId` (the layout the user picked when their plan was not listed), never both. The server compares each time-of-use plan's layout id with the household's:
+With a split (peak, shoulder and off-peak percentages) on a `bill`, `yearly` or `assistant_readings` usage source, the host passes `currentPlanId` (the plan id of the option the user picked) or `hoursLayoutId` (the layout the user picked when their plan was not listed), never both. The server compares each time-of-use plan's layout id with the household's:
 
 - **Same hours**: the split is applied and the estimate is ranked in the main table.
 - **Different hours**: the estimate is made with the split but labelled "approximate: different hours" and listed in a separate "Approximate" table, never ranked with the exact ones.
 - **Hours unknown** (no id given): every time-of-use estimate is labelled approximate, in the same separate table, and the result says the household's own hours are not known.
-- **Interval readings or typical usage**: no hours are needed and nothing is labelled approximate for this reason; ids given with them are not used.
+- **`assistant_readings`**: the hours the readings were banded by are required, so one of the two ids must be given; without one the call is refused.
+- **Interval readings (`readings`) or typical usage**: no hours are needed and nothing is labelled approximate for this reason. Typical usage refuses the ids; a `bill` or `yearly` figure with no split, or `readings`, keeps an id and `warnings` says the hours were not needed.
 
 Plans with no time-of-use rates (single rate, block rates) are unaffected. The structured result carries `approximateHours`, `hoursBasis` and `counts.approximate`. In Inkview the main table carries a footnote saying how many plans were estimated only approximately; the separate table is in the text result.
 

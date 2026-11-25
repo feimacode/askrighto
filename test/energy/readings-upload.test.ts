@@ -20,6 +20,7 @@ import { bandShares, periodMonths } from "../../src/energy/readings/windows.js";
 import { runSync } from "../../src/energy/sync.js";
 import type { TimeOfUseRate } from "../../src/energy/types.js";
 import { createServer } from "../../src/server/create-server.js";
+import { generateNem12Data } from "../helpers/nem12.js";
 import { fixture, startMockCdr, type MockCdr } from "./mock-cdr.js";
 
 const URL = process.env.TEST_DATABASE_URL;
@@ -427,11 +428,11 @@ d("compare_energy_plans with readings (database)", () => {
     await admin.end();
   });
   const profileFor = async (text: string, postcode = "3000") => (await call("summarise_interval_readings", { readingsText: text, postcode })).g.data.profile as string;
-  const base = { postcode: "3000", fuelType: "ELECTRICITY", distributor: "Jemena" };
+  const base = { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "Jemena" };
 
   it("estimates a time-of-use plan from the readings, with the basis, the period and no readings prompt", async () => {
     const profile = await profileFor(evening(365));
-    const { g, text } = await call("compare_energy_plans", { ...base, readingsProfile: profile });
+    const { g, text } = await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: profile });
     expect(g.found).toBe(true);
     expect(g.data.usage).toMatchObject({ basis: "readings", readings: { from: "2026-01-01", daysPresent: 365 } });
     expect(g.data.readingsNotice).toMatch(/household's own interval readings, 2026-01-01 to 2026-12-31/);
@@ -454,32 +455,35 @@ d("compare_energy_plans with readings (database)", () => {
     if (!dec.ok) throw new Error("profile");
     const w = bandShares(dec.profile, [{ type: "PEAK", rates: [], windows: [{ days: ["MON", "TUE", "WED", "THU", "FRI"], startTime: "15:00", endTime: "21:00" }] }, { type: "OFF_PEAK", rates: [], windows: [] }], periodMonths({}));
     if (!w.ok) throw new Error("windows");
-    const fromReadings = (await call("compare_energy_plans", { ...base, readingsProfile: profile })).g.data.estimates.find((e: any) => e.planId === "TOU1");
+    const fromReadings = (await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: profile })).g.data.estimates.find((e: any) => e.planId === "TOU1");
     const annual = dec.profile.totalKwh;
-    const fromBill = (await call("compare_energy_plans", { ...base, annualUsageKwh: annual, peakSharePct: w.shares.peak, shoulderSharePct: 0, offPeakSharePct: 100 - w.shares.peak, currentPlanId: "TOU1" })).g.data.estimates.find((e: any) => e.planId === "TOU1");
+    const fromBill = (await call("compare_energy_plans", { ...base, usageSource: "yearly", usage: annual, peakSharePct: w.shares.peak, shoulderSharePct: 0, offPeakSharePct: 100 - w.shares.peak, currentPlanId: "TOU1" })).g.data.estimates.find((e: any) => e.planId === "TOU1");
     expect(Math.abs(fromReadings.totalCents - fromBill.totalCents)).toBeLessThanOrEqual(100); // rounding of the shares only
   });
 
-  it("uses the readings over a bill figure and says so; short periods are scaled and labelled", async () => {
+  it("refuses a bill figure sent with readings, and labels short periods as scaled", async () => {
     const profile = await profileFor(evening(60));
-    const { g, text } = await call("compare_energy_plans", { ...base, readingsProfile: profile, annualUsageKwh: 9999 });
+    const mixed = await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: profile, usage: 9999 });
+    expect(mixed.g).toMatchObject({ found: false, reason: "needs_input" });
+    expect(mixed.g.message).toMatch(/`usage` is not used with usageSource `readings`/);
+    const { g, text } = await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: profile });
     expect(g.data.usage.annualUsage).not.toBe(9999);
-    expect(g.data.usage.readings.ignored).toMatch(/not used/);
+    expect(g.data.usage.level).toBe("readings");
     expect(text).toMatch(/60 days present/);
     expect(text).toMatch(/scaled to a year/);
     const short = await profileFor(evening(30));
-    expect((await call("compare_energy_plans", { ...base, readingsProfile: short })).g.data.usage.readings.daysPresent).toBe(30);
+    expect((await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: short })).g.data.usage.readings.daysPresent).toBe(30);
   });
 
   it("labels a profile the server did not sign or that was changed, and not an untouched one", async () => {
     const profile = await profileFor(evening(100));
-    const signed = await call("compare_energy_plans", { ...base, readingsProfile: profile });
+    const signed = await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: profile });
     expect(signed.g.data.usage.readings.verified).toBe(true);
     expect(signed.g.data.readingsNotice).not.toMatch(/not verified/);
     // Built by hand: same content, no signature.
     const { sig: _sig, ...bare } = JSON.parse(profile);
     void _sig;
-    const byHand = await call("compare_energy_plans", { ...base, readingsProfile: JSON.stringify(bare) });
+    const byHand = await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: JSON.stringify(bare) });
     expect(byHand.g.found).toBe(true);
     expect(byHand.g.data.usage.readings.verified).toBe(false);
     expect(byHand.g.data.readingsNotice).toMatch(/not verified by Ask Righto/);
@@ -487,30 +491,77 @@ d("compare_energy_plans with readings (database)", () => {
     // Same totals, one digit changed inside the sums: still within the totals check, but the signature fails.
     const nudged = JSON.parse(profile);
     nudged.sums[0][0] += 0.001;
-    const changed = await call("compare_energy_plans", { ...base, readingsProfile: JSON.stringify(nudged) });
+    const changed = await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: JSON.stringify(nudged) });
     expect(changed.g.data.usage.readings.verified).toBe(false);
     // Key order does not matter.
     const reordered = JSON.stringify(Object.fromEntries(Object.entries(JSON.parse(profile)).reverse()));
-    expect((await call("compare_energy_plans", { ...base, readingsProfile: reordered })).g.data.usage.readings.verified).toBe(true);
+    expect((await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: reordered })).g.data.usage.readings.verified).toBe(true);
   });
   it("refuses a malformed, changed, wrong-state or gas profile and makes no estimate", async () => {
     const profile = await profileFor(evening(100));
-    const bad = await call("compare_energy_plans", { ...base, readingsProfile: "{}" });
+    const bad = await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: "{}" });
     expect(bad.g).toMatchObject({ found: false, reason: "needs_input" });
     expect(bad.g.message).toMatch(/summarise_interval_readings again/);
     const edited = JSON.parse(profile);
     edited.totalKwh += 500;
-    expect((await call("compare_energy_plans", { ...base, readingsProfile: JSON.stringify(edited) })).g).toMatchObject({ found: false });
-    const nsw = await call("compare_energy_plans", { postcode: "2000", fuelType: "ELECTRICITY", readingsProfile: profile });
+    expect((await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: JSON.stringify(edited) })).g).toMatchObject({ found: false });
+    const nsw = await call("compare_energy_plans", { postcode: "2000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", usageSource: "readings", readingsProfile: profile });
     expect(nsw.g).toMatchObject({ found: false, reason: "needs_input" });
     expect(nsw.g.message).toMatch(/VIC/);
-    expect((await call("compare_energy_plans", { postcode: "3000", fuelType: "GAS", readingsProfile: profile })).g).toMatchObject({ found: false, reason: "needs_input" });
+    expect((await call("compare_energy_plans", { postcode: "3000", fuelType: "GAS", customerType: "RESIDENTIAL", usageSource: "readings", readingsProfile: profile })).g).toMatchObject({ found: false, reason: "needs_input" });
+  });
+
+  it("summarise and compare figures equal the totals computed from the generated intervals (seeded generator)", async () => {
+    // A household with controlled load and solar, a year, exact totals. VIC, so the period (1 Jan to 31 Dec) crosses daylight saving.
+    const gen = generateNem12Data({ start: "2026-01-01", days: 365, seed: 11, consumptionKwh: 5214.322, feedinKwh: 1830.452, controlledLoadStreams: 1, solarStreams: 1 });
+    const intervals = (pick: (s: string) => boolean) => gen.streams.filter((s) => pick(s.suffix)).flatMap((s) => s.days.flatMap((x) => x.values));
+    const consumption = intervals((s) => s.startsWith("E")).reduce((a, v) => a + Math.round(v * 1e4), 0) / 1e4;
+    const feedin = intervals((s) => s.startsWith("B")).reduce((a, v) => a + Math.round(v * 1e4), 0) / 1e4;
+    expect(consumption).toBeCloseTo(5214.322, 4);
+    expect(feedin).toBeCloseTo(1830.452, 4);
+
+    const sum = await call("summarise_interval_readings", { readingsText: gen.text, postcode: "3000" });
+    expect(sum.g.data.daysPresent).toBe(365);
+    const profile = sum.g.data.profile as string;
+    const dec = decodeProfile(profile);
+    if (!dec.ok) throw new Error(dec.problem);
+    expect(dec.profile.totalKwh).toBeCloseTo(consumption, 2); // the profile rounds to 1e-3
+    expect(dec.profile.exportKwh).toBeCloseTo(feedin, 2);
+    expect(dec.profile.streams).toEqual({ consumption: ["E1", "E2"], export: ["B1"] });
+
+    // Expected peak share by the plan's own window (weekdays 15:00 to 21:00 local), worked out from the generated intervals.
+    let peak = 0;
+    for (const e of gen.streams.filter((s) => s.suffix.startsWith("E"))) {
+      for (const day of e.days) {
+        const base = Date.UTC(+day.date.slice(0, 4), +day.date.slice(4, 6) - 1, +day.date.slice(6, 8));
+        day.values.forEach((v, k) => {
+          const local = new Date(base + (k * 30 + localOffsetMinutes("VIC", new Date(base))) * 60_000);
+          const dow = local.getUTCDay();
+          const h = local.getUTCHours() + local.getUTCMinutes() / 60;
+          if (dow >= 1 && dow <= 5 && h >= 15 && h < 21) peak += v;
+        });
+      }
+    }
+    const cmp = await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: profile });
+    expect(cmp.g.found).toBe(true);
+    expect(cmp.g.data.usage.level).toBe("readings");
+    expect(cmp.g.data.usage.annualUsage).toBe(Math.round(dec.profile.totalKwh)); // 365 days, so no scaling
+    expect(cmp.g.data.usage.annualUsage).toBe(Math.round(consumption));
+    expect(cmp.g.data.usage.solarExportAnnualKwh).toBeCloseTo(feedin, 0);
+    expect(cmp.g.data.usage.accuracy).toMatch(/^Your own interval readings, 2026-01-01 to 2026-12-31 \(365 days\), scaled to 5,214 kWh a year/);
+    // The time-of-use estimate must equal the same plan costed from the peak share worked out here.
+    const w = bandShares(dec.profile, [{ type: "PEAK", rates: [], windows: [{ days: ["MON", "TUE", "WED", "THU", "FRI"], startTime: "15:00", endTime: "21:00" }] }, { type: "OFF_PEAK", rates: [], windows: [] }], periodMonths({}));
+    if (!w.ok) throw new Error("windows");
+    expect(w.shares.peak).toBeCloseTo((peak / consumption) * 100, 1);
+    const fromReadings = cmp.g.data.estimates.find((e: any) => e.planId === "TOU1");
+    const fromBill = (await call("compare_energy_plans", { ...base, usageSource: "yearly", usage: Math.round(consumption * 1000) / 1000, peakSharePct: (peak / consumption) * 100, shoulderSharePct: 0, offPeakSharePct: 100 - (peak / consumption) * 100, solarExportAnnualKwh: feedin, currentPlanId: "TOU1" })).g.data.estimates.find((e: any) => e.planId === "TOU1");
+    expect(Math.abs(fromReadings.totalCents - fromBill.totalCents)).toBeLessThanOrEqual(100);
   });
 
   it("costs solar export from the B stream", async () => {
     const withSolar = makeNem12({ start: "20260101", days: 120, streams: [{ at: (_d, s) => (s >= 30 && s < 42 ? 0.5 : 0.1) }, { suffix: "B1", at: () => 0.2 }] });
     const profile = await profileFor(withSolar);
-    const { g } = await call("compare_energy_plans", { ...base, readingsProfile: profile });
+    const { g } = await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: profile });
     const est = g.data.estimates.find((e: any) => e.planId === "TOU1"); // its feed-in is a single 5c rate
     expect(est.breakdown.feedInCreditCents).toBeLessThan(0);
     expect(g.data.usage.solarExportAnnualKwh).toBeGreaterThan(0);
@@ -519,7 +570,7 @@ d("compare_energy_plans with readings (database)", () => {
   it("does not return or log the input text or an identifier", async () => {
     const text = evening(40);
     const profile = await profileFor(text);
-    const { text: out, g } = await call("compare_energy_plans", { ...base, readingsProfile: profile });
+    const { text: out, g } = await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: profile });
     for (const secret of [NMI, SERIAL]) {
       expect(out).not.toContain(secret);
       expect(JSON.stringify(g)).not.toContain(secret);

@@ -172,7 +172,7 @@ d("the note in compare_energy_plans (database)", () => {
   });
 
   it("benchmark usage: the note once, below the table, with the matched distributor's checked page", async () => {
-    const { g, text } = await call({ postcode: "2000", fuelType: "ELECTRICITY", useBenchmarkUsage: true, householdSize: 2 });
+    const { g, text } = await call({ postcode: "2000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", usageSource: "typical", householdSize: 2 });
     expect(g.found).toBe(true);
     expect(g.data.readingsNote.distributor).toMatchObject({ name: "Ausgrid", url: expect.stringMatching(/ausgrid\.com\.au/) });
     expect(text.match(/More accurate comparison\./g)).toHaveLength(1);
@@ -183,19 +183,19 @@ d("the note in compare_energy_plans (database)", () => {
   });
 
   it("single bill: the same note; a stated yearly figure or gas: none", async () => {
-    const bill = await call({ postcode: "3000", fuelType: "ELECTRICITY", distributor: "CitiPower", billUsageKwh: 900, billDays: 90 });
+    const bill = await call({ postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "CitiPower", usageSource: "bill", usage: 900, usageDays: 90 });
     expect(bill.g.data.readingsNote).toBeDefined();
     expect(bill.text.match(/More accurate comparison\./g)).toHaveLength(1);
-    const yearly = await call({ postcode: "3000", fuelType: "ELECTRICITY", distributor: "CitiPower", annualUsageKwh: 4000 });
+    const yearly = await call({ postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "CitiPower", usageSource: "yearly", usage: 4000 });
     expect(yearly.g.data.readingsNote).toBeUndefined();
     expect(yearly.text).not.toMatch(/More accurate comparison/);
-    const gas = await call({ postcode: "3000", fuelType: "GAS", useBenchmarkUsage: true, householdSize: 2 });
+    const gas = await call({ postcode: "3000", fuelType: "GAS", customerType: "RESIDENTIAL", usageSource: "typical", householdSize: 2 });
     expect(gas.g.found).toBe(true);
     expect(gas.g.data.readingsNote).toBeUndefined();
   });
 
   it("a distributor with no checked page gets the generic note and no link", async () => {
-    const { g, text } = await call({ postcode: "3000", fuelType: "ELECTRICITY", distributor: "CitiPower", useBenchmarkUsage: true, householdSize: 3 });
+    const { g, text } = await call({ postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "CitiPower", usageSource: "typical", householdSize: 3 });
     expect(g.data.readingsNote.distributor).toBeUndefined();
     const section = text.slice(text.indexOf("More accurate comparison."));
     expect(section.split("\n")[0]).not.toMatch(/\]\(/);
@@ -203,15 +203,15 @@ d("the note in compare_energy_plans (database)", () => {
   });
 
   it("a time-of-use plan not estimated says readings would allow a comparison", async () => {
-    const { g } = await call({ postcode: "3000", fuelType: "ELECTRICITY", distributor: "Jemena", billUsageKwh: 900, billDays: 90 });
+    const { g } = await call({ postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "Jemena", usageSource: "bill", usage: 900, usageDays: 90 });
     const tou = g.data.notEstimated.find((x: any) => x.reason === "needs_time_of_use_split");
     expect(tou.detail).toMatch(/Interval readings from the retailer or distributor would allow it to be compared/);
-    const bench = await call({ postcode: "3000", fuelType: "ELECTRICITY", distributor: "Jemena", useBenchmarkUsage: true, householdSize: 2 });
+    const bench = await call({ postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "Jemena", usageSource: "typical", householdSize: 2 });
     expect(bench.g.data.notEstimated.find((x: any) => x.reason === "needs_time_of_use_split").detail).toMatch(/Interval readings from the retailer or distributor/);
   });
 
   it("the readings note stays in the grounded result and the text (the card list has no footnote)", async () => {
-    const { sc, text } = await call({ postcode: "3000", fuelType: "ELECTRICITY", distributor: "CitiPower", billUsageKwh: 900, billDays: 90 });
+    const { sc, text } = await call({ postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "CitiPower", usageSource: "bill", usage: 900, usageDays: 90 });
     expect(sc.component).toBe("listings");
     expect(JSON.stringify(sc.grounded)).toContain("readingsNote");
     expect(text).toMatch(/[Ii]nterval readings/);

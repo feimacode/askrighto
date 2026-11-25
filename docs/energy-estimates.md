@@ -75,10 +75,33 @@ Each maps to a call in `test/energy/tools.test.ts`.
 - "Same, but I'm on Jemena with a 30/20/50 peak, shoulder and off-peak split and export 500 kWh of solar." → `compare_energy_plans` with a split
 - "Which should I pick?" → the host answers with the lowest estimate and the notice, never "best"
 
+## Usage sources
+
+`compare_energy_plans` takes a required `usageSource`, the ladder of usage evidence, best first. Every
+level ends in the same result, a yearly cost per plan; only the evidence behind the usage changes, and the
+result states the level (`usage.level`) and one sentence on how far to trust it (`usage.accuracy`), which
+leads the text.
+
+| `usageSource` | Needs | May add | Refused |
+| --- | --- | --- | --- |
+| `readings` | `readingsProfile` | `controlledLoadAnnualKwh` | `usage`, `usageDays`, the split, `householdSize`, `solarExportAnnualKwh` (the profile carries export) |
+| `assistant_readings` | `usage`, `usageDays`, the split, `currentPlanId` or `hoursLayoutId` | `controlledLoadAnnualKwh`, `solarExportAnnualKwh` | `readingsProfile`, `householdSize` |
+| `bill` | `usage`, `usageDays` | the split, `currentPlanId` or `hoursLayoutId`, controlled load, solar export | `readingsProfile`, `householdSize` |
+| `yearly` | `usage` | as `bill`, except `usageDays` | `readingsProfile`, `householdSize`, `usageDays` |
+| `typical` | `householdSize` | nothing | everything else |
+
+`usage` is kWh for electricity and MJ for gas. Readings, `assistant_readings`, the split, controlled load
+and solar export are electricity only. A refused field is named with the source; nothing is dropped
+silently. The one exception is `currentPlanId` or `hoursLayoutId` with no split: it is kept, and
+`warnings` says the hours were not needed. `assistant_readings` is the fallback when a readings file is
+too big to send (`energy-readings-recipe.md`): the assistant bands the readings by the current plan's
+hours and sums them, and the result is labelled "own readings, summed by the assistant, not verified by
+Ask Righto". `customerType` is required.
+
 ## Typical usage (benchmark)
 
 `Usage.basis` is `"customer"` (a bill or stated figure) or `"benchmark"` (the AER typical
-household figure, only when the person has no usage and asks for it with `useBenchmarkUsage` and
+household figure, only when the person has no usage and asks for it with `usageSource: "typical"` and
 `householdSize`). The maths is the same either way; only the label differs. With a benchmark,
 time-of-use plans are `needs_time_of_use_split` (no split exists), controlled load and solar export
 are not computed, and the typical-usage notice leads every output form. Details, data and limits:

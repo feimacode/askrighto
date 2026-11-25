@@ -44,7 +44,7 @@ d("business and residential plans (database)", () => {
     const sc = r.structuredContent as any;
     return { text: (r.content as Array<{ text: string }>)[0]!.text, g: sc.grounded ?? sc };
   }
-  const base = { postcode: "3000", fuelType: "ELECTRICITY", distributor: "CitiPower", annualUsageKwh: 4000 };
+  const base = { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "CitiPower", usageSource: "yearly", usage: 4000 };
 
   beforeAll(async () => {
     db = createDb({ url: URL!, schema, poolMax: 5 });
@@ -110,12 +110,12 @@ d("business and residential plans (database)", () => {
   });
 
   it("compare: there is no typical usage for a business", async () => {
-    const r = await call("compare_energy_plans", { postcode: "3000", fuelType: "ELECTRICITY", distributor: "CitiPower", customerType: "BUSINESS", useBenchmarkUsage: true, householdSize: 2 });
+    const r = await call("compare_energy_plans", { postcode: "3000", fuelType: "ELECTRICITY", distributor: "CitiPower", customerType: "BUSINESS", usageSource: "typical", householdSize: 2 });
     expect(r.g).toMatchObject({ found: false, reason: "needs_input" });
     expect(r.g.message).toMatch(/households only/);
-    const none = await call("compare_energy_plans", { postcode: "3000", fuelType: "ELECTRICITY", distributor: "CitiPower", customerType: "BUSINESS" });
-    expect(none.g.message).toMatch(/no typical usage for a business/);
-    expect(none.g.message).not.toMatch(/how many people live/);
+    const none = await call("compare_energy_plans", { postcode: "3000", fuelType: "ELECTRICITY", distributor: "CitiPower", customerType: "BUSINESS", usageSource: "bill" });
+    expect(none.g.message).toMatch(/`usage`/);
+    expect(none.g.message).not.toMatch(/typical/);
   });
 
   it("get_energy_plan: shows the plan's own customer type", async () => {

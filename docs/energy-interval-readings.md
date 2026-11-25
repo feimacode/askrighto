@@ -6,7 +6,7 @@ A household can ask its retailer or distributor for its interval readings (use i
 
 1. The person gets a NEM12 file (a CSV) from their distributor or retailer.
 2. `summarise_interval_readings` takes the file text unchanged and the postcode. It reads the file in memory, drops the NMI and meter serial, and returns the period, days present and missing dates, total and annual kWh, any solar export, data quality notes and a **profile string**.
-3. `compare_energy_plans` takes that string unchanged as `readingsProfile`. The server keeps nothing between the two calls: the host carries the profile.
+3. `compare_energy_plans` takes that string unchanged as `readingsProfile`, with `usageSource: "readings"`. The server keeps nothing between the two calls: the host carries the profile.
 
 The profile (version 1, about 8 KB) is JSON: the postcode's state, the period, totals, the streams used, and for each month and for weekdays and weekends the kWh in each half hour **of the household's local clock** (daylight saving applied for the state). It holds no identifier and no per-day value. It is revalidated on every use (version, ranges, shape, and that the half-hour table adds up to the total).
 
