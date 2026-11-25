@@ -23,6 +23,10 @@ Compare plans on the user's real usage. Every figure comes from an Ask Righto to
 7. **Answer.** Say "lowest estimate for the usage you gave" (for typical usage: "lowest estimate for typical usage, not your own"), never "best" or "recommended". Pass on the assumptions and the notice that come with the result. Give each plan's link.
 8. **Conditional discounts.** Show the result's "If you meet the conditions" table as a separate table after the main one, with each plan's conditions. Say these costs apply only if the user meets every listed condition (for example paying on time or holding a membership), and ask whether they expect to.
 
+## Rates side by side, with no usage
+
+When the user names plans to line up ("how do these two differ?") and has no usage, or is a small business with no bill and no readings, call `compare_energy_plan_rates` with the postcode and 2 to 5 plan ids (from `search_energy_plans`, `list_current_plan_options` or an earlier result; the plans must share a fuel, customer type and distributor). It shows each plan's supply charge, usage rates with their hours, controlled load, feed-in, discounts with their conditions, fees, contract length and eligibility, with a link. Pass `currentPlanId` to label the user's own plan. It has no total or ranking: never add the rates up, never say one plan is better, and say that a cost comparison needs usage from a bill or readings (then use `compare_energy_plans`).
+
 ## Interval readings
 
 If the comparison used typical usage or a single bill, the result includes a "More accurate comparison" note: the household can ask its retailer or its electricity distributor for interval readings (use in half-hour steps), which also lets time-of-use plans be compared. Offer it once, in the result's words. If it links the distributor's request page, give that link; if not, do not guess one. Never add a fee or a time the note does not state. Ask Righto does not request the readings for the household. If the user has the file, use `summarise_interval_readings` (see the next section); do not ask them to send it anywhere else.
