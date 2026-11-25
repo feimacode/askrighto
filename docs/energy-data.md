@@ -14,7 +14,7 @@ Victorian Energy Compare web pages.
 
 Residential **and business** electricity, gas and dual fuel plans (standing, market, regulated) that
 are current or start in the future, per retailer in `src/energy/retailers.json`. Each plan keeps its CDR
-`customerType` (`RESIDENTIAL` or `BUSINESS`); the tools take `customerType` (default `RESIDENTIAL`) and never
+`customerType` (`RESIDENTIAL` or `BUSINESS`); the tools require `customerType` (no default) and never
 mix the two in one result. Until 20 Nov 2026 business plans were dropped at the list stage; the first sync
 after that change adds them (nothing already stored changes), and a business plan is a different plan id.
 **Every CDR plan is for a residential or a small business customer, so `BUSINESS` means small business, and

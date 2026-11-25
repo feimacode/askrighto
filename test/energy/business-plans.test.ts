@@ -90,8 +90,8 @@ d("business and residential plans (database)", () => {
     expect((await plansByPostcode(db.pool, { postcode: "3000", customerType: "RESIDENTIAL" })).map((p) => p.planId)).toEqual(["RES1"]);
   });
 
-  it("search: residential by default, business only when asked, and the text says which", async () => {
-    const home = await call("search_energy_plans", { postcode: "3000" });
+  it("search: each kind only when asked, and the text says which", async () => {
+    const home = await call("search_energy_plans", { customerType: "RESIDENTIAL", postcode: "3000" });
     expect(home.g.data.plans.map((p: any) => p.planId)).toEqual(["RES1"]);
     expect(home.text).toMatch(/current residential plan/);
     const biz = await call("search_energy_plans", { postcode: "3000", customerType: "BUSINESS" });

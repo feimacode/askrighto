@@ -110,6 +110,10 @@ d("list_current_plan_options (database)", () => {
     expect(r.g.data.narrowed).toBe(true);
     expect(r.g.data.options).toHaveLength(1);
     expect(r.g.data.options[0].planIds).toEqual(["O1", "O2"]);
+    // The id to pass on is named for the compare field, never a hash, so it cannot be mistaken for a plan id.
+    expect(r.g.data.options[0].currentPlanId).toBe("O1");
+    expect(r.g.data.options[0].optionId).toBeUndefined();
+    expect(r.text).toMatch(/Option 1\*\* \(currentPlanId O1\)/);
     expect(r.g.data.options[0].matchedOn).toContain("words of the plan name you gave");
     expect(r.g.data.nextStep).toMatch(/ask the user to pick/);
     expect(r.text).toMatch(/Matched your invoice on: words of the plan name you gave/);

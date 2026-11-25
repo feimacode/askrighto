@@ -151,7 +151,7 @@ d("tools are listed with annotations and the Inkview view", () => {
 
 d("search_energy_plans", () => {
   it("returns plans with source, date, notice and no component", async () => {
-    const { text, sc, g } = await call("search_energy_plans", {
+    const { text, sc, g } = await call("search_energy_plans", { customerType: "RESIDENTIAL",
       postcode: "3000",
       fuelType: "ELECTRICITY",
     });
@@ -173,16 +173,16 @@ d("search_energy_plans", () => {
 
   it("rejects a bad postcode and reports outside coverage", async () => {
     expect(
-      (await call("search_energy_plans", { postcode: "30A0" })).g,
+      (await call("search_energy_plans", { customerType: "RESIDENTIAL", postcode: "30A0" })).g,
     ).toMatchObject({ found: false, reason: "needs_input" });
-    const r = (await call("search_energy_plans", { postcode: "9999" })).g;
+    const r = (await call("search_energy_plans", { customerType: "RESIDENTIAL", postcode: "9999" })).g;
     expect(r).toMatchObject({ found: false, reason: "outside_coverage" });
     expect(r.message).toMatch(/NSW/);
   });
 
   it("applies filters together and echoes a fuzzy retailer match", async () => {
     const solar = (
-      await call("search_energy_plans", {
+      await call("search_energy_plans", { customerType: "RESIDENTIAL",
         postcode: "3000",
         fuelType: "ELECTRICITY",
         hasSolarFeedIn: true,
@@ -190,7 +190,7 @@ d("search_energy_plans", () => {
     ).g;
     expect(solar.data.plans.map((p: any) => p.planId)).toEqual(["O1"]);
     const fuzzy = (
-      await call("search_energy_plans", {
+      await call("search_energy_plans", { customerType: "RESIDENTIAL",
         postcode: "3000",
         retailer: "Origen",
       })
@@ -201,7 +201,7 @@ d("search_energy_plans", () => {
     ).toBe(true);
     expect(
       (
-        await call("search_energy_plans", {
+        await call("search_energy_plans", { customerType: "RESIDENTIAL",
           postcode: "3000",
           retailer: "Zzzzzz",
         })
@@ -211,7 +211,7 @@ d("search_energy_plans", () => {
 
   it("groups by distributor and asks which one when there are several", async () => {
     const r = (
-      await call("search_energy_plans", {
+      await call("search_energy_plans", { customerType: "RESIDENTIAL",
         postcode: "3000",
         fuelType: "ELECTRICITY",
       })
@@ -223,7 +223,7 @@ d("search_energy_plans", () => {
     expect(r.data.needsDistributor).toBe(true);
     expect(r.data.askUser).toMatch(/which one is on their bill/);
     const one = (
-      await call("search_energy_plans", {
+      await call("search_energy_plans", { customerType: "RESIDENTIAL",
         postcode: "3000",
         fuelType: "ELECTRICITY",
         distributor: "Jemena",
@@ -235,12 +235,12 @@ d("search_energy_plans", () => {
 
   it("pages in a neutral order", async () => {
     const p1 = (
-      await call("search_energy_plans", { postcode: "3000", limit: 2 })
+      await call("search_energy_plans", { customerType: "RESIDENTIAL", postcode: "3000", limit: 2 })
     ).g.data;
     expect(p1.returned).toBe(2);
     expect(p1.nextCursor).toBe("2");
     const p2 = (
-      await call("search_energy_plans", {
+      await call("search_energy_plans", { customerType: "RESIDENTIAL",
         postcode: "3000",
         limit: 2,
         cursor: p1.nextCursor,
@@ -303,7 +303,7 @@ d("get_energy_plan", () => {
     expect(one.g.data.link.url).toBe("https://www.agl.com.au/");
     expect(one.text).toContain("Link: [Retailer website](https://www.agl.com.au/)");
     expect(one.text).not.toMatch(/energymadeeasy/);
-    const list = await call("search_energy_plans", { postcode: "3207" });
+    const list = await call("search_energy_plans", { customerType: "RESIDENTIAL", postcode: "3207" });
     expect(list.text).toMatch(/\| Updated \| Link \| Plan id \|/);
     expect(list.g.data.plans[0].link).toMatchObject({ label: "Retailer website" });
   });
@@ -590,6 +590,37 @@ d("compare_energy_plans current plan baseline", () => {
   const base = { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "CitiPower", usageSource: "bill", usage: 900, usageDays: 90 };
   const banned = /\b(save|saves|saving|savings|better|switch|recommended)\b/i;
 
+  it("refuses a currentPlanId that is not a plan id, such as an option hash, but keeps a well-formed retired id", async () => {
+    const hash = (await call("compare_energy_plans", { ...base, currentPlanId: "9affe595" })).g;
+    expect(hash).toMatchObject({ found: false, reason: "needs_input" });
+    expect(hash.message).toMatch(/not a plan id/);
+    expect(hash.message).toMatch(/currentPlanId/);
+    const retired = (await call("compare_energy_plans", { ...base, currentPlanId: "NOPE@VEC" })).g;
+    expect(retired.found).toBe(true);
+    expect(retired.data.current.detail).toMatch(/Copy the plan id from the option the user picked/);
+  });
+
+  it("warns when a bill split has no current plan or hours layout, so the hours are never silently unknown", async () => {
+    const split = { ...base, peakSharePct: 40, shoulderSharePct: 0, offPeakSharePct: 60 };
+    const none = (await call("compare_energy_plans", split)).g;
+    expect(none.found).toBe(true);
+    expect(none.data.warnings.join(" ")).toMatch(/no `currentPlanId` or `hoursLayoutId`/);
+    const given = (await call("compare_energy_plans", { ...split, currentPlanId: "A1" })).g;
+    expect((given.data.warnings ?? []).join(" ")).not.toMatch(/no `currentPlanId` or `hoursLayoutId`/);
+  });
+
+  it("lists at most notEstimatedLimit plans that were not estimated, with complete counts", async () => {
+    const full = (await call("compare_energy_plans", { ...base, usageSource: "yearly", usage: 4000, usageDays: undefined, notEstimatedLimit: 50 })).g;
+    const none = (await call("compare_energy_plans", { ...base, usageSource: "yearly", usage: 4000, usageDays: undefined, notEstimatedLimit: 0 })).g;
+    expect(full.data.counts.notEstimated).toBeGreaterThan(0);
+    expect(none.data.notEstimated).toEqual([]);
+    expect(none.data.notEstimatedShown).toBe(0);
+    expect(none.data.notEstimatedMore).toBe(full.data.counts.notEstimated);
+    expect(none.data.counts).toEqual(full.data.counts);
+    expect(none.data.notEstimatedByReason).toEqual(full.data.notEstimatedByReason);
+    expect(none.data.estimates).toEqual(full.data.estimates);
+  });
+
   it("says so when there is no current plan, or it is not in the data, or is on another network", async () => {
     const none = (await call("compare_energy_plans", base)).g;
     expect(none.data.current).toMatchObject({ costed: false, reason: "no_current_plan" });
@@ -653,7 +684,7 @@ d("outage", () => {
   it("every energy tool says data is unavailable and returns no figures when the database is gone", async () => {
     await rt.db.pool.end();
     for (const [name, args] of [
-      ["search_energy_plans", { postcode: "3000" }],
+      ["search_energy_plans", { customerType: "RESIDENTIAL", postcode: "3000" }],
       ["get_energy_plan", { planId: "A1" }],
       [
         "compare_energy_plans",
