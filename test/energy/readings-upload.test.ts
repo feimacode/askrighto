@@ -513,12 +513,12 @@ d("compare_energy_plans with readings (database)", () => {
 
   it("summarise and compare figures equal the totals computed from the generated intervals (seeded generator)", async () => {
     // A household with controlled load and solar, a year, exact totals. VIC, so the period (1 Jan to 31 Dec) crosses daylight saving.
-    const gen = generateNem12Data({ start: "2026-01-01", days: 365, seed: 11, consumptionKwh: 5214.3217, feedinKwh: 1830.4521, controlledLoadStreams: 1, solarStreams: 1 });
+    const gen = generateNem12Data({ start: "2026-01-01", days: 365, seed: 11, consumptionKwh: 5214.322, feedinKwh: 1830.452, controlledLoadStreams: 1, solarStreams: 1 });
     const intervals = (pick: (s: string) => boolean) => gen.streams.filter((s) => pick(s.suffix)).flatMap((s) => s.days.flatMap((x) => x.values));
     const consumption = intervals((s) => s.startsWith("E")).reduce((a, v) => a + Math.round(v * 1e4), 0) / 1e4;
     const feedin = intervals((s) => s.startsWith("B")).reduce((a, v) => a + Math.round(v * 1e4), 0) / 1e4;
-    expect(consumption).toBeCloseTo(5214.3217, 4);
-    expect(feedin).toBeCloseTo(1830.4521, 4);
+    expect(consumption).toBeCloseTo(5214.322, 4);
+    expect(feedin).toBeCloseTo(1830.452, 4);
 
     const sum = await call("summarise_interval_readings", { readingsText: gen.text, postcode: "3000" });
     expect(sum.g.data.daysPresent).toBe(365);
