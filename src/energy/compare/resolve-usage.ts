@@ -56,7 +56,7 @@ const ALLOWED: Record<UsageSource, readonly string[]> = {
   assistant_readings: BILL_FIELDS,
   bill: BILL_FIELDS,
   yearly: BILL_FIELDS.filter((f) => f !== "usageDays"),
-  typical: ["householdSize"],
+  typical: ["householdSize", "currentPlanId"],
 };
 const CHECKED = ["readingsProfile", "usage", "usageDays", "peakSharePct", "shoulderSharePct", "offPeakSharePct", "householdSize", "currentPlanId", "hoursLayoutId", "controlledLoadAnnualKwh", "solarExportAnnualKwh"] as const;
 /** Fields that only mean something for electricity. */

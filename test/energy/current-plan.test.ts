@@ -37,9 +37,11 @@ describe("list_current_plan_options inputs", () => {
     const tool = allTools.find((t) => t.name === "list_current_plan_options")!;
     const shape = tool.inputSchema.shape as Record<string, { _def: { typeName?: string }; maxLength?: number | null }>;
     expect(Object.keys(shape).sort()).toEqual(
-      ["customerType", "distributor", "fuelType", "offPeakRatePerUnit", "peakRatePerUnit", "planCode", "postcode", "retailer", "shoulderRatePerUnit", "showAllOptions", "singleRatePerUnit", "supplyChargePerDay"].sort(),
+      ["customerType", "distributor", "fuelType", "offPeakRatePerUnit", "peakRatePerUnit", "planCode", "planName", "postcode", "retailer", "shoulderRatePerUnit", "showAllOptions", "singleRatePerUnit", "supplyChargePerDay"].sort(),
     );
-    for (const k of Object.keys(shape)) expect(k).not.toMatch(/name|address|account|nmi|meter|serial/i);
+    // planName is the plan the user says they are on (a product name, not a person's name); it is short and only narrows the list.
+    for (const k of Object.keys(shape).filter((x) => x !== "planName")) expect(k).not.toMatch(/name|address|account|nmi|meter|serial/i);
+    expect(shape.planName!.maxLength ?? tool.inputSchema.shape.planName!.safeParse("x".repeat(500)).success === false).toBeTruthy();
     // The only strings are short: a postcode, a retailer and a network name.
     expect(() => tool.inputSchema.parse({ postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", retailer: "x".repeat(500) })).toThrow();
   });
@@ -96,6 +98,36 @@ d("list_current_plan_options (database)", () => {
     expect(r.g).toMatchObject({ found: false, reason: "needs_input" });
     expect(r.g.message).toMatch(/more than one distributor/);
     expect(r.g.details ?? r.g.data ?? r.g).toBeTruthy();
+  });
+
+  it("narrows by a plan name the user states, as words, and still leaves the pick to the user", async () => {
+    const rest: Record<string, unknown> = { ...base };
+    delete rest.showAllOptions;
+    const r = await call({ ...rest, distributor: "Jemena", planName: "time of use plan" });
+    expect(r.g.found).toBe(true);
+    expect(r.g.data.narrowed).toBe(true);
+    expect(r.g.data.options).toHaveLength(1);
+    expect(r.g.data.options[0].planIds).toEqual(["O1", "O2"]);
+    expect(r.g.data.options[0].matchedOn).toContain("words of the plan name you gave");
+    expect(r.g.data.nextStep).toMatch(/ask the user to pick/);
+    expect(r.text).toMatch(/Matched your invoice on: words of the plan name you gave/);
+  });
+
+  it("with no name match says so and offers the band-hour layouts", async () => {
+    const rest: Record<string, unknown> = { ...base };
+    delete rest.showAllOptions;
+    const r = await call({ ...rest, distributor: "Jemena", planName: "Zebra Deluxe" });
+    expect(r.g.found).toBe(true);
+    expect(r.g.data.options).toHaveLength(0);
+    expect(r.g.data.layouts.length).toBeGreaterThan(0);
+    expect(r.g.data.nextStep).toMatch(/shares a word with the name given/);
+  });
+
+  it("uses a name only as a hint beside invoice figures, never to select", async () => {
+    const rest: Record<string, unknown> = { ...base };
+    delete rest.showAllOptions;
+    const r = await call({ ...rest, distributor: "Jemena", planName: "Time of Use", supplyChargePerDay: 9.99 });
+    expect(r.g.data.options).toHaveLength(0); // the figure agrees with nothing; the name does not rescue it
   });
 
   it("merges plans with identical rates and hours into one option, with plain-words rates and hours", async () => {

@@ -69,6 +69,8 @@ export function typicalNotice(f: Pick<BenchmarkFigure, "householdSize" | "fiveOr
 
 export interface IfConditionsMet {
   rank: number;
+  /** With a costed current plan: this plan's cost with conditions met minus the current plan's cost with its own conditions met. */
+  differenceIfConditionsMetCents?: number;
   /** The plan's place in the main ordering (cost without conditions). */
   mainRank: number;
   planId: string;
@@ -81,6 +83,10 @@ export interface IfConditionsMet {
   savingCents: number;
   conditions: Estimate["conditionalDiscounts"];
 }
+
+export type CurrentPlan =
+  | { costed: true; planId: string; brandName: string; displayName: string; planUrl?: string; link: PlanLink; sourceLastUpdated: string; totalCents: number; totalIfConditionsMetCents: number; breakdown: Estimate["breakdown"]; conditionalDiscounts: Estimate["conditionalDiscounts"]; notes: string[]; notIncluded: string[]; restrictions: string[]; note: string }
+  | { costed: false; planId?: string; reason: "no_current_plan" | "not_in_data" | "other_fuel_or_network" | "not_estimated"; detail: string };
 
 export interface CompareData {
   postcode: string;
@@ -112,18 +118,20 @@ export interface CompareData {
   readingsNotice?: string;
   /** Present for electricity results from a benchmark or a single bill: where to ask for interval readings. */
   readingsNote?: ReadingsNote;
+  /** The household's current plan costed as a baseline on the same usage, or why it was not. It is never ranked with the candidates. */
+  current: CurrentPlan;
   /** Non-fatal notes, for example a field that was kept but not needed. */
   warnings: string[];
-  counts: { available: number; estimated: number; notEstimated: number; returned: number; approximate: number };
+  counts: { available: number; estimated: number; notEstimated: number; returned: number; approximate: number; current: 0 | 1; lowerThanCurrent?: number };
   summary: string;
-  estimates: Array<Estimate & { rank: number; link: PlanLink }>;
+  estimates: Array<Estimate & { rank: number; link: PlanLink; differenceFromCurrentCents?: number }>;
   /**
    * The plans with conditional discounts, ordered by their cost if every listed condition is met.
    * A separate ranking, so the main ordering stays on the cost without conditions.
    */
   ifConditionsMet: IfConditionsMet[];
   /** Time-of-use estimates made with a bill split whose hours differ from, or may differ from, the household's current plan. Never ranked with the exact ones. */
-  approximateHours: Array<Estimate & { rank: number; link: PlanLink; hours: "different" | "unknown"; hoursNote: string }>;
+  approximateHours: Array<Estimate & { rank: number; link: PlanLink; hours: "different" | "unknown"; hoursNote: string; differenceFromCurrentCents?: number; differenceApproximate?: true }>;
   /** Present when a bill split was used: whether the household's own hours were known. */
   hoursBasis?: { known: boolean; layoutId?: string; description?: string; from?: string };
   notEstimated: NotEstimated[];
@@ -143,11 +151,14 @@ export interface Ranked {
   shown: CompareData["estimates"];
   approximateHours: CompareData["approximateHours"];
   ifConditionsMet: IfConditionsMet[];
+  /** Plans in the main (exact) table with a lower estimate than the current plan; undefined without a costed baseline. */
+  lowerThanCurrent?: number;
 }
 
 /** Costs every plan for the usage, then orders the exact, approximate and conditional-discount tables. No store access. */
-export function rank(plans: EnergyPlan[], usage: Usage, opts: { fuelType: string; postcode: string; hoursBasis?: CompareData["hoursBasis"]; limit: number }): Ranked {
-  const { hoursBasis, limit, postcode } = opts;
+export function rank(plans: EnergyPlan[], usage: Usage, opts: { fuelType: string; postcode: string; hoursBasis?: CompareData["hoursBasis"]; limit: number; current?: Estimate }): Ranked {
+  const { hoursBasis, limit, postcode, current } = opts;
+  const diff = (e: Estimate) => (current ? { differenceFromCurrentCents: e.totalCents - current.totalCents } : {});
   const results = plans.map((p) => estimateAnnualCost(p, usage));
   // With a bill split, a time-of-use estimate is exact only for plans whose band hours equal the household's own.
   const hoursOf = (e: Estimate): "same" | "different" | "unknown" | undefined => {
@@ -164,13 +175,15 @@ export function rank(plans: EnergyPlan[], usage: Usage, opts: { fuelType: string
   const no = results.filter((r): r is NotEstimated => !r.estimated).sort((a, b) => a.reason.localeCompare(b.reason) || a.brandName.localeCompare(b.brandName) || a.planId.localeCompare(b.planId));
   const byReason: Record<string, number> = {};
   for (const n of no) byReason[n.reason] = (byReason[n.reason] ?? 0) + 1;
-  const shown = ok.slice(0, limit).map((e, i) => ({ ...e, rank: i + 1, link: planLink(e, postcode) }));
+  const shown = ok.slice(0, limit).map((e, i) => ({ ...e, rank: i + 1, link: planLink(e, postcode), ...diff(e) }));
   const approximateHours = approxAll.slice(0, limit).map((e, i) => {
     const h = hoursOf(e) as "different" | "unknown";
     return {
       ...e,
       rank: i + 1,
       link: planLink(e, postcode),
+      ...diff(e),
+      ...(current ? { differenceApproximate: true as const } : {}),
       hours: h,
       hoursNote: h === "different" ? "approximate: different hours (the bill split describes the household's current plan, whose peak, shoulder and off-peak hours differ from this plan's)" : "approximate: the household's own hours are unknown, so the split may not fit this plan's hours",
     };
@@ -191,10 +204,15 @@ export function rank(plans: EnergyPlan[], usage: Usage, opts: { fuelType: string
       totalIfConditionsMetCents: e.totalIfConditionsMetCents,
       totalCents: e.totalCents,
       savingCents: e.totalCents - e.totalIfConditionsMetCents,
+      ...(current ? { differenceIfConditionsMetCents: e.totalIfConditionsMetCents - current.totalIfConditionsMetCents } : {}),
       conditions: e.conditionalDiscounts,
     }));
-  return { allOk, ok, approxAll, no, byReason, shown, approximateHours, ifConditionsMet };
+  const lowerThanCurrent = current ? ok.filter((e) => e.totalCents < current.totalCents).length : undefined;
+  return { allOk, ok, approxAll, no, byReason, shown, approximateHours, ifConditionsMet, ...(lowerThanCurrent !== undefined ? { lowerThanCurrent } : {}) };
 }
+
+/** A signed dollar difference: negative is a lower estimate than the current plan, positive a higher one. */
+export const signed = (cents: number): string => (cents === 0 ? "$0.00" : `${cents < 0 ? "-" : "+"}${dollars(Math.abs(cents))}`);
 
 export function renderCompare(d: CompareData): string {
   const u = d.usage;
@@ -206,17 +224,23 @@ export function renderCompare(d: CompareData): string {
     ...(d.warnings.length ? [...d.warnings.map((w) => `Note: ${w}`), ""] : []),
     d.summary,
     "",
+    ...(d.current.costed
+      ? [
+          `Your current plan: ${d.current.brandName} ${d.current.displayName} (${d.current.planId}) is estimated at ${dollars(d.current.totalCents)} a year for the usage given${d.current.conditionalDiscounts.length ? `, or ${dollars(d.current.totalIfConditionsMetCents)} if you meet its conditions` : ""}. It is the baseline, so it is not ranked below. ${d.current.note} ${linkCell(d.current.link)}`,
+          "",
+        ]
+      : [`Your current plan: ${d.current.detail}`, ""]),
     `Usage assumed${u.basis === "benchmark" ? " (typical, AER benchmark)" : u.basis === "readings" ? " (the household's own interval readings)" : u.level === "assistant_readings" ? " (the household's own readings, summed by the assistant, not verified by Ask Righto)" : ""}: ${u.annualUsage} ${u.unit} a year${u.benchmark ? ` (${SEASONS.map((x) => `${x.toLowerCase()} ${Math.round(u.benchmark!.seasons[x.toLowerCase()]!)}`).join(", ")} ${u.unit})` : ""}${u.scaledFromBill ? ` (${u.scaledFromBill})` : ""}${u.shares ? `; peak ${u.shares.peak}%, shoulder ${u.shares.shoulder}%, off-peak ${u.shares.offPeak}%` : ""}${u.controlledLoadAnnualKwh ? `; controlled load ${u.controlledLoadAnnualKwh} kWh` : ""}${u.solarExportAnnualKwh ? `; solar export ${u.solarExportAnnualKwh} kWh` : ""}${d.distributor ? `; distributor ${d.distributor}` : ""}; ${d.customerType.toLowerCase()} plans only.`,
     "",
   ];
   if (u.benchmark) out.push(`Benchmark source: ${u.benchmark.source.name} (${u.benchmark.source.url}), ${u.benchmark.release}. ${u.benchmark.source.licence}.`, "");
   if (d.estimates.length) {
     out.push(
-      "| # | Retailer | Plan | Est. yearly cost | Supply | Usage | Controlled load | Solar credit | Updated | Link |",
-      "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+      `| # | Retailer | Plan | Est. yearly cost | ${d.current.costed ? "Vs current plan | " : ""}Supply | Usage | Controlled load | Solar credit | Updated | Link |`,
+      `| --- | --- | --- | --- | ${d.current.costed ? "--- | " : ""}--- | --- | --- | --- | --- | --- |`,
       ...d.estimates.map(
         (e) =>
-          `| ${e.rank} | ${e.brandName} | ${e.displayName} | ${dollars(e.totalCents)} | ${dollars(e.breakdown.supplyCents)} | ${dollars(e.breakdown.usageCents)} | ${dollars(e.breakdown.controlledLoadCents)} | ${dollars(e.breakdown.feedInCreditCents)} | ${e.sourceLastUpdated.slice(0, 10)} | ${linkCell(e.link)} |`,
+          `| ${e.rank} | ${e.brandName} | ${e.displayName} | ${dollars(e.totalCents)} | ${e.differenceFromCurrentCents !== undefined ? `${signed(e.differenceFromCurrentCents)} | ` : ""}${dollars(e.breakdown.supplyCents)} | ${dollars(e.breakdown.usageCents)} | ${dollars(e.breakdown.controlledLoadCents)} | ${dollars(e.breakdown.feedInCreditCents)} | ${e.sourceLastUpdated.slice(0, 10)} | ${linkCell(e.link)} |`,
       ),
       "",
       "Breakdown per plan also includes guaranteed discounts, recurring fees and GST; each plan's components add up to its total.",
@@ -239,9 +263,9 @@ export function renderCompare(d: CompareData): string {
       "",
       "Approximate (different or unknown hours): a bill's peak, shoulder and off-peak split describes use against the household's current plan's hours. These plans have other hours, so their estimates may be wrong either way. They are not ranked with the table above.",
       "",
-      "| # | Retailer | Plan | Est. yearly cost (approx.) | Why approximate | Link |",
-      "| --- | --- | --- | --- | --- | --- |",
-      ...d.approximateHours.map((e) => `| ${e.rank} | ${e.brandName} | ${e.displayName} | ${dollars(e.totalCents)} | ${e.hoursNote} | ${linkCell(e.link)} |`),
+      `| # | Retailer | Plan | Est. yearly cost (approx.) | ${d.current.costed ? "Vs current plan (approx.) | " : ""}Why approximate | Link |`,
+      `| --- | --- | --- | --- | ${d.current.costed ? "--- | " : ""}--- | --- |`,
+      ...d.approximateHours.map((e) => `| ${e.rank} | ${e.brandName} | ${e.displayName} | ${dollars(e.totalCents)} | ${e.differenceFromCurrentCents !== undefined ? `${signed(e.differenceFromCurrentCents)} (approx.) | ` : ""}${e.hoursNote} | ${linkCell(e.link)} |`),
     );
   }
   if (d.ifConditionsMet.length) {
@@ -249,11 +273,11 @@ export function renderCompare(d: CompareData): string {
       "",
       "If you meet the conditions: these plans have discounts that apply only when a condition is met (for example paying on time, direct debit or membership). This table orders them by the cost if every listed condition is met. It is a separate ordering; the table above does not count these discounts.",
       "",
-      "| # | Retailer | Plan | Cost if conditions met | Cost otherwise | Difference | Conditions | Link |",
-      "| --- | --- | --- | --- | --- | --- | --- | --- |",
+      `| # | Retailer | Plan | Cost if conditions met | ${d.current.costed ? "Vs current plan (both with conditions met) | " : ""}Cost otherwise | Difference | Conditions | Link |`,
+      `| --- | --- | --- | --- | ${d.current.costed ? "--- | " : ""}--- | --- | --- | --- |`,
       ...d.ifConditionsMet.map(
         (x) =>
-          `| ${x.rank} | ${x.brandName} | ${x.displayName} | ${dollars(x.totalIfConditionsMetCents)} | ${dollars(x.totalCents)} (#${x.mainRank} without conditions) | ${dollars(x.savingCents)} | ${x.conditions.map((c) => `${c.name}: ${c.condition}`.replace(/\|/g, "/")).join("; ")} | ${linkCell(x.link)} |`,
+          `| ${x.rank} | ${x.brandName} | ${x.displayName} | ${dollars(x.totalIfConditionsMetCents)} | ${x.differenceIfConditionsMetCents !== undefined ? `${signed(x.differenceIfConditionsMetCents)} | ` : ""}${dollars(x.totalCents)} (#${x.mainRank} without conditions) | ${dollars(x.savingCents)} | ${x.conditions.map((c) => `${c.name}: ${c.condition}`.replace(/\|/g, "/")).join("; ")} | ${linkCell(x.link)} |`,
       ),
     );
   }

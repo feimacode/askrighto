@@ -457,7 +457,7 @@ d("compare_energy_plans with readings (database)", () => {
     if (!w.ok) throw new Error("windows");
     const fromReadings = (await call("compare_energy_plans", { ...base, usageSource: "readings", readingsProfile: profile })).g.data.estimates.find((e: any) => e.planId === "TOU1");
     const annual = dec.profile.totalKwh;
-    const fromBill = (await call("compare_energy_plans", { ...base, usageSource: "yearly", usage: annual, peakSharePct: w.shares.peak, shoulderSharePct: 0, offPeakSharePct: 100 - w.shares.peak, currentPlanId: "TOU1" })).g.data.estimates.find((e: any) => e.planId === "TOU1");
+    const fromBill = (await call("compare_energy_plans", { ...base, usageSource: "yearly", usage: annual, peakSharePct: w.shares.peak, shoulderSharePct: 0, offPeakSharePct: 100 - w.shares.peak })).g.data.approximateHours.find((e: any) => e.planId === "TOU1"); // hours unknown, so approximate: same arithmetic
     expect(Math.abs(fromReadings.totalCents - fromBill.totalCents)).toBeLessThanOrEqual(100); // rounding of the shares only
   });
 
@@ -554,7 +554,7 @@ d("compare_energy_plans with readings (database)", () => {
     if (!w.ok) throw new Error("windows");
     expect(w.shares.peak).toBeCloseTo((peak / consumption) * 100, 1);
     const fromReadings = cmp.g.data.estimates.find((e: any) => e.planId === "TOU1");
-    const fromBill = (await call("compare_energy_plans", { ...base, usageSource: "yearly", usage: Math.round(consumption * 1000) / 1000, peakSharePct: (peak / consumption) * 100, shoulderSharePct: 0, offPeakSharePct: 100 - (peak / consumption) * 100, solarExportAnnualKwh: feedin, currentPlanId: "TOU1" })).g.data.estimates.find((e: any) => e.planId === "TOU1");
+    const fromBill = (await call("compare_energy_plans", { ...base, usageSource: "yearly", usage: Math.round(consumption * 1000) / 1000, peakSharePct: (peak / consumption) * 100, shoulderSharePct: 0, offPeakSharePct: 100 - (peak / consumption) * 100, solarExportAnnualKwh: feedin })).g.data.approximateHours.find((e: any) => e.planId === "TOU1"); // hours unknown, so approximate: same arithmetic
     expect(Math.abs(fromReadings.totalCents - fromBill.totalCents)).toBeLessThanOrEqual(100);
   });
 

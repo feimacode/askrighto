@@ -24,6 +24,7 @@ const input = z.object({
   shoulderRatePerUnit: z.number().min(0).max(5).optional().describe("Shoulder rate (GST inclusive, as on the invoice) in dollars per kWh from the invoice"),
   offPeakRatePerUnit: z.number().min(0).max(5).optional().describe("Off-peak rate (GST inclusive, as on the invoice) in dollars per kWh from the invoice"),
   planCode: z.string().max(40).optional().describe("The plan or offer code printed on the invoice or fact sheet (for example MOM799904MR), if there is one. It identifies a plan exactly"),
+  planName: z.string().max(80).optional().describe("The plan name the user says they are on, if they have no invoice at hand (for example Value Saver). Matched as words, never exactly: it only narrows the list for the user to pick from, and never selects a plan by itself"),
   showAllOptions: z.boolean().optional().describe("Set true only when the user cannot give any figure or code from the invoice: lists the retailer's options without narrowing"),
 });
 
@@ -145,13 +146,17 @@ export interface CurrentPlanData {
   notice: string;
 }
 
+const NAME_STOP = new Set(["plan", "the", "and", "for", "energy", "home", "my", "a", "of", "on", "to"]);
+/** Lower-case words of a plan name, without filler. */
+const nameWords = (t: string): string[] => [...new Set(t.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 1 && !NAME_STOP.has(w)))];
+
 const fmt = (n: number) => `$${n.toFixed(4)}`;
 
 export const listCurrentPlanOptions = defineTool({
   name: "list_current_plan_options",
   title: "List the retailer's plans to pick the current one",
   description:
-    "Use after reading the user's latest invoice. Lists a short set of the retailer's plans on the user's network, merging plans with identical rates and hours, each in plain words with its rates and band hours, so the user can pick the one their invoice is on, or say none of these (then pick the band hours from the layouts returned). Pass only the retailer, network, customer type and the rate figures printed on the invoice (they include GST, as invoices do); never pass a name, address, account number or meter identifier. Does not match by plan name. The result is shown as a form for the user to pick from, with the full details beside it: wait for the user's choice before calling compare_energy_plans, and never pick for them. Not advice.",
+    "Use after reading the user's latest invoice. Lists a short set of the retailer's plans on the user's network, merging plans with identical rates and hours, each in plain words with its rates and band hours, so the user can pick the one their invoice is on, or say none of these (then pick the band hours from the layouts returned). Pass only the retailer, network, customer type and the rate figures printed on the invoice (they include GST, as invoices do); never pass a name, address, account number or meter identifier. Does not select a plan by name: a plan name the user states (planName) only narrows the list when no invoice is at hand. The result is shown as a form for the user to pick from, with the full details beside it: wait for the user's choice before calling compare_energy_plans, and never pick for them. Not advice.",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,
@@ -204,10 +209,12 @@ export const listCurrentPlanOptions = defineTool({
       };
       const rateHints = [hint.supply, hint.single, hint.PEAK, hint.SHOULDER, hint.OFF_PEAK].some((x) => x !== undefined);
       const code = args.planCode?.trim().toUpperCase().replace(/@.*$/, "");
-      if (!rateHints && !code && !args.showAllOptions) {
+      const wantWords = args.planName ? nameWords(args.planName) : [];
+      const nameHint = wantWords.length > 0;
+      if (!rateHints && !code && !nameHint && !args.showAllOptions) {
         return notFound(
           "needs_input",
-          `${m.brandName} has ${groups.size} different sets of rates and hours on this network, too many to choose from without more. Ask the user to read from their invoice the daily supply charge, the usage rate or rates (a single rate, or peak, shoulder and off-peak), and the plan or offer code if it prints one, then call again with them (they include GST, as printed). Only if the user cannot give any of these, call again with showAllOptions true.`,
+          `${m.brandName} has ${groups.size} different sets of rates and hours on this network, too many to choose from without more. Ask the user to read from their invoice the daily supply charge, the usage rate or rates (a single rate, or peak, shoulder and off-peak), and the plan or offer code if it prints one, then call again with them (they include GST, as printed). If they have no invoice but know the plan name, call again with planName. Only if the user cannot give any of these, call again with showAllOptions true.`,
         );
       }
       const ranked = [...groups.values()].map(({ s, plans: ps }) => {
@@ -237,14 +244,20 @@ export const listCurrentPlanOptions = defineTool({
         checkAny("peak rate", hint.PEAK, kind((t) => t === "PEAK"), 0);
         checkAny("shoulder rate", hint.SHOULDER, kind((t) => /^SHOULDER/.test(t)), 0);
         checkAny("off-peak rate", hint.OFF_PEAK, kind((t) => t === "OFF_PEAK"), 0);
-        return { s, ps, matchedOn, notMatched };
+        // Words the stated plan name shares with any plan in the group: a hint, never a match by itself.
+        const nameScore = nameHint ? Math.max(0, ...ps.map((p) => { const have = new Set(nameWords(p.displayName)); return wantWords.filter((w) => have.has(w)).length; })) : 0;
+        return { s, ps, matchedOn, notMatched, nameScore };
       });
-      ranked.sort((a, b) => b.matchedOn.length - a.matchedOn.length || a.notMatched.length - b.notMatched.length || b.ps.length - a.ps.length || a.s.key.localeCompare(b.s.key));
+      ranked.sort((a, b) => b.matchedOn.length - a.matchedOn.length || a.notMatched.length - b.notMatched.length || b.nameScore - a.nameScore || b.ps.length - a.ps.length || a.s.key.localeCompare(b.s.key));
 
       // With invoice figures, show only the options that agree best: all that agree on every figure given, else those matching the most. Several that tie mean the user should say more.
-      const narrowed = rateHints || Boolean(code);
+      const narrowed = rateHints || Boolean(code) || nameHint;
       let kept = ranked;
-      if (narrowed) {
+      if (!rateHints && !code && nameHint) {
+        // Name only: the options whose plan names share words with it, most shared words first.
+        const best = Math.max(0, ...ranked.map((r) => r.nameScore));
+        kept = best === 0 ? [] : ranked.filter((r) => r.nameScore > 0);
+      } else if (narrowed) {
         const best = Math.max(0, ...ranked.map((r) => r.matchedOn.length));
         kept = best === 0 ? [] : ranked.filter((r) => r.matchedOn.length === best);
         const exact = kept.filter((r) => r.notMatched.length === 0);
@@ -252,7 +265,7 @@ export const listCurrentPlanOptions = defineTool({
       }
       const tooMany = narrowed && kept.length > NARROW_LIMIT;
       const shownLimit = narrowed ? NARROW_LIMIT : OPTION_LIMIT;
-      const options: PlanOption[] = kept.slice(0, shownLimit).map(({ s, ps, matchedOn, notMatched }) => {
+      const options: PlanOption[] = kept.slice(0, shownLimit).map(({ s, ps, matchedOn, notMatched, nameScore }) => {
         // The plan the invoice's code names comes first, so the id passed on to compare is the household's own plan.
         const isCode = (id: string) => Boolean(code) && id.toUpperCase().replace(/@.*$/, "").startsWith(code!);
         const ids = ps.map((p) => p.planId).sort((x, y) => Number(isCode(y)) - Number(isCode(x)) || x.localeCompare(y));
@@ -267,7 +280,7 @@ export const listCurrentPlanOptions = defineTool({
           ...(showAmounts && s.supply !== undefined ? { supplyPerDayIncGst: fmt(s.supply * mult) } : {}),
           ratesIncGst: showAmounts ? s.rates.map((x) => ({ band: x.type === "single" ? "single rate" : x.type.toLowerCase().replace(/_/g, "-"), ...(x.hours ? { hours: x.hours } : {}), perUnit: fmt(x.value * mult) })) : [],
           ...(s.layout ? { layoutId: s.layout.id, hours: s.layout.hours } : {}),
-          matchedOn,
+          matchedOn: nameScore > 0 ? [...matchedOn, "words of the plan name you gave"] : matchedOn,
           notMatched,
         };
       });
@@ -296,6 +309,8 @@ export const listCurrentPlanOptions = defineTool({
         layouts,
         nextStep: tooMany
           ? "Several options agree equally with the figures given. Do not ask the user to choose yet: ask them for more from the invoice (every rate printed, the daily supply charge, and the plan or offer code if there is one), then call again. Do not match by plan name."
+          : narrowed && options.length === 0 && nameHint && !rateHints && !code
+            ? "No plan name in this retailer's list on this network shares a word with the name given. Say so, then show the band hours below and ask which matches the user's plan, or let them state the hours; or ask them for the plan or offer code or an invoice rate."
           : narrowed && options.length === 0
             ? "Nothing in this retailer's list agrees with the figures given. Check them with the user (rates on an invoice include GST; a rate is per kWh in dollars), or ask for the plan or offer code, or show the band hours below and ask which matches their invoice or fact sheet, or let them state the hours."
             : "Show these options in plain words and ask the user to pick the one their invoice is on, or say none of these. If none, show the band hours below and ask which matches their invoice or fact sheet, or let them state the hours. Then call compare_energy_plans with currentPlanId (an id from the chosen option) or hoursLayoutId. Do not choose for the user and do not match by plan name.",

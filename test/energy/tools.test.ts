@@ -461,8 +461,13 @@ d("compare_energy_plans", () => {
         currentPlanId: "O1",
       })
     ).g;
-    expect(withSplit.data.estimates[0]).toMatchObject({ planId: "O1" });
-    expect(withSplit.data.estimates[0].breakdown.feedInCreditCents).toBe(-2500);
+    // O1 is the current plan here, so it is the baseline and not a candidate.
+    expect(withSplit.data.current).toMatchObject({ costed: true, planId: "O1" });
+    expect(withSplit.data.current.breakdown.feedInCreditCents).toBe(-2500);
+    expect(withSplit.data.estimates.map((e: any) => e.planId)).not.toContain("O1");
+    const noCurrent = (await call("compare_energy_plans", { ...jem, peakSharePct: 30, shoulderSharePct: 20, offPeakSharePct: 50, solarExportAnnualKwh: 500 })).g;
+    const o1 = [...noCurrent.data.estimates, ...noCurrent.data.approximateHours].find((e: any) => e.planId === "O1"); // hours unknown without the current plan
+    expect(o1.breakdown.feedInCreditCents).toBe(-2500);
   });
 
   it("asks which distributor when there are several", async () => {
@@ -568,6 +573,38 @@ d("compare_energy_plans usage source", () => {
     expect(text.startsWith(g.data.usage.accuracy)).toBe(true);
     expect(g.data.hoursBasis).toBeDefined(); // A1 is single-rate, so its hours are not known; compare-hours.test.ts covers a time-of-use plan
     expect(g.data.readingsNote).toBeUndefined();
+  });
+});
+
+d("compare_energy_plans current plan baseline", () => {
+  const base = { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "CitiPower", usageSource: "bill", usage: 900, usageDays: 90 };
+  const banned = /\b(save|saves|saving|savings|better|switch|recommended)\b/i;
+
+  it("says so when there is no current plan, or it is not in the data, or is on another network", async () => {
+    const none = (await call("compare_energy_plans", base)).g;
+    expect(none.data.current).toMatchObject({ costed: false, reason: "no_current_plan" });
+    expect(none.data.counts.current).toBe(0);
+    expect(none.data.estimates[0].differenceFromCurrentCents).toBeUndefined();
+    const { g, text } = await call("compare_energy_plans", { ...base, currentPlanId: "NOPE@VEC" });
+    expect(g.found).toBe(true);
+    expect(g.data.current).toMatchObject({ costed: false, reason: "not_in_data", planId: "NOPE@VEC" });
+    expect(g.data.estimates.length).toBeGreaterThan(0);
+    expect(g.data.estimates[0].differenceFromCurrentCents).toBeUndefined();
+    expect(text).toMatch(/Your current plan: The current plan NOPE@VEC is not in the current published data/);
+    const wrong = (await call("compare_energy_plans", { ...base, currentPlanId: "O1" })).g; // O1 is on Jemena
+    expect(wrong.data.current).toMatchObject({ costed: false, reason: "other_fuel_or_network" });
+  });
+
+  it("with a bill split a time-of-use current plan is the baseline and its hours decide exact and approximate", async () => {
+    const jem = { ...base, distributor: "Jemena", peakSharePct: 30, shoulderSharePct: 20, offPeakSharePct: 50 };
+    const { g, text } = await call("compare_energy_plans", { ...jem, currentPlanId: "O1" });
+    expect(g.data.current).toMatchObject({ costed: true, planId: "O1" });
+    expect(g.data.hoursBasis).toBeDefined();
+    for (const e of g.data.approximateHours) {
+      expect(e.differenceApproximate).toBe(true);
+      expect(e.differenceFromCurrentCents).toBe(e.totalCents - g.data.current.totalCents);
+    }
+    expect(text).not.toMatch(banned);
   });
 });
 

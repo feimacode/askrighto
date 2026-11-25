@@ -11,9 +11,10 @@ import { MAX_PROFILE_CHARS } from "../energy/readings/profile.js";
 import { BENCHMARK_DATASET_ID, ENERGY_DATASET_ID, getEnergy, withStore } from "../energy/index.js";
 import {
   BENCHMARK_OMISSIONS, ASSUMPTIONS, BUSINESS_ASSUMPTIONS, OMISSIONS, READINGS_ASSUMPTIONS, READINGS_OMISSIONS, UNVERIFIED_READINGS,
-  rank, renderCompare, usageAccuracy, typicalCaption, typicalNotice, type CompareData,
+  rank, renderCompare, signed, usageAccuracy, typicalCaption, typicalNotice, type CompareData,
 } from "../energy/compare/rank.js";
 import { resolveUsage, toCalcUsage, USAGE_SOURCES } from "../energy/compare/resolve-usage.js";
+import { CURRENT_PLAN_NOTE, resolveCurrent } from "../energy/compare/current.js";
 import { resolveHours, selectPlans } from "../energy/compare/select-plans.js";
 import {
   asOfFor, badPostcode, checkPostcode, dollars, inkview, inkviewResult, inkviewSource, NOTICE, source, tableMeta,
@@ -50,7 +51,7 @@ export const compareEnergyPlans = defineTool({
   name: "compare_energy_plans",
   title: "Compare energy plan costs",
   description:
-    "Estimates the yearly cost of the current energy plans at a postcode, ordered from the lowest estimate to the highest, with a cost breakdown, conditional discounts and the plans that cannot be estimated. Always set usageSource to say what the usage rests on: readings (call summarise_interval_readings first and pass its profile as readingsProfile; time-of-use plans are matched to the half-hourly readings), assistant_readings (readings you summed yourself because the file was too big to send: usage, usageDays, the peak, shoulder and off-peak split, and currentPlanId or hoursLayoutId), bill (usage and usageDays from a recent bill, with the split for time-of-use plans), yearly (usage for a year) or typical (only if the user has no bill and agrees: householdSize, and the AER's typical household use is used; the result is labelled typical usage, not theirs, and time-of-use plans are not estimated). A field that does not belong to the usageSource is refused, not ignored. The result states the usage level and how far to trust it. Estimates only, not advice.",
+    "Estimates the yearly cost of the current energy plans at a postcode, ordered from the lowest estimate to the highest, with a cost breakdown, conditional discounts and the plans that cannot be estimated. Always set usageSource to say what the usage rests on: readings (call summarise_interval_readings first and pass its profile as readingsProfile; time-of-use plans are matched to the half-hourly readings), assistant_readings (readings you summed yourself because the file was too big to send: usage, usageDays, the peak, shoulder and off-peak split, and currentPlanId or hoursLayoutId), bill (usage and usageDays from a recent bill, with the split for time-of-use plans), yearly (usage for a year) or typical (only if the user has no bill and agrees: householdSize, and the AER's typical household use is used; the result is labelled typical usage, not theirs, and time-of-use plans are not estimated). A field that does not belong to the usageSource is refused, not ignored. With currentPlanId (the plan the user picked in list_current_plan_options) it also costs the current plan on the same usage as a baseline, shown on its own line and not ranked, and each plan shows its difference from it (a lower or higher estimate for the usage given); never say better, save, switch or recommended. The result states the usage level and how far to trust it. Estimates only, not advice.",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,
@@ -95,9 +96,13 @@ export const compareEnergyPlans = defineTool({
 
       const sel = await selectPlans(store, args, { postcode, customerType });
       if (!sel.ok) return sel.result;
-      const { plans, nets, distributor, matchedRetailer, unknownPlanIds } = sel.selection;
+      const { nets, distributor, matchedRetailer, unknownPlanIds } = sel.selection;
 
-      const { allOk, approxAll, no, byReason, shown, approximateHours, ifConditionsMet } = rank(plans, usage, { fuelType: args.fuelType, postcode, hoursBasis, limit: args.limit ?? 10 });
+      // The current plan is costed on the same usage as a baseline and is never a candidate.
+      const { current, estimate: currentEstimate } = await resolveCurrent(store, args, { postcode, customerType, distributor, usage });
+      const plans = sel.selection.plans.filter((p) => p.planId !== args.currentPlanId);
+
+      const { allOk, approxAll, no, byReason, shown, approximateHours, ifConditionsMet, lowerThanCurrent } = rank(plans, usage, { fuelType: args.fuelType, postcode, hoursBasis, limit: args.limit ?? 10, current: currentEstimate });
       const first = shown[0];
       const typicalUsageNotice = figure ? typicalNotice(figure) : undefined;
       const readingsNotice = profile
@@ -105,11 +110,13 @@ export const compareEnergyPlans = defineTool({
         : undefined;
       // Interval readings would be more accurate than a benchmark or one bill (electricity only; gas has no interval data here).
       const note = elec && (figure || (level === "bill" && scaledFromBill)) ? readingsNote(distributor ?? (nets.length === 1 ? nets[0] : undefined)) : undefined;
-      const summary = first
+      const baselineLine = lowerThanCurrent === undefined ? "" : lowerThanCurrent === 0 ? " No plan in the main table has a lower estimate than your current plan for the usage given." : ` ${lowerThanCurrent} plan${lowerThanCurrent === 1 ? " has" : "s have"} a lower estimate than your current plan for the usage given.`;
+      const summary0 = first
         ? `Of ${plans.length} plan${plans.length === 1 ? "" : "s"} available, ${allOk.length} could be estimated${approxAll.length ? ` (${approxAll.length} only approximately, listed apart)` : ""} and ${no.length} could not. The lowest estimate for ${figure ? "typical usage (not the household's own)" : profile ? "the household's own readings" : "the usage given"} is ${dollars(first.totalCents)} a year (${first.brandName}, ${first.displayName}); this ordering is by estimated cost only.`
         : approxAll.length
           ? `Of ${plans.length} plans available, ${approxAll.length} time-of-use plans could be estimated only approximately because the household's own hours ${hoursBasis?.known ? "differ from theirs" : "are not known"}; none matched exactly.`
           : `Of ${plans.length} plan${plans.length === 1 ? "" : "s"} available, none could be estimated with the information given.`;
+      const summary = `${summary0}${baselineLine}`;
       const data: CompareData = {
         postcode,
         customerType,
@@ -151,7 +158,8 @@ export const compareEnergyPlans = defineTool({
         ...(readingsNotice ? { readingsNotice } : {}),
         ...(note ? { readingsNote: note } : {}),
         warnings: usageWarnings,
-        counts: { available: plans.length, estimated: allOk.length, notEstimated: no.length, returned: shown.length, approximate: approxAll.length },
+        current,
+        counts: { available: plans.length, estimated: allOk.length, notEstimated: no.length, returned: shown.length, approximate: approxAll.length, current: current.costed ? 1 : 0, ...(lowerThanCurrent !== undefined ? { lowerThanCurrent } : {}) },
         approximateHours,
         ...(hoursBasis ? { hoursBasis } : {}),
         summary,
@@ -160,7 +168,7 @@ export const compareEnergyPlans = defineTool({
         notEstimated: no.slice(0, 50),
         notEstimatedByReason: byReason,
         ...(unknownPlanIds?.length ? { unknownPlanIds } : {}),
-        assumptions: [...(profile ? [...ASSUMPTIONS, ...READINGS_ASSUMPTIONS] : ASSUMPTIONS), ...(customerType === "BUSINESS" ? BUSINESS_ASSUMPTIONS : [])],
+        assumptions: [...(profile ? [...ASSUMPTIONS, ...READINGS_ASSUMPTIONS] : ASSUMPTIONS), ...(current.costed ? [CURRENT_PLAN_NOTE] : []), ...(customerType === "BUSINESS" ? BUSINESS_ASSUMPTIONS : [])],
         omissions: figure ? [...BENCHMARK_OMISSIONS, ...OMISSIONS] : profile ? [...READINGS_OMISSIONS, ...OMISSIONS] : OMISSIONS,
         notice: NOTICE,
       };
@@ -191,7 +199,7 @@ export const compareEnergyPlans = defineTool({
             price: { amount: e.totalCents / 100, currency: "AUD", unit: "total" },
             priceNote: "estimated yearly cost",
             detail: clip(
-              `Supply ${dollars(e.breakdown.supplyCents)}, usage ${dollars(e.breakdown.usageCents)}.${e.conditionalDiscounts.length ? ` ${dollars(e.totalIfConditionsMetCents)} if you meet: ${e.conditionalDiscounts.map((c) => c.name).join("; ")}.` : ""} Plan id ${e.planId}.`,
+              `${e.differenceFromCurrentCents !== undefined ? `${signed(e.differenceFromCurrentCents)} vs current plan. ` : ""}Supply ${dollars(e.breakdown.supplyCents)}, usage ${dollars(e.breakdown.usageCents)}.${e.conditionalDiscounts.length ? ` ${dollars(e.totalIfConditionsMetCents)} if you meet: ${e.conditionalDiscounts.map((c) => c.name).join("; ")}.` : ""} Plan id ${e.planId}.`,
               300,
             ),
             ...(e.link.url ? { url: e.link.url } : {}),
