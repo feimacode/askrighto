@@ -310,6 +310,10 @@ on any failed retailer) or the nightly timer. After a normaliser or GST change:
 - **Freshness**: results can be up to about a day old by design; the registry warns beyond 48 hours.
 - Tests: `test/energy/*` (calc, readings, current plan, links, benchmarks) (client, normaliser, calculator, DB, tools) and `test/e2e/server.test.ts`.
 
+## Rates side by side (add-energy-plan-rates-tool)
+
+`compare_energy_plan_rates` (`src/tools/compare-energy-plan-rates.ts`) takes a postcode and 2 to 5 plan ids, and optionally the user's `currentPlanId`, and returns the plans' published rates in the order given: daily supply charge, usage rates with band hours (GST inclusive), controlled load, feed-in, discounts with conditions, fees, contract length and eligibility ("not offered" where a plan has none), with each plan's link and the `energy-plans` source and as-of date. It reuses the per-plan wording in `src/energy/plan-view.ts`, shared with `get_energy_plan`. It refuses unknown ids, ids at another postcode, mixed customer types, no shared fuel, and no shared distributor (naming the mismatch). It has no totals, ranking or recommendation (a test checks), the drawn component is `comparison` with no recommendation, and the result ends by saying a cost comparison needs usage. It is the route for a small business with no bill or readings.
+
 ## Typical usage benchmark (add-energy-benchmark-usage)
 
 When there is no bill, `compare_energy_plans` can use the AER's published typical household use for the postcode and household size (`usageSource: "typical"` plus `householdSize`). The result is labelled typical, not the person's, and carries the zone, four seasonal values, source and release date. Time-of-use plans stay not estimated; controlled load and solar are left out. Data, lookup rule and limits: [`../energy-benchmarks.md`](../energy-benchmarks.md). Rights entry: `aer-benchmarks`.

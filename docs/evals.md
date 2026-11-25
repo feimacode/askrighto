@@ -1,6 +1,6 @@
 # Evals
 
-The prompt sets in `docs/use-case-comparison/`, `docs/energy-evaluation/` (energy, `E01`-`E28`) (domestic `D01`-`D20`, international `I01`-`I20`, health cover `H01`-`H20`) and `docs/home-loan-evaluation/` (home loans, `H01`-`H24`) can be run without a person pasting each one into a host. A small runner gives each prompt to a model over an OpenAI-compatible chat API with the Ask Righto tools as function tools, then scores the answer.
+The prompt sets in `docs/use-case-comparison/`, `docs/energy-evaluation/` (energy, `E01`-`E31`) (domestic `D01`-`D20`, international `I01`-`I20`, health cover `H01`-`H20`) and `docs/home-loan-evaluation/` (home loans, `H01`-`H24`) can be run without a person pasting each one into a host. A small runner gives each prompt to a model over an OpenAI-compatible chat API with the Ask Righto tools as function tools, then scores the answer.
 
 This is **not** Claude, ChatGPT or Gemini. It checks the tools, their instructions and the grounding rules behind one model, the same way each time, so it can be repeated before a change and after it. The hand protocol (`use-case-comparison/protocol.md`, the answer-review skill) stays the way to see a real host, including browsing assistants.
 
