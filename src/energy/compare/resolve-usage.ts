@@ -139,6 +139,9 @@ export function resolveUsage(args: UsageArgs, ctx: { postcode: string; customerT
     if (!args.currentPlanId && !args.hoursLayoutId) return refuse("usageSource `assistant_readings` needs `currentPlanId` or `hoursLayoutId`: the hours the readings were banded by decide which time-of-use plans are exact. Call list_current_plan_options and let the user pick, then call again.");
   }
   if (!shares) keepHoursWarning(args, warnings);
+  else if (!args.currentPlanId && !args.hoursLayoutId) {
+    warnings.push("A peak, shoulder and off-peak split was given with no `currentPlanId` or `hoursLayoutId`, so the household's own band hours are unknown: time-of-use plans cannot be matched to the split and are not estimated exactly. Call list_current_plan_options, let the user pick, then call again with the picked option's `currentPlanId`.");
+  }
 
   return { ok: true, usage: { ...base, annual, ...(days ? { days } : {}), ...(scaledFromBill ? { scaledFromBill } : {}), ...(shares ? { shares } : {}) } };
 }

@@ -20,7 +20,7 @@ export async function resolveCurrent(
   }
   const id = args.currentPlanId;
   const plan = await store.plan(id);
-  if (!plan) return { current: { costed: false, planId: id, reason: "not_in_data", detail: `The current plan ${id} is not in the current published data, so it was not costed and no difference from it is shown.` } };
+  if (!plan) return { current: { costed: false, planId: id, reason: "not_in_data", detail: `The current plan ${id} is not in the current published data, so it was not costed and no difference from it is shown. Copy the plan id from the option the user picked in list_current_plan_options, or leave currentPlanId out.` } };
   const wrong =
     (plan.fuelType !== args.fuelType && plan.fuelType !== "DUAL") ||
     plan.customerType !== ctx.customerType ||

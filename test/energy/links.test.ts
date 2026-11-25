@@ -168,7 +168,7 @@ d("links in the three tools (database)", () => {
   });
 
   it("search: an EME rate sheet link outside Victoria, labelled, with the notice and no plan id as a link", async () => {
-    const { g, text, sc } = await call("search_energy_plans", { postcode: "2000" });
+    const { g, text, sc } = await call("search_energy_plans", { customerType: "RESIDENTIAL", postcode: "2000" });
     const row = g.data.plans.find((p: any) => p.planId === "ORI1012345MRE3@EME");
     expect(row.link).toMatchObject({ kind: "eme_rate_sheet", url: "https://www.energymadeeasy.gov.au/plan?id=ORI1012345MRE&postcode=2000", label: "Rate sheet on Energy Made Easy" });
     expect(text).toContain("[Rate sheet on Energy Made Easy](https://www.energymadeeasy.gov.au/plan?id=ORI1012345MRE&postcode=2000)");
@@ -178,7 +178,7 @@ d("links in the three tools (database)", () => {
   });
 
   it("search: a Victorian plan gets the retailer website, and the text says to find the rate sheet there", async () => {
-    const { g, text } = await call("search_energy_plans", { postcode: "3000", distributor: "CitiPower" });
+    const { g, text } = await call("search_energy_plans", { customerType: "RESIDENTIAL", postcode: "3000", distributor: "CitiPower" });
     const row = g.data.plans.find((p: any) => p.planId === "AGD812605MR@VEC");
     expect(row.link).toMatchObject({ kind: "retailer_website", url: "https://www.agl.com.au/", label: "Retailer website" });
     expect(text).toContain("[Retailer website](https://www.agl.com.au/)");

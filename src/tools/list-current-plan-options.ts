@@ -108,7 +108,8 @@ function agrees(hint: number, published: number, gstMultiplier: number): boolean
 }
 
 export interface PlanOption {
-  optionId: string;
+  /** The plan id to pass to compare_energy_plans as currentPlanId: the first of planIds. */
+  currentPlanId: string;
   planIds: string[];
   planNames: string[];
   moreIds: number;
@@ -271,7 +272,7 @@ export const listCurrentPlanOptions = defineTool({
         const ids = ps.map((p) => p.planId).sort((x, y) => Number(isCode(y)) - Number(isCode(x)) || x.localeCompare(y));
         const names = [...new Set(ps.map((p) => p.displayName))].sort();
         return {
-          optionId: s.key,
+          currentPlanId: ids[0]!,
           planIds: ids.slice(0, 3),
           planNames: names.slice(0, 8),
           moreIds: Math.max(0, ids.length - 3),
@@ -313,7 +314,7 @@ export const listCurrentPlanOptions = defineTool({
             ? "No plan name in this retailer's list on this network shares a word with the name given. Say so, then show the band hours below and ask which matches the user's plan, or let them state the hours; or ask them for the plan or offer code or an invoice rate."
           : narrowed && options.length === 0
             ? "Nothing in this retailer's list agrees with the figures given. Check them with the user (rates on an invoice include GST; a rate is per kWh in dollars), or ask for the plan or offer code, or show the band hours below and ask which matches their invoice or fact sheet, or let them state the hours."
-            : "Show these options in plain words and ask the user to pick the one their invoice is on, or say none of these. If none, show the band hours below and ask which matches their invoice or fact sheet, or let them state the hours. Then call compare_energy_plans with currentPlanId (an id from the chosen option) or hoursLayoutId. Do not choose for the user and do not match by plan name.",
+            : "Show these options in plain words and ask the user to pick the one their invoice is on, or say none of these. If none, show the band hours below and ask which matches their invoice or fact sheet, or let them state the hours. Then call compare_energy_plans with currentPlanId (the chosen option's currentPlanId, a plan id containing @, copied unchanged) or hoursLayoutId. Do not choose for the user and do not match by plan name.",
         notice: NOTICE,
       };
       return found({ data, source, asOf: asOfFor(plans) });
@@ -325,7 +326,7 @@ export const listCurrentPlanOptions = defineTool({
       "",
     ];
     d.options.forEach((o, i) => {
-      out.push(`**Option ${i + 1}** (id ${o.optionId}): ${o.tariff}${o.seasonal ? ", seasonal (first season shown)" : ""}.`);
+      out.push(`**Option ${i + 1}** (currentPlanId ${o.currentPlanId}): ${o.tariff}${o.seasonal ? ", seasonal (first season shown)" : ""}.`);
       out.push(`- Plans: ${o.planNames.join("; ")}. Plan ids: ${o.planIds.join(", ")}${o.moreIds ? ` and ${o.moreIds} more` : ""}.`);
       if (o.supplyPerDayIncGst) out.push(`- Daily supply charge: ${o.supplyPerDayIncGst}/day.`);
       if (o.ratesIncGst.length) out.push(`- Rates: ${o.ratesIncGst.map((r) => `${r.band}${r.hours ? ` ${r.hours}` : ""} ${r.perUnit}/${d.fuelType === "GAS" ? "MJ" : "kWh"}`).join("; ")}.`);

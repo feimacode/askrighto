@@ -137,6 +137,9 @@ export interface CompareData {
   /** Present when a bill split was used: whether the household's own hours were known. */
   hoursBasis?: { known: boolean; layoutId?: string; description?: string; from?: string };
   notEstimated: NotEstimated[];
+  /** How many entries `notEstimated` holds, and how many were left out of it (the counts stay complete). */
+  notEstimatedShown: number;
+  notEstimatedMore: number;
   notEstimatedByReason: Record<string, number>;
   unknownPlanIds?: string[];
   assumptions: string[];
@@ -285,8 +288,8 @@ export function renderCompare(d: CompareData): string {
   }
   if (d.counts.notEstimated) {
     out.push("", `Not estimated (${d.counts.notEstimated}): ${Object.entries(d.notEstimatedByReason).map(([r, n]) => `${n} ${r}`).join(", ")}.`);
-    for (const n of d.notEstimated.slice(0, 15)) out.push(`- ${n.brandName} ${n.displayName} (${n.planId}): ${n.reason}. ${n.detail}`);
-    if (d.notEstimated.length > 15) out.push(`- and ${d.counts.notEstimated - 15} more (see structured data).`);
+    for (const n of d.notEstimated) out.push(`- ${n.brandName} ${n.displayName} (${n.planId}): ${n.reason}. ${n.detail}`);
+    if (d.notEstimatedMore > 0) out.push(`- and ${d.notEstimatedMore} more not listed (raise notEstimatedLimit, up to 50, to list more).`);
   }
   if (d.unknownPlanIds?.length) out.push("", `Plan ids not found among the available plans: ${d.unknownPlanIds.join(", ")}.`);
   if (d.nextSteps.length) out.push("", "Next steps:", ...d.nextSteps.map((n) => `- ${n}`));

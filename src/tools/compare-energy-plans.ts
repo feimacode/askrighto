@@ -36,7 +36,7 @@ const input = z.object({
   offPeakSharePct: z.number().min(0).max(100).optional().describe("bill, yearly, assistant_readings (electricity): percent used at off-peak times"),
   householdSize: z.number().int().min(1).max(5).optional().describe("typical only: number of people in the household, 1 to 5 (5 means five or more)"),
   readingsProfile: z.string().max(MAX_PROFILE_CHARS).optional().describe("readings only (electricity): the profile string returned by summarise_interval_readings, passed unchanged. Uses the household's own half-hourly readings, which also lets time-of-use plans be estimated"),
-  currentPlanId: z.string().max(80).optional().describe("assistant_readings (required, or hoursLayoutId), bill, yearly (with a split): the plan id the household is on now, taken from the option the user picked in list_current_plan_options. With a split, only plans with the same band hours as this plan are estimated exactly; other time-of-use plans are labelled approximate and listed apart"),
+  currentPlanId: z.string().max(80).optional().describe("assistant_readings (required, or hoursLayoutId), bill, yearly (with a split): the plan id the household is on now, the picked option's `currentPlanId` from list_current_plan_options, copied unchanged (a plan id containing @; never the option number or a hash). With a split, only plans with the same band hours as this plan are estimated exactly; other time-of-use plans are labelled approximate and listed apart"),
   hoursLayoutId: z.string().max(16).optional().describe("Used like currentPlanId, when the user's plan was not listed: the band-hours layout id the user picked in list_current_plan_options. Give one or the other, not both"),
   controlledLoadAnnualKwh: z.number().min(0).max(1_000_000).optional().describe("readings, bill, yearly, assistant_readings (electricity): yearly controlled load kWh (for example a hot water system), if the household has one"),
   solarExportAnnualKwh: z.number().min(0).max(1_000_000).optional().describe("bill, yearly, assistant_readings (electricity): yearly kWh exported to the grid by solar panels, if any. With readings the profile carries the export, so do not send it"),
@@ -45,6 +45,7 @@ const input = z.object({
   planType: z.enum(["MARKET", "STANDING", "REGULATED"]).optional().describe("Plan type"),
   planIds: z.array(z.string()).max(25).optional().describe("Compare only these plan ids"),
   limit: z.number().int().min(1).max(25).optional().describe("Estimates to return, default 10, maximum 25"),
+  notEstimatedLimit: z.number().int().min(0).max(50).optional().describe("How many of the plans that could not be estimated to list, default 10, 0 to 50. The counts and reasons are always complete; raise this only to see more of the list"),
 });
 
 export const compareEnergyPlans = defineTool({
@@ -99,6 +100,9 @@ export const compareEnergyPlans = defineTool({
       const { nets, distributor, matchedRetailer, unknownPlanIds } = sel.selection;
 
       // The current plan is costed on the same usage as a baseline and is never a candidate.
+      if (args.currentPlanId && !args.currentPlanId.includes("@") && !(await store.plan(args.currentPlanId))) {
+        return notFound("needs_input", `currentPlanId "${args.currentPlanId}" is not a plan id: plan ids contain "@", like RED809594MR@VEC. Use the \`currentPlanId\` field of the option the user picked in list_current_plan_options, copied unchanged, or leave it out.`);
+      }
       const { current, estimate: currentEstimate } = await resolveCurrent(store, args, { postcode, customerType, distributor, usage });
       const plans = sel.selection.plans.filter((p) => p.planId !== args.currentPlanId);
 
@@ -166,7 +170,9 @@ export const compareEnergyPlans = defineTool({
         summary,
         estimates: shown,
         ifConditionsMet,
-        notEstimated: no.slice(0, 50),
+        notEstimated: no.slice(0, args.notEstimatedLimit ?? 10),
+        notEstimatedShown: Math.min(no.length, args.notEstimatedLimit ?? 10),
+        notEstimatedMore: Math.max(0, no.length - (args.notEstimatedLimit ?? 10)),
         notEstimatedByReason: byReason,
         ...(unknownPlanIds?.length ? { unknownPlanIds } : {}),
         assumptions: [...(profile ? [...ASSUMPTIONS, ...READINGS_ASSUMPTIONS] : ASSUMPTIONS), ...(current.costed ? [CURRENT_PLAN_NOTE] : []), ...(customerType === "BUSINESS" ? BUSINESS_ASSUMPTIONS : [])],
