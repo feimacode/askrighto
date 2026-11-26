@@ -70,6 +70,13 @@ describe("plugin packaging", () => {
     );
   });
 
+  it("puts no extensions block on the ChatGPT server (ChatGPT then drops the server)", () => {
+    const servers = Object.values(
+      (g.chatgptMcp() as { mcpServers: Record<string, object> }).mcpServers,
+    );
+    for (const s of servers) expect(s).not.toHaveProperty("extensions");
+  });
+
   it("lists exactly the public skills and none of the internal ones", () => {
     const pub = readdirSync(join(ROOT, "plugin/skills")).sort();
     expect(pub).toEqual([...config.publicSkills].sort());

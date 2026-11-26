@@ -1,6 +1,6 @@
 {
   "name": "askrighto",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Ask Righto answers everyday Australian questions from public data. These skills help the assistant use its tools: quote only tool results, show the source and date, and never guess.",
   "homepage": "https://github.com/feimacode/askrighto",
   "repository": "https://github.com/feimacode/askrighto",
