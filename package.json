@@ -44,6 +44,8 @@
     "guidance:generate": "node scripts/guidance.mjs",
     "guidance:check": "node scripts/guidance.mjs --check",
     "release:check": "node scripts/release-check.mjs",
+    "release:bump": "node scripts/bump-version.mjs",
+    "release:smoke": "node scripts/smoke-remote.mjs",
     "evals": "npm run build && node scripts/evals/run.mjs",
     "renormalise:energy": "npm run build && node dist/askrighto.js renormalise-energy"
   },

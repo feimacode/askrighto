@@ -124,5 +124,16 @@
       "@Ask Righto I have smart meter readings, what would other plans have cost?"
     ],
     "context": "Ask Righto answers Australian questions from public data. Follow the skills in this extension. State figures only as a tool returned them, with the source link and as-of date. Never recommend a plan. Ask whether the plans are for a home or a business first, and never send a name, address, account number or NMI to a tool."
-  }
+  },
+  "publicTools": [
+    "search_energy_plans",
+    "get_energy_plan",
+    "compare_energy_plans",
+    "compare_energy_plan_rates",
+    "summarise_interval_readings",
+    "list_current_plan_options",
+    "get_readings_upload_link",
+    "get_energy_guide",
+    "list_data_sources"
+  ]
 }

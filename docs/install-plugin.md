@@ -2,7 +2,7 @@
 
 Until Ask Righto is in a directory, you can add it yourself. The server is public, needs no account and runs on our side: `https://askrighto.feimacode.com/mcp`.
 
-Three ready-made packages come from `npm run plugin:build` (or the **Plugin packages** workflow, or the assets of a GitHub release): `askrighto-claude-plugin.zip`, `askrighto-chatgpt-plugin.zip` and `askrighto-gemini-extension.zip`. Each holds the same six energy skills; only the manifest differs. Check a download against `SHA256SUMS`.
+Three ready-made packages are attached to every [GitHub release](https://github.com/feimacode/askrighto/releases) (with the version in the name), or come from `npm run plugin:build`: `askrighto-claude-plugin.zip`, `askrighto-chatgpt-plugin.zip` and `askrighto-gemini-extension.zip`. Each holds the same six energy skills; only the manifest differs. Check a download against `SHA256SUMS`.
 
 ## Claude (claude.ai, desktop, Cowork)
 
