@@ -4,7 +4,7 @@ export const PUBLIC_URL =
   process.env.ASKRIGHTO_PUBLIC_URL?.trim() || "https://askrighto.com.au";
 
 export interface HttpConfig {
-  /** express.json limit, e.g. "256kb". */
+  /** express.json limit, e.g. "2mb". */
   bodyLimit: string;
   /** Requests per window per client IP. 0 turns rate limiting off. */
   rateLimit: number;
@@ -24,7 +24,7 @@ export function httpConfig(env: NodeJS.ProcessEnv = process.env): HttpConfig {
     return Number.isFinite(n) && n >= 0 ? n : d;
   };
   return {
-    bodyLimit: env.ASKRIGHTO_BODY_LIMIT || "256kb",
+    bodyLimit: env.ASKRIGHTO_BODY_LIMIT || "2mb",
     rateLimit: int(env.ASKRIGHTO_RATE_LIMIT, 120),
     rateWindowMs: int(env.ASKRIGHTO_RATE_WINDOW_MS, 60_000),
     trustProxy:

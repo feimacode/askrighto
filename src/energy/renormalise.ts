@@ -46,7 +46,7 @@ export async function renormalise(
 ): Promise<RenormaliseReport> {
   const r = await db.pool.query(
     `SELECT p.plan_id, p.retailer_slug, p.source_last_updated, p.effective_from, p.effective_to, p.brand_name, p.display_name,
-            p.fuel_type, p.plan_type, p.not_understood, p.contract, p.raw, c.included_postcodes, c.excluded_postcodes, c.distributors
+            p.fuel_type, p.plan_type, p.customer_type, p.not_understood, p.contract, p.raw, c.included_postcodes, c.excluded_postcodes, c.distributors
        FROM plans p JOIN coverage_sets c ON c.id = p.coverage_id
       WHERE ($1::text IS NULL OR p.retailer_slug = $1)
       ORDER BY p.plan_id`,
@@ -66,7 +66,7 @@ export async function renormalise(
         lastUpdated: new Date(row.source_last_updated).toISOString(),
         ...(row.effective_from ? { effectiveFrom: new Date(row.effective_from).toISOString() } : {}),
         ...(row.effective_to ? { effectiveTo: new Date(row.effective_to).toISOString() } : {}),
-        customerType: "RESIDENTIAL",
+        customerType: row.customer_type,
         fuelType: row.fuel_type,
         type: row.plan_type,
         displayName: row.display_name,

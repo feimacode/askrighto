@@ -133,6 +133,8 @@ export async function call(
 
 export const COURSES_DATASET_IDS = [
   "vic-courses",
+  "nsw-act-courses",
+  "qld-courses",
   "vce-key-dates",
   "vtac-preference-rules",
   "vic-early-entry",

@@ -15,6 +15,9 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Review by: 2027-02-01
 - Evidence: https://www.aer.gov.au/energy-product-reference-data (read 2026-11-11). CDR Rules rule 2.6: a data holder must not restrict use of disclosed product data. Only the Feb 2020 version of the rule was read; confirm it is unchanged.
 - Condition: The Energy Made Easy and Victorian Energy Compare websites are not scraped; the API only.
+- Condition: Links to Energy Made Easy and to retailer websites are links only: those pages are not fetched, read or stored by the server.
+- Condition: Distributor and retailer meter data request pages and the AEMC rule on access to data are linked and paraphrased; nothing is stored from them but the link, the check date and a one-line note.
+- Condition: A household's own interval readings, if supplied, are read for that request only: never stored or logged, with the NMI and meter serial dropped. They are the person's own data, not a dataset.
 
 ## cricos-register
 
@@ -45,6 +48,28 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). VTAC terms: personal non-commercial use only, no extraction without written permission. So no VTAC or Course Seeker content is used; facts come from the universities' own pages, re-keyed in our own words with a link.
 - Condition: Facts only, in our own words, with a link on every fact.
 - Condition: Legal view on re-keyed facts outstanding (roadmap Phase 0).
+
+## nsw-act-courses
+
+- Owner: Each NSW and ACT university (course pages and admissions transparency pages)
+- Basis: `own_words_facts`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-08-01
+- Evidence: https://uac.edu.au/about/privacy-legal (read 2026-11-21). UAC terms: reproducing website or publication material needs UAC's written permission, apart from fair dealing; no wording on course data extraction. So no UAC content is used; facts come from the universities' own pages, re-keyed in our own words with a link.
+- Condition: Facts only, in our own words, with a link on every fact.
+- Condition: Legal view on re-keyed facts outstanding (roadmap Phase 0).
+- Condition: No permission request to UAC (Iven, 20 Nov 2026).
+
+## qld-courses
+
+- Owner: Each Queensland university (course pages and admissions transparency pages)
+- Basis: `own_words_facts`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-08-01
+- Evidence: https://www.qtac.edu.au/legal-privacy-policies/ (read 2026-11-21). QTAC terms: all rights reserved, one copy for private personal use, no other rights in the content. So no QTAC content is used; facts come from the universities' own pages, re-keyed in our own words with a link.
+- Condition: Facts only, in our own words, with a link on every fact.
+- Condition: Legal view on re-keyed facts outstanding (roadmap Phase 0).
+- Condition: No permission request to QTAC (Iven, 20 Nov 2026).
 
 ## vce-key-dates
 
@@ -95,6 +120,22 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Status: `pending`
 - Review by: 2027-02-01
 - Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). Extraction banned without written permission. Used only to block facts sourced from vtac.edu.au pages.
+
+## uac-coursesearch
+
+- Owner: UAC (course search and publications)
+- Basis: `written_permission`
+- Status: `pending`
+- Review by: 2027-02-01
+- Evidence: https://uac.edu.au/about/privacy-legal (read 2026-11-21). Reproduction needs written permission. Used only to block facts sourced from uac.edu.au pages. No request sent.
+
+## qtac-coursesearch
+
+- Owner: QTAC (course search and website content)
+- Basis: `written_permission`
+- Status: `pending`
+- Review by: 2027-02-01
+- Evidence: https://www.qtac.edu.au/legal-privacy-policies/ (read 2026-11-21). All rights reserved; no rights beyond private personal use. Used only to block facts sourced from qtac.edu.au pages. No request sent.
 
 ## course-seeker
 
@@ -174,3 +215,16 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Condition: Results call the figure typical household use for that zone and size, never the person's own, and carry the release date (December 2020, postcodes June 2021).
 - Condition: Frontier Economics authored the analysis and the AER publishes it under the site licence; the legal view should note that.
 - Condition: Legal view outstanding (roadmap Phase 0): information-only use.
+
+## aemo-material
+
+- Owner: Australian Energy Market Operator (AEMO)
+- Basis: `open_licence`
+- Status: `cleared`
+- Review by: 2027-11-20
+- Evidence: https://www.aemo.com.au/privacy-and-legal-notices/copyright-permissions (read 2026-11-20): AEMO's copyright permissions statement, pasted into the project thread by Iven on 20 Nov 2026: AEMO gives general permission for anyone to use AEMO Material for any purpose, with accurate and appropriate attribution to the material and to AEMO as author, and no specific permission is needed. Confidential documents and reports commissioned by others are not AEMO Material. The page address was confirmed by Iven on 20 Nov 2026 (the assistant could not fetch the page itself).
+- Attribution: Meter data file rules and stream codes follow AEMO's Meter Data File Format Specification NEM12 & NEM13 and National Metering Identifier Procedure; distributor names follow AEMO's NMI allocation list. Source: AEMO.
+- Condition: Only AEMO Material is used: the published NEM12/NEM13 specification, the NMI Procedure and the NMI allocation list. Confidential documents and reports commissioned by another body are not used.
+- Condition: What we take is rules and names, written in our own words and code (record types, stream suffix meanings, interval lengths, distributor names). No AEMO document or table is copied into the repo or the product.
+- Condition: Attribution is kept where the material is used: the readings docs and the readings tool's source name say AEMO is the author, and the recipe cites the document and edition it follows.
+- Condition: The household's own readings file is the person's data, not AEMO Material, and is handled as the energy-plans entry says.

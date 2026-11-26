@@ -4,6 +4,8 @@ import { rightsFor } from "../core/rights.js";
 import {
   CRITERION_KINDS,
   FIGURE_KINDS,
+  ADMISSIONS_CENTRES,
+  type Admission,
   type Course,
   type EntryFigure,
   type OtherCriterion,
@@ -15,10 +17,18 @@ import {
 import { bannedIn } from "./notice.js";
 import { isKnownStudyId, loadStudies, type StudyCatalogue } from "./studies.js";
 
-const GOV_DOMAINS = ["education.gov.au", "data.gov.au", "vcaa.vic.edu.au"];
+const GOV_DOMAINS = [
+  "education.gov.au",
+  "data.gov.au",
+  "vcaa.vic.edu.au",
+  "nesa.nsw.edu.au",
+  "qcaa.qld.edu.au",
+];
 const TAC = [
   { host: "vtac.edu.au", rights: "vtac-coursesearch" },
   { host: "courseseeker.edu.au", rights: "course-seeker" },
+  { host: "uac.edu.au", rights: "uac-coursesearch" },
+  { host: "qtac.edu.au", rights: "qtac-coursesearch" },
 ];
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -211,6 +221,18 @@ export function parseProviderFile(
     if (origin === "cricos" && !c.cricosCode && !c.name)
       err(id, "a cricos course needs a cricosCode");
 
+    const rawAdm = c.admissions as Admission[] | undefined;
+    const admissions: Admission[] = [];
+    for (const a of Array.isArray(rawAdm) ? rawAdm : []) {
+      if (!(ADMISSIONS_CENTRES as readonly string[]).includes(a?.centre))
+        err(id, `admissions centre must be one of ${ADMISSIONS_CENTRES.join(", ")}`);
+      else if (!a.code || !String(a.code).trim())
+        err(id, "an admissions entry needs a code");
+      else admissions.push({ centre: a.centre, code: String(a.code) });
+    }
+    if (c.vtacCode && !admissions.some((a) => a.centre === "vtac"))
+      admissions.push({ centre: "vtac", code: String(c.vtacCode) });
+
     courses.push({
       id,
       providerId: p.id,
@@ -225,6 +247,7 @@ export function parseProviderFile(
         : {}),
       ...(c.cricosCode ? { cricosCode: String(c.cricosCode) } : {}),
       ...(c.vtacCode ? { vtacCode: String(c.vtacCode) } : {}),
+      ...(admissions.length ? { admissions } : {}),
       ...(officialUrl ? { officialUrl } : {}),
       ...(courseSeekerUrl ? { courseSeekerUrl } : {}),
       ...(c.foundAt ? { foundAt: String(c.foundAt) } : {}),

@@ -4,6 +4,8 @@
  */
 export type FuelType = "ELECTRICITY" | "GAS" | "DUAL";
 export type PlanType = "STANDING" | "MARKET" | "REGULATED";
+/** The CDR customer types for energy plans. A business customer is only compared with business plans, a household with residential plans. */
+export type CustomerType = "RESIDENTIAL" | "BUSINESS";
 export type GstBasis = "EXCLUSIVE" | "INCLUSIVE" | "UNKNOWN";
 
 export interface Rate {
@@ -129,7 +131,7 @@ export interface EnergyPlan {
   displayName: string;
   fuelType: FuelType;
   planType: PlanType;
-  customerType: "RESIDENTIAL";
+  customerType: CustomerType;
   geography: {
     includedPostcodes: string[];
     excludedPostcodes: string[];

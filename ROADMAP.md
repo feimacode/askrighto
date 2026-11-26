@@ -199,6 +199,7 @@ The three changes below are proposed in `openspec/changes/` and wait for review.
 | Container image | Dockerfile, GitHub Actions workflow pushing `ghcr.io/feimacode/askrighto:latest` and `:sha-<commit>` on `main`, and `:<version>` on `v*` tags, with a `/healthz` smoke test, as Inkview does [I] | `add-deploy-pipeline` |
 | Hosting | Run the image on the shared feimacode Azure VM behind Traefik and Cloudflare, through an Ansible role in `feimacode/feima-infra`, as Inkview does. That infra repo has not been read yet [I] | `add-deploy-pipeline` |
 | Domain | Serve `https://askrighto.com.au/mcp` (or an `mcp.` subdomain); privacy page and terms on the site [F, N] | `add-deploy-pipeline` |
+| Plugin packaging | One source builds the Claude plugin (skills plus `.mcp.json`), the ChatGPT zip (`plugin.json`, `mcp.json`, skills) and a Gemini registration sheet, plus the GitHub marketplace metadata as a secondary channel. Directories are primary, GitHub second (Iven, 24 Nov 2026). Server URL is `askrighto.feimacode.com` until the new domain is ready [F] | `add-plugin-packaging` |
 | Claude directory | Two listings, paired: the MCP connector, plus a plugin bundle (skills, MCP reference) from this public GitHub repo with a `.claude-plugin/marketplace.json`, as Inkview does. 3 to 5 PNG screenshots. No auth for public data. Note: MCPB desktop extensions are no longer accepted in the directory [F, I] | `add-claude-listing` |
 | ChatGPT plugin | Plugin ZIP (`plugin.json`, `mcp.json`, skills) pointing at the server. Five positive and three negative test cases, a video walkthrough, policy attestations, then a separate Publish step. Must suit 13 to 17 year olds [F] | `add-chatgpt-listing` |
 | Privacy page | What the server logs (no arguments or results), no accounts, no storage. Children's Online Privacy Code check before 10 Dec 2026 [F] | `add-claude-listing` |
@@ -282,9 +283,9 @@ Built 17 Nov 2026 on the `home-loans` vertical, behind the internal route, from 
 
 | Item | Detail | Change id |
 | --- | --- | --- |
-| NSW and QLD course fact stores | Same own-worded, linked pattern as VIC, built from university guides and course pages. The pilot's UAC and QTAC CSVs are scraped, lack ATARs, and must not ship [F, R] | `add-nsw-course-data`, `add-qld-course-data` |
-| State subject rules | NSW HSC and QLD QCAA subject rules and ATAR calculation; scaling differs by state | `add-nsw-course-data`, `add-qld-course-data` |
-| UAC permission | Ask UAC for written permission in parallel [R] | — |
+| NSW, ACT and QLD course fact stores | Decided 20 Nov 2026 (Iven): cover all universities listed through VTAC, UAC and QTAC. Same own-worded, linked pattern as VIC, built from university guides and course pages. The pilot's UAC and QTAC CSVs are scraped, lack ATARs, and must not ship [F, R] | `extend-courses-to-uac-qtac` (replaces `add-nsw-course-data` and `add-qld-course-data`) |
+| State subject rules | NSW HSC and QLD QCE subject rules; ATAR scaling is not open data and stays unavailable; staged after the index and entry figures | `extend-courses-to-uac-qtac` |
+| Admissions centre permission | Not requested. Decision 20 Nov 2026: re-key strategy only, no permission requests to VTAC, UAC or QTAC | — |
 
 Multi-state content work is the main effort driver; the earlier study put national coverage at
 6 to 12 months [F].

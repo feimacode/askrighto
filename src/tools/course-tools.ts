@@ -19,6 +19,7 @@ import {
   evaluatePrerequisites,
   type PrereqResult,
 } from "../courses/prerequisites.js";
+import { REGIONS } from "../courses/types.js";
 import {
   COURSE_DATASETS,
   courseFound,
@@ -76,6 +77,9 @@ interface SearchData {
   notice: string;
 }
 
+const NON_VCE_NOTE =
+  "This is a NSW, ACT or Queensland course. Ask Righto has not built HSC or QCE subject rules yet, so it cannot check subjects for it, and VCE studies do not apply. Use the official page.";
+
 export const searchCourses = defineTool({
   name: "search_domestic_courses",
   title: "Search Victorian university courses",
@@ -102,6 +106,12 @@ export const searchCourses = defineTool({
       .max(60)
       .optional()
       .describe("Campus or location, e.g. Clayton"),
+    region: z
+      .enum(REGIONS)
+      .optional()
+      .describe(
+        "vic (VTAC universities), nsw-act (UAC universities) or qld (QTAC universities). Leave out to search all",
+      ),
     vceStudies: z
       .array(z.string().max(80))
       .max(10)
@@ -295,7 +305,7 @@ export const searchCourses = defineTool({
         },
         { limit: 50 },
       );
-    }),
+    }, { rowsKey: "courses" }),
 });
 
 const SHORT: Record<string, string> = {
@@ -592,6 +602,22 @@ export const checkCoursePrerequisites = defineTool({
             ? { courseSeekerUrl: view.courseSeekerUrl }
             : {}),
         };
+        const region = cat.providers.find((x) => x.id === c.providerId)?.region;
+        if (region && region !== "vic") {
+          warnings.push(`${c.name}: ${NON_VCE_NOTE}`);
+          rows.push({
+            ...head,
+            result: "cannot_check",
+            missing: [],
+            scoresNeeded: [],
+            otherCriteria: [],
+            ...(view.depth === "index_only"
+              ? { readingChecklist: view.readingChecklist }
+              : {}),
+            note: `${NON_VCE_NOTE} ${view.depth === "index_only" ? view.message : ""}`.trim(),
+          });
+          continue;
+        }
         if (view.depth === "index_only" || !view.prerequisites) {
           rows.push({
             ...head,
@@ -678,7 +704,7 @@ export const checkCoursePrerequisites = defineTool({
         })),
         source: inkviewSource(r),
       });
-    }),
+    }, { rowsKey: "courses" }),
 });
 
 export type { Catalogue };

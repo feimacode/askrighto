@@ -1,8 +1,10 @@
 /** Typed reads and writes over the energy tables. Reads hide plans outside their effective dates. */
+import { GST_BASIS } from "./gst.js";
 import type pg from "pg";
 import { stableHash } from "./hash.js";
 import type { Db } from "./db.js";
 import type {
+  CustomerType,
   Contract,
   EnergyPlan,
   FuelType,
@@ -154,12 +156,23 @@ export async function markRetailer(
   );
 }
 
+/**
+ * A contract stored while the GST basis was unconfirmed carries "UNKNOWN" and would have every price withheld until
+ * `renormalise-energy` rewrites it. The basis is now confirmed for all CDR plan rates (src/energy/gst.ts), so a stored
+ * UNKNOWN is read as that confirmed basis: no plan stays priceless because a rewrite has not been run yet. A stored
+ * EXCLUSIVE or INCLUSIVE is kept as it is.
+ */
+function withConfirmedGst(c: Contract | null): Contract | null {
+  return c && c.gstBasis === "UNKNOWN" && GST_BASIS !== "UNKNOWN" ? { ...c, gstBasis: GST_BASIS } : c;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function rowToPlan(r: Record<string, any>): EnergyPlan {
-  const contract = r.contract as {
+  const stored = r.contract as {
     electricity: Contract | null;
     gas: Contract | null;
   };
+  const contract = { electricity: withConfirmedGst(stored.electricity), gas: withConfirmedGst(stored.gas) };
   const iso = (d: Date | null) => (d ? new Date(d).toISOString() : undefined);
   return {
     planId: r.plan_id,
@@ -168,7 +181,7 @@ export function rowToPlan(r: Record<string, any>): EnergyPlan {
     displayName: r.display_name,
     fuelType: r.fuel_type as FuelType,
     planType: r.plan_type as PlanType,
-    customerType: "RESIDENTIAL",
+    customerType: r.customer_type === "BUSINESS" ? "BUSINESS" : "RESIDENTIAL",
     geography: {
       includedPostcodes:
         (r.included_postcodes as number[] | undefined)?.map(String) ?? [],
@@ -199,6 +212,8 @@ export interface PlanQuery {
   retailer?: string;
   distributor?: string;
   planType?: PlanType;
+  /** Which customers' plans; residential when not given. A business is only compared with business plans, a household with residential plans. */
+  customerType?: CustomerType;
 }
 
 /** Plans offered at a postcode today. Excluded postcodes, future plans and expired plans are dropped. */
@@ -223,6 +238,8 @@ export async function plansByPostcode(
   if (query.fuelType) add("p.fuel_type = ?", query.fuelType);
   if (query.retailer) add("p.retailer_slug = ?", query.retailer);
   if (query.planType) add("p.plan_type = ?", query.planType);
+  // Residential unless asked otherwise, so a household never sees business plans by accident.
+  add("p.customer_type = ?", query.customerType ?? "RESIDENTIAL");
   if (query.distributor) add("? = ANY(c.distributors)", query.distributor);
   const r = await q.query(
     `SELECT ${PLAN_COLUMNS} FROM plans p JOIN coverage_sets c ON c.id = p.coverage_id WHERE ${where.join(" AND ")} ORDER BY p.brand_name, p.display_name, p.plan_id`,

@@ -34,13 +34,13 @@ Every data sheet has two title rows ("<Sheet name>", "Report generated ...") abo
 | Expired | Courses: Expired | `Yes` on 431 rows; these rows are kept and labelled, and search leaves them out |
 | Locations | Course Locations: Location Name, Location City, Location State | one row per course and location |
 
-Not used: Estimated Total Course Cost (a published total of tuition and non-tuition fees; we show the two parts as published), VET National Code, Dual Qualification, Foundation Studies, work component hours and weeks.
+Not used: Estimated Total Course Cost (a published total of tuition and non-tuition fees; we show the two parts as published), Dual Qualification, Foundation Studies, work component hours and weeks.
 
 ## What the first real run showed
 
 With the header rows skipped: 13,069 courses from 664 providers kept of 25,971 rows. Left out by level: Diploma 4,180, Certificate IV 1,976, Certificate III 2,413, Advanced Diploma 1,666, Non AQF Award 1,707, Senior Secondary Certificate of Education 326, Primary School Studies 246, Junior Secondary Studies 241, Certificate II 102, Vocational Short Course 39, Certificate I 6. Kept by level: Bachelor Degree 3,872, Masters Degree (Coursework) 3,235, Bachelor Honours Degree 1,460, Graduate Diploma 1,485, Graduate Certificate 1,039, Doctoral Degree 886, Masters Degree (Research) 779, Associate Degree 244, Masters Degree (Extended) 69. Before the parser handled the layout, validation failed on the title rows and found no locations, website or field.
 
-If diplomas and advanced diplomas are wanted at launch, that is 5,846 more courses; the level list is one function (`levelGroupOf`).
+Decided 20 Nov 2026: diplomas, advanced diplomas and Certificate I to IV are also kept (10,343 more courses, 23,412 in all; see `openspec/changes/add-intl-diplomas-vet`). The VET National Code column is now read and stored as published; it decides the sector of a diploma. Non AQF Award, Vocational Short Course and school levels stay out.
 
 ## How to reload
 
@@ -49,3 +49,7 @@ Export the Courses, Course Locations and Institutions sheets to CSV, then:
 ```
 npm run intl:validate -- --cricos courses.csv --course-locations course-locations.csv --institutions institutions.csv
 ```
+
+## The CSV resources on data.gov.au (checked 22 Nov 2026)
+
+The dataset (`cricos`, CKAN id `e5ae7059-bfa8-4fa4-a5c0-c13cf3520193`) lists separate CSV resources named `CRICOS Courses.csv`, `CRICOS Course Locations.csv`, `CRICOS Institutions.csv` and `CRICOS Locations.csv`. `cricos:refresh` reads the first three. They have the same headers as the XLSX sheets, a UTF-8 byte order mark, no title rows and no report date, so the as-of date is the resource's `last_modified` (2 Nov 2026 at the time). They are the register as last republished, not the 1 Oct snapshot: 25,631 course rows against 25,971, and 23,072 kept against 23,412.

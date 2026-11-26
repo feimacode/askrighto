@@ -6,10 +6,9 @@ export const INTERNAL_PATH =
 
 /** The token never reaches a log: `/mcp-internal/<token>` is written as `/mcp-internal/***`. */
 export function maskInternalPath(path: string): string {
-  return path.replace(
-    /^\/(mcp-internal|readyz-internal|metrics-internal)\/[^/]+/,
-    "/$1/***",
-  );
+  return path
+    .replace(/^\/(mcp-internal|readyz-internal|metrics-internal)\/[^/]+/, "/$1/***")
+    .replace(/^\/readings-upload\/[^/]+/, "/readings-upload/***");
 }
 
 export function tokenMatches(given: string, expected: string): boolean {

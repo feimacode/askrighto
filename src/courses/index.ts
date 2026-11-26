@@ -12,7 +12,7 @@ import type { VceData, VceSource } from "../vce/types.js";
 import type { Catalogue, CatalogueSource } from "./catalogue.js";
 import { CourseStore, NoCourseLoad } from "./load.js";
 
-export const COURSES_REQUIRED_SCHEMA = 3;
+export const COURSES_REQUIRED_SCHEMA = 10;
 const STATEMENT_TIMEOUT_MS = 2000;
 
 export interface CoursesRuntime {
@@ -119,18 +119,53 @@ export async function startCourses(
   };
   await refresh();
 
-  ds(
+  const regionCourses = (region: string) =>
+    cat?.courses.filter(
+      (c) =>
+        (cat?.providers.find((p) => p.id === c.providerId)?.region ??
+          "vic") === region,
+    ) ?? [];
+  const regionDs = (
+    id: string,
+    region: string,
+    title: string,
+    dir: string,
+    coverage: string,
+  ) =>
+    ds(
+      id,
+      title,
+      "Universities' own pages (facts in our own words) and CRICOS",
+      `https://github.com/feimacode/askrighto/tree/main/data/courses/${dir}`,
+      OWN_WORDS,
+      coverage,
+      () => cat?.loadedAt,
+      () => ({
+        courses: regionCourses(region).length,
+        curated: regionCourses(region).filter((c) => c.depth === "curated")
+          .length,
+      }),
+    );
+  regionDs(
     "vic-courses",
+    "vic",
     "Victorian university undergraduate courses",
-    "Universities' own pages (facts in our own words) and CRICOS",
-    "https://github.com/feimacode/askrighto/tree/main/data/courses/vic",
-    OWN_WORDS,
+    "vic",
     "Victorian university undergraduate courses; index for all, checked facts for the curated subset",
-    () => cat?.loadedAt,
-    () => ({
-      courses: cat?.courses.length ?? 0,
-      curated: cat?.courses.filter((c) => c.depth === "curated").length ?? 0,
-    }),
+  );
+  regionDs(
+    "nsw-act-courses",
+    "nsw-act",
+    "NSW and ACT university undergraduate courses",
+    "nsw-act",
+    "NSW and ACT university undergraduate courses (admissions through UAC); index for all, checked facts for the curated subset",
+  );
+  regionDs(
+    "qld-courses",
+    "qld",
+    "Queensland university undergraduate courses",
+    "qld",
+    "Queensland university undergraduate courses (admissions through QTAC); index for all, checked facts for the curated subset",
   );
   ds(
     "vce-key-dates",

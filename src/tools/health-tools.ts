@@ -346,7 +346,7 @@ export const searchHealthCoverProducts = defineTool({
         },
         { limit: 50 },
       );
-    }),
+    }, { rowsKey: "products" }),
 });
 
 // ---------------------------------------------------------------- get_health_cover_product

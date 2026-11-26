@@ -1,0 +1,10 @@
+# University of the Sunshine Coast: provider entry for the qld index. CRICOS undergraduate courses come in from the CRICOS file on load;
+# coursesUrl is the provider's own site from the CRICOS Institutions sheet, not a course finder link. Add official course
+# links and curated rows by hand from the university's own pages (never from UAC, QTAC, VTAC or Course Seeker).
+provider:
+  id: usc
+  cricosProviderCode: "01595D"
+  name: University of the Sunshine Coast
+  coursesUrl: https://www.usc.edu.au/
+  domains: [usc.edu.au]
+courses: []

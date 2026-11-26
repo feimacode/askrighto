@@ -1,17 +1,19 @@
 {
   "name": "askrighto",
   "description": "Ask Righto skills: grounded answers from public Australian data.",
-  "owner": { "name": "Ask Righto" },
+  "owner": {
+    "name": "Ask Righto"
+  },
   "plugins": [
     {
       "name": "askrighto",
       "source": "./plugin",
-      "description": "Skills for using the Ask Righto tools: grounded answers from public Australian data."
+      "description": "Skills and the Ask Righto server for grounded answers from public Australian data."
     },
     {
       "name": "askrighto-internal",
       "source": "./plugin-internal",
-      "description": "Course skills for testers while the course tools are internal-only. Not for public listing."
+      "description": "Course, health cover and home loan skills for testers while those tools are internal-only. Not for public listing. Add the internal connector by hand: its address holds a secret token."
     }
   ]
 }

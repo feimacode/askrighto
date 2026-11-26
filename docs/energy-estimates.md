@@ -23,7 +23,9 @@ with a reason.
    its days. Block rates apply their threshold per the block's stated period (day, month, quarter,
    year) to that even usage.
 3. Time of use: needs the shares from the bill. A plan with no shoulder rate has the shoulder
-   share charged at peak. Without shares those plans are `needs_time_of_use_split`.
+   share charged at peak. A plan with several shoulder bands (SHOULDER1, SHOULDER2) gets the bill's one
+   shoulder figure split equally between them, and the estimate says so in its notes; readings give
+   each band its own share. Without shares those plans are `needs_time_of_use_split`. With a bill split, only plans with the same band hours as the household's current plan (`currentPlanId` or `hoursLayoutId`) are estimated exactly; other time-of-use plans are labelled approximate and listed apart (see `docs/energy-invoice.md`).
 4. Controlled load: usage times its rate plus its daily supply charge, only when controlled load
    usage is given. A plan without one is `no_controlled_load_rate`.
 5. Solar: export times the feed-in rate, shown as its own negative line, without GST.
@@ -73,12 +75,63 @@ Each maps to a call in `test/energy/tools.test.ts`.
 - "Same, but I'm on Jemena with a 30/20/50 peak, shoulder and off-peak split and export 500 kWh of solar." → `compare_energy_plans` with a split
 - "Which should I pick?" → the host answers with the lowest estimate and the notice, never "best"
 
+## Usage sources
+
+`compare_energy_plans` takes a required `usageSource`, the ladder of usage evidence, best first. Every
+level ends in the same result, a yearly cost per plan; only the evidence behind the usage changes, and the
+result states the level (`usage.level`) and one sentence on how far to trust it (`usage.accuracy`), which
+leads the text.
+
+| `usageSource` | Needs | May add | Refused |
+| --- | --- | --- | --- |
+| `readings` | `readingsProfile` | `controlledLoadAnnualKwh` | `usage`, `usageDays`, the split, `householdSize`, `solarExportAnnualKwh` (the profile carries export) |
+| `assistant_readings` | `usage`, `usageDays`, the split, `currentPlanId` or `hoursLayoutId` | `controlledLoadAnnualKwh`, `solarExportAnnualKwh` | `readingsProfile`, `householdSize` |
+| `bill` | `usage`, `usageDays` | the split, `currentPlanId` or `hoursLayoutId`, controlled load, solar export | `readingsProfile`, `householdSize` |
+| `yearly` | `usage` | as `bill`, except `usageDays` | `readingsProfile`, `householdSize`, `usageDays` |
+| `typical` | `householdSize` | nothing | everything else |
+
+`usage` is kWh for electricity and MJ for gas. Readings, `assistant_readings`, the split, controlled load
+and solar export are electricity only. A refused field is named with the source; nothing is dropped
+silently. The one exception is `currentPlanId` or `hoursLayoutId` with no split: it is kept, and
+`warnings` says the hours were not needed. `assistant_readings` is the fallback when a readings file is
+too big to send (`energy-readings-recipe.md`): the assistant bands the readings by the current plan's
+hours and sums them, and the result is labelled "own readings, summed by the assistant, not verified by
+Ask Righto". `customerType` is required.
+
+## Current plan baseline
+
+With `currentPlanId`, `compare_energy_plans` costs that plan with the same estimator on the same usage and returns it in `current` (its estimate, breakdown, conditional discounts, link and as-of date). It is looked up by id whatever the filters are, and is never in `estimates`, `approximateHours` or `ifConditionsMet`; `counts.current` is 1. Each estimate then has `differenceFromCurrentCents` (its cost minus the current plan's, no conditions met on either side); a row in the conditions table has `differenceIfConditionsMetCents` (both sides with their own conditions met). An approximate (different hours) row carries `differenceApproximate`. The summary counts the plans in the main table with a lower estimate (`counts.lowerThanCurrent`). The wording is "lower or higher estimate than your current plan for the usage given", never "better", "save", "switch" or "recommended" (a test checks the text).
+
+When the plan cannot be costed, `current` is `{ costed: false, reason, detail }` and the ranking runs without differences: `no_current_plan`, `not_in_data` (the CDR data holds current offers only), `other_fuel_or_network` (another fuel, customer type or distributor than the comparison) or `not_estimated` (for example a time-of-use plan under typical usage). The baseline uses today's published rates, which may differ from the household's invoice; one assumption line says so. Discounts follow whatever the estimator applies, on both sides, so the difference is like for like.
+
 ## Typical usage (benchmark)
 
 `Usage.basis` is `"customer"` (a bill or stated figure) or `"benchmark"` (the AER typical
-household figure, only when the person has no usage and asks for it with `useBenchmarkUsage` and
+household figure, only when the person has no usage and asks for it with `usageSource: "typical"` and
 `householdSize`). The maths is the same either way; only the label differs. With a benchmark,
 time-of-use plans are `needs_time_of_use_split` (no split exists), controlled load and solar export
 are not computed, and the typical-usage notice leads every output form. Details, data and limits:
 [`energy-benchmarks.md`](energy-benchmarks.md).
 
+## Time-of-use plans by shoulder bands (counted 20 Nov 2026 on the 17 Nov 2026 data)
+
+Residential electricity plans stored: 10,552. With a time-of-use tariff: 6,501. By the most shoulder bands a plan has in any tariff period:
+
+| Shoulder bands | Plans |
+| --- | --- |
+| 0 | 1,026 |
+| 1 | 3,242 |
+| 2 | 792 |
+| 3 | 1,136 |
+| 4 | 305 |
+
+So 2,233 plans (34.3% of time-of-use plans) have several shoulder bands, as the proposal said. Nearly all of them (1,924, 29.6%) have **no PEAK or OFF_PEAK band at all**: every band is labelled `SHOULDER` (the AGL style), so the bands cannot be told apart by name. Only 309 of the 2,233 have PEAK and OFF_PEAK plus numbered shoulders, and those are the ones this change made estimable.
+
+Effect of the per-band change (same data, the same synthetic year of readings and three bill splits):
+
+- **Regression**: for the 4,268 plans with at most one shoulder band, the estimate (or the reason it is not estimated) is identical before and after the change for all three splits (30/20/50, 10/0/90, 45/15/40).
+- **Readings**: plans whose windows map onto a year of half-hourly readings rose from 4,268 (65.7%) to 4,577 (70.4%), not to the 100% a name-based count would suggest.
+- **Bill split**: the calculator already split a bill's one shoulder figure equally between shoulder bands before this change, so for the 82 multi-shoulder plans that have PEAK and OFF_PEAK and no blocks the estimate is the same before and after (2,925 plans are estimated with a split either way). The change is in the readings route (a share per band) and in saying the equal split in the notes.
+- **Still refused for a bill split**: 1,924 plans (bands not in the expected shape: no PEAK or OFF_PEAK, or the same type twice), 219 with block rates inside a band, 8 with demand charges. For readings the same all-`SHOULDER` plans are refused because two bands share one type.
+
+Method: the stored `plans` table of the local copy of the 17 Nov 2026 sync (read-only), the pre-change calculator against the current one, residential plans only.

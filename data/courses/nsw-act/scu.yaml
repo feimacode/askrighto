@@ -1,0 +1,10 @@
+# Southern Cross University: provider entry for the nsw-act index. CRICOS undergraduate courses come in from the CRICOS file on load;
+# coursesUrl is the provider's own site from the CRICOS Institutions sheet, not a course finder link. Add official course
+# links and curated rows by hand from the university's own pages (never from UAC, QTAC, VTAC or Course Seeker).
+provider:
+  id: scu
+  cricosProviderCode: "01241G"
+  name: Southern Cross University
+  coursesUrl: https://www.scu.edu.au/
+  domains: [scu.edu.au]
+courses: []

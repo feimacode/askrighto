@@ -8,7 +8,7 @@ import type { GstBasis } from "./types.js";
 import type { CdrClient } from "./cdr-client.js";
 import type { Db } from "./db.js";
 import {
-  isResidential,
+  isSupportedCustomer,
   normalisePlan,
   readListItem,
   type ListItem,
@@ -26,6 +26,12 @@ export interface Retailer {
   slug: string;
   brandName: string;
   active: boolean;
+  /** Hand-checked official website and the date it was checked (see links.ts); or why there is none. */
+  website?: string;
+  websiteCheckedAt?: string;
+  noWebsite?: string;
+  /** Shared paths serve several brands; a brand listed here uses its own site instead of `website`. */
+  brandWebsites?: Record<string, string>;
 }
 
 export interface RetailerResult {
@@ -103,7 +109,7 @@ export async function syncRetailer(
     for (const eff of ["CURRENT", "FUTURE"] as const) {
       for (const raw of await o.client.listPlans(r.slug, eff)) {
         const item = readListItem(raw);
-        if (item && isResidential(item)) items.set(item.planId, item);
+        if (item && isSupportedCustomer(item)) items.set(item.planId, item);
       }
     }
     res.listed = items.size;

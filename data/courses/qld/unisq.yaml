@@ -1,0 +1,10 @@
+# University of Southern Queensland: provider entry for the qld index. CRICOS undergraduate courses come in from the CRICOS file on load;
+# coursesUrl is the provider's own site from the CRICOS Institutions sheet, not a course finder link. Add official course
+# links and curated rows by hand from the university's own pages (never from UAC, QTAC, VTAC or Course Seeker).
+provider:
+  id: unisq
+  cricosProviderCode: "00244B"
+  name: University of Southern Queensland
+  coursesUrl: https://www.unisq.edu.au/
+  domains: [unisq.edu.au, usq.edu.au]
+courses: []

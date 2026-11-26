@@ -5,6 +5,7 @@
  *                      tests. The product is the hosted HTTP endpoint; stdio would need database credentials.
  *   askrighto --http   streamable HTTP on PORT (default 3001), path /mcp
  */
+import { CHALLENGE_PATH, challengeResponse } from "./server/challenge.js";
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 import { httpConfig } from "./config.js";
 import {
@@ -12,11 +13,13 @@ import {
   maskInternalPath,
   tokenMatches,
 } from "./server/internal.js";
+import { startCricosSchedule } from "./cricos/index.js";
 import { startEnergy } from "./energy/index.js";
 import { assertHomeLoanPublicGuard } from "./homeloans/guard.js";
 import { runReadiness } from "./core/readiness.js";
 import { metricsText } from "./core/metrics.js";
 import { createServer } from "./server/create-server.js";
+import { handleReadingsUpload } from "./server/readings-upload.js";
 import { ALL_VERTICALS, setFor } from "./server/route.js";
 import {
   failedVerticals,
@@ -55,6 +58,10 @@ async function startVerticals(env: NodeJS.ProcessEnv = process.env) {
         `vertical "${id}" failed to start and is unavailable on the internal route: ${e instanceof Error ? e.message : e}`,
       );
     }
+  }
+  if (flags.loaded.some((id) => id === "courses-domestic" || id === "cricos")) {
+    const stop = startCricosSchedule(env);
+    if (stop) stops.push(stop);
   }
   return {
     flags,
@@ -116,6 +123,7 @@ async function startHttp(): Promise<void> {
   const GUARDED = [
     "/mcp",
     "/mcp-internal",
+    "/readings-upload",
     "/readyz-internal",
     "/metrics-internal",
   ];
@@ -151,6 +159,12 @@ async function startHttp(): Promise<void> {
     next();
   });
 
+  // ChatGPT portal domain check. Outside the host guard on purpose, like /healthz. The token is
+  // in the response only, never in the path, so the access log does not record it.
+  app.get(CHALLENGE_PATH, (_req: Request, res: Response) => {
+    const r = challengeResponse();
+    res.status(r.status).type("text/plain").send(r.body);
+  });
   app.get("/", (_req: Request, res: Response) => {
     res
       .type("text/plain")
@@ -216,6 +230,8 @@ async function startHttp(): Promise<void> {
         }
       }
     };
+  // Large interval readings files arrive by address, not through a tool call (add-energy-readings-layers). Only when the energy vertical is public.
+  if (flags.public.includes("energy")) app.all("/readings-upload/:token", handleReadingsUpload);
   app.all("/mcp", serve(publicSet, "public"));
   app.all("/mcp-internal/:token", serve(internalSet, "internal"));
 
@@ -267,7 +283,7 @@ Usage:
   askrighto migrate    apply database migrations (needs DATABASE_URL)
   askrighto sync-energy [--record DIR] [--retailer SLUG]
                        load or refresh energy plans; --record saves raw API responses as fixtures
-  askrighto courses:validate | courses:load [--cricos FILE.csv] | courses:check-pages
+  askrighto courses:validate | courses:load [--cricos FILE.csv] | courses:match-standins --cricos FILE.csv | courses:check-pages
   askrighto vce:validate | vce:load
                        check and load the Victorian course index and VCE admissions data from data/
   askrighto health:validate|health:load --dir UNZIPPED_FOLDER [--source-date YYYY-MM-DD] [--source-name NAME]  |  health:rates-validate
@@ -275,6 +291,10 @@ Usage:
   askrighto careers:validate|careers:load --file EMPLOYMENT_PROJECTIONS.xlsx [--source-date YYYY-MM-DD] [--source-name NAME]
   askrighto intl:validate|intl:load --cricos COURSES.csv [--course-locations FILE.csv] [--institutions FILE.csv] [--source-date YYYY-MM-DD]
                        check and load the CRICOS course sheet (international students)
+  askrighto cricos:refresh [--dry-run] [--force]
+                       fetch the CRICOS dataset from data.gov.au and load the domestic index and the international store
+  askrighto load-all [--force]
+                       migrate, load the VCE admissions files, then cricos:refresh (one command for a fresh database)
   askrighto compare:usecases [--json]
                        coverage report for the domestic and international course data (read-only)
   askrighto homeloans:sync [--record DIR] [--lender SLUG]
@@ -294,6 +314,7 @@ Usage:
       "courses:validate": () => cli.cliCoursesValidate(),
       "courses:load": () => cli.cliCoursesLoad(args.slice(1)),
       "courses:check-pages": () => cli.cliCoursesCheckPages(),
+      "courses:match-standins": () => cli.cliCoursesMatchStandins(args.slice(1)),
       "vce:validate": () => cli.cliVceValidate(),
       "vce:load": () => cli.cliVceLoad(),
     };
@@ -318,6 +339,13 @@ Usage:
     if (args[0] === "intl:validate") cli.cliIntlValidate(args.slice(1));
     else if (args[0] === "intl:load") await cli.cliIntlLoad(args.slice(1));
     else throw new Error(`Unknown command ${args[0]}`);
+  } else if (args[0] === "cricos:refresh" || args[0] === "load-all") {
+    const cli = await import("./cricos/cli.js");
+    const ok =
+      args[0] === "load-all"
+        ? await cli.cliLoadAll(args.slice(1))
+        : await cli.cliCricosRefresh(args.slice(1));
+    if (!ok) process.exitCode = 1;
   } else if (args[0] === "compare:usecases") {
     await (await import("./compare/cli.js")).cliCompareUseCases(args.slice(1));
   } else if (args[0] === "homeloans:sync" || args[0] === "homeloans:cash-rate" || args[0] === "report:homeloans") {

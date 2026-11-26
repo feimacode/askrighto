@@ -57,11 +57,16 @@ export async function startIntl(
   const db = createDb({ ...cfg, statementTimeoutMs: STATEMENT_TIMEOUT_MS });
   const store = new IntlStore(db);
   let snap: IntlData | undefined;
+  /** Why the last read failed, so readiness can tell "nothing loaded" from "the read failed". */
+  let lastError: unknown;
   const refresh = async () => {
     try {
       snap = await store.data();
-    } catch {
-      /* readiness reports it */
+      lastError = undefined;
+    } catch (e) {
+      lastError = e;
+      if (!(e instanceof NoIntlLoad))
+        console.error(`intl read failed: ${(e as Error).message}`);
     }
   };
   await refresh();
@@ -91,6 +96,8 @@ export async function startIntl(
         if (!(await schemaCurrent(db, INTL_REQUIRED_SCHEMA)))
           return { ok: false, reason: "schema_behind" };
         await refresh();
+        if (lastError && !(lastError instanceof NoIntlLoad))
+          return { ok: false, reason: "read_failed" };
         return snap && snap.courses.length > 0
           ? { ok: true }
           : { ok: false, reason: "no_data_loaded" };

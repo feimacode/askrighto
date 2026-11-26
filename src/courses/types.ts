@@ -53,6 +53,16 @@ export interface OtherCriterion {
   note?: string;
 }
 
+export const REGIONS = ["vic", "nsw-act", "qld"] as const;
+export type Region = (typeof REGIONS)[number];
+export const ADMISSIONS_CENTRES = ["vtac", "uac", "qtac"] as const;
+export type AdmissionsCentre = (typeof ADMISSIONS_CENTRES)[number];
+/** An admissions centre code for a course: which centre lists it and under what code. */
+export interface Admission {
+  centre: AdmissionsCentre;
+  code: string;
+}
+
 export type Origin = "cricos" | "gap_fill";
 export type Depth = "index_only" | "curated";
 
@@ -66,6 +76,8 @@ export interface Provider {
   cricosProviderCode?: string;
   /** The provider's course search link, given when a course is not in the index. */
   searchUrl?: string;
+  /** Region folder the provider file lives in; set by the loader from the folder. */
+  region?: Region;
 }
 
 export interface Course {
@@ -80,6 +92,8 @@ export interface Course {
   durationYears?: number;
   cricosCode?: string;
   vtacCode?: string;
+  /** Admissions centre codes (VTAC, UAC, QTAC). `vtacCode` is kept for older readers. */
+  admissions?: Admission[];
   officialUrl?: string;
   courseSeekerUrl?: string;
   foundAt?: string;

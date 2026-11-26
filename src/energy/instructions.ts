@@ -1,10 +1,11 @@
-/** Host guidance for the energy vertical. */
-export const ENERGY_INSTRUCTIONS = `Energy plans (search_energy_plans, get_energy_plan, compare_energy_plans):
-- If the user has not named plans, call search_energy_plans with their postcode first.
-- Before compare_energy_plans, ask for the kWh used and the number of days on a recent bill (gas: MJ). Never assume usage.
-- Ask for the bill first. Only if the user has no bill to hand, and agrees, offer typical usage: ask how many people live there (1 to 5, 5 meaning five or more), then call again with useBenchmarkUsage true and householdSize. Always say it is typical usage for a household of that size in that zone (an AER benchmark), not the user's own, and that real cost can differ a lot. Time-of-use plans cannot be estimated from typical usage, and solar export and controlled load are left out.
-- For time-of-use plans ask for the peak, shoulder and off-peak split shown on the bill; without it those plans are listed as not estimated.
-- If a postcode has several distributors, ask which one is on the bill. Costs differ by network.
-- Say "lowest estimate for the usage you gave", never "best" or "recommended", and pass on the assumptions, the conditions on discounts and the notice that come with every result.
-- Show the "If you meet the conditions" table separately from the main one: those costs apply only if the user meets every listed condition (such as paying on time or a membership).
-- If energy data is unavailable, say it is temporarily unavailable. Do not quote prices from memory.`;
+/**
+ * Host guidance for the energy vertical: the core rules only (at most 1.5 KB, a test checks).
+ * The steps of each journey live in src/guidance/energy/<journey>.md, served as plugin skills and by get_energy_guide.
+ */
+export const ENERGY_INSTRUCTIONS = `Energy plans (search_energy_plans, get_energy_plan, compare_energy_plans, compare_energy_plan_rates):
+- First ask whether the plans are for a home or a business (including small business) and never assume; pass customerType. Never assume usage or household size. Large customers are not in the data.
+- Ask for the latest invoice before any tool call. Never put the user's name, address, account number or NMI into any tool or repeat them.
+- Say "lower estimate for the usage given", never "best", "save", "switch" or "recommended". Show the conditions table apart. Pass on the usage accuracy sentence, assumptions and notice.
+- Interval readings (a NEM12 file): use summarise_interval_readings, or get_readings_upload_link for a long file. Never add the half-hourly figures up yourself.
+- Follow each result's nextSteps and needs_input message. If no Ask Righto energy skill is loaded, call get_energy_guide with the journey (energy-start, energy-current-plan, energy-readings, energy-compare or energy-plan-rates) and follow its steps.
+- If energy data is unavailable, say so. Do not quote prices from memory.`;

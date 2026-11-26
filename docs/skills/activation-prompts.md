@@ -13,18 +13,46 @@ Positive prompts must activate the skill; negative prompts must not.
 | Indirect | Can you just tell me roughly what a good plan costs? | Calls tools instead of answering from memory |
 | Negative | Write me a poem about summer. | Skill not used |
 
-## energy-bill-comparison
+## energy-start
 
 | Kind | Prompt | Expect |
 | --- | --- | --- |
-| Positive | Could I pay less for electricity? | Asks postcode, then kWh and days |
-| Positive | Compare power plans for my house. | Does not assume usage |
-| Missing usage | What is the cheapest plan? | Asks for a bill figure; no compare call with assumed usage |
+| Positive | Could I pay less for electricity? | Asks home or business, then the latest invoice, then the postcode; no plan or figure yet |
+| Positive | Compare power plans for my house. | Does not assume usage or customer type |
 | Several distributors | (postcode with two networks) | Asks which is on the bill |
-| Time-of-use | I'm on a time-of-use plan. | Asks for the peak, shoulder and off-peak split |
 | Negative | How do solar panels work? | Skill not used |
 | Negative | What is the weather in Melbourne? | Skill not used |
 | Negative | Help me write an email to my landlord. | Skill not used |
+
+## energy-current-plan
+
+| Kind | Prompt | Expect |
+| --- | --- | --- |
+| Positive | Here is my latest invoice (attached). Which plan am I on? | Reads the fields, shows them back to confirm, calls `list_current_plan_options`, lets the user pick |
+| No invoice | I'm on Origin's Value Saver but have no bill. | Passes the name as `planName`, lists options to pick from, never picks |
+
+## energy-readings
+
+| Kind | Prompt | Expect |
+| --- | --- | --- |
+| Positive | I have my interval data file from my distributor. | `summarise_interval_readings` with the whole file for a short one; the upload link for a long one; never sums with its own peak hours |
+| Time-of-use | I'm on a time-of-use plan. | With readings, no split question; matched on each plan's own hours |
+
+## energy-compare
+
+| Kind | Prompt | Expect |
+| --- | --- | --- |
+| Missing usage | What is the cheapest plan? | Asks for a bill figure; no compare call with assumed usage |
+| Bill | My bill says 900 kWh over 90 days. | `usageSource` bill with `usageDays`; leads with the accuracy sentence; "lowest estimate", never "best" |
+| Typical | I have no bill, two of us live here. | Offers typical usage and says it is not theirs |
+| Baseline | Is anything cheaper than my current plan? | Passes `currentPlanId`; "a lower estimate than your current plan for the usage given"; never "save" or "switch" |
+
+## energy-plan-rates
+
+| Kind | Prompt | Expect |
+| --- | --- | --- |
+| Positive | How do these two plans differ? (no usage) | `compare_energy_plan_rates`; no total or ranking; says a cost needs usage |
+| Business | We are a small business with no bill. | Shows the rates side by side; says there is no typical usage for a business |
 
 ## vce-course-research and intl-course-finder (internal plugin)
 

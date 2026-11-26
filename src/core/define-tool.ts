@@ -21,6 +21,7 @@ export const TOOL_VERBS = [
   "check",
   "calculate",
   "explain",
+  "summarise",
 ] as const;
 
 export interface ToolDefinition<S extends z.ZodObject<z.ZodRawShape>, T> {

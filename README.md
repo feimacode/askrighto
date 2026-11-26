@@ -1,6 +1,6 @@
 # Ask Righto
 
-**Everyday Aussie decisions, backed by public data.** [askrighto.com.au](https://askrighto.com.au)
+**Everyday Aussie decisions, backed by public data.** [askrighto.feimacode.com](https://askrighto.feimacode.com)
 
 Ask Righto lets you ask your AI assistant plain-English questions about everyday Australian
 choices and get answers built from official public data, with the source and date shown. You ask
@@ -20,8 +20,8 @@ government's Consumer Data Right (CDR) energy data. For example:
 - "Same, but I have solar and export 500 kWh a year."
 
 You get a yearly cost estimate per plan, worked out from the plan's published supply and usage
-rates and the usage you give it (from your bill, for example), plus a link to each plan's
-official rate sheet where one exists. Plans are ordered by estimated cost only. There are no ads or sponsored placements.
+rates and the usage you give it (from your latest bill, or typical household use if you have no bill), plus a link to each plan's
+official rate sheet where one exists. For a more accurate comparison, especially for time-of-use plans, you can ask your electricity distributor for your smart meter readings and share a summary with your assistant. Plans are ordered by estimated cost only. There are no ads or sponsored placements.
 
 ## Coming later
 
@@ -31,9 +31,7 @@ the public yet.
 
 ## How to use it
 
-Ask Righto is an [MCP](https://modelcontextprotocol.io) connector. Once listed, add **Ask Righto**
-from the connector directory in Claude (Settings, then Connectors), or, if you are testing before the listing is live, add the
-server URL `https://askrighto.com.au/mcp` as a custom connector (check the site first; this address is not guaranteed yet). Then ask your question as you would
+Ask Righto is an [MCP](https://modelcontextprotocol.io) connector. Once listed, add **Ask Righto** from the connector directory in Claude (Settings, then Connectors). While the listing is in progress, you can add the server URL `https://askrighto.feimacode.com/mcp` as a custom connector (check it is live first). Then ask your question as you would
 anyone. An optional plugin adds skills that help your assistant read an energy bill and answer
 sensibly.
 

@@ -2,11 +2,13 @@ import { z } from "zod";
 import { defineTool } from "../core/define-tool.js";
 import { found, notFound } from "../core/grounded.js";
 import { ENERGY_DATASET_ID, withStore } from "../energy/index.js";
+import { linkCell, linkNotes, planLink, type PlanLink } from "../energy/links.js";
 import type { EnergyPlan } from "../energy/types.js";
-import { asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, inkview, inkviewResult, inkviewSource, matchRetailer, NOTICE, source, tableMeta, uniqueDistributors } from "./energy-common.js";
+import { asOfFor, badPostcode, checkPostcode, COVERAGE_STATES, matchRetailer, NOTICE, source, uniqueDistributors } from "./energy-common.js";
 
 const input = z.object({
   postcode: z.string().describe("Four-digit Australian postcode of the property, e.g. 3000"),
+  customerType: z.enum(["RESIDENTIAL", "BUSINESS"]).describe("Whose plans: RESIDENTIAL (a home) or BUSINESS (small business; large customers are not compared). Required: ask the user which; never assume. A business is only compared with business plans and a household with residential plans"),
   fuelType: z.enum(["ELECTRICITY", "GAS"]).optional().describe("Only plans that include this fuel (dual fuel plans are included)"),
   retailer: z.string().optional().describe("Retailer or brand name, e.g. Origin"),
   distributor: z.string().optional().describe("Distribution network name from the user's bill, e.g. CitiPower"),
@@ -27,11 +29,14 @@ interface Row {
   distributors: string[];
   sourceLastUpdated: string;
   planUrl?: string;
+  /** What to open to see this plan's rate sheet, labelled by what it is. Built for the postcode searched. */
+  link: PlanLink;
   understood: boolean;
 }
 
 export interface SearchData {
   postcode: string;
+  customerType: "RESIDENTIAL" | "BUSINESS";
   total: number;
   returned: number;
   nextCursor?: string;
@@ -49,18 +54,18 @@ export const searchEnergyPlans = defineTool({
   name: "search_energy_plans",
   title: "Search energy plans",
   description:
-    "Finds current residential electricity and gas plans available at an Australian postcode, from the AER's published plan data. Use it to list plans, narrow by retailer, fuel, network or features, and get plan ids for get_energy_plan or compare_energy_plans. It shows no costs; use compare_energy_plans for those.",
+    "Finds current residential or business (customerType; ask the user which, never assume) electricity and gas plans available at an Australian postcode, from the AER's published plan data. Use it to list plans, narrow by retailer, fuel, network or features, and get plan ids for get_energy_plan or compare_energy_plans. It shows no costs; use compare_energy_plans for those.",
   inputSchema: input,
   readOnlyHint: true,
   destructiveHint: false,
   openWorldHint: false,
   datasets: [ENERGY_DATASET_ID],
-  meta: tableMeta("data_table"),
   handler: (args) => {
     const postcode = checkPostcode(args.postcode);
     if (!postcode) return badPostcode();
     return withStore<SearchData>(async (store) => {
-      const all = await store.plans({ postcode });
+      const customerType = args.customerType;
+      const all = await store.plans({ postcode, customerType });
       if (all.length === 0) {
         return notFound("outside_coverage", `No plans are stored for postcode ${postcode}. The data covers ${COVERAGE_STATES}.`, { states: COVERAGE_STATES });
       }
@@ -110,10 +115,12 @@ export const searchEnergyPlans = defineTool({
         distributors: p.geography.distributors,
         sourceLastUpdated: p.sourceLastUpdated,
         ...(p.planUrl ? { planUrl: p.planUrl } : {}),
+        link: planLink(p, postcode),
         understood: p.understood,
       }));
       const data: SearchData = {
         postcode,
+        customerType,
         total: plans.length,
         returned: rows.length,
         ...(start + limit < plans.length ? { nextCursor: String(start + limit) } : {}),
@@ -131,40 +138,18 @@ export const searchEnergyPlans = defineTool({
   },
   render: (d) => {
     const lines = [
-      `${d.total} current residential plan${d.total === 1 ? "" : "s"} at postcode ${d.postcode}${d.matchedRetailer ? ` (retailer matched: ${d.matchedRetailer})` : ""}; showing ${d.returned}.`,
+      `${d.total} current ${d.customerType.toLowerCase()} plan${d.total === 1 ? "" : "s"} at postcode ${d.postcode}${d.matchedRetailer ? ` (retailer matched: ${d.matchedRetailer})` : ""}; showing ${d.returned}.`,
       "",
-      "| Retailer | Plan | Fuel | Type | Tariff | Distributor | Updated | Plan id |",
-      "| --- | --- | --- | --- | --- | --- | --- | --- |",
+      "| Retailer | Plan | Fuel | Type | Tariff | Distributor | Updated | Link | Plan id |",
+      "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
       ...d.plans.map(
-        (p) => `| ${p.retailer} | ${p.planUrl ? `[${p.planName}](${p.planUrl})` : p.planName} | ${p.fuelType} | ${p.planType} | ${p.tariffType} | ${p.distributors.join(", ")} | ${p.sourceLastUpdated.slice(0, 10)} | ${p.planId} |`,
+        (p) => `| ${p.retailer} | ${p.planName} | ${p.fuelType} | ${p.planType} | ${p.tariffType} | ${p.distributors.join(", ")} | ${p.sourceLastUpdated.slice(0, 10)} | ${linkCell(p.link)} | ${p.planId} |`,
       ),
     ];
+    lines.push("", ...linkNotes(d.plans.map((p) => p.link)));
     if (d.askUser) lines.push("", d.askUser);
     if (d.nextCursor) lines.push("", `More plans are available: call again with cursor "${d.nextCursor}".`);
     lines.push("", NOTICE);
     return lines.join("\n");
   },
-  decorate: (result) =>
-    inkviewResult(result, () => {
-      const r = result as import("../core/grounded.js").Found<SearchData>;
-      return inkview.table(
-        {
-          title: `Energy plans at ${r.data.postcode}`,
-          caption: NOTICE,
-          columns: [
-            { key: "retailer", label: "Retailer" },
-            { key: "planName", label: "Plan" },
-            { key: "fuelType", label: "Fuel", type: "badge" },
-            { key: "planType", label: "Type", type: "badge" },
-            { key: "tariffType", label: "Tariff" },
-            { key: "distributors", label: "Distributor" },
-            { key: "updated", label: "Updated", type: "date" },
-            { key: "planId", label: "Plan id" },
-          ],
-          rows: r.data.plans.map((p) => ({ ...p, distributors: p.distributors.join(", "), updated: p.sourceLastUpdated.slice(0, 10) })),
-          source: inkviewSource(r),
-        },
-        { limit: 50 },
-      );
-    }),
 });

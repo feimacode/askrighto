@@ -177,7 +177,7 @@ rights gate applies on both routes in production. Promotion is a settings change
 ### 5.6 Skills and plugins
 
 Server instructions go to every host on `initialize`; skills add multi-turn intake and wording. The
-public plugin (`plugin/`) holds `ask-righto-grounding` and `energy-bill-comparison`. The internal
+public plugin (`plugin/`) holds `ask-righto-grounding` and five energy journey skills (`energy-start`, `energy-current-plan`, `energy-readings`, `energy-compare`, `energy-plan-rates`), each generated from one source in `src/guidance/energy/` that `get_energy_guide` also serves. The internal
 plugin (`plugin-internal/`) holds `vce-course-research` and `intl-course-finder` for testers. The
 base rules come from one file, `src/guidance/shared.ts`, which feeds both the server instructions and
 a generated `rules.md`; CI fails if the generated copy is stale. A maintainer-only skill
@@ -259,6 +259,8 @@ Results can be drawn as components with `@feimacode/inkview-sdk`. `inkviewResult
 in `structuredContent` and carries the grounded envelope beside it, so every host still gets source,
 date and notice in the text. A component that fails validation is skipped and the plain result is
 returned.
+
+Not every result is drawn. Lookups that only hand an id to the next call (`search_energy_plans`, `get_subject_scaling`, `find_occupations`) have no component. Browse and result tables are drawn only up to `UI_MAX_ROWS` (10) rows; above that the host gets text and structured data only. The current-plan picker form is the one component the user must act on.
 
 ### 7.4 Scale and operations
 

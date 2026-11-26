@@ -13,7 +13,10 @@
     ],
     "attribution": null,
     "conditions": [
-      "The Energy Made Easy and Victorian Energy Compare websites are not scraped; the API only."
+      "The Energy Made Easy and Victorian Energy Compare websites are not scraped; the API only.",
+      "Links to Energy Made Easy and to retailer websites are links only: those pages are not fetched, read or stored by the server.",
+      "Distributor and retailer meter data request pages and the AEMC rule on access to data are linked and paraphrased; nothing is stored from them but the link, the check date and a one-line note.",
+      "A household's own interval readings, if supplied, are read for that request only: never stored or logged, with the NMI and meter serial dropped. They are the person's own data, not a dataset."
     ],
     "reviewBy": "2027-02-01"
   },
@@ -70,6 +73,84 @@
       "Legal view on re-keyed facts outstanding (roadmap Phase 0)."
     ],
     "reviewBy": "2027-08-01"
+  },
+  {
+    "datasetId": "nsw-act-courses",
+    "owner": "Each NSW and ACT university (course pages and admissions transparency pages)",
+    "basis": "own_words_facts",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://uac.edu.au/about/privacy-legal",
+        "readOn": "2026-11-21",
+        "note": "UAC terms: reproducing website or publication material needs UAC's written permission, apart from fair dealing; no wording on course data extraction. So no UAC content is used; facts come from the universities' own pages, re-keyed in our own words with a link."
+      }
+    ],
+    "attribution": null,
+    "conditions": [
+      "Facts only, in our own words, with a link on every fact.",
+      "Legal view on re-keyed facts outstanding (roadmap Phase 0).",
+      "No permission request to UAC (Iven, 20 Nov 2026)."
+    ],
+    "reviewBy": "2027-08-01"
+  },
+  {
+    "datasetId": "qld-courses",
+    "owner": "Each Queensland university (course pages and admissions transparency pages)",
+    "basis": "own_words_facts",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://www.qtac.edu.au/legal-privacy-policies/",
+        "readOn": "2026-11-21",
+        "note": "QTAC terms: all rights reserved, one copy for private personal use, no other rights in the content. So no QTAC content is used; facts come from the universities' own pages, re-keyed in our own words with a link."
+      }
+    ],
+    "attribution": null,
+    "conditions": [
+      "Facts only, in our own words, with a link on every fact.",
+      "Legal view on re-keyed facts outstanding (roadmap Phase 0).",
+      "No permission request to QTAC (Iven, 20 Nov 2026)."
+    ],
+    "reviewBy": "2027-08-01"
+  },
+  {
+    "datasetId": "uac-coursesearch",
+    "owner": "UAC (course search and publications)",
+    "basis": "written_permission",
+    "status": "pending",
+    "evidence": [
+      {
+        "url": "https://uac.edu.au/about/privacy-legal",
+        "readOn": "2026-11-21",
+        "note": "Reproduction needs written permission. Used only to block facts sourced from uac.edu.au pages. No request sent."
+      }
+    ],
+    "attribution": null,
+    "conditions": [],
+    "reviewBy": "2027-02-01",
+    "domains": [
+      "uac.edu.au"
+    ]
+  },
+  {
+    "datasetId": "qtac-coursesearch",
+    "owner": "QTAC (course search and website content)",
+    "basis": "written_permission",
+    "status": "pending",
+    "evidence": [
+      {
+        "url": "https://www.qtac.edu.au/legal-privacy-policies/",
+        "readOn": "2026-11-21",
+        "note": "All rights reserved; no rights beyond private personal use. Used only to block facts sourced from qtac.edu.au pages. No request sent."
+      }
+    ],
+    "attribution": null,
+    "conditions": [],
+    "reviewBy": "2027-02-01",
+    "domains": [
+      "qtac.edu.au"
+    ]
   },
   {
     "datasetId": "vce-key-dates",
@@ -329,5 +410,26 @@
       "Legal view outstanding (roadmap Phase 0): information-only use."
     ],
     "reviewBy": "2027-08-01"
+  },
+  {
+    "datasetId": "aemo-material",
+    "owner": "Australian Energy Market Operator (AEMO)",
+    "basis": "open_licence",
+    "status": "cleared",
+    "evidence": [
+      {
+        "url": "https://www.aemo.com.au/privacy-and-legal-notices/copyright-permissions",
+        "readOn": "2026-11-20",
+        "note": "AEMO's copyright permissions statement, pasted into the project thread by Iven on 20 Nov 2026: AEMO gives general permission for anyone to use AEMO Material for any purpose, with accurate and appropriate attribution to the material and to AEMO as author, and no specific permission is needed. Confidential documents and reports commissioned by others are not AEMO Material. The page address was confirmed by Iven on 20 Nov 2026 (the assistant could not fetch the page itself)."
+      }
+    ],
+    "attribution": "Meter data file rules and stream codes follow AEMO's Meter Data File Format Specification NEM12 & NEM13 and National Metering Identifier Procedure; distributor names follow AEMO's NMI allocation list. Source: AEMO.",
+    "conditions": [
+      "Only AEMO Material is used: the published NEM12/NEM13 specification, the NMI Procedure and the NMI allocation list. Confidential documents and reports commissioned by another body are not used.",
+      "What we take is rules and names, written in our own words and code (record types, stream suffix meanings, interval lengths, distributor names). No AEMO document or table is copied into the repo or the product.",
+      "Attribution is kept where the material is used: the readings docs and the readings tool's source name say AEMO is the author, and the recipe cites the document and edition it follows.",
+      "The household's own readings file is the person's data, not AEMO Material, and is handled as the energy-plans entry says."
+    ],
+    "reviewBy": "2027-11-20"
   }
 ]

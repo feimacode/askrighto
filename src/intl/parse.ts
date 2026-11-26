@@ -9,6 +9,7 @@ import type {
   IntlLocation,
   IntlProvider,
   LevelGroup,
+  Sector,
 } from "./types.js";
 
 const key = (h: string) => h.toLowerCase().replace(/[^a-z0-9]+/g, "");
@@ -41,6 +42,7 @@ const HEADERS = {
     "tuitionfeetotal",
   ],
   nonTuitionFee: ["nontuitionfee", "nontuitionfees", "totalnontuitionfee"],
+  vetNationalCode: ["vetnationalcode"],
   language: ["languageofinstruction", "courselanguage", "language"],
   workComponent: [
     "workcomponent",
@@ -52,7 +54,11 @@ const HEADERS = {
 } as const;
 type Field = keyof typeof HEADERS;
 
-/** Maps a published level to a group in scope, or undefined for school, ELICOS, VET and non-award levels. */
+/**
+ * Maps a published level to a group in scope, or undefined for school, ELICOS, Non AQF Award and
+ * Vocational Short Course levels (add-intl-diplomas-vet). Higher education plus Diploma, Advanced Diploma
+ * and Certificate I to IV are kept. Matches are literal, so an unknown level is excluded, not guessed.
+ */
 export function levelGroupOf(level: string): LevelGroup | undefined {
   const l = level.toLowerCase();
   if (/graduate certificate/.test(l)) return "graduate_certificate";
@@ -61,7 +67,32 @@ export function levelGroupOf(level: string): LevelGroup | undefined {
   if (/doctor/.test(l)) return "doctorate";
   if (/associate degree/.test(l)) return "associate_degree";
   if (/bachelor/.test(l)) return "bachelor";
+  const t = l.trim();
+  if (t === "advanced diploma") return "advanced_diploma";
+  if (t === "diploma") return "diploma";
+  if (t === "certificate iv") return "certificate_iv";
+  if (t === "certificate iii") return "certificate_iii";
+  if (t === "certificate ii") return "certificate_ii";
+  if (t === "certificate i") return "certificate_i";
   return undefined;
+}
+
+const VET_ONLY: readonly LevelGroup[] = [
+  "certificate_i",
+  "certificate_ii",
+  "certificate_iii",
+  "certificate_iv",
+];
+const VET_OR_HE: readonly LevelGroup[] = ["diploma", "advanced_diploma"];
+
+/** Sector as the register states it: certificates are VET; a diploma is VET only with a VET National Code. */
+export function sectorOf(
+  group: LevelGroup,
+  vetNationalCode: string,
+): Sector | undefined {
+  if (VET_ONLY.includes(group)) return "vet";
+  if (VET_OR_HE.includes(group)) return vetNationalCode ? "vet" : undefined;
+  return "higher_education";
 }
 
 const num = (s: string): number | undefined => {
@@ -138,7 +169,7 @@ export interface IntlParseReport {
   columnsMissing: string[];
 }
 
-const LOC_HEADERS = {
+export const LOC_HEADERS = {
   providerCode: HEADERS.providerCode,
   cricosCode: HEADERS.cricosCode,
   name: ["locationname", "campus", "campusname"],
@@ -151,7 +182,7 @@ const INST_HEADERS = {
 } as const;
 
 /** Reads a sheet with named columns; rows come back as objects keyed by our field names. */
-function readSheet<H extends Record<string, readonly string[]>>(
+export function readSheet<H extends Record<string, readonly string[]>>(
   csv: string,
   headers: H,
 ): Array<Record<keyof H, string>> {
@@ -304,12 +335,16 @@ export function parseIntlCricos(
     const field = [g(r, "field"), g(r, "fieldNarrow")]
       .filter(Boolean)
       .join("; ");
+    const vetCode = g(r, "vetNationalCode");
+    const sector = sectorOf(group, vetCode);
     courses.set(code, {
       cricosCode: code,
       providerId,
       name: g(r, "courseName"),
       level,
       levelGroup: group,
+      ...(sector ? { sector } : {}),
+      ...(vetCode ? { vetNationalCode: vetCode } : {}),
       ...(field ? { field } : {}),
       ...(weeks ? { durationWeeks: Math.round(weeks) } : {}),
       ...(tuition ? { tuitionFeeTotal: tuition } : {}),

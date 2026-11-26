@@ -24,6 +24,7 @@ import { runSync } from "../../src/energy/sync.js";
 import { serverInstructions } from "../../src/server/instructions.js";
 import { createServer } from "../../src/server/create-server.js";
 import { NOTICE } from "../../src/tools/energy-common.js";
+import { journeyBody } from "../../src/guidance/energy/index.js";
 import { fixture, startMockCdr, type MockCdr } from "./mock-cdr.js";
 
 const FIXTURE = `${process.cwd()}/test/fixtures/benchmarks/aer_benchmarks_synthetic.xlsx`;
@@ -220,7 +221,7 @@ d("compare_energy_plans with typical usage", () => {
     const sc = r.structuredContent as any;
     return { text, sc, g: sc.grounded ?? sc };
   }
-  const base = { postcode: "3000", fuelType: "ELECTRICITY", distributor: "CitiPower" };
+  const base = { postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "CitiPower" };
 
   beforeAll(async () => {
     db = createDb({ url: URL!, schema, poolMax: 5 });
@@ -264,7 +265,7 @@ d("compare_energy_plans with typical usage", () => {
   });
 
   it("says typical usage is unavailable (and makes no estimate) before benchmarks are loaded", async () => {
-    const { g } = await call({ ...base, useBenchmarkUsage: true, householdSize: 3 });
+    const { g } = await call({ ...base, usageSource: "typical", householdSize: 3 });
     expect(g).toMatchObject({ found: false, reason: "data_unavailable" });
     expect(g.message).toMatch(/not been loaded/);
   });
@@ -274,23 +275,31 @@ d("compare_energy_plans with typical usage", () => {
     rt.benchmarks.clear?.();
   });
 
-  it("keeps the needs-usage error without useBenchmarkUsage, now offering typical usage", async () => {
-    const { g } = await call(base);
+  it("asks for usage when a bill source has none", async () => {
+    const { g } = await call({ ...base, usageSource: "bill" });
     expect(g).toMatchObject({ found: false, reason: "needs_input" });
-    expect(g.message).toMatch(/recent bill/);
-    expect(g.message).toMatch(/typical usage/);
-    expect(g.message).toMatch(/useBenchmarkUsage/);
-    expect(g.message).toMatch(/how many people/);
+    expect(g.message).toMatch(/`usage`/);
   });
 
   it("asks for the household size when typical usage is requested without it", async () => {
-    const { g } = await call({ ...base, useBenchmarkUsage: true });
+    const { g } = await call({ ...base, usageSource: "typical" });
     expect(g).toMatchObject({ found: false, reason: "needs_input" });
-    expect(g.message).toMatch(/household size/i);
+    expect(g.message).toMatch(/householdSize/);
+    expect(g.message).toMatch(/how many people/);
+  });
+
+  it("gives no baseline for a time-of-use current plan under typical usage, and still ranks the plans", async () => {
+    const { g, text } = await call({ ...base, distributor: "Jemena", usageSource: "typical", householdSize: 3, currentPlanId: "O1" });
+    expect(g.found).toBe(true);
+    expect(g.data.current).toMatchObject({ costed: false, reason: "not_estimated", planId: "O1" });
+    expect(g.data.current.detail).toMatch(/needs_time_of_use_split/);
+    expect(g.data.counts.current).toBe(0);
+    for (const e of g.data.estimates) expect(e.differenceFromCurrentCents).toBeUndefined();
+    expect(text).toMatch(/Your current plan: The current plan Origin Energy .* could not be costed/);
   });
 
   it("estimates from the benchmark annual figure, labelled typical, with the notice above the table", async () => {
-    const { g, text } = await call({ ...base, useBenchmarkUsage: true, householdSize: 3 });
+    const { g, text } = await call({ ...base, usageSource: "typical", householdSize: 3 });
     expect(g.found).toBe(true);
     // VIC postcode 3000 is climate zone 6: 6000 + 600 + 30 = 6630 per season (+ 0.5 + season index), sum 26528.
     expect(g.data.usage).toMatchObject({ basis: "benchmark", annualUsage: 26528, unit: "kWh" });
@@ -311,7 +320,7 @@ d("compare_energy_plans with typical usage", () => {
     // Loaded after the server started: no "not loaded yet" warning.
     expect(JSON.stringify(g.warnings ?? [])).not.toMatch(/not been loaded/);
     // Same maths as stated usage: only the label differs.
-    const own = (await call({ ...base, annualUsageKwh: 26528 })).g;
+    const own = (await call({ ...base, usageSource: "yearly", usage: 26528 })).g;
     expect(own.data.usage.basis).toBe("customer");
     expect(own.data.usage.benchmark).toBeUndefined();
     expect(own.data.typicalUsageNotice).toBeUndefined();
@@ -319,7 +328,7 @@ d("compare_energy_plans with typical usage", () => {
   });
 
   it("lists solar export and controlled load as omissions, and time-of-use plans as not estimated", async () => {
-    const { g, text } = await call({ postcode: "3000", fuelType: "ELECTRICITY", distributor: "Jemena", useBenchmarkUsage: true, householdSize: 2 });
+    const { g, text } = await call({ postcode: "3000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", distributor: "Jemena", usageSource: "typical", householdSize: 2 });
     expect(g.found).toBe(true);
     expect(g.data.omissions.join(" ")).toMatch(/solar export and controlled load are not included/i);
     expect(g.data.notEstimated[0]).toMatchObject({ planId: "O1", reason: "needs_time_of_use_split" });
@@ -328,37 +337,49 @@ d("compare_energy_plans with typical usage", () => {
   });
 
   it("refuses bill-only figures mixed with typical usage", async () => {
-    const { g } = await call({ ...base, useBenchmarkUsage: true, householdSize: 3, solarExportAnnualKwh: 100 });
+    const { g } = await call({ ...base, usageSource: "typical", householdSize: 3, solarExportAnnualKwh: 100 });
     expect(g).toMatchObject({ found: false, reason: "needs_input" });
   });
 
-  it("lets the person's own usage win over useBenchmarkUsage", async () => {
-    const { g, text } = await call({ ...base, annualUsageKwh: 4000, useBenchmarkUsage: true, householdSize: 3 });
-    expect(g.found).toBe(true);
-    expect(g.data.usage.basis).toBe("customer");
-    expect(g.data.usage.annualUsage).toBe(4000);
-    expect(g.data.typicalUsageNotice).toBeUndefined();
-    expect(g.data.estimates[0].totalCents).toBe(167365);
-    expect(text).not.toMatch(/Typical usage for a household/);
+  it("refuses the person's own usage mixed with typical usage, rather than letting one win", async () => {
+    const { g } = await call({ ...base, usageSource: "typical", householdSize: 3, usage: 4000 });
+    expect(g).toMatchObject({ found: false, reason: "needs_input" });
+    expect(g.message).toMatch(/`usage` is not used with usageSource `typical`/);
+    const own = await call({ ...base, usageSource: "yearly", usage: 4000 });
+    expect(own.g.data.usage.basis).toBe("customer");
+    expect(own.g.data.usage.annualUsage).toBe(4000);
+    expect(own.g.data.typicalUsageNotice).toBeUndefined();
+    expect(own.g.data.estimates[0].totalCents).toBe(167365);
+    expect(own.text).not.toMatch(/Typical usage for a household/);
   });
 
   it("returns outside_coverage for a postcode outside the benchmark data and makes no estimate", async () => {
-    const { g } = await call({ postcode: "6000", fuelType: "ELECTRICITY", useBenchmarkUsage: true, householdSize: 2 });
+    const { g } = await call({ postcode: "6000", fuelType: "ELECTRICITY", customerType: "RESIDENTIAL", usageSource: "typical", householdSize: 2 });
     expect(g).toMatchObject({ found: false, reason: "outside_coverage" });
     expect(g.message).toMatch(/Western Australia|Northern Territory/);
   });
 
   it("works for gas, in MJ, and carries the notice into the Inkview view", async () => {
-    const { g, sc } = await call({ postcode: "3000", fuelType: "GAS", useBenchmarkUsage: true, householdSize: 2 });
+    const { g, sc } = await call({ postcode: "3000", fuelType: "GAS", customerType: "RESIDENTIAL", usageSource: "typical", householdSize: 2 });
     expect(g.found).toBe(true);
     expect(g.data.usage).toMatchObject({ basis: "benchmark", unit: "MJ" });
     expect(JSON.stringify(sc)).toContain("Typical usage for a household of 2");
+    // The Inkview table must actually render (its caption is capped at 300 characters) and lead with the typical-usage line.
+    expect(sc.component).toBe("listings");
+    expect(JSON.stringify(sc)).toMatch(/"caption":"Typical usage for a household of 2, not your own\. These figures/);
+    // The worst case: the longest SA zone name and five or more people still fit.
+    const worst = `Typical usage for a household of 5 or more, not your own. ${NOTICE}`;
+    expect(worst.length).toBeLessThanOrEqual(300);
   });
 
   it("is in the server instructions", () => {
     const text = serverInstructions();
-    expect(text).toMatch(/useBenchmarkUsage/);
-    expect(text).toMatch(/Ask for the bill first/);
-    expect(text).toMatch(/not the user's own/);
+    expect(text).toMatch(/get_energy_guide/);
+    expect(text).toMatch(/never assume usage or household size/i);
+    // The steps live in the journey, served as a skill and by get_energy_guide.
+    const steps = journeyBody("energy-compare");
+    expect(steps).toMatch(/`typical`: only if the user has no bill/);
+    expect(steps).toMatch(/householdSize/);
+    expect(steps).toMatch(/not the user's own/);
   });
 });
