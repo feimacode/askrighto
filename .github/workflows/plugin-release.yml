@@ -1,0 +1,41 @@
+name: Plugin packages
+
+# Builds the upload-ready plugin zips (Claude, ChatGPT, Gemini CLI) and checks them.
+#   pull request touching plugin files → build and check, upload as a workflow artifact
+#   tag v1.2.3                         → also attach the zips and SHA256SUMS to the GitHub release
+on:
+  pull_request:
+    paths: ["plugin/**", "scripts/plugin.mjs", "scripts/check-plugin-zips.mjs", "src/guidance/**", "LICENSE"]
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run plugin:check
+      - run: npm run plugin:build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugin-zips
+          path: |
+            dist/plugins/*.zip
+            dist/plugins/SHA256SUMS
+            dist/plugins/gemini/registration.md
+      - name: Attach the zips to the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/plugins/*.zip
+            dist/plugins/SHA256SUMS

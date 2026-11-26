@@ -53,9 +53,13 @@ sensibly.
 - **Comparison, not advice.** Ask Righto does not recommend a plan, and does not cover insurance
   or credit products that need a financial services licence.
 
+## Install the plugin by hand
+
+Zips for Claude, ChatGPT and Gemini CLI, and the steps to add the server in each host: [docs/install-plugin.md](docs/install-plugin.md). Submitting to the directories: [docs/listing/directory-listings.md](docs/listing/directory-listings.md).
+
 ## Privacy
 
-Ask Righto has no accounts, keeps no conversations and builds no profiles. What you ask is
+See the full [privacy policy](docs/legal/privacy.md) and [terms](docs/legal/terms.md). Ask Righto has no accounts, keeps no conversations and builds no profiles. What you ask is
 used to answer the question and is not stored. Server logs record only technical facts such as
 which tool ran, when and for how long, never the details of your question. The only data held is public reference
 data (such as published energy plans).

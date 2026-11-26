@@ -2,7 +2,12 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { challengeResponse, CHALLENGE_PATH } from "../src/server/challenge.js";
+import {
+  challengeResponse,
+  CHALLENGE_PATH,
+  GOOGLE_CONNECTED_APPS_PATH,
+  googleConnectedAppsResponse,
+} from "../src/server/challenge.js";
 // @ts-expect-error plain .mjs script, no types
 import * as gen from "../scripts/plugin.mjs";
 
@@ -103,4 +108,90 @@ describe("domain verification route", () => {
   it("uses the path the OpenAI portal expects", () => {
     expect(CHALLENGE_PATH).toBe("/.well-known/openai-apps-challenge");
   });
+});
+
+describe("Google Connected Apps domain file", () => {
+  it("serves the JSON when it is set and valid", () => {
+    const r = googleConnectedAppsResponse({
+      ASKRIGHTO_GOOGLE_CONNECTED_APPS: '{"a":1}',
+    });
+    expect(r).toEqual({
+      status: 200,
+      body: '{"a":1}',
+      type: "application/json",
+    });
+  });
+
+  it("is a 404 when unset or not JSON", () => {
+    expect(googleConnectedAppsResponse({}).status).toBe(404);
+    expect(
+      googleConnectedAppsResponse({ ASKRIGHTO_GOOGLE_CONNECTED_APPS: "nope" })
+        .status,
+    ).toBe(404);
+  });
+
+  it("uses the path Google expects", () => {
+    expect(GOOGLE_CONNECTED_APPS_PATH).toBe(
+      "/.well-known/google-connected-apps",
+    );
+  });
+});
+
+describe("listing readiness", () => {
+  const TRACKED = [
+    "plugin/askrighto.config.json",
+    "plugin/.claude-plugin/plugin.json",
+    "plugin/.mcp.json",
+    "plugin/README.md",
+    ".claude-plugin/marketplace.json",
+  ];
+
+  it("names no old domain in the packaged files", () => {
+    for (const f of TRACKED)
+      expect(readFileSync(join(ROOT, f), "utf8")).not.toContain(
+        "askrighto.com.au",
+      );
+  });
+
+  it("sets the listing fields the directories ask for", () => {
+    const m = g.claudeManifest() as Record<string, unknown>;
+    for (const k of [
+      "license",
+      "author",
+      "icon",
+      "privacyPolicyUrl",
+      "supportUrl",
+      "termsOfServiceUrl",
+    ])
+      expect(m[k], k).toBeTruthy();
+    expect(existsSync(join(ROOT, "plugin", config.icon))).toBe(true);
+    expect(existsSync(join(ROOT, "LICENSE"))).toBe(true);
+  });
+
+  it("keeps ChatGPT listing text within OpenAI's limits and has the review cases", () => {
+    const o = (g.chatgptManifest() as any).extensions["com.openai"];
+    expect(o.interface.displayName.length).toBeLessThanOrEqual(30);
+    expect(o.interface.shortDescription.length).toBeLessThanOrEqual(30);
+    expect(o.interface.longDescription.length).toBeLessThanOrEqual(4000);
+    expect(o.interface.defaultPrompt.length).toBeLessThanOrEqual(3);
+    expect(o.review.test_cases.positive.length).toBeGreaterThanOrEqual(5);
+    expect(o.review.test_cases.negative.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it.skipIf(!existsSync(join(ROOT, "dist/askrighto.js")))(
+    "builds three zips that pass the zip checker",
+    () => {
+      execFileSync("node", ["scripts/plugin.mjs", "--build"], {
+        cwd: ROOT,
+        stdio: "pipe",
+      });
+      for (const z of [
+        "askrighto-claude-plugin.zip",
+        "askrighto-chatgpt-plugin.zip",
+        "askrighto-gemini-extension.zip",
+      ])
+        expect(existsSync(join(ROOT, "dist/plugins", z)), z).toBe(true);
+    },
+    120_000,
+  );
 });

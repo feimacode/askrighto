@@ -1,7 +1,7 @@
 /** Settings read from the environment. Names follow Inkview's, with an ASKRIGHTO_ prefix. */
 
 export const PUBLIC_URL =
-  process.env.ASKRIGHTO_PUBLIC_URL?.trim() || "https://askrighto.com.au";
+  process.env.ASKRIGHTO_PUBLIC_URL?.trim() || "https://askrighto.feimacode.com";
 
 export interface HttpConfig {
   /** express.json limit, e.g. "2mb". */

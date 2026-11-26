@@ -1,12 +1,26 @@
 {
   "name": "askrighto",
+  "displayName": "Ask Righto",
   "version": "0.1.0",
   "description": "Ask Righto answers everyday Australian questions from public data. These skills help the assistant use its tools: quote only tool results, show the source and date, and never guess.",
-  "homepage": "https://askrighto.com.au",
+  "author": {
+    "name": "feimacode",
+    "url": "https://github.com/feimacode"
+  },
+  "homepage": "https://github.com/feimacode/askrighto",
   "repository": "https://github.com/feimacode/askrighto",
+  "license": "MIT",
   "keywords": [
     "australia",
     "energy",
-    "public-data"
-  ]
+    "electricity",
+    "gas",
+    "public-data",
+    "compare"
+  ],
+  "icon": "./assets/icon.png",
+  "documentationUrl": "https://github.com/feimacode/askrighto/blob/main/docs/install-plugin.md",
+  "supportUrl": "https://github.com/feimacode/askrighto/issues",
+  "privacyPolicyUrl": "https://github.com/feimacode/askrighto/blob/main/docs/legal/privacy.md",
+  "termsOfServiceUrl": "https://github.com/feimacode/askrighto/blob/main/docs/legal/terms.md"
 }
