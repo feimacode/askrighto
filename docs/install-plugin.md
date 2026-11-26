@@ -21,9 +21,17 @@ Three ready-made packages are attached to every [GitHub release](https://github.
 
 ## ChatGPT
 
-**Server only (works today).** In ChatGPT, open Plugins, choose the plus button, **Add custom MCP server**, give it a name, enter the URL above under Connection > public endpoint, set authentication to none, accept the warning and choose **Create as a plugin**. Type `@` in the prompt box to use it. On some plans you first need developer mode (Settings > Apps > Advanced). Source: developers.openai.com/plugins/deploy/connect-chatgpt, read 26 Nov 2026.
+| Route | Skills | Where it works |
+| --- | --- | --- |
+| Directory listing (once approved) | Yes | Every surface the public directory reaches |
+| Custom MCP server | No (the server's own instructions and `get_energy_guide` carry the rules) | ChatGPT on the web; mobile not confirmed |
+| Uploaded zip | Yes | ChatGPT desktop app only ("Open in desktop app") |
 
-**With skills: the zip.** `askrighto-chatgpt-plugin.zip` is the package the OpenAI submission portal takes: Platform dashboard > Plugins > **Upload new or existing plugin** > pick a verified developer identity > **Upload plugin** > choose the zip. It stays a private draft until you submit it, so it also works as a test install. We found no page describing an in-ChatGPT button that takes a zip from an ordinary user; if your ChatGPT shows one under Plugins, the same zip is what it wants.
+**Web (and probably mobile): the custom MCP server.** In ChatGPT on the web, open Plugins, choose the plus button, **Add custom MCP server**, give it a name, enter the URL above under Connection > public endpoint, set authentication to none, accept the warning and choose **Create as a plugin**. Type `@` in the prompt box to use it. On some plans you first need developer mode (Settings > Apps > Advanced). Source: developers.openai.com/plugins/deploy/connect-chatgpt, read 26 Nov 2026. A server added on the web should follow the account to the mobile app; not yet checked.
+
+**Desktop, with skills: the zip.** Upload `askrighto-chatgpt-plugin.zip` under Plugins. ChatGPT treats an uploaded plugin as a local one, and OpenAI's docs say to "use the ChatGPT desktop app to install and test a local plugin", so it shows "Open in desktop app" and runs only in the desktop app (seen 26 Nov 2026; open-design-agent-kit's zip behaves the same). Nothing in the zip makes it desktop-only in OpenAI's sense (no local server, hooks or `requires_local_executor`), so the same zip reaches web and mobile once it is approved in the directory.
+
+**Directory submission.** The same zip is what the OpenAI portal takes: Platform dashboard > Plugins > **Upload new or existing plugin** > pick a verified developer identity > **Upload plugin**. See [listing/directory-listings.md](listing/directory-listings.md). A Business or Enterprise admin can also publish a plugin to their own workspace; only that workspace's members see it.
 
 ## Gemini
 
