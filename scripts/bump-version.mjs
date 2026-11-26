@@ -51,6 +51,17 @@ export function changelogProblems(text, version) {
     : [`CHANGELOG.md [${version}] needs a "**Listing impact:** none|rescan|resubmit" line`];
 }
 
+/** True when any of `paths` has staged changes. */
+function hasStagedChanges(paths) {
+  try {
+    execFileSync("git", ["diff", "--cached", "--quiet", "--", ...paths], { cwd: ROOT });
+    return false;
+  } catch (e) {
+    if (e.status === 1) return true;
+    throw e;
+  }
+}
+
 function main(argv) {
   const version = argv.find((a) => !a.startsWith("--"));
   const dryRun = argv.includes("--dry-run");
@@ -80,9 +91,19 @@ function main(argv) {
   // The committed manifests carry the version too.
   execFileSync(process.execPath, [join(ROOT, "scripts/plugin.mjs")], { stdio: "inherit" });
   if (noGit) return;
-  execFileSync("git", ["add", ...changed, "plugin", ".claude-plugin"], { cwd: ROOT });
-  execFileSync("git", ["commit", "-m", `Release v${version}`], { cwd: ROOT, stdio: "inherit" });
-  execFileSync("git", ["tag", "-a", `v${version}`, "-m", `v${version}`], { cwd: ROOT });
+  const tag = `v${version}`;
+  const tagExists = execFileSync("git", ["tag", "--list", tag], { cwd: ROOT, encoding: "utf8" }).trim();
+  if (tagExists) {
+    console.error(`${tag} already exists. Never move or reuse a tag: release a new version instead.`);
+    process.exit(1);
+  }
+  // Commit only the version files and the regenerated manifests, never other local changes.
+  const paths = [...changed, "plugin", ".claude-plugin"];
+  execFileSync("git", ["add", "--", ...paths], { cwd: ROOT });
+  if (hasStagedChanges(paths))
+    execFileSync("git", ["commit", "-m", `Release ${tag}`, "--", ...paths], { cwd: ROOT, stdio: "inherit" });
+  else console.log(`Every file is already at ${version}: nothing to commit, tagging the current commit.`);
+  execFileSync("git", ["tag", "-a", tag, "-m", tag], { cwd: ROOT });
   console.log(`Tagged v${version} locally. Push with: git push origin main --follow-tags`);
 }
 

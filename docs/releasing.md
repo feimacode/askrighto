@@ -30,7 +30,7 @@ npm run release:bump -- 0.2.0              # sets every version, regenerates the
 git push origin main --follow-tags
 ```
 
-It never pushes. Do this on `main` after the release pull request is merged, or bump in the pull request with `--no-git` and tag after merging.
+It never pushes, and commits only the version files and regenerated manifests (other local changes stay as they are). When every file already has the version, as for the first release `0.1.0`, it tags the current commit without a commit. It refuses a tag that already exists. Do this on `main` after the release pull request is merged, or bump in the pull request with `--no-git` and tag after merging.
 
 **Where tags cannot be pushed** (a cloud session): bump with `--no-git` in the pull request, merge it, then run the **Release** workflow by hand on `main` with the version. It creates the tag and the release at `main`'s head. Tick **dry run** to check the build without pushing an image or creating a release.
 
