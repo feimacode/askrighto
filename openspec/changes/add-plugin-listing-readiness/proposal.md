@@ -9,7 +9,7 @@ Hosts affected: Claude, ChatGPT, Gemini.
 ## What Changes
 
 - Config gains author, licence, links (privacy, terms, support, docs), icon, OpenAI `interface` text, review test cases and release notes. Public domain switches to `askrighto.feimacode.com` everywhere (the switch to `.com.au` stays a config edit).
-- Add the icon (`plugin/assets/icon.png`, a placeholder for Iven to replace), `LICENSE`, public `docs/legal/privacy.md` and `terms.md`, and a plugin `README.md` the Claude directory shows.
+- Add the icon (`plugin/assets/icon.png`, from `docs/brand/icon.svg`, picked by Iven), `LICENSE`, public `docs/legal/privacy.md` and `terms.md`, and a plugin `README.md` the Claude directory shows.
 - `npm run plugin:build` writes ready-to-upload zips: `askrighto-claude-plugin.zip` (Claude upload and directory), `askrighto-chatgpt-plugin.zip` (ChatGPT portal and manual add) and `askrighto-gemini-extension.zip` (Gemini CLI extension), plus a Gemini Connected Apps sheet. A check script unzips each and verifies layout, limits and no internal route or skill.
 - A release workflow builds the zips on `v*` tags and attaches them to the GitHub release.
 - Docs: end-user install guide, a listing kit (reviewer guide, test cases, form answers), Gemini findings, and a list of steps only Iven can do.

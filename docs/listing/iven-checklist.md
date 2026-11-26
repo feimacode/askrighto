@@ -5,7 +5,7 @@ Written 26 Nov 2026 for change `add-plugin-listing-readiness`.
 **Decide**
 1. Confirm the MIT licence for code and skills (`LICENSE`). Data licences are separate.
 2. Give a monitored support email (privacy, terms and the forms ask for one; GitHub issues is the stand-in). Confirm the governing law line in `docs/legal/terms.md` and read `docs/legal/privacy.md` against what the deployed server does (log retention in particular).
-3. Replace `plugin/assets/icon.png` (placeholder "AR" square, 512 px) with real branding before the first submission: Claude keeps the first icon it sees. Also check the OpenAI category (`Productivity` chosen).
+3. Icon chosen (option A, "Righto bubble", Iven 26 Nov 2026): `plugin/assets/icon.png`, source `docs/brand/icon.svg`. Claude keeps the first icon it sees, so submit with this one. Also check the OpenAI category (`Productivity` chosen).
 4. Say whether Gemini CLI is worth a separate public repo for the extension gallery.
 
 **Accounts and forms**

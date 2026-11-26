@@ -8,7 +8,7 @@
 - **ChatGPT zip is the remote-MCP listing variant** (`plugin.json`, `mcp.json`, `skills/`, `assets/`). No `.app.json`, no hooks (the portal cannot take them).
 - **Gemini:** Gemini CLI extension zip (`gemini-extension.json`, `GEMINI.md`, `skills/`, `mcpServers.askrighto.httpUrl`). The Gemini app has no skills or zip route; it takes an MCP URL under Settings > Connected Apps > Add a custom app (US, English, 18+ only), and developers apply to the Connected Apps preview. Gemini CLI docs carry a notice that it was replaced by Antigravity CLI on 18 Jun 2026, so the extension is best effort.
 - **Validation in CI** uses our own zip checker (no Claude CLI in CI). Locally, `claude plugin validate --profile directory` is part of the documented check.
-- **Icon:** generated placeholder PNG (512 px) committed; the Claude portal keeps the first icon it sees, so Iven should replace it before the first submission.
+- **Icon:** option A, "Righto bubble" (a speech bubble with a tick, orange `#E8590C`), picked by Iven on 26 Nov 2026. Source `docs/brand/icon.svg`, exported as a full-bleed 1024 px square PNG (hosts round the corners). The Claude portal keeps the first icon it sees.
 - **Licence:** MIT proposed to match the reference repo; Iven to confirm. Data licences differ and are recorded in `docs/data-rights.md`.
 - **Support contact:** GitHub issues until Iven gives an email.
 
