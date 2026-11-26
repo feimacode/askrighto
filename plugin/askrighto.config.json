@@ -2,17 +2,127 @@
   "name": "askrighto",
   "version": "0.1.0",
   "description": "Ask Righto answers everyday Australian questions from public data. These skills help the assistant use its tools: quote only tool results, show the source and date, and never guess.",
-  "homepage": "https://askrighto.com.au",
+  "homepage": "https://github.com/feimacode/askrighto",
   "repository": "https://github.com/feimacode/askrighto",
-  "keywords": ["australia", "energy", "public-data"],
+  "keywords": [
+    "australia",
+    "energy",
+    "electricity",
+    "gas",
+    "public-data",
+    "compare"
+  ],
   "serverUrl": "https://askrighto.feimacode.com/mcp",
   "serverName": "askrighto",
-  "publicSkills": ["ask-righto-grounding", "energy-start", "energy-current-plan", "energy-readings", "energy-compare", "energy-plan-rates"],
+  "publicSkills": [
+    "ask-righto-grounding",
+    "energy-start",
+    "energy-current-plan",
+    "energy-readings",
+    "energy-compare",
+    "energy-plan-rates"
+  ],
   "marketplace": {
     "name": "askrighto",
     "description": "Ask Righto skills: grounded answers from public Australian data.",
     "owner": "Ask Righto",
     "pluginDescription": "Skills and the Ask Righto server for grounded answers from public Australian data.",
     "internalDescription": "Course, health cover and home loan skills for testers while those tools are internal-only. Not for public listing. Add the internal connector by hand: its address holds a secret token."
+  },
+  "displayName": "Ask Righto",
+  "author": {
+    "name": "feimacode",
+    "url": "https://github.com/feimacode"
+  },
+  "license": "MIT",
+  "icon": "assets/icon.png",
+  "links": {
+    "documentation": "https://github.com/feimacode/askrighto/blob/main/docs/install-plugin.md",
+    "privacy": "https://github.com/feimacode/askrighto/blob/main/docs/legal/privacy.md",
+    "terms": "https://github.com/feimacode/askrighto/blob/main/docs/legal/terms.md",
+    "support": "https://github.com/feimacode/askrighto/issues"
+  },
+  "geminiExtensionName": "askrighto",
+  "openai": {
+    "shortDescription": "Compare Aussie energy plans",
+    "longDescription": "Ask Righto answers everyday Australian questions from public data, starting with electricity and gas plans. Give it your postcode and a recent bill (or interval readings) and it lists published plans from retailers' Consumer Data Right product data, estimates yearly cost from the published rates, and shows the source link and as-of date with every figure. It compares plans; it does not recommend one. No account, nothing stored, no ads. Covers the eastern and southern states on the National Electricity Market (NSW, ACT, QLD, VIC, SA, TAS); WA and NT are not covered.",
+    "category": "Productivity",
+    "capabilities": [
+      "Read"
+    ],
+    "brandColor": "#E8590C",
+    "defaultPrompt": [
+      "Compare electricity plans for a home in postcode 3000",
+      "Help me read my energy bill and find my current plan",
+      "I have smart meter readings: which plan would have cost less?"
+    ],
+    "onboardingSkill": "./skills/energy-start/SKILL.md",
+    "releaseNotes": "First release: compare Australian electricity and gas plans from public retailer data, with source and date on every figure. No sign-in, nothing stored.",
+    "review": {
+      "commerce": false,
+      "commerce_description": "Ask Righto is free. It sells nothing, takes no payments and carries no ads or sponsored placement.",
+      "test_cases": {
+        "positive": [
+          {
+            "description": "List plans for a postcode",
+            "prompt": "Which electricity plans are available for a home in postcode 3000 in Melbourne?",
+            "tools_triggered": "search_energy_plans",
+            "expected_behavior": "Asks home or business first if not stated, then lists published residential plans with retailer, source link and as-of date. Does not name a best plan."
+          },
+          {
+            "description": "Compare plans with typical usage",
+            "prompt": "I have no bill handy. Compare electricity plans for a home of 3 people in postcode 2000, typical usage is fine.",
+            "tools_triggered": "search_energy_plans, compare_energy_plans",
+            "expected_behavior": "Says the figures use typical usage for a household of 3 in that zone (an AER benchmark), lists estimated yearly costs with source and date, and does not recommend a plan."
+          },
+          {
+            "description": "Compare plans from a bill",
+            "prompt": "My last bill was 1,250 kWh over 92 days in postcode 3000 on the CitiPower network. What would other plans cost?",
+            "tools_triggered": "search_energy_plans, compare_energy_plans",
+            "expected_behavior": "Uses the stated kWh and days, shows cost estimates per plan with source and as-of date, labels approximate time-of-use estimates, and does not call any plan best."
+          },
+          {
+            "description": "Find the current plan from an invoice",
+            "prompt": "Here are the rates on my bill: supply 105.5c/day, usage 31.2c/kWh. Which plan am I on? Retailer AGL, postcode 3000.",
+            "tools_triggered": "list_current_plan_options",
+            "expected_behavior": "Lists only options that agree with the figures and lets the user pick; never chooses for them."
+          },
+          {
+            "description": "Show details of one plan",
+            "prompt": "Show me the rates and fees for the plan you just listed first.",
+            "tools_triggered": "get_energy_plan",
+            "expected_behavior": "Returns that plan's published rates, fees, source link and as-of date."
+          }
+        ],
+        "negative": [
+          {
+            "description": "General knowledge. ChatGPT answers directly; Ask Righto is not called.",
+            "prompt": "What is the capital of Australia?"
+          },
+          {
+            "description": "Unrelated coding request.",
+            "prompt": "Write a Python function that reverses a list."
+          },
+          {
+            "description": "Insurance recommendation outside scope; no tool should be called.",
+            "prompt": "Which car insurance should I buy?"
+          }
+        ]
+      }
+    }
+  },
+  "gemini": {
+    "appDescription": "Compare Australian electricity and gas plans using public retailer data, with the source and date on every figure.",
+    "capabilities": [
+      "Find published energy plans by postcode",
+      "Estimate yearly cost from a bill or smart meter readings",
+      "Show each plan's rates, fees, source link and date"
+    ],
+    "examplePrompts": [
+      "@Ask Righto compare electricity plans for postcode 3000",
+      "@Ask Righto which plan am I on? Here are the rates from my bill",
+      "@Ask Righto I have smart meter readings, what would other plans have cost?"
+    ],
+    "context": "Ask Righto answers Australian questions from public data. Follow the skills in this extension. State figures only as a tool returned them, with the source link and as-of date. Never recommend a plan. Ask whether the plans are for a home or a business first, and never send a name, address, account number or NMI to a tool."
   }
 }

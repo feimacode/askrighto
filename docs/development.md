@@ -22,7 +22,7 @@ HTTP endpoint (`/mcp`).
 
 Settings (all optional): `ASKRIGHTO_PROFILE_KEY` (signs readings profiles; set it in production, see [deploying.md](deploying.md)), `PORT`, `HOST`, `ASKRIGHTO_PUBLIC_URL`, `ASKRIGHTO_BODY_LIMIT` (default 2mb),
 `ASKRIGHTO_RATE_LIMIT` (requests per window per client, default 120), `ASKRIGHTO_RATE_WINDOW_MS` (default 60000),
-`ASKRIGHTO_ALLOWED_HOSTS` (comma-separated host names, e.g. `askrighto.com.au`), `ASKRIGHTO_TRUST_PROXY`,
+`ASKRIGHTO_ALLOWED_HOSTS` (comma-separated host names, e.g. `askrighto.feimacode.com`), `ASKRIGHTO_TRUST_PROXY`,
 `ASKRIGHTO_CLIENT_IP_HEADER` (e.g. `cf-connecting-ip`), `ASKRIGHTO_LOG=off`. The access log never records tool arguments.
 
 Try asking (see [docs/energy-estimates.md](energy-estimates.md)): "What energy plans are available at 3000?",

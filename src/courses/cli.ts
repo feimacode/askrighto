@@ -112,7 +112,7 @@ export async function cliCoursesCheckPages(): Promise<void> {
       const r = await fetch(u, {
         redirect: "follow",
         headers: {
-          "user-agent": "AskRighto-link-check/0.1 (+https://askrighto.com.au)",
+          "user-agent": "AskRighto-link-check/0.1 (+https://askrighto.feimacode.com)",
         },
       });
       console.log(

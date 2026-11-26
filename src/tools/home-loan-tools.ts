@@ -489,7 +489,7 @@ export const calculateHomeLoanRepayments = defineTool({
         data,
         source: product
           ? { ...BANK_SOURCE }
-          : { name: "Ask Righto repayment arithmetic on figures you entered", url: "https://askrighto.com.au", licence: "Not applicable: calculated from your inputs" },
+          : { name: "Ask Righto repayment arithmetic on figures you entered", url: "https://askrighto.feimacode.com", licence: "Not applicable: calculated from your inputs" },
         asOf: product ? product.verifiedAt : new Date(),
       });
     }),
