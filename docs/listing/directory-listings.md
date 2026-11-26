@@ -2,6 +2,8 @@
 
 Material and steps for the Claude and ChatGPT submissions (Gemini: [gemini.md](gemini.md)). Patterned on `feimacode/open-design-agent-kit` (`docs/listing/directory-listings.md`). Requirements were read from the official pages on 26 Nov 2026; links are in the last section. Change `add-plugin-listing-readiness`.
 
+After the first listing, every release follows [docs/releasing.md](../releasing.md), whose step 5 says which listing to update.
+
 ## Shared facts
 
 | Field | Value |
@@ -16,7 +18,7 @@ Material and steps for the Claude and ChatGPT submissions (Gemini: [gemini.md](g
 | Licence | MIT (code and skills); data stays under its publishers' terms |
 | Data | Consumer Data Right energy plan data via the AER, AER benchmarks; no personal or health data |
 | Auth | None (public, read-only, stateless) |
-| Public tools | Energy only: `search_energy_plans`, `get_energy_plan`, `compare_energy_plans`, `list_current_plan_options`, `summarise_interval_readings`, `get_readings_upload_link`, `list_data_sources`. Courses, health cover and home loans stay on the internal route and are not in any package |
+| Public tools | Energy only, as listed in `publicTools` in `plugin/askrighto.config.json` (nine tools; `npm run release:smoke` checks the live list against it). Courses, health cover and home loans stay on the internal route and are not in any package |
 | Minors | General audience; asks for no personal details from anyone |
 | Ads, commerce | None |
 

@@ -2,12 +2,11 @@ name: Image
 
 # Builds the hosted-server image and pushes it to GHCR:
 #   push to main → ghcr.io/feimacode/askrighto:latest and :sha-<short sha>
-#   tag v1.2.3   → :1.2.3
+#   versioned images (:1.2.3, :stable) are built by release.yml
 #   manual run   → :sha-<short sha>
 on:
   push:
     branches: [main]
-    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
@@ -30,7 +29,6 @@ jobs:
         with:
           images: ghcr.io/feimacode/askrighto
           tags: |
-            type=semver,pattern={{version}}
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha,prefix=sha-,enable=${{ !startsWith(github.ref, 'refs/tags/v') }}
           labels: |

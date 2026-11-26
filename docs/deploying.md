@@ -38,6 +38,8 @@ file and the commands `migrate` and `sync-energy`.
 
 After the first load the daily refresh runs inside the server at 02:30 Australia/Sydney.
 
+Releases (version, tag, image, zips, smoke check, listing updates) are in [releasing.md](releasing.md).
+
 ## Roll back
 
 Stateless server, so redeploy an older tag:

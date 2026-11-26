@@ -1,0 +1,152 @@
+name: Release
+
+# Builds a release from a version tag (see docs/releasing.md):
+#   push tag v1.2.3 or v1.2.3-beta.1      → validate, check, image, plugin zips, GitHub release
+#   manual run with a version (on main)   → the same, and the release step creates the tag
+# Publishing is separate and manual: deploying the image (feima-infra) and updating the directory
+# listings. Pattern from feimacode/open-design-agent-kit (release.yml).
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, without the v (for example 0.2.0 or 0.2.0-beta.1)"
+        required: true
+        type: string
+      dry_run:
+        description: "Build and check only: no image push, no GitHub release"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      prerelease: ${{ steps.v.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        name: Check the version matches every file and the changelog
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            [ "${{ github.ref }}" = "refs/heads/main" ] || { echo "Run it on main"; exit 1; }
+            VERSION="$INPUT_VERSION"
+          else
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          fi
+          node --input-type=module -e "
+            import { VERSION_PATTERN, readVersions, changelogProblems } from './scripts/bump-version.mjs';
+            import { readFileSync } from 'node:fs';
+            const v = process.argv[1];
+            const bad = [];
+            if (!VERSION_PATTERN.test(v)) bad.push('invalid version ' + v);
+            for (const f of readVersions()) if (f.version !== v) bad.push(f.file + ' is ' + f.version + ', not ' + v);
+            bad.push(...changelogProblems(readFileSync('CHANGELOG.md', 'utf8'), v));
+            if (bad.length) { console.error(bad.join('\n')); process.exit(1); }
+          " "$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [[ "$VERSION" == *-* ]]; then echo "prerelease=true" >> "$GITHUB_OUTPUT"; else echo "prerelease=false" >> "$GITHUB_OUTPUT"; fi
+
+  build:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run guidance:check
+      - run: npm run plugin:check
+      - run: npm run release:check
+      - run: npm run plugin:build
+      - name: Name the zips with the version
+        run: |
+          cd dist/plugins
+          V="${{ needs.validate.outputs.version }}"
+          for f in askrighto-*.zip; do mv "$f" "${f%.zip}-$V.zip"; done
+          sha256sum askrighto-*.zip > SHA256SUMS
+          cat SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-files
+          path: |
+            dist/plugins/askrighto-*.zip
+            dist/plugins/SHA256SUMS
+            dist/plugins/gemini/registration.md
+
+  image:
+    needs: [validate, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: askrighto:release
+          cache-from: type=gha
+      - name: Smoke test (no database; liveness must report the version)
+        run: |
+          docker run -d --name askrighto -p 8080:8080 askrighto:release
+          for i in $(seq 1 20); do curl -fs localhost:8080/healthz && break; sleep 1; done
+          curl -fs localhost:8080/healthz | grep -q '"version":"${{ needs.validate.outputs.version }}"'
+      - name: Push
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          V="${{ needs.validate.outputs.version }}"
+          docker tag askrighto:release ghcr.io/feimacode/askrighto:$V
+          docker push ghcr.io/feimacode/askrighto:$V
+          if [ "${{ needs.validate.outputs.prerelease }}" = "false" ]; then
+            docker tag askrighto:release ghcr.io/feimacode/askrighto:stable
+            docker push ghcr.io/feimacode/askrighto:stable
+          fi
+
+  release:
+    needs: [validate, build, image]
+    if: ${{ github.event.inputs.dry_run != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-files
+          path: release
+      - id: notes
+        name: Changelog section as release notes
+        run: |
+          node --input-type=module -e "
+            import { changelogSection } from './scripts/bump-version.mjs';
+            import { readFileSync, writeFileSync } from 'node:fs';
+            writeFileSync('notes.md', changelogSection(readFileSync('CHANGELOG.md', 'utf8'), process.argv[1]) + '\n');
+          " "${{ needs.validate.outputs.version }}"
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.validate.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          name: v${{ needs.validate.outputs.version }}
+          prerelease: ${{ needs.validate.outputs.prerelease == 'true' }}
+          body_path: notes.md
+          files: |
+            release/askrighto-*.zip
+            release/SHA256SUMS
+            release/gemini/registration.md
