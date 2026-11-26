@@ -127,9 +127,10 @@ export function geminiContext(c = CONFIG) {
 }
 
 /**
- * ChatGPT `mcp.json`: streamable-http, public data so no sign-in. The `auth` placement under
- * `extensions["com.openai"]` follows OpenAI's plugin docs but is unverified against the portal
- * (see tasks 3.2 of add-plugin-packaging).
+ * ChatGPT `mcp.json`: one streamable-http server, public data so no sign-in. No
+ * `extensions["com.openai"].auth` block: with it, ChatGPT desktop installed an uploaded zip with the
+ * skills but without the server (Iven, 27 Nov 2026); without it the server is added (same shape as
+ * open-design-agent-kit's hosted zip). Auth "none" is chosen in the portal instead.
  */
 export function chatgptMcp(c = CONFIG) {
   return {
@@ -138,7 +139,6 @@ export function chatgptMcp(c = CONFIG) {
       [c.serverName]: {
         type: "streamable-http",
         url: c.serverUrl,
-        extensions: { "com.openai": { auth: { type: "none" } } },
       },
     },
   };

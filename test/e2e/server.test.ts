@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { spawn, type ChildProcess } from "node:child_process";
 import { resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -7,6 +8,9 @@ import {
 } from "@modelcontextprotocol/client";
 import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 
+const PKG_VERSION: string = JSON.parse(
+  readFileSync(resolve(import.meta.dirname, "../../package.json"), "utf8"),
+).version;
 const BUNDLE = resolve(import.meta.dirname, "../../dist/askrighto.js");
 const PORT = String(4100 + Math.floor(Math.random() * 500));
 const URL_BASE = `http://127.0.0.1:${PORT}`;
@@ -53,7 +57,7 @@ describe("HTTP server", () => {
   it("answers /healthz with ok and the version, without any header", async () => {
     const res = await fetch(`${URL_BASE}/healthz`);
     expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({ ok: true, version: "0.1.0" });
+    expect(await res.json()).toMatchObject({ ok: true, version: PKG_VERSION });
   });
 
   it("answers /readyz with 200 when no checks are registered", async () => {
@@ -308,7 +312,9 @@ describe("courses loaded but internal-only", () => {
     );
     const names = (await client.listTools()).tools.map((t) => t.name);
     expect(names.some((n) => /course|vce|early_entry/.test(n))).toBe(false);
-    expect(client.getInstructions()).not.toMatch(/index_only|search_domestic_courses/);
+    expect(client.getInstructions()).not.toMatch(
+      /index_only|search_domestic_courses/,
+    );
     const res = await client
       .callTool({ name: "search_domestic_courses", arguments: {} })
       .catch((e) => e);

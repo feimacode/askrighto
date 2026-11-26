@@ -15,6 +15,9 @@ const run = smoke as (
 ) => Promise<string[]>;
 
 let proc: ChildProcess;
+const PKG_VERSION: string = JSON.parse(
+  readFileSync(resolve(import.meta.dirname, "../../package.json"), "utf8"),
+).version;
 const PUBLIC: string[] = JSON.parse(
   readFileSync(
     resolve(import.meta.dirname, "../../plugin/askrighto.config.json"),
@@ -42,13 +45,15 @@ describe.skipIf(!existsSync(BUNDLE))("release smoke check", () => {
   afterAll(() => proc?.kill());
 
   it("passes when the server lists exactly the configured public tools", async () => {
-    expect(await run(URL_BASE, "0.1.0", PUBLIC)).toEqual([]);
+    expect(await run(URL_BASE, PKG_VERSION, PUBLIC)).toEqual([]);
   });
 
   it("names a wrong version, a missing tool and an extra one", async () => {
     const rest = PUBLIC.filter((t) => t !== "list_data_sources");
     const problems = await run(URL_BASE, "9.9.9", [...rest, "not_a_tool"]);
-    expect(problems.join("\n")).toMatch(/version 0\.1\.0, expected 9\.9\.9/);
+    expect(problems.join("\n")).toContain(
+      `version ${PKG_VERSION}, expected 9.9.9`,
+    );
     expect(problems.join("\n")).toMatch(/missing not_a_tool/);
     expect(problems.join("\n")).toMatch(
       /lists list_data_sources, which is not public/,

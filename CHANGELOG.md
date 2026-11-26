@@ -6,6 +6,14 @@ One section per release, newest first. The release notes on GitHub are this sect
 - `rescan`: a public tool was added, removed or changed its schema or annotations. Rescan or sync tools in each directory.
 - `resubmit`: listing text, skills, icon or manifest changed. Upload the new ChatGPT zip and update the other listings.
 
+## [0.1.1]
+
+**Listing impact:** none (not yet listed; the ChatGPT zip changes)
+
+- Fix: the ChatGPT zip now brings the Ask Righto server with it. Its `mcp.json` no longer carries an `extensions.com.openai.auth` block; with that block ChatGPT desktop installed the six skills but not the server, so the tools were missing.
+- Fix: `release:bump` tags without a commit when every file already has the version, commits only the version files, and refuses an existing tag.
+- Docs: where each ChatGPT install route works (uploaded zip: desktop app only; custom MCP server: web).
+
 ## [0.1.0]
 
 **Listing impact:** resubmit (first listing)

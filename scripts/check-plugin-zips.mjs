@@ -101,7 +101,7 @@ function checkChatgpt(name, root, files) {
   const s = servers[0];
   if (s.type !== "streamable-http" || s.url !== CONFIG.serverUrl) bad(name, "mcp.json must be streamable-http at the server URL");
   if (s.headers && Object.keys(s.headers).length) bad(name, "public submission rejects server headers");
-  if (s.extensions?.["com.openai"]?.auth?.type !== "none") bad(name, "auth type must be none");
+  if (s.extensions) bad(name, "mcp.json server must have no extensions block: ChatGPT then installs the zip without the server");
   common(name, root, files);
 }
 
