@@ -97,8 +97,7 @@ jobs:
         run: |
           node dist/askrighto.js migrate
           load() { echo "::group::$*"; node dist/askrighto.js "$@" || echo "::warning::'$*' failed; its prompts will see no data"; echo "::endgroup::"; }
-          load courses:load
-          load vce:load
+          load courses:load --cricos test/fixtures/cricos/real-layout/courses.csv --course-locations test/fixtures/cricos/real-layout/course-locations.csv
           load intl:load --cricos test/fixtures/cricos/intl-sample.csv
           load health:load --dir test/fixtures/health --source-date 2026-11-03 --source-name "Test fixtures"
           echo "::group::energy fixtures"; node scripts/evals/load-energy-fixtures.mjs || echo "::warning::energy fixtures failed; the energy prompts will see less data"; echo "::endgroup::"
