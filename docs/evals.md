@@ -1,6 +1,6 @@
 # Evals
 
-The prompt sets in `docs/use-case-comparison/`, `docs/energy-evaluation/` (energy, `E01`-`E31`) (domestic `D01`-`D20`, international `I01`-`I20`, health cover `H01`-`H20`) and `docs/home-loan-evaluation/` (home loans, `H01`-`H30`) can be run without a person pasting each one into a host. A small runner gives each prompt to a model over an OpenAI-compatible chat API with the Ask Righto tools as function tools, then scores the answer.
+The prompt sets in `docs/use-case-comparison/`, `docs/energy-evaluation/` (energy, `E01`-`E31`) (domestic `D01`-`D20`, international `I01`-`I20`, health cover `H01`-`H20`) and `docs/home-loan-evaluation/` (home loans, `H01`-`H31`) can be run without a person pasting each one into a host. A small runner gives each prompt to a model over an OpenAI-compatible chat API with the Ask Righto tools as function tools, then scores the answer.
 
 This is **not** Claude, ChatGPT or Gemini. It checks the tools, their instructions and the grounding rules behind one model, the same way each time, so it can be repeated before a change and after it. The hand protocol (`use-case-comparison/protocol.md`, the answer-review skill) stays the way to see a real host, including browsing assistants.
 
@@ -34,7 +34,7 @@ Set once under Settings → Secrets and variables → Actions:
 
 Inputs: `set` (default `domestic,international,health`), `only` (e.g. `D01,H07`), `repeat` (default 1) and a `label`. The report is on the run's summary page; the report and every answer (with its tool results) are uploaded as an artifact for 30 days.
 
-Not in the default sets: **energy** (named with `--set energy`; it runs on invented fixture plans and benchmark numbers, so it checks behaviour, links, notices and wording, not real prices) and **home loans** (`H01`-`H30`, version 2). Home loans need no database: the proxy tools relay each lender's live Consumer Data Right answer, so the job only needs outbound internet to the CDR Register and the lenders. Answers are real, change over time and spend requests on lenders' servers, so run the set by hand and keep `repeat` low. A lender being down shows as "data unavailable", which is the behaviour the set scores.
+Not in the default sets: **energy** (named with `--set energy`; it runs on invented fixture plans and benchmark numbers, so it checks behaviour, links, notices and wording, not real prices) and **home loans** (`H01`-`H31`, version 2). Home loans need no database: the proxy tools relay each lender's live Consumer Data Right answer, so the job only needs outbound internet to the CDR Register and the lenders. Answers are real, change over time and spend requests on lenders' servers, so run the set by hand and keep `repeat` low. For steady, repeatable runs use `--mock-cdr` (the default `mock_cdr` input in the Actions workflow): the server then answers the Register and lenders from invented fixtures built into it (`src/homeloans/mock-cdr.ts`, only when `ASKRIGHTO_CDR_MOCK=1` and not in production), so there are no requests to lenders and no real prices; it checks behaviour and wording only. A lender being down shows as "data unavailable", which is the behaviour the set scores.
 
 ## Run it locally
 

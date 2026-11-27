@@ -5,6 +5,7 @@
  */
 import { RetailerLimiter } from "../cdr/limiter.js";
 import { VERSION } from "../version.js";
+import { mockCdrEnabled, mockCdrFetch } from "./mock-cdr.js";
 
 export const REGISTER_BRANDS_URL =
   "https://api.cdr.gov.au/cdr-register/v1/banking/data-holders/brands/summary";
@@ -237,7 +238,7 @@ export class CdrProxy {
 }
 
 let shared: CdrProxy | undefined;
-export const getCdrProxy = (): CdrProxy => (shared ??= new CdrProxy());
+export const getCdrProxy = (): CdrProxy => (shared ??= new CdrProxy(mockCdrEnabled() ? { fetchImpl: mockCdrFetch } : {}));
 /** For tests: install a proxy with a mock fetch. */
 export function setCdrProxy(p: CdrProxy | undefined): void {
   shared = p;

@@ -225,3 +225,45 @@ describe("proxy tools", () => {
     expect(r.text).toMatch(/home loan page/);
   });
 });
+
+describe("mock lender mode", () => {
+  it("serves invented lenders through the real proxy, including the version fallback and a failing lender", async () => {
+    const { mockCdrFetch, mockCdrEnabled } = await import("../../src/homeloans/mock-cdr.js");
+    const proxy = new CdrProxy({ fetchImpl: mockCdrFetch, limiter: new RetailerLimiter({ rps: 1000, maxInFlight: 8 }) });
+    const brands = await proxy.brands();
+    expect(brands.map((b) => b.id)).toContain("mock-westpac");
+    const westpac = resolveLender(brands, "westpac");
+    if (!westpac.ok) throw new Error("westpac not resolved");
+    const list = await proxy.list(westpac.brand, 1, 5);
+    expect(list.xVersion).toBe(4); // refuses 5, accepts 4
+    const detail = await proxy.detail(westpac.brand, "mock-westpac-var");
+    expect((detail.body as { data: { lendingRates: { rate: string }[] } }).data.lendingRates[0]!.rate).toBe("0.0599");
+    expect(resolveLender(brands, "beyond").ok).toBe(false); // two Beyond Bank brands
+    const down = resolveLender(brands, "unavailable");
+    if (!down.ok) throw new Error("unavailable lender not resolved");
+    await expect(proxy.list(down.brand, 1, 5)).rejects.toMatchObject({ kind: "bad_response", status: 503 });
+    expect(mockCdrEnabled({ ASKRIGHTO_CDR_MOCK: "1", NODE_ENV: "test" })).toBe(true);
+    expect(mockCdrEnabled({ ASKRIGHTO_CDR_MOCK: "1", NODE_ENV: "production" })).toBe(false);
+    expect(mockCdrEnabled({})).toBe(false);
+  });
+  it("the tools use the mock when ASKRIGHTO_CDR_MOCK=1, with no network", async () => {
+    vi.stubEnv("ASKRIGHTO_CDR_MOCK", "1");
+    vi.stubEnv("NODE_ENV", "test");
+    setCdrProxy(undefined);
+    const set = routeSet(ALL_VERTICALS, ["home-loans"]);
+    const server = createServer(set.tools, { route: "internal", instructions: set.instructions });
+    const client = new Client({ name: "t", version: "0" });
+    const [a, b] = InMemoryTransport.createLinkedPair();
+    await Promise.all([server.connect(a), client.connect(b)]);
+    try {
+      const r = await call(client, "get_home_loan_products", { lender: "Westpac" });
+      expect(r.data.found).toBe(true);
+      expect(r.data.data.xVersionUsed).toBe(4);
+      const down = await call(client, "get_home_loan_products", { lender: "Unavailable Credit Union" });
+      expect(down.data.found).toBe(false);
+    } finally {
+      vi.unstubAllEnvs();
+      setCdrProxy(undefined);
+    }
+  });
+});

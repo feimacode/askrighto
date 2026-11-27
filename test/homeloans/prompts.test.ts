@@ -9,8 +9,8 @@ const known = new Set(routeSet(ALL_VERTICALS, ["home-loans"]).tools.map((t) => t
 const rows = loadSet("home-loans") as { id: string; expectedTools: string[]; checks: { kind: string; tool?: string; key?: string }[] }[];
 
 describe("home loan prompt set v2", () => {
-  it("numbers H01 to H30 without gaps", () => {
-    expect(rows.map((r) => r.id)).toEqual(Array.from({ length: 30 }, (_, i) => `H${String(i + 1).padStart(2, "0")}`));
+  it("numbers H01 to H31 without gaps", () => {
+    expect(rows.map((r) => r.id)).toEqual(Array.from({ length: 31 }, (_, i) => `H${String(i + 1).padStart(2, "0")}`));
   });
   it("names only registered tools, and none of the retired ones", () => {
     for (const r of rows) for (const t of r.expectedTools) expect(known.has(t), `${r.id}: ${t}`).toBe(true);
