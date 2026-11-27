@@ -1,0 +1,33 @@
+name: CDR live check
+
+# Reads the real CDR Register and three lenders through the home loan proxy (src/homeloans/proxy.ts) and checks that
+# a product list and one product's detail still come back with rates. About seven requests in all, paced by the proxy's
+# own per-host limiter. By hand only: it is not scheduled, because it calls lenders' servers (add-home-loan-proxy-evals).
+# Fails when a lender changes the versions it accepts or stops answering. No secrets and no database.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cdr-live-check
+  cancel-in-progress: false
+
+jobs:
+  live-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Read the Register and three lenders
+        run: npm run homeloans:live-check

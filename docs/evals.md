@@ -34,7 +34,17 @@ Set once under Settings → Secrets and variables → Actions:
 
 Inputs: `set` (default `domestic,international,health`), `only` (e.g. `D01,H07`), `repeat` (default 1) and a `label`. The report is on the run's summary page; the report and every answer (with its tool results) are uploaded as an artifact for 30 days.
 
-Not in the default sets: **energy** (named with `--set energy`; it runs on invented fixture plans and benchmark numbers, so it checks behaviour, links, notices and wording, not real prices) and **home loans**, which need live CDR payloads that the job does not load. `home-loans` can be named in `set`, but its answers will say the data is unavailable.
+Not in the default sets: **energy** (named with `--set energy`; it runs on invented fixture plans and benchmark numbers, so it checks behaviour, links, notices and wording, not real prices) and **home loans** (`--set home-loans`, version 2 of the prompts). The home loan prompts need no database and no loaded data: the proxy tools read the CDR Register and lenders live, so the job needs only outbound internet, and the answers carry real, changing lender figures. That makes a home loan run less repeatable than the others (a lender can change a rate or a version between runs); a failing row is first a reason to run the live check below.
+
+## Home loan proxy checks
+
+Three layers, from cheapest to most live:
+
+1. **Unit tests, in `npm test`** (`test/homeloans/proxy.test.ts`, with a mock lender): version fallback for list (5, 4, 3) and detail (7, 6, 5), only our own headers, only the two fixed product paths, unsafe base URIs dropped, size cap, unreachable lender and Register, a 200 that is not CDR data, clamped paging, no product cache, and a check that no lender response reaches any output stream and that the proxy module imports no file or database access. `test/homeloans/prompts.test.ts` checks the prompt set: H01 to H31 without gaps, registered tools only, refusals tool-free, `arg:` checks name real arguments.
+2. **Live check, by hand:** `npm run homeloans:live-check` (or Actions → CDR live check → Run workflow) reads the real Register and then one list and one detail from CommBank, Westpac and NAB, about seven requests, and fails if a list or detail stops returning rates or a lender stops accepting the versions the proxy tries. Set `CDR_LIVE_LENDERS` (comma-separated Register names) to try others. It is not scheduled, because it calls lenders' servers.
+3. **Prompt evals:** `npm run evals -- --set home-loans`, scored as above. Rates in lender JSON are fractions; `trace-numbers.mjs` accepts 0.0599 shown as 5.99 (the decimal point moved two places, exactly) and nothing else, so a rounded or invented rate is still flagged.
+
+What a mock lender cannot show (a lender that really answers 406 to every version, or is down) is covered by the unit tests only; a live run cannot force it.
 
 ## Run it locally
 
@@ -51,7 +61,7 @@ The runner starts `dist/askrighto.js` on a free port with the sets' verticals lo
 
 - Course prompts that name "Test University" run against the real VIC index in CI, where that provider does not exist; they score how the tools handle "not found", not the fixture answer.
 - No browsing assistant is involved, so index-only answers are scored on what the tools return.
-- Prompt rows with placeholders (home loan "product X") need a person to fill them in.
+- Home loan prompts name real lenders (CommBank, Westpac) that answered on 27 Nov 2026; a lender that leaves the Register or changes its products makes a row fail for a reason outside our tools.
 
 ## The energy set
 

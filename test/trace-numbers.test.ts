@@ -20,6 +20,13 @@ describe("traceNumbers", () => {
     expect(r.map((f) => f.raw)).toEqual(["250"]);
   });
 
+  it("accepts a published fraction shown as a percentage, exactly", () => {
+    const r = ["rate 0.0599 comparison 0.0612 floor 0.05 tiny 0.005"];
+    expect(trace({ toolResults: r, answer: "5.99% and 6.12%, floor 5%, tiny 0.5%." })).toEqual([]);
+    expect(trace({ toolResults: r, answer: "That is 6%." }).map((f) => f.raw)).toEqual(["6"]);
+    expect(trace({ toolResults: ["rate 1.5"], answer: "150" }).map((f) => f.raw)).toEqual(["150"]);
+  });
+
   it("flags rounded figures", () => {
     expect(trace({ toolResults: ["rank 94.55"], answer: "rank 95" }).map((f) => f.raw)).toEqual(["95"]);
   });

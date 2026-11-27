@@ -15,3 +15,11 @@ Take at least three independent worked examples (a lender calculator or publishe
 - No live lender payload has been read; early coverage numbers may reflect data shape problems, not the product.
 - A 24-prompt set gives direction, not statistics.
 - Browsing assistants on lender pages are untested.
+
+## Proxy checks (version 2, `add-home-loan-proxy-evals`)
+
+Before the hand run in a host, run these; both need no database.
+
+1. `npm test` (mock-lender proxy tests and the prompt-set tests) and `npm run homeloans:live-check` (the real Register and three lenders). Keep the output.
+2. `npm run evals -- --set home-loans --repeat 3`, or Actions → Evals with `set` = `home-loans`. Mechanical scoring covers tools called, untraced figures and the row checks; the "A grounded answer must" column is still ticked by a person. Home loan data is live, so note the date and re-run a failing row once before reading anything into it.
+3. In the hand run, H16 to H23 and H30 run three times; H25 and H27 need a person to confirm the answer says how much of the list was read.

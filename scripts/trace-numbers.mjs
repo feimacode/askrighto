@@ -21,9 +21,22 @@ function figures(text, { skipListMarkers = false } = {}) {
   return out;
 }
 
+/**
+ * A fraction in a tool result (lenders publish rates as 0.0599) may be shown as a percentage (5.99). Done on the
+ * digits, not with floats, so it is exact: the decimal point moves two places. Only `0.` values with up to six decimals.
+ */
+function asPercent(raw) {
+  const m = /^0\.(\d{1,6})$/.exec(raw);
+  if (!m) return undefined;
+  const d = m[1].padEnd(2, "0");
+  return canon(`${d.slice(0, 2).replace(/^0+(?=\d)/, "")}.${d.slice(2) || "0"}`);
+}
+
 /** Returns the figures in `answer` that are absent from the prompt and every tool result. */
 export function traceNumbers({ prompt = "", toolResults = [], answer = "" }) {
-  const known = new Set([...figures(prompt), ...toolResults.flatMap((t) => figures(t))].map((f) => f.value));
+  const fromResults = toolResults.flatMap((t) => figures(t));
+  const percents = fromResults.map((f) => asPercent(f.raw)).filter(Boolean);
+  const known = new Set([...figures(prompt), ...fromResults].map((f) => f.value).concat(percents));
   return figures(answer, { skipListMarkers: true }).filter((f) => !known.has(f.value));
 }
 

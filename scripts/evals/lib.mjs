@@ -11,7 +11,7 @@ export const SETS = {
   domestic: { file: "docs/use-case-comparison/prompts.md", idPattern: /^D\d+$/, verticals: ["courses-domestic"] },
   international: { file: "docs/use-case-comparison/prompts.md", idPattern: /^I\d+$/, verticals: ["cricos"] },
   health: { file: "docs/use-case-comparison/health-prompts.md", idPattern: /^H\d+$/, verticals: ["health-cover"] },
-  // Needs lender data from the CDR sync, which CI does not load; run it where that data exists.
+  // Reads lenders live through the proxy tools (add-cdr-home-loan-proxy): no database, but outbound internet is needed.
   "home-loans": { file: "docs/home-loan-evaluation/prompts.md", idPattern: /^H\d+$/, verticals: ["home-loans"] },
   // Runs against synthetic plan fixtures and the synthetic benchmark file (scripts/evals/load-energy-fixtures.mjs).
   energy: { file: "docs/energy-evaluation/prompts.md", idPattern: /^E\d+$/, verticals: ["energy"] },
