@@ -4,9 +4,11 @@ Since 27 Nov 2026 (`switch-to-index-only`) Ask Righto stores no home loan data: 
 
 What exists: `get_cdr_banking_guide` (links to the CDR Register and standards, product endpoints, version headers, object structure, quirks, wording rules; content in `src/homeloans/guide.ts`) and `calculate_home_loan_repayments` (arithmetic on a rate the user or assistant gives, no data). The assistant fetches from the lenders and quotes each figure with lender, link and time read.
 
-## Feasibility risk
+## Feasibility risk, tested 27 Nov 2026 (task 1.1, FengsPC, curl, CommBank, NAB, Westpac)
 
-CDR product endpoints need an `x-v` header. A host whose fetch tool cannot send headers cannot read them; the skill then gives the lender's own page. Task 1.1 of the change tests Claude, ChatGPT and Gemini. If it fails everywhere the options are a header-adding pass-through endpoint on our server (fetches and returns, stores nothing; more legal surface) or dropping home loans from those hosts. Not built.
+A plain URL fetch does not work. With no `x-v` header all three lenders answer HTTP 400 (`Header/Missing`, no products), with a normal or browser-like User-Agent alike; no bot check was seen. With `x-v: 5` the product list returns 200 for all three; CommBank and Westpac answer 406 to 4 and 3, NAB accepts 4 or 5. Product detail returns 200 at `x-v: 7` for all three and 400 without a header. CommBank and Westpac name their current version in the error's `x-v` response header; NAB sends none. The Register brands API path (`https://api.cdr.gov.au/cdr-register/v1/banking/data-holders/brands/summary` with `x-v: 2`) returned 200 with `publicBaseUri` for each brand.
+
+So an assistant must be able to send custom headers (a code sandbox, or a fetch tool that allows them). Not yet tested: whether Claude, ChatGPT and Gemini can do so. If a host cannot, the skill gives the lender's own page. Fallbacks if no host can: a header-adding pass-through endpoint on our server (fetches and returns, stores nothing; more legal surface) or dropping home loans from those hosts. Neither is built.
 
 ## Research notes
 

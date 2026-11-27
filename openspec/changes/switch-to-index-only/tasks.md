@@ -1,7 +1,7 @@
 # Tasks
 
 ## 1. Check feasibility first
-- [ ] 1.1 On Iven's WSL and in Claude, ChatGPT and Gemini, test whether an agent can fetch a lender's CDR product list with the `x-v` header (three lenders); record results in `docs/home-loan-data.md` and decide the fallback with Iven
+- [ ] 1.1 (WSL part done 27 Nov 2026: header-less GET fails, x-v required; the three hosts are untested) On Iven's WSL and in Claude, ChatGPT and Gemini, test whether an agent can fetch a lender's CDR product list with the `x-v` header (three lenders); record results in `docs/home-loan-data.md` and decide the fallback with Iven
 - [ ] 1.2 Confirm the current VTAC ATAR scaling report, VCAA, VTAC dates and preferences links, and each provider's course search link; record checked dates
 - [ ] 1.3 Run a 20-course reading test through each host's browsing, with the new checklist, to see how often an agent reaches the facts (repeat of the 16 Nov test)
 
