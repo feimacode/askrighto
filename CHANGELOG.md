@@ -6,6 +6,13 @@ One section per release, newest first. The release notes on GitHub are this sect
 - `rescan`: a public tool was added, removed or changed its schema or annotations. Rescan or sync tools in each directory.
 - `resubmit`: listing text, skills, icon or manifest changed. Upload the new ChatGPT zip and update the other listings.
 
+## [0.2.0-beta.1]
+
+**Listing impact:** none (pre-release; the public energy tools and skills are unchanged)
+
+- Internal only: domestic courses and home loans are now index-only (no source data stored); added the pass-through CDR home loan proxy (`list_home_loan_lenders`, `get_home_loan_products`) on the internal route; home loan evals and a weekly live smoke check.
+- Internal only: dropped the retired VCE admissions load commands from CI.
+
 ## [0.1.1]
 
 **Listing impact:** none (not yet listed; the ChatGPT zip changes)
