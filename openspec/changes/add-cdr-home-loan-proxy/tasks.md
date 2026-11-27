@@ -5,5 +5,5 @@
 - [x] 3. Add rights entry `cdr-banking-live` and the release check
 - [x] 4. Update the guide, instructions and skill
 - [x] 5. Tests with a mock lender (versions, 406 fallback, unsafe URIs, ambiguity, nothing stored)
-- [ ] 6. Real run on the WSL against three lenders and the Register (read-only)
+- [x] 6. Real run on the WSL against three lenders and the Register (read-only), 27 Nov 2026: 113 of 115 brands kept; CommBank, Westpac and Northern Inland Credit Union list at x-v 5 and detail at x-v 7, no 406s
 - [ ] 7. Legal view on live credit product data before any public listing

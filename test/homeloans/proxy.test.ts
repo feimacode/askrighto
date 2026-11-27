@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Client, InMemoryTransport } from "@modelcontextprotocol/client";
 import { RetailerLimiter } from "../../src/cdr/limiter.js";
 import {
@@ -142,6 +143,51 @@ describe("proxy requests", () => {
     await proxy.brands();
     await proxy.brands();
     expect(seen.filter((s) => s.url.includes("cdr-register"))).toHaveLength(1);
+  });
+});
+
+describe("proxy failure shapes and storage", () => {
+  const brand = parseBrands(REGISTER)[0]!;
+  const with200 = (body: string, redirect = false) =>
+    new CdrProxy({
+      limiter: new RetailerLimiter({ rps: 1000, maxInFlight: 8 }),
+      fetchImpl: (async (_u: string, init?: RequestInit) => {
+        if (redirect && init?.redirect === "error") throw new TypeError("redirect refused");
+        return new Response(body, { status: 200 });
+      }) as unknown as typeof fetch,
+    });
+  it("treats a 200 without CDR data as a bad response", async () => {
+    await expect(with200("{}").list(brand, 1, 5)).rejects.toMatchObject({ kind: "bad_response" });
+    await expect(with200("not json").list(brand, 1, 5)).rejects.toMatchObject({ kind: "bad_response" });
+  });
+  it("refuses an oversized body", async () => {
+    await expect(with200("x".repeat(2_000_001)).list(brand, 1, 5)).rejects.toMatchObject({ kind: "too_large" });
+  });
+  it("reports a refused redirect as the lender being unreachable", async () => {
+    await expect(with200("{}", true).list(brand, 1, 5)).rejects.toMatchObject({ kind: "lender_unreachable" });
+  });
+  it("makes a lender call every time: product data is not cached", async () => {
+    const { proxy, seen } = mock();
+    await proxy.list(brand, 1, 5);
+    await proxy.list(brand, 1, 5);
+    await proxy.detail(brand, "p1");
+    await proxy.detail(brand, "p1");
+    expect(seen.filter((x) => x.url.includes("/cds-au/"))).toHaveLength(4);
+  });
+  it("writes a lender response nowhere: the module has no file, database or log access, and prints nothing", async () => {
+    const marker = "UNIQUE-LENDER-MARKER-7731";
+    const logs: string[] = [];
+    const spies = (["log", "info", "warn", "error", "debug"] as const).map((k) => vi.spyOn(console, k).mockImplementation((...a) => void logs.push(a.join(" "))));
+    const src = readFileSync("src/homeloans/proxy.ts", "utf8");
+    expect(src).not.toMatch(/node:fs|from "pg"|\.\.\/db|console\./);
+    const proxy = new CdrProxy({
+      limiter: new RetailerLimiter({ rps: 1000, maxInFlight: 8 }),
+      fetchImpl: (async () => new Response(JSON.stringify({ data: { products: [{ productId: marker }] } }), { status: 200 })) as unknown as typeof fetch,
+    });
+    await proxy.list(brand, 1, 5);
+    await proxy.detail(brand, "p1");
+    expect(logs.join("\n")).not.toContain(marker);
+    spies.forEach((x) => x.mockRestore());
   });
 });
 

@@ -28,3 +28,13 @@ describe("traceNumbers", () => {
     expect(trace({ toolResults: ["a"], answer: "1. one\n2. two" })).toEqual([]);
   });
 });
+
+describe("CDR fractions", () => {
+  it("traces a percentage to the fraction the lender sent", () => {
+    expect(trace({ toolResults: ['{"rate":"0.0599"}'], answer: "The rate is 5.99%." })).toEqual([]);
+    expect(trace({ toolResults: ['{"rate":"0.065"}'], answer: "6.5% p.a." })).toEqual([]);
+  });
+  it("still flags a figure the lender did not send", () => {
+    expect(trace({ toolResults: ['{"rate":"0.0599"}'], answer: "The rate is 5.89%." }).map((f) => f.raw)).toEqual(["5.89"]);
+  });
+});

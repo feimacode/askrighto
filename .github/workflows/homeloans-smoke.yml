@@ -1,0 +1,29 @@
+name: Home loan proxy smoke
+
+# Weekly live check of the home loan proxy against the CDR Register and three real lenders (about 6 requests per
+# lender). It catches a lender changing the versions it accepts. Read-only; nothing is stored. Not part of CI.
+# Run it by hand with a different lender list from Actions > Home loan proxy smoke > Run workflow.
+on:
+  schedule:
+    - cron: "17 21 * * 0" # Sunday 21:17 UTC, Monday morning in Sydney
+  workflow_dispatch:
+    inputs:
+      lenders:
+        description: 'Lenders to check, space-separated (brand id or part of a name); empty for the default three'
+        required: false
+        type: string
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Check the proxy against real lenders
+        env:
+          LENDERS: ${{ inputs.lenders }}
+        run: npm run homeloans:smoke -- $LENDERS

@@ -14,6 +14,12 @@ export function canon(raw) {
   return s.includes(".") ? s.replace(/0+$/, "").replace(/\.$/, "") : s;
 }
 
+/** "0.0599" -> "5.99", by moving the decimal point (no floating point). */
+export function asPercent(fraction) {
+  const d = fraction.slice(2).padEnd(2, "0");
+  return canon(`${d.slice(0, 2).replace(/^0+(?=\d)/, "")}.${d.slice(2)}`);
+}
+
 function figures(text, { skipListMarkers = false } = {}) {
   const out = [];
   const body = skipListMarkers ? text.replace(/^\s*\d+[.)]\s+/gm, "") : text;
@@ -24,6 +30,8 @@ function figures(text, { skipListMarkers = false } = {}) {
 /** Returns the figures in `answer` that are absent from the prompt and every tool result. */
 export function traceNumbers({ prompt = "", toolResults = [], answer = "" }) {
   const known = new Set([...figures(prompt), ...toolResults.flatMap((t) => figures(t))].map((f) => f.value));
+  // CDR rates are fractions (0.0599 is 5.99%): a fraction in a tool result also traces its percentage.
+  for (const t of toolResults) for (const f of figures(t)) if (/^0\.\d+$/.test(f.value)) known.add(asPercent(f.value));
   return figures(answer, { skipListMarkers: true }).filter((f) => !known.has(f.value));
 }
 

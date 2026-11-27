@@ -66,7 +66,7 @@ describe("home loan tools (index-only)", () => {
     const { data, text } = await call(await connect(), "get_cdr_banking_guide", { journey: "compare" });
     expect(data.found).toBe(true);
     expect(data.data.sections).toHaveLength(1);
-    expect(data.data.notice).toMatch(/holds no lender data/);
+    expect(data.data.notice).toMatch(/stores no lender data/);
     expect(text).toContain(CDR_LINKS.schemas);
     expect(data.source.licence).toMatch(/Links only/);
   });

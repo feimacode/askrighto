@@ -8,8 +8,9 @@ name: Evals
 # Needs no production database. It starts a throwaway PostgreSQL service, applies the migrations and
 # loads what the repo and its test fixtures hold (VIC course index, VCE data, a sample CRICOS sheet,
 # sample health cover files) and synthetic energy plans and benchmarks (scripts/evals/load-energy-fixtures.mjs).
-# Home loan data needs live CDR payloads that this job does not load, so those prompts are not in the default
-# sets; the energy set runs on invented fixture data only, so it checks behaviour and wording, not real prices.
+# The home-loans set needs no database: the proxy tools read lenders' live CDR endpoints, so it needs only outbound
+# internet. It is not in the default sets, because it makes real requests to lenders. The energy set runs on
+# invented fixture data only, so it checks behaviour and wording, not real prices.
 #
 # Configured only by repository settings (Settings > Secrets and variables > Actions), the same
 # variables a local run reads:
