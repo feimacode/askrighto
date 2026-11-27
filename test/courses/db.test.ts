@@ -16,14 +16,15 @@ import {
 } from "../../src/courses/load.js";
 import { parseProviderFile } from "../../src/courses/validate.js";
 import { createDb, migrate, type Db } from "../../src/energy/db.js";
-import { loadVce, readVceFiles, VceStore } from "../../src/vce/load.js";
-import { FIXTURE_YAML, fixtureVce } from "./helpers.js";
+import { parseCricos } from "../../src/courses/cricos.js";
+import { CRICOS_CSV, FIXTURE_YAML } from "./helpers.js";
 
 const URL = process.env.TEST_DATABASE_URL;
 const d = URL ? describe : describe.skip;
 const schema = `askrighto_test_${randomBytes(4).toString("hex")}`;
 let db: Db;
-const merged = () => mergeIndex([parseProviderFile(FIXTURE_YAML).file!]);
+const merged = () =>
+  mergeIndex([parseProviderFile(FIXTURE_YAML).file!], parseCricos(CRICOS_CSV).courses);
 
 d("course store", () => {
   beforeAll(async () => {
@@ -53,19 +54,19 @@ d("course store", () => {
     expect(n.rows[0].n).toBe(1);
   });
 
-  it("reads back courses with figures, prerequisites and depth", async () => {
+  it("reads back index rows with campuses and no facts", async () => {
     const cat = await new CourseStore(db, 0).catalogue();
-    const sci = cat.courses.find((c) => c.id === "testu-science")!;
-    expect(sci.depth).toBe("curated");
-    expect(sci.entryFigures.map((f) => f.kind).sort()).toEqual([
-      "guaranteed_atar",
-      "lowest_selection_rank",
-    ]);
-    expect(sci.prerequisites[0]!.rules).toHaveLength(3);
-    expect(sci.otherCriteria[0]!.kind).toBe("folio");
-    expect(cat.courses.find((c) => c.id === "testu-nursing")!.depth).toBe(
-      "index_only",
-    );
+    const law = cat.courses.find((c) => c.cricosCode === "111111A")!;
+    expect(law.campuses.sort()).toEqual(["Clayton", "Parkville"]);
+    expect(law.durationYears).toBe(4);
+    expect(law).not.toHaveProperty("entryFigures");
+  });
+
+  it("migration 0011 dropped the fact tables", async () => {
+    for (const t of ["course_entry_figures", "course_prerequisites", "vce_scaling", "home_loan_products", "reference_rates"]) {
+      const r = await db.pool.query("SELECT to_regclass($1) AS t", [t]);
+      expect(r.rows[0].t).toBeNull();
+    }
   });
 
   it("a failed load leaves the previous set", async () => {
@@ -77,7 +78,7 @@ d("course store", () => {
     bad.report = { ...bad.report, hash: "different" };
     await expect(loadCourses(db, bad)).rejects.toThrow();
     const cat = await new CourseStore(db, 0).catalogue();
-    expect(cat.courses.map((c) => c.id)).toContain("testu-science");
+    expect(cat.courses.map((c) => c.id)).toContain("testu-cricos-111111a");
     expect(cat.courses.some((c) => c.id === "testu-extra")).toBe(false);
   });
 
@@ -97,20 +98,6 @@ d("course store", () => {
     }
   });
 
-  it("loads VCE data and reads it back", async () => {
-    await loadVce(db, {
-      ...readVceFiles(`${process.cwd()}/data`).data,
-      scaling: fixtureVce().scaling,
-      groupings: fixtureVce().groupings,
-    });
-    const v = await new VceStore(db, 0).data();
-    expect(
-      v.keyDates.find((k) => k.year === 2027)!.dates.length,
-    ).toBeGreaterThan(10);
-    expect(v.earlyEntry.length).toBeGreaterThan(3);
-    expect(v.scaling[0]!.studies.length).toBeGreaterThan(5);
-  });
-
   it("startCourses registers the datasets under the courses vertical and reports ready", async () => {
     clearDataSets();
     clearReadinessChecks();
@@ -120,14 +107,14 @@ d("course store", () => {
     } as NodeJS.ProcessEnv);
     expect(getCourses()).toBeTruthy();
     expect(listDataSets().map((x) => x.id)).toEqual(
-      expect.arrayContaining(["vic-courses", "vce-scaling", "vic-early-entry"]),
+      expect.arrayContaining(["cricos-register"]),
     );
     expect(listDataSets().every((x) => x.vertical === "courses-domestic")).toBe(true);
     expect(
-      (await runReadiness(["courses-domestic"])).checks["vic-courses"],
+      (await runReadiness(["courses-domestic"])).checks["domestic-courses"],
     ).toMatchObject({ ok: true, vertical: "courses-domestic" });
     expect(
-      (await runReadiness(["energy"])).checks["vic-courses"],
+      (await runReadiness(["energy"])).checks["domestic-courses"],
     ).toBeUndefined();
     await stop!();
   });
@@ -149,7 +136,7 @@ d("course store", () => {
         DATABASE_SCHEMA: other,
       } as NodeJS.ProcessEnv);
       expect(
-        (await runReadiness(["courses-domestic"])).checks["vic-courses"],
+        (await runReadiness(["courses-domestic"])).checks["domestic-courses"],
       ).toMatchObject({ ok: false, reason: "schema_behind" });
       await stop!();
     } finally {

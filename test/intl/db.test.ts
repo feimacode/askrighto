@@ -114,8 +114,9 @@ d("international store", () => {
       productionReady: true,
     });
     expect(
-      r.domestic.datasets.find((x) => x.id === "vce-scaling")!.productionReady,
-    ).toBe(false);
+      r.domestic.datasets.find((x) => x.id === "vce-admissions-links")!
+        .productionReady,
+    ).toBe(true);
     expect(
       (await db.pool.query("SELECT count(*)::int AS n FROM intl_courses"))
         .rows[0].n,

@@ -1,10 +1,7 @@
-# University of Queensland: provider entry for the qld index. CRICOS undergraduate courses come in from the CRICOS file on load;
-# coursesUrl is the provider's own site from the CRICOS Institutions sheet, not a course finder link. Add official course
-# links and curated rows by hand from the university's own pages (never from UAC, QTAC, VTAC or Course Seeker).
+# University of Queensland: source index entry (links only; no course facts are stored).
 provider:
   id: uq
   cricosProviderCode: "00025B"
   name: University of Queensland
   coursesUrl: https://www.uq.edu.au/
   domains: [uq.edu.au]
-courses: []

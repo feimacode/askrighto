@@ -1,3 +1,5 @@
+> **Superseded in part (27 Nov 2026) by `switch-to-index-only`:** courses and home loans no longer store source data, so the stored-data, permission and legal-view parts of this change are not built. Read the new change first.
+
 ## Why
 
 Iven wants to compare two uses of the same course tooling: the domestic VCE/curated finder and the CRICOS-based international finder (16 Nov 2026). Without agreed measures the comparison will be impressions. This change defines the measures, a fixed set of test questions for each use case, a repeatable data-coverage report, and the decision rules for which to promote first.

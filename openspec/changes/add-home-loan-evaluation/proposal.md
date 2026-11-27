@@ -1,3 +1,5 @@
+> **Superseded in part (27 Nov 2026) by `switch-to-index-only`:** courses and home loans no longer store source data, so the stored-data, permission and legal-view parts of this change are not built. Read the new change first.
+
 ## Why
 
 For home loans the main risks are data that does not match what lenders offer, and assistants that slide from information into advice. Both are measurable before launch. This change defines the measures, a fixed prompt set (including adversarial prompts), a data accuracy spot check against lenders' own pages, and the thresholds that feed the promotion gates. It follows the pattern of `add-course-use-case-comparison`.

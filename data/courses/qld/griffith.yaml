@@ -1,10 +1,7 @@
-# Griffith University: provider entry for the qld index. CRICOS undergraduate courses come in from the CRICOS file on load;
-# coursesUrl is the provider's own site from the CRICOS Institutions sheet, not a course finder link. Add official course
-# links and curated rows by hand from the university's own pages (never from UAC, QTAC, VTAC or Course Seeker).
+# Griffith University: source index entry (links only; no course facts are stored).
 provider:
   id: griffith
   cricosProviderCode: "00233E"
   name: Griffith University
   coursesUrl: https://www.griffith.edu.au/
   domains: [griffith.edu.au]
-courses: []

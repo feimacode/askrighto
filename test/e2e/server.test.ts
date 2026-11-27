@@ -336,15 +336,11 @@ describe("courses loaded but internal-only", () => {
       expect.arrayContaining([
         "search_domestic_courses",
         "get_domestic_course",
-        "compare_domestic_courses",
-        "check_domestic_course_prerequisites",
-        "get_subject_scaling",
-        "estimate_vce_aggregate",
-        "get_vce_key_dates",
-        "list_early_entry_schemes",
+        "get_vce_admissions_sources",
       ]),
     );
-    expect(client.getInstructions()).toMatch(/index_only/);
+    expect(names).not.toContain("compare_domestic_courses");
+    expect(client.getInstructions()).toMatch(/CRICOS course index/);
     const res = await client.callTool({
       name: "search_domestic_courses",
       arguments: {},

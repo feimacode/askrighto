@@ -74,7 +74,7 @@ is closed or the comparison needs a licence. Scores are judgement, not measured.
 | 1 | Energy plans (electricity and gas) | 5 | 5 | 5 | **15** | Open: CDR product data, live | Legal view (accuracy, disclosure) | Building, Phase 1 |
 | 2 | Private health insurance, with rebate, MLS and LHC maths | 5 | 5 | 4 | **14** | Open: CC BY 3.0 AU monthly file | Legal view before listing; Claude high-risk category | Phase 5 |
 | 3 | Bank savings, term deposits, home loans | 4 | 5 | 5 | **14** | Open: CDR product data | ACL/AFSL question; legal view before any public listing | Home loans built on the internal route only (17 Nov 2026); deposits parked |
-| 4 | Uni course research (VCE first) | 5 | 5 | 3 | **13** | No TAC licence; own-worded store | VTAC/UAC permission requested in Phase 0 | **Next**: VIC Phase 4, NSW/QLD Phase 6 |
+| 4 | Uni course research (VCE first) | 5 | 5 | 3 | **13** | No TAC licence; index-only since 27 Nov 2026 (CRICOS index plus links) | No permission or legal view needed: nothing is stored | Built on the internal route as index-only (`switch-to-index-only`) |
 | 5 | Home solar and battery payback | 5 | 4 | 3 | **12** | Reuses CDR plans; CER monthly postcode install data (access verified, licence not stated, confirm); yield and rebate data to check | None known; no installer referrals | Candidate, Phase 7 |
 | 6 | Aged care: providers and fee estimate | 5 | 4 | 3 | **12** | Star Ratings and provider data, licence to check | None known; estimates must defer to Services Australia | Candidate, research first |
 | 7 | Suburb fit for renters and movers | 3 | 5 | 4 | **12** | VIC rents and school zones CC BY 4.0 (verified 17 Nov 2026); ABS, transport and crime unverified; My School excluded | None known | Candidate, research first (VIC first) |
@@ -213,6 +213,8 @@ The three changes below are proposed in `openspec/changes/` and wait for review.
 | Google Connected Apps | Register the same server in Google Connected Console once the preview admits us. MCP Apps resources up to 15 MB; external scripts need SRI hashes; missing annotations are treated as destructive [F] | `add-gemini-listing` |
 
 ---
+
+> **27 Nov 2026 (Iven): courses and home loans are index-only** (`openspec/changes/switch-to-index-only`). Licensing and law were too heavy, so Ask Righto stores no course facts, VTAC or VCAA data, or lender data. Domestic courses keep only the CRICOS index plus links and reading checklists; ATAR scaling is a link to the latest VTAC report; home loans give a CDR guide and a data-free calculator. Energy is unchanged. Rows below that describe curated facts, scaling data, permission requests and the credit legal view are superseded.
 
 ## Phase 4: Uni course research for VIC (VCE)
 

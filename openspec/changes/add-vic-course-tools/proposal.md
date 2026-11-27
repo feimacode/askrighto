@@ -1,3 +1,5 @@
+> **Superseded in part (27 Nov 2026) by `switch-to-index-only`:** courses and home loans no longer store source data, so the stored-data, permission and legal-view parts of this change are not built. Read the new change first.
+
 # Proposal
 
 ## Why

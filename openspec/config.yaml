@@ -19,7 +19,9 @@ context: |
   - Data: only open or publicly reusable data (CC BY, CDR product data, or written
     permission). No purchased data. No scraping of sites whose terms forbid it
     (VTAC, UAC, QTAC, TISC, Energy Made Easy, privatehealth.gov.au site).
-    Course facts are re-keyed in our own words with a link to the official page.
+    Licence-heavy or regulated areas (domestic course facts, VTAC and VCAA data, home loans) are
+    index-only: no source data stored, only links, reading checklists and structure facts, and the
+    user's agent fetches and reads (27 Nov 2026). Energy stays stored.
   - Privacy: no accounts, no stored conversations, no user profiles (Claude directory
     rule; ChatGPT users can be 13 to 17; Children's Online Privacy Code from 10 Dec 2026).
   - Data store: public reference data lives in the shared Azure PostgreSQL under the

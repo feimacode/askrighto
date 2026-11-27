@@ -17,9 +17,12 @@ See `ROADMAP.md` for the phased plan and where each item came from.
    facts must be quoted with the page link and the time read, labelled as read by the assistant
    rather than from Ask Righto's data, and never sent back to, stored by or republished by our
    server. The assistant never gets past a bot check. (Iven, 16 Nov 2026.)
-2. **Open data only.** CC BY, Consumer Data Right product data, or written permission.
-   No purchased data and no scraping of sites whose terms forbid it. Course facts are written
-   in our own words with a link to the official page.
+2. **Open data only; index-only where licensing or law is heavy.** CC BY, Consumer Data Right product data, or written permission.
+   No purchased data and no scraping of sites whose terms forbid it. For licence-heavy or regulated
+   areas (domestic course facts, VTAC and VCAA data, home loans and other financial products) we store
+   no source data at all: we index where the information lives (CRICOS for courses, CDR links for
+   finance), give the agent links, reading checklists and structure facts, and let it fetch and read
+   (Iven, 27 Nov 2026). Energy keeps its stored CDR plans (Iven, 27 Nov 2026).
 3. **Stateless for users.** No accounts, no stored conversations, no user profiles. The only database content is public reference data (energy plans first) in the shared Azure PostgreSQL, under its own `askrighto` schema, and it must be rebuildable from the source.
 4. **No ads or sponsored placement** inside any host app.
 5. **Factual comparison, not advice.** General insurance and credit products stay out until

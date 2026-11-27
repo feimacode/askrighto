@@ -1,11 +1,10 @@
-/** The loaded course set in memory, plus the search helpers the tools use. */
+/** The loaded CRICOS course index in memory, plus the search helpers the tools use. */
 import type { Course, Provider } from "./types.js";
 
 export interface Catalogue {
   providers: Provider[];
   courses: Course[];
   loadedAt: Date;
-  gitSha?: string;
 }
 
 export interface CatalogueSource {
@@ -29,7 +28,6 @@ export function providerOf(cat: Catalogue, c: Course): Provider | undefined {
 
 export interface SearchFilter {
   query?: string;
-  field?: string;
   university?: string;
   campus?: string;
   /** `vic`, `nsw-act` or `qld`: the region of the provider. */
@@ -50,38 +48,22 @@ export function matchProvider(cat: Catalogue, q: string): Provider[] {
 }
 
 export function filterCourses(cat: Catalogue, f: SearchFilter): Course[] {
-  const q = f.query ? norm(f.query) : "";
-  const words = q.split(" ").filter(Boolean);
+  const words = (f.query ? norm(f.query) : "").split(" ").filter(Boolean);
   const unis = f.university
     ? new Set(matchProvider(cat, f.university).map((p) => p.id))
     : undefined;
-  const field = f.field ? norm(f.field) : "";
   const campus = f.campus ? norm(f.campus) : "";
   const regionOf = (id: string) =>
     cat.providers.find((p) => p.id === id)?.region ?? "vic";
   return cat.courses.filter((c) => {
     if (f.region && regionOf(c.providerId) !== f.region) return false;
     if (unis && !unis.has(c.providerId)) return false;
-    if (
-      field &&
-      !c.fields.some(
-        (x) =>
-          norm(x) === field ||
-          norm(x).includes(field) ||
-          field.includes(norm(x)),
-      )
-    )
-      return false;
     if (campus && !c.campuses.some((x) => norm(x).includes(campus)))
       return false;
     if (words.length) {
-      const hay = norm(`${c.name} ${c.fields.join(" ")} ${c.summary ?? ""}`);
+      const hay = norm(c.name);
       if (!words.every((w) => hay.includes(w))) return false;
     }
     return true;
   });
-}
-
-export function allFields(cat: Catalogue): string[] {
-  return [...new Set(cat.courses.flatMap((c) => c.fields))].sort();
 }

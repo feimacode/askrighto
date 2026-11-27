@@ -1,26 +1,23 @@
 # Course tools
 
-Eight read-only tools, served on the internal route only until promotion. Every course result carries the notice "Past entry figures are not cut-offs or predictions. Prerequisites are as published for the year shown. Check the official course page before deciding. General information, not advice." and states its depth.
+Three read-only tools, served on the internal route only until promotion. They are index-only: Ask Righto holds the CRICOS course index and links, and no entry figures, prerequisites, scaling or dates. Every course result carries the notice that Ask Righto has not read the university's page, and that anything the assistant reads there is past or published information, not a cut-off or a prediction.
 
 | Tool | Use |
 | --- | --- |
-| `search_domestic_courses` | Find courses by name, field, university, campus; optionally filter by the student's studies (scores ignored) or by latest lowest selection rank. |
-| `get_domestic_course` | One course in full, or links and a reading checklist if it is index-only. |
-| `compare_domestic_courses` | Two to five courses side by side; no winner. |
-| `check_domestic_course_prerequisites` | Up to ten courses against the student's studies (and scores): met, not_met, needs_scores, cannot_check. |
-| `get_subject_scaling`, `estimate_vce_aggregate` | Scaled scores and an aggregate from expected study scores. `data_unavailable` in production until VTAC's permission is recorded. |
-| `get_vce_key_dates`, `list_early_entry_schemes` | Dates and early offer schemes, with links and no eligibility verdict. |
+| `search_domestic_courses` | Find CRICOS index rows by name, university, campus and region (`vic`, `nsw-act`, `qld`). Returns code, campuses, duration and the university's course link. A course may be missing: CRICOS lists courses registered for international students. |
+| `get_domestic_course` | One index row, the university's link, a reading checklist (entry figure with kind and year, VCE prerequisites with scores, other criteria) and browsing rules. Course Seeker and VTAC links are for the user only. |
+| `get_vce_admissions_sources` | Official pages to read for scaling, ATAR and aggregate rules, key dates, preferences and early entry, each with a reading checklist. Links only. |
+
+Removed on 27 Nov 2026: `compare_domestic_courses`, `check_domestic_course_prerequisites`, `get_subject_scaling`, `estimate_vce_aggregate`, `get_vce_key_dates`, `list_early_entry_schemes`.
 
 ## Example prompts
 
-- "Which engineering courses at RMIT are held, and what was the latest lowest selection rank?" (`search_domestic_courses`)
-- "Compare these three nursing degrees." (`compare_domestic_courses`)
-- "I do English, Chemistry and Biology. Which of these courses do my subjects rule out?" (`check_domestic_course_prerequisites`)
-- "If I get 35 in Chemistry and 30 in English, what is my aggregate?" (`estimate_vce_aggregate`, development only)
-- "When do VTAC preferences close?" (`get_vce_key_dates`)
-- "Which universities have early offers?" (`list_early_entry_schemes`)
-- Index-only course with a browsing assistant: "Open the official page for that course and read the entry figure and prerequisites." The host should read the university page first, then Course Seeker, never VTAC, quote only the checklist items with the link and time read, and say they were read by the assistant, not Ask Righto.
+- "Which nursing degrees are in the index?" (`search_domestic_courses`)
+- "What do I read to find the entry requirement for that course?" (`get_domestic_course`, then the host reads the university page)
+- "Where do I find the latest scaling report?" (`get_vce_admissions_sources`)
+
+The host reads the university page first, quotes only the checklist items with the link and time read, says they were read by the assistant and not from Ask Righto's data, and gives the link instead if it meets a bot check.
 
 ## Privacy
 
-No tool asks for a name, school, age or contact details. Studies and scores are inputs to one call; nothing is stored and the access log never holds arguments.
+No tool asks for a name, school, age or contact details. Nothing is stored and the access log never holds arguments.

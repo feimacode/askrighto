@@ -1,3 +1,5 @@
+> **Superseded in part (27 Nov 2026) by `switch-to-index-only`:** courses and home loans no longer store source data, so the stored-data, permission and legal-view parts of this change are not built. Read the new change first.
+
 ## Why
 
 AGENTS.md rule 5 and the ROADMAP park credit comparison until "a legal view or a licensed partner". The home loan vertical can still be built and tested internally, but nobody has said what that rule permits before the view exists, and public listing needs clear, checkable gates. This change makes the line explicit in code and in the promotion checklist, so the vertical cannot reach the public route by accident.

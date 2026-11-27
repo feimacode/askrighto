@@ -1,10 +1,7 @@
-# Charles Sturt University: provider entry for the nsw-act index. CRICOS undergraduate courses come in from the CRICOS file on load;
-# coursesUrl is the provider's own site from the CRICOS Institutions sheet, not a course finder link. Add official course
-# links and curated rows by hand from the university's own pages (never from UAC, QTAC, VTAC or Course Seeker).
+# Charles Sturt University: source index entry (links only; no course facts are stored).
 provider:
   id: csu
   cricosProviderCode: "00005F"
   name: Charles Sturt University
   coursesUrl: https://www.csu.edu.au/
   domains: [csu.edu.au]
-courses: []

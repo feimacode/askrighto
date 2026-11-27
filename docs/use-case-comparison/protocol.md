@@ -4,7 +4,7 @@ Purpose: compare the domestic VCE finder and the international CRICOS finder on 
 
 ## Set-up
 
-1. Load both data sets in a test database (`courses:load`, `vce:load`, `intl:load`). Note the CRICOS file date.
+1. Load both data sets in a test database (`courses:load`, `intl:load`). Note the CRICOS file date.
 2. Start the server with `ASKRIGHTO_VERTICALS=energy,courses-domestic,cricos`, `ASKRIGHTO_INTERNAL_TOKEN` set, and neither new vertical public.
 3. Connect each host (Claude, ChatGPT, Gemini) to `/mcp-internal/<token>`.
 4. Run `npm run compare:usecases` and keep the output: this is the coverage, freshness and rights readiness part of the scorecard.

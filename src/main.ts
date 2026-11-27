@@ -20,7 +20,6 @@ import {
 } from "./server/internal.js";
 import { startCricosSchedule } from "./cricos/index.js";
 import { startEnergy } from "./energy/index.js";
-import { assertHomeLoanPublicGuard } from "./homeloans/guard.js";
 import { runReadiness } from "./core/readiness.js";
 import { metricsText } from "./core/metrics.js";
 import { createServer } from "./server/create-server.js";
@@ -42,7 +41,6 @@ import { VERSION } from "./version.js";
 /** Loads the verticals named in the flags. A failing public vertical stops start-up; an internal-only one is marked failed. */
 async function startVerticals(env: NodeJS.ProcessEnv = process.env) {
   const flags = parseVerticalFlags(env);
-  assertHomeLoanPublicGuard(flags.public, env);
   const stops: Array<() => Promise<void>> = [];
   for (const id of flags.loaded) {
     const v = ALL_VERTICALS.find((x) => x.id === id);
@@ -292,9 +290,8 @@ Usage:
   askrighto migrate    apply database migrations (needs DATABASE_URL)
   askrighto sync-energy [--record DIR] [--retailer SLUG]
                        load or refresh energy plans; --record saves raw API responses as fixtures
-  askrighto courses:validate | courses:load [--cricos FILE.csv] | courses:match-standins --cricos FILE.csv | courses:check-pages
-  askrighto vce:validate | vce:load
-                       check and load the Victorian course index and VCE admissions data from data/
+  askrighto courses:validate | courses:load [--cricos FILE.csv] | sources:check
+                       check the provider index in data/, load the CRICOS course index, check indexed links
   askrighto health:validate|health:load --dir UNZIPPED_FOLDER [--source-date YYYY-MM-DD] [--source-name NAME]  |  health:rates-validate
   askrighto benchmarks:validate|benchmarks:load --file AER_BENCHMARKS.xlsx [--source-date YYYY-MM-DD] [--release TEXT] [--source-name NAME]
   askrighto careers:validate|careers:load --file EMPLOYMENT_PROJECTIONS.xlsx [--source-date YYYY-MM-DD] [--source-name NAME]
@@ -303,29 +300,20 @@ Usage:
   askrighto cricos:refresh [--dry-run] [--force]
                        fetch the CRICOS dataset from data.gov.au and load the domestic index and the international store
   askrighto load-all [--force]
-                       migrate, load the VCE admissions files, then cricos:refresh (one command for a fresh database)
+                       migrate, then cricos:refresh (one command for a fresh database)
   askrighto compare:usecases [--json]
                        coverage report for the domestic and international course data (read-only)
-  askrighto homeloans:sync [--record DIR] [--lender SLUG]
-                       load or refresh home loans from lenders' CDR product data
-  askrighto homeloans:cash-rate --date YYYY-MM-DD --value PERCENT --source URL
-                       record the RBA cash rate target (re-keyed from the RBA page, with its link)
-  askrighto report:homeloans [--json]
-                       coverage and freshness report for the home loan data (read-only)
   askrighto renormalise-energy [--retailer SLUG] [--dry-run] [--show REASON]
                        re-run the normaliser over stored raw payloads (no API calls); --show prints
                        the raw fragment of plans still flagged with that reason`);
   } else if (args[0] === "migrate") {
     await (await import("./energy/cli.js")).cliMigrate();
-  } else if (args[0]?.startsWith("courses:") || args[0]?.startsWith("vce:")) {
+  } else if (args[0]?.startsWith("courses:") || args[0] === "sources:check") {
     const cli = await import("./courses/cli.js");
     const map: Record<string, () => unknown> = {
       "courses:validate": () => cli.cliCoursesValidate(),
       "courses:load": () => cli.cliCoursesLoad(args.slice(1)),
-      "courses:check-pages": () => cli.cliCoursesCheckPages(),
-      "courses:match-standins": () => cli.cliCoursesMatchStandins(args.slice(1)),
-      "vce:validate": () => cli.cliVceValidate(),
-      "vce:load": () => cli.cliVceLoad(),
+      "sources:check": () => cli.cliSourcesCheck(),
     };
     const run = map[args[0]];
     if (!run) throw new Error(`Unknown command ${args[0]}`);
@@ -357,11 +345,6 @@ Usage:
     if (!ok) process.exitCode = 1;
   } else if (args[0] === "compare:usecases") {
     await (await import("./compare/cli.js")).cliCompareUseCases(args.slice(1));
-  } else if (args[0] === "homeloans:sync" || args[0] === "homeloans:cash-rate" || args[0] === "report:homeloans") {
-    const cli = await import("./homeloans/cli.js");
-    if (args[0] === "homeloans:sync") await cli.cliHomeLoanSync(args.slice(1));
-    else if (args[0] === "homeloans:cash-rate") await cli.cliCashRate(args.slice(1));
-    else await cli.cliHomeLoanReport(args.slice(1));
   } else if (args[0] === "sync-energy") {
     await (await import("./energy/cli.js")).cliSyncEnergy(args.slice(1));
   } else if (args[0] === "renormalise-energy") {

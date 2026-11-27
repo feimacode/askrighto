@@ -57,7 +57,7 @@ flowchart LR
   end
   V1 & V2 & V3 --> P[("Shared Azure PostgreSQL, schema askrighto")]
   V1 -. "daily sync, 2 req/s per retailer" .-> A[AER CDR API, then each retailer]
-  Ops["Operator CLI on the VM"] -->|"sync-energy, courses:load, vce:load, intl:load"| P
+  Ops["Operator CLI on the VM"] -->|"sync-energy, courses:load, intl:load"| P
   Files["data/*.yaml (git)"] --> Ops
   CRICOS["CRICOS CSV exports (data.gov.au)"] --> Ops
   Skills["Plugins: plugin/ (public), plugin-internal/ (testers)"] -.->|"installed on the host, guide tool use"| Hosts
@@ -78,7 +78,7 @@ linked, with diagrams, and (3) the main functions and how they serve the end-to-
 | --- | --- | --- | --- |
 | Platform | [`areas/platform.md`](areas/platform.md) | n/a | HTTP and MCP server, `defineTool`, grounded envelope, registry, readiness, metrics, rights gate, verticals and release channels, DB and migrations, build and deploy |
 | Energy plans | [`areas/energy-plans.md`](areas/energy-plans.md) | yes | CDR sync into PostgreSQL, normaliser, store, cost calculator, three tools |
-| VIC uni courses and VCE planning | [`areas/vic-courses.md`](areas/vic-courses.md) | internal | YAML course index plus CRICOS, curated facts, prerequisite rules, VCE dates, scaling, aggregate; eight tools |
+| VIC uni courses and VCE planning | [`areas/vic-courses.md`](areas/vic-courses.md) | internal | CRICOS course index plus links and reading checklists (index-only, 27 Nov 2026); three tools |
 | International courses | [`areas/international-courses.md`](areas/international-courses.md) | internal | CRICOS higher-education courses with fees, durations and campuses; four tools |
 | Skills and plugins | [`areas/skills-and-plugins.md`](areas/skills-and-plugins.md) | public plugin: yes; internal plugin: no | grounding, energy bill, VCE course and international skills; shared rules generated from one source |
 | Private health cover | [`areas/health-cover.md`](areas/health-cover.md) | internal | PHIO monthly file into PostgreSQL, dated rebate, surcharge and loading rules in YAML, integer-cents calculator, seven tools; file layout assumed until a real ZIP is opened |
@@ -94,14 +94,14 @@ Older topic docs stay as deeper references: [`energy-data.md`](energy-data.md),
 
 | Layer | Where | Job |
 | --- | --- | --- |
-| Entry and HTTP | `src/main.ts`, `src/config.ts`, `src/server/limits.ts`, `src/server/internal.ts` | Streamable HTTP on `/mcp` and `/mcp-internal/<token>`, `/healthz`, `/readyz`, internal readiness and metrics, per-client rate limit, host allow-list, metadata-only access log; CLI commands (`migrate`, `sync-energy`, `courses:*`, `vce:*`, `intl:*`, `compare:usecases`, `renormalise-energy`) |
+| Entry and HTTP | `src/main.ts`, `src/config.ts`, `src/server/limits.ts`, `src/server/internal.ts` | Streamable HTTP on `/mcp` and `/mcp-internal/<token>`, `/healthz`, `/readyz`, internal readiness and metrics, per-client rate limit, host allow-list, metadata-only access log; CLI commands (`migrate`, `sync-energy`, `courses:*`, `sources:check`, `intl:*`, `compare:usecases`, `renormalise-energy`) |
 | Verticals | `src/verticals.ts`, `src/server/route.ts`, `src/<vertical>/vertical.ts` | Which tools, guidance and start-up each vertical brings; per-route sets built from two environment variables |
 | Server core | `src/server/create-server.ts`, `instructions.ts` | One stateless MCP server per request; instructions the host receives on `initialize` |
 | Grounded envelope | `src/core/grounded.ts` | `Found<T>` (data, source, as-of, warnings) or `NotFound` (reason, message). There is no third shape |
 | Tool definition | `src/core/define-tool.ts` | `defineTool` and `registerTools` refuse a tool the directories would reject and wrap every handler with the rights gate, staleness and attribution, metrics and rendering |
 | Registries and rights | `src/core/registry.ts`, `readiness.ts`, `rights.ts`, `rights.json`, `metrics.ts` | Datasets declare source, coverage, refresh time and max age; the rights register decides what may be served in production |
 | Database | `src/energy/db.ts`, `src/energy/migrations/0001..0004` | Pool, schema guard, embedded migrations (shared by all verticals despite the folder name) |
-| Verticals' modules | `src/energy/*`, `src/courses/*`, `src/vce/*`, `src/intl/*` | Loaders, stores, parsers, calculators |
+| Verticals' modules | `src/energy/*`, `src/courses/*`, `src/intl/*` | Loaders, stores, parsers, calculators |
 | Tools | `src/tools/*` | 3 energy, 8 course and planning, 4 international, plus `list_data_sources` per route; Inkview wrapping |
 | Guidance | `src/guidance/shared.ts`, `plugin/`, `plugin-internal/`, `.claude/skills/` | Shared rules, skills, maintainer review skill |
 | Maintainer tooling | `src/compare/*`, `scripts/*` | Coverage report, build, guidance generator, release check, number trace |
@@ -201,7 +201,7 @@ Skills contain no agents or hooks and no provider names so they convert across h
 - **Secrets** live in ansible-vault, including the internal route token; none are in the repo or image.
 - **Domain**: `askrighto.feimacode.com` for internal testing, then `askrighto.com.au`.
 - **Operator commands** run inside the container: `migrate`, `sync-energy`, `renormalise-energy`,
-  `courses:load`, `vce:load`, `intl:load`.
+  `courses:load`, `intl:load`.
 - **Stdio** mode exists for development and loads energy only; it is not a product surface.
 
 ### 5.8 Privacy and abuse
@@ -280,7 +280,7 @@ with an earlier `askrighto_version` or removing a vertical from the public list.
 | Courses: data depth | 98 index rows, one curated (RMIT Engineering, `checkedBy: claude-draft`); real CRICOS file not loaded for the domestic index | Mostly links and checklists |
 | Courses: scaling and groupings | `pending` VTAC permission; dev copies only | `data_unavailable` in production |
 | Courses: legal view | Four datasets `cleared_pending_legal_view` | Blocks public promotion |
-| Permission requests | Drafted in `docs/permissions/`, not sent as far as project notes say | Unblocks scaling, Course Seeker |
+| Permission requests | Not needed: courses, VTAC data and home loans are index-only since 27 Nov 2026 | none |
 | International: real data loaded? | Real file parsed in a test run; load into the shared database is unverified | Tools answer `data_unavailable` until loaded |
 | Guided browsing | Untested on real university and provider sites (bot checks blocked some in a cloud test) | Index-only answers depend on it |
 | Skills on real hosts | Activation prompts and answer-review run not done; ChatGPT conversion untried | Skill behaviour unproven |
