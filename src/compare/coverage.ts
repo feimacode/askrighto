@@ -75,16 +75,7 @@ export async function domesticCoverage(
   db: Db,
   now = new Date(),
 ): Promise<DomesticCoverage> {
-  const datasets = datasetsFor([
-    "vic-courses",
-    "nsw-act-courses",
-    "qld-courses",
-    "vce-key-dates",
-    "vtac-preference-rules",
-    "vic-early-entry",
-    "vce-scaling",
-    "vce-study-groupings",
-  ]);
+  const datasets = datasetsFor(["cricos-register", "vce-admissions-links"]);
   const empty: DomesticCoverage = {
     loaded: false,
     courses: 0,
@@ -99,12 +90,8 @@ export async function domesticCoverage(
   const t = await one(
     db,
     `SELECT count(*)::int AS n,
-       count(*) FILTER (WHERE depth = 'curated')::int AS curated,
-       count(*) FILTER (WHERE depth = 'index_only')::int AS index_only,
-       count(*) FILTER (WHERE official_url IS NOT NULL)::int AS official,
        count(*) FILTER (WHERE cricos_code IS NOT NULL)::int AS cricos,
-       count(*) FILTER (WHERE EXISTS (SELECT 1 FROM course_entry_figures f WHERE f.course_id = courses.id))::int AS figs,
-       count(*) FILTER (WHERE EXISTS (SELECT 1 FROM course_prerequisites p WHERE p.course_id = courses.id))::int AS prereq
+       count(*) FILTER (WHERE EXISTS (SELECT 1 FROM course_campuses c WHERE c.course_id = courses.id))::int AS campus
      FROM courses`,
   );
   const load = await one(
@@ -116,13 +103,11 @@ export async function domesticCoverage(
   return {
     loaded: n > 0,
     courses: n,
-    curated: Number(t.curated ?? 0),
-    indexOnly: Number(t.index_only ?? 0),
+    curated: 0,
+    indexOnly: n,
     with: {
-      entryFigure: share(Number(t.figs ?? 0), n),
-      prerequisiteRule: share(Number(t.prereq ?? 0), n),
-      officialLink: share(Number(t.official ?? 0), n),
       cricosCode: share(Number(t.cricos ?? 0), n),
+      campus: share(Number(t.campus ?? 0), n),
     },
     sourceLoadedAt: at?.toISOString() ?? null,
     sourceAgeDays: at ? ageDays(at, now) : null,

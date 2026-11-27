@@ -7,7 +7,7 @@ Version 2 (draft; prompts D01–D31 and I01–I30, with mechanical checks). Fill
 | Measure | Domestic | International |
 | --- | --- | --- |
 | Rows loaded | | |
-| Key-fact coverage (domestic: entry figure, prerequisite rule; international: fee, duration, location) | | |
+| Key-fact coverage (domestic: CRICOS code, campus; international: fee, duration, location) | | |
 | Share curated (domestic only) | | n/a |
 | Source age in days | | |
 | Rights ready in production mode | | |

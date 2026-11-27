@@ -40,7 +40,9 @@ d("cricos:refresh", () => {
     const r = await run(fakeFetch({ modified: "2026-11-02T08:00:00" }));
     expect(r).toMatchObject({ status: "loaded", sourceDate: "2026-11-02" });
     expect(await count("intl_courses")).toBe(6);
-    expect(await count("courses")).toBeGreaterThan(90);
+    // The fixture holds invented providers, so no shipped provider file matches and the domestic index is empty.
+    expect(await count("courses")).toBe(0);
+    expect(await count("providers")).toBeGreaterThan(20);
     const l = await db.pool.query("SELECT source_date::text AS d, report FROM intl_loads");
     expect(l.rows[0].d).toBe("2026-11-02");
     expect(l.rows[0].report.fingerprint).toContain("id-courses@2026-11-02");
