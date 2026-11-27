@@ -62,6 +62,18 @@ Licence-heavy and regulated areas (domestic course facts, VTAC and VCAA data, ho
 - Condition: Figures the assistant fetches are quoted with lender, product link and time fetched, labelled as read from the lender, never sent back to the server.
 - Condition: General information only: no ranking, suitability, approval or switching advice.
 
+## cdr-banking-live
+
+- Owner: Australian banks and other data holders (CDR banking product reference data), via the CDR Register
+- Basis: `cdr_rule`
+- Status: `cleared_pending_legal_view`
+- Review by: 2027-02-01
+- Evidence: https://www.cdr.gov.au/ (read 2026-11-27). Product reference data is public by Consumer Data Right rule. The proxy passes each request through to the lender's own public endpoint and stores nothing.
+- Condition: Pass-through only: nothing from a lender response is stored, cached (beyond the in-memory Register brand list) or logged.
+- Condition: Lender base URIs must be https, public hosts; redirects refused; responses capped at 2 MB.
+- Condition: Figures are quoted with lender, product link and time fetched. General information only: no ranking, suitability, approval or switching advice.
+- Condition: Credit legal view outstanding (AGENTS.md rule 5): public listing is blocked until it is recorded.
+
 ## health-cover-products
 
 - Owner: Commonwealth Ombudsman (PrivateHealth.gov.au dataset, on data.gov.au)
