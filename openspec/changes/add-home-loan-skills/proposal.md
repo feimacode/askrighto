@@ -1,3 +1,5 @@
+> **Superseded in part (27 Nov 2026) by `switch-to-index-only`:** courses and home loans no longer store source data, so the stored-data, permission and legal-view parts of this change are not built. Read the new change first.
+
 ## Why
 
 The home loan tools return published facts and arithmetic. The wording around them carries most of the regulatory risk: an assistant that says "this is the best loan for you" or "you'd be approved" turns information into credit assistance. A skill can hold the intake, the quoting rules and the refusals in a form that Claude and ChatGPT load, and that the answer-review skill can check against.

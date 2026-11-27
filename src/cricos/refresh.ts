@@ -6,7 +6,7 @@
 import type { Db } from "../energy/db.js";
 import { parseCricos, type CricosCourse } from "../courses/cricos.js";
 import { loadCourses, mergeIndex, readProviderFiles } from "../courses/load.js";
-import { dataDir } from "../courses/studies.js";
+import { dataDir } from "../courses/data-dir.js";
 import { loadIntl } from "../intl/load.js";
 import { parseIntlCricos } from "../intl/parse.js";
 import { checkGuards } from "./guards.js";

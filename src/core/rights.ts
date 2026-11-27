@@ -10,6 +10,7 @@ export const BASES = [
   "cdr_rule",
   "written_permission",
   "own_words_facts",
+  "link_only",
 ] as const;
 export const STATUSES = [
   "cleared",

@@ -1,3 +1,5 @@
+> **Superseded in part (27 Nov 2026) by `switch-to-index-only`:** courses and home loans no longer store source data, so the stored-data, permission and legal-view parts of this change are not built. Read the new change first.
+
 ## Why
 
 Home loan rates and fees are published by about a hundred lenders, each through its own Consumer Data Right (CDR) product endpoint. A comparison needs all of them joined, normalised and kept current, which is the same shape as energy plans and fits the case-selection test (complex, aggregated, large audience; ROADMAP row 3, score 14). The case is parked only on a regulatory question, so this change prepares the data layer and leaves the regulated part to later gates. Research and its unverified points: `docs/home-loans-research.md`.

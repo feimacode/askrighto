@@ -1,6 +1,4 @@
-# Victoria University: course index rows. Names and links are for the index; facts live only in curated rows.
-# Rows below with origin gap_fill are stand-ins until the CRICOS load (npm run courses:load -- --cricos FILE) supplies
-# official names and codes. Their foundAt is the university's own page.
+# Victoria University: source index entry (links only; no course facts are stored).
 provider:
   id: vu
   cricosProviderCode: "00124K"  # confirm against the CRICOS file on first load
@@ -8,81 +6,3 @@ provider:
   coursesUrl: https://www.vu.edu.au/study-at-vu/find-a-course
   searchUrl: https://www.vu.edu.au/study-at-vu/find-a-course
   domains: [vu.edu.au]
-courses:
-  - id: vu-bachelor-of-laws-degree
-    origin: gap_fill
-    name: "Bachelor of Laws (Degree)"
-    level: bachelor
-    fields: [law]
-    foundAt: https://www.vu.edu.au/courses/bachelor-of-laws-blaw
-    officialUrl: https://www.vu.edu.au/courses/bachelor-of-laws-blaw
-  - id: vu-bachelor-of-business
-    origin: gap_fill
-    name: "Bachelor of Business"
-    level: bachelor
-    fields: [business]
-    foundAt: https://www.vu.edu.au/courses/bachelor-of-business-bbns
-    officialUrl: https://www.vu.edu.au/courses/bachelor-of-business-bbns
-  - id: vu-bachelor-of-information-technology
-    origin: gap_fill
-    name: "Bachelor of Information Technology"
-    level: bachelor
-    fields: [it]
-    foundAt: https://www.vu.edu.au/courses/bachelor-of-information-technology-nbit
-    officialUrl: https://www.vu.edu.au/courses/bachelor-of-information-technology-nbit
-  - id: vu-bachelor-of-nursing-1st-year-entry
-    origin: gap_fill
-    name: "Bachelor of Nursing (1st Year Entry)"
-    level: bachelor
-    fields: [nursing]
-    foundAt: https://www.vu.edu.au/courses/bachelor-of-nursing-hbnb
-    officialUrl: https://www.vu.edu.au/courses/bachelor-of-nursing-hbnb
-  - id: vu-bachelor-of-psychology-honours
-    origin: gap_fill
-    name: "Bachelor of Psychology (Honours)"
-    level: bachelor
-    fields: [psychology]
-    foundAt: https://www.vu.edu.au/courses/bachelor-of-psychology-honours-abpc
-    officialUrl: https://www.vu.edu.au/courses/bachelor-of-psychology-honours-abpc
-  - id: vu-bachelor-of-education-primary
-    origin: gap_fill
-    name: "Bachelor of Education (Primary)"
-    level: bachelor
-    fields: [education]
-    foundAt: https://www.vu.edu.au/courses/bachelor-of-education-primary-ebpe
-    officialUrl: https://www.vu.edu.au/courses/bachelor-of-education-primary-ebpe
-  - id: vu-bachelor-of-arts
-    origin: gap_fill
-    name: "Bachelor of Arts"
-    level: bachelor
-    fields: [arts]
-    foundAt: https://www.vu.edu.au/courses/bachelor-of-arts-abab
-    officialUrl: https://www.vu.edu.au/courses/bachelor-of-arts-abab
-  - id: vu-bachelor-of-science
-    origin: gap_fill
-    name: "Bachelor of Science"
-    level: bachelor
-    fields: [science]
-    foundAt: https://www.vu.edu.au/courses/bachelor-of-science-nbsc
-    officialUrl: https://www.vu.edu.au/courses/bachelor-of-science-nbsc
-  - id: vu-bachelor-of-engineering-honours-civil
-    origin: gap_fill
-    name: "Bachelor of Engineering (Honours) (Civil)"
-    level: bachelor
-    fields: [engineering]
-    foundAt: https://www.vu.edu.au/courses/bachelor-of-engineering-honours-civil-engineering-nhec
-    officialUrl: https://www.vu.edu.au/courses/bachelor-of-engineering-honours-civil-engineering-nhec
-  - id: vu-paramedicine-degree
-    origin: gap_fill
-    name: "Paramedicine (Degree)"
-    level: bachelor
-    fields: [health]
-    foundAt: https://www.vu.edu.au/courses/bachelor-of-paramedicine-hbpd
-    officialUrl: https://www.vu.edu.au/courses/bachelor-of-paramedicine-hbpd
-  - id: vu-applied-movement-sciences-physiotherapy-degree-master
-    origin: gap_fill
-    name: "Applied Movement Sciences / Physiotherapy (Degree/Master)"
-    level: bachelor
-    fields: [health]
-    foundAt: https://www.vu.edu.au/courses/bachelor-of-applied-movement-sciences-master-of-physiotherapy-hcpt
-    officialUrl: https://www.vu.edu.au/courses/bachelor-of-applied-movement-sciences-master-of-physiotherapy-hcpt

@@ -1,10 +1,7 @@
-# James Cook University: provider entry for the qld index. CRICOS undergraduate courses come in from the CRICOS file on load;
-# coursesUrl is the provider's own site from the CRICOS Institutions sheet, not a course finder link. Add official course
-# links and curated rows by hand from the university's own pages (never from UAC, QTAC, VTAC or Course Seeker).
+# James Cook University: source index entry (links only; no course facts are stored).
 provider:
   id: jcu
   cricosProviderCode: "00117J"
   name: James Cook University
   coursesUrl: https://www.jcu.edu.au/
   domains: [jcu.edu.au]
-courses: []

@@ -5,7 +5,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parse } from "yaml";
-import { dataDir } from "../courses/studies.js";
+import { dataDir } from "../courses/data-dir.js";
 
 export type RuleStatus = "in_force" | "legislated_future" | "proposed";
 export interface RuleSource {

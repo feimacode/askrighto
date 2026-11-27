@@ -1,6 +1,5 @@
 /** Command-line entry points: cricos:refresh and load-all. */
 import { createDb, dbConfig, migrate } from "../energy/db.js";
-import { cliVceLoad } from "../courses/cli.js";
 import { refreshCricos, type RefreshResult } from "./refresh.js";
 
 function describe(r: RefreshResult): string {
@@ -37,8 +36,7 @@ export async function cliCricosRefresh(args: string[]): Promise<boolean> {
   }
 }
 
-/** migrate, then the VCE admissions files, then the CRICOS refresh: one command for a fresh database. */
+/** migrate, then the CRICOS refresh: one command for a fresh database. */
 export async function cliLoadAll(args: string[]): Promise<boolean> {
-  await cliVceLoad();
   return cliCricosRefresh(args);
 }

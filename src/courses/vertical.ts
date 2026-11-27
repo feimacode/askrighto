@@ -1,31 +1,15 @@
 import type { Vertical } from "../verticals.js";
 import {
-  checkCoursePrerequisites,
-  compareCourses,
   getCourse,
+  getVceAdmissionsSources,
   searchCourses,
 } from "../tools/course-tools.js";
-import {
-  estimateVceAggregate,
-  getSubjectScaling,
-  getVceKeyDates,
-  listEarlyEntrySchemes,
-} from "../tools/planning-tools.js";
 import { COURSE_INSTRUCTIONS } from "./instructions.js";
 import { startCourses } from "./index.js";
 
 export const coursesVertical: Vertical = {
   id: "courses-domestic",
-  tools: [
-    searchCourses,
-    getCourse,
-    compareCourses,
-    checkCoursePrerequisites,
-    getSubjectScaling,
-    estimateVceAggregate,
-    getVceKeyDates,
-    listEarlyEntrySchemes,
-  ],
+  tools: [searchCourses, getCourse, getVceAdmissionsSources],
   instructions: COURSE_INSTRUCTIONS,
   start: (env) => startCourses(env),
 };

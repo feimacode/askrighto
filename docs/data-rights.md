@@ -3,9 +3,9 @@
 Every dataset the server serves has an entry here and in `src/core/rights.json` (the machine copy; a test fails if the two disagree).
 In production a tool reading a dataset whose status is not `cleared` or `cleared_pending_legal_view` answers `data_unavailable`; in development it answers with a warning.
 
-**Bases:** `open_licence`, `cdr_rule`, `written_permission`, `own_words_facts`. **Statuses:** `cleared`, `cleared_pending_legal_view` (served, but blocks public listing), `pending`, `refused`, `withdrawn`.
+**Bases:** `open_licence`, `cdr_rule`, `written_permission`, `own_words_facts`, `link_only` (a source we only link to and never store; see `openspec/changes/switch-to-index-only`). **Statuses:** `cleared`, `cleared_pending_legal_view` (served, but blocks public listing), `pending`, `refused`, `withdrawn`.
 
-Corrections and take-downs: see [permissions/log.md](permissions/log.md#corrections-process). Permission requests: [Course Seeker](permissions/course-seeker.md), [VTAC](permissions/vtac.md), [VCAA](permissions/vcaa.md).
+Licence-heavy and regulated areas (domestic course facts, VTAC and VCAA data, home loans) are index-only since 27 Nov 2026: Ask Righto stores nothing from those sources, so there are no permission requests to send.
 
 ## energy-plans
 
@@ -39,133 +39,28 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Condition: Fees shown as indicative, as published, with the file date.
 - Condition: No English, entry-requirement, scholarship or intake facts are stored.
 
-## vic-courses
+## vce-admissions-links
 
-- Owner: Each Victorian university (course pages and admissions transparency pages)
-- Basis: `own_words_facts`
-- Status: `cleared_pending_legal_view`
-- Review by: 2027-08-01
-- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). VTAC terms: personal non-commercial use only, no extraction without written permission. So no VTAC or Course Seeker content is used; facts come from the universities' own pages, re-keyed in our own words with a link.
-- Condition: Facts only, in our own words, with a link on every fact.
-- Condition: Legal view on re-keyed facts outstanding (roadmap Phase 0).
-
-## nsw-act-courses
-
-- Owner: Each NSW and ACT university (course pages and admissions transparency pages)
-- Basis: `own_words_facts`
-- Status: `cleared_pending_legal_view`
-- Review by: 2027-08-01
-- Evidence: https://uac.edu.au/about/privacy-legal (read 2026-11-21). UAC terms: reproducing website or publication material needs UAC's written permission, apart from fair dealing; no wording on course data extraction. So no UAC content is used; facts come from the universities' own pages, re-keyed in our own words with a link.
-- Condition: Facts only, in our own words, with a link on every fact.
-- Condition: Legal view on re-keyed facts outstanding (roadmap Phase 0).
-- Condition: No permission request to UAC (Iven, 20 Nov 2026).
-
-## qld-courses
-
-- Owner: Each Queensland university (course pages and admissions transparency pages)
-- Basis: `own_words_facts`
-- Status: `cleared_pending_legal_view`
-- Review by: 2027-08-01
-- Evidence: https://www.qtac.edu.au/legal-privacy-policies/ (read 2026-11-21). QTAC terms: all rights reserved, one copy for private personal use, no other rights in the content. So no QTAC content is used; facts come from the universities' own pages, re-keyed in our own words with a link.
-- Condition: Facts only, in our own words, with a link on every fact.
-- Condition: Legal view on re-keyed facts outstanding (roadmap Phase 0).
-- Condition: No permission request to QTAC (Iven, 20 Nov 2026).
-
-## vce-key-dates
-
-- Owner: VCAA and VTAC (key dates pages)
-- Basis: `own_words_facts`
-- Status: `cleared_pending_legal_view`
+- Owner: VTAC and VCAA (official admissions pages)
+- Basis: `link_only`
+- Status: `cleared`
 - Review by: 2027-02-01
-- Evidence: https://www.vcaa.vic.edu.au/administration/key-dates/key-dates (read 2026-11-12). Individual dates re-keyed in our own words with a link. VCAA terms page not yet read; request drafted (docs/permissions/vcaa.md).
-- Condition: VCAA terms still to be read.
+- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). VTAC terms allow personal non-commercial use only and ban extraction without written permission. So Ask Righto stores and copies nothing from VTAC or VCAA: it only links to the pages and tells the user's own assistant what to read.
+- Condition: Links and reading checklists only; no figure, date or rule from these pages is stored, cached or logged.
+- Condition: Facts the assistant reads are quoted with the page link and time read, labelled as read by the assistant, and never sent back to or stored by the server.
+- Condition: The assistant never gets past a bot check or login.
+- Condition: Links are checked with `npm run sources:check`; the entries are marked unconfirmed until a person has opened each one.
 
-## vtac-preference-rules
+## cdr-banking-links
 
-- Owner: VTAC (preferences and offers pages)
-- Basis: `own_words_facts`
-- Status: `cleared_pending_legal_view`
-- Review by: 2027-08-01
-- Evidence: https://www.vtac.edu.au/offers (read 2026-11-12). Rules stated as individual facts in our own words with a link. VTAC asked to confirm (docs/permissions/vtac.md).
-- Condition: Reword, never copy; VTAC reply pending.
-
-## vic-early-entry
-
-- Owner: Each Victorian university's early offer scheme page
-- Basis: `own_words_facts`
-- Status: `cleared_pending_legal_view`
-- Review by: 2027-08-01
-- Evidence: https://www.vtac.edu.au/institutions/earlyofferprograms (read 2026-11-12). Scheme facts re-keyed from each university's own scheme page, linked. No eligibility verdicts.
-
-## vce-scaling
-
-- Owner: VTAC (annual scaling report)
-- Basis: `written_permission`
-- Status: `pending`
+- Owner: Consumer Data Right Register and Data Standards Body (CDR banking product data)
+- Basis: `link_only`
+- Status: `cleared`
 - Review by: 2027-02-01
-- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). No reuse without written permission. Request drafted (docs/permissions/vtac.md), not sent.
-
-## vce-study-groupings
-
-- Owner: VTAC (study area groupings fact sheet)
-- Basis: `written_permission`
-- Status: `pending`
-- Review by: 2027-02-01
-- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). No reuse without written permission. Request drafted (docs/permissions/vtac.md), not sent.
-
-## vtac-coursesearch
-
-- Owner: VTAC (CourseSearch)
-- Basis: `written_permission`
-- Status: `pending`
-- Review by: 2027-02-01
-- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). Extraction banned without written permission. Used only to block facts sourced from vtac.edu.au pages.
-
-## uac-coursesearch
-
-- Owner: UAC (course search and publications)
-- Basis: `written_permission`
-- Status: `pending`
-- Review by: 2027-02-01
-- Evidence: https://uac.edu.au/about/privacy-legal (read 2026-11-21). Reproduction needs written permission. Used only to block facts sourced from uac.edu.au pages. No request sent.
-
-## qtac-coursesearch
-
-- Owner: QTAC (course search and website content)
-- Basis: `written_permission`
-- Status: `pending`
-- Review by: 2027-02-01
-- Evidence: https://www.qtac.edu.au/legal-privacy-policies/ (read 2026-11-21). All rights reserved; no rights beyond private personal use. Used only to block facts sourced from qtac.edu.au pages. No request sent.
-
-## course-seeker
-
-- Owner: Department of Education and the admissions centres (Course Seeker)
-- Basis: `written_permission`
-- Status: `pending`
-- Review by: 2027-02-01
-- Evidence: https://www.courseseeker.edu.au/ (read 2026-11-13). No open licence. Deep links are fine; copying needs permission (CourseSeeker@education.gov.au). Request drafted (docs/permissions/course-seeker.md), not sent.
-
-## home-loans-cdr
-
-- Owner: Each lender, via the Consumer Data Right (banking product reference data)
-- Basis: `cdr_rule`
-- Status: `cleared_pending_legal_view`
-- Review by: 2027-03-01
-- Evidence: https://cdr-support.zendesk.com/hc/en-us/articles/900004104506 (read 2026-11-17). Product Reference Data needs no authentication. The CDR Rules simplified outline (rule 1.4) says a data holder cannot impose conditions on use of disclosed data; the operative rule number was not read.
-- Condition: API only; comparison sites and lender web pages are not scraped.
-- Condition: Rates and fees shown as published, never recomputed.
-- Condition: Public listing needs the credit legal view (docs/home-loans-research.md section 2) and the marker docs/legal/home-loans-view.md.
-
-## rba-cash-rate
-
-- Owner: Reserve Bank of Australia
-- Basis: `open_licence`
-- Status: `cleared_pending_legal_view`
-- Review by: 2027-03-01
-- Evidence: https://www.rba.gov.au/copyright/ (read 2026-11-17). Financial data (the cash rate) may be used commercially if RBA endorsement is not stated or implied; attribute "Source: Reserve Bank of Australia". Tables F5 and F6 are not used: third-party content not checked.
-- Attribution: Source: Reserve Bank of Australia 2026. The RBA does not endorse Ask Righto.
-- Condition: Cash rate target only; no other RBA series.
-- Condition: No statement that the RBA endorses Ask Righto.
+- Evidence: https://www.cdr.gov.au/ (read 2026-11-27). Ask Righto stores no lender product data and does not fetch it. It links to the CDR Register and Standards and describes the object structure in its own words, from a real run of 12 lenders on 17 Nov 2026.
+- Condition: No lender product, rate or fee is stored, cached or logged by the server.
+- Condition: Figures the assistant fetches are quoted with lender, product link and time fetched, labelled as read from the lender, never sent back to the server.
+- Condition: General information only: no ranking, suitability, approval or switching advice.
 
 ## health-cover-products
 
@@ -228,3 +123,12 @@ Corrections and take-downs: see [permissions/log.md](permissions/log.md#correcti
 - Condition: What we take is rules and names, written in our own words and code (record types, stream suffix meanings, interval lengths, distributor names). No AEMO document or table is copied into the repo or the product.
 - Condition: Attribution is kept where the material is used: the readings docs and the readings tool's source name say AEMO is the author, and the recipe cites the document and edition it follows.
 - Condition: The household's own readings file is the person's data, not AEMO Material, and is handled as the energy-plans entry says.
+
+## vce-scaling
+
+- Owner: VTAC (ATAR scaling reports)
+- Basis: `written_permission`
+- Status: `withdrawn`
+- Review by: 2027-02-01
+- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). Withdrawn 27 Nov 2026: Ask Righto no longer stores scaling data or asks VTAC for permission. It links to the most recent scaling report (see vce-admissions-links). Kept so the register shows the decision and so nothing registers this dataset again.
+- Condition: Never stored. Links only.

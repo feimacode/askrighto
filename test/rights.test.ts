@@ -53,14 +53,14 @@ describe("rights register", () => {
   it("rejects a duplicate dataset id", () => {
     expect(() => parseRights([entry(), entry()])).toThrow(/duplicate/);
   });
-  it("holds the three VTAC-dependent datasets back until permission arrives", () => {
-    for (const id of [
-      "vce-scaling",
-      "vce-study-groupings",
-      "vtac-coursesearch",
-      "course-seeker",
-    ])
-      expect(rightsFor(id)?.status).toBe("pending");
+  it("keeps VTAC scaling withdrawn: it is linked, never stored", () => {
+    expect(rightsFor("vce-scaling")?.status).toBe("withdrawn");
+    for (const id of ["vce-admissions-links", "cdr-banking-links"]) {
+      expect(rightsFor(id)?.basis).toBe("link_only");
+      expect(rightsFor(id)?.status).toBe("cleared");
+    }
+    for (const id of ["vic-courses", "home-loans-cdr", "rba-cash-rate", "vce-study-groupings"])
+      expect(rightsFor(id)).toBeUndefined();
   });
   it("lists overdue reviews", () => {
     expect(overdueReviews(new Date("2100-01-01")).length).toBe(RIGHTS.length);
@@ -74,10 +74,10 @@ describe("rights register", () => {
 });
 
 describe("production gate", () => {
-  it("serves cleared and legal-view-pending datasets, holds pending ones", () => {
+  it("serves cleared and legal-view-pending datasets, holds withdrawn ones", () => {
     const prod = { ASKRIGHTO_ENV: "production" } as NodeJS.ProcessEnv;
     expect(availability("energy-plans", prod).servable).toBe(true);
-    expect(availability("vic-courses", prod).servable).toBe(true);
+    expect(availability("cricos-register", prod).servable).toBe(true);
     expect(availability("vce-scaling", prod).servable).toBe(false);
     expect(availability("not-registered", prod).servable).toBe(false);
   });

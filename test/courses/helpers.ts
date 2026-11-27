@@ -2,97 +2,36 @@ import { Client, InMemoryTransport } from "@modelcontextprotocol/client";
 import type { Catalogue } from "../../src/courses/catalogue.js";
 import { setCoursesRuntime } from "../../src/courses/index.js";
 import { mergeIndex } from "../../src/courses/load.js";
+import { parseCricos } from "../../src/courses/cricos.js";
 import { parseProviderFile } from "../../src/courses/validate.js";
 import { createServer } from "../../src/server/create-server.js";
 import { routeSet } from "../../src/verticals.js";
 import { ALL_VERTICALS } from "../../src/server/route.js";
-import { loadStudies } from "../../src/courses/studies.js";
-import { readTables, readVceFiles } from "../../src/vce/load.js";
-import type { VceData } from "../../src/vce/types.js";
 
 export const FIXTURE_YAML = `
-provider: { id: testu, name: Test University, coursesUrl: https://www.testu.edu.au/courses, searchUrl: https://www.testu.edu.au/search, domains: [testu.edu.au] }
-courses:
-  - id: testu-science
-    name: Bachelor of Science
-    level: bachelor
-    fields: [science]
-    campuses: [parkville]
-    durationYears: 3
-    summary: A three-year science degree with majors across the physical and life sciences.
-    officialUrl: https://www.testu.edu.au/courses/science
-    entryFigures:
-      - { kind: lowest_selection_rank, value: 80.05, intakeYear: 2026, campus: parkville, sourceUrl: https://www.testu.edu.au/courses/science, checkedOn: "2026-11-01" }
-      - { kind: guaranteed_atar, value: 85, intakeYear: 2027, campus: parkville, sourceUrl: https://www.testu.edu.au/courses/science, checkedOn: "2026-11-01" }
-    prerequisites:
-      appliesToYear: 2028
-      text: English at least 25 (EAL at least 30), one of Methods or Specialist at least 25, and Chemistry at least 25.
-      rules:
-        - { study: english-group, minScore: 25, ealMinScore: 30 }
-        - { anyOf: [{ study: mathematical-methods, minScore: 25 }, { study: specialist-mathematics, minScore: 25 }] }
-        - { study: chemistry, minScore: 25 }
-      sourceUrl: https://www.testu.edu.au/courses/science
-      checkedOn: "2026-11-01"
-    otherCriteria: [{ kind: folio, note: Portfolio of work }]
-  - id: testu-arts
-    name: Bachelor of Arts
-    level: bachelor
-    fields: [arts]
-    campuses: [parkville]
-    summary: A broad arts degree.
-    officialUrl: https://www.testu.edu.au/courses/arts
-    entryFigures:
-      - { kind: lowest_selection_rank, value: 71, intakeYear: 2025, sourceUrl: https://www.testu.edu.au/courses/arts, checkedOn: "2026-11-02" }
-    prerequisites:
-      appliesToYear: 2027
-      text: English at least 25.
-      rules: [{ study: english-group, minScore: 25 }]
-      sourceUrl: https://www.testu.edu.au/courses/arts
-      checkedOn: "2026-11-02"
-  - id: testu-nursing
-    origin: gap_fill
-    name: Bachelor of Nursing
-    fields: [nursing]
-    foundAt: https://www.testu.edu.au/courses
-    officialUrl: https://www.testu.edu.au/courses/nursing
-    courseSeekerUrl: https://www.courseseeker.edu.au/course/testu-nursing
+provider: { id: testu, cricosProviderCode: "00001A", name: Test University, coursesUrl: https://www.testu.edu.au/courses, searchUrl: https://www.testu.edu.au/search, domains: [testu.edu.au] }
+`;
+
+export const CRICOS_CSV = `CRICOS Provider Code,CRICOS Course Code,Course Name,Course Level,Duration (Weeks),Locations
+00001A,111111A,"Bachelor of Law, Testing",Bachelor Degree,208,Parkville;Clayton
+00001A,333333C,Bachelor of Science,Bachelor Degree,156,Parkville
+00001A,222222B,Graduate Certificate of X,Graduate Certificate,26,Parkville
 `;
 
 export function fixtureCatalogue(): Catalogue {
   const r = parseProviderFile(FIXTURE_YAML);
   if (r.errors.length || !r.file) throw new Error(r.errors.join("; "));
-  const m = mergeIndex([r.file]);
+  const m = mergeIndex([r.file], parseCricos(CRICOS_CSV).courses);
   return {
-    providers: m.providers,
+    providers: m.providers.map((p) => ({ ...p, region: "vic" as const })),
     courses: m.courses,
     loadedAt: new Date("2026-11-10T00:00:00Z"),
   };
 }
 
-/** Real dates, rules and schemes; synthetic scaling and groupings (the real tables are not in the repo). */
-export function fixtureVce(): VceData {
-  const f = readVceFiles(`${process.cwd()}/data`);
-  const errors: string[] = [];
-  const t = readTables(
-    `${process.cwd()}/test/fixtures/vce-data`,
-    ["."],
-    loadStudies(),
-    errors,
-  );
-  if (errors.length) throw new Error(errors.join("; "));
-  return {
-    ...f.data,
-    scaling: t.scaling,
-    groupings: t.groupings,
-    loadedAt: new Date("2026-11-10T00:00:00Z"),
-  };
-}
-
-export function installFixtureRuntime(vce: VceData = fixtureVce()) {
-  const cat = fixtureCatalogue();
+export function installFixtureRuntime(cat: Catalogue = fixtureCatalogue()) {
   setCoursesRuntime({
     courses: { catalogue: async () => cat },
-    vce: { data: async () => vce },
     stop: async () => {},
   });
 }
@@ -131,14 +70,4 @@ export async function call(
   };
 }
 
-export const COURSES_DATASET_IDS = [
-  "vic-courses",
-  "nsw-act-courses",
-  "qld-courses",
-  "vce-key-dates",
-  "vtac-preference-rules",
-  "vic-early-entry",
-  "vce-scaling",
-  "vce-study-groupings",
-  "cricos-register",
-];
+export const COURSES_DATASET_IDS = ["cricos-register", "vce-admissions-links"];

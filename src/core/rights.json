@@ -56,229 +56,45 @@
     "reviewBy": "2027-08-01"
   },
   {
-    "datasetId": "vic-courses",
-    "owner": "Each Victorian university (course pages and admissions transparency pages)",
-    "basis": "own_words_facts",
-    "status": "cleared_pending_legal_view",
+    "datasetId": "vce-admissions-links",
+    "owner": "VTAC and VCAA (official admissions pages)",
+    "basis": "link_only",
+    "status": "cleared",
     "evidence": [
       {
         "url": "https://www.vtac.edu.au/copyright.html",
         "readOn": "2026-11-12",
-        "note": "VTAC terms: personal non-commercial use only, no extraction without written permission. So no VTAC or Course Seeker content is used; facts come from the universities' own pages, re-keyed in our own words with a link."
+        "note": "VTAC terms allow personal non-commercial use only and ban extraction without written permission. So Ask Righto stores and copies nothing from VTAC or VCAA: it only links to the pages and tells the user's own assistant what to read."
       }
     ],
     "attribution": null,
     "conditions": [
-      "Facts only, in our own words, with a link on every fact.",
-      "Legal view on re-keyed facts outstanding (roadmap Phase 0)."
-    ],
-    "reviewBy": "2027-08-01"
-  },
-  {
-    "datasetId": "nsw-act-courses",
-    "owner": "Each NSW and ACT university (course pages and admissions transparency pages)",
-    "basis": "own_words_facts",
-    "status": "cleared_pending_legal_view",
-    "evidence": [
-      {
-        "url": "https://uac.edu.au/about/privacy-legal",
-        "readOn": "2026-11-21",
-        "note": "UAC terms: reproducing website or publication material needs UAC's written permission, apart from fair dealing; no wording on course data extraction. So no UAC content is used; facts come from the universities' own pages, re-keyed in our own words with a link."
-      }
-    ],
-    "attribution": null,
-    "conditions": [
-      "Facts only, in our own words, with a link on every fact.",
-      "Legal view on re-keyed facts outstanding (roadmap Phase 0).",
-      "No permission request to UAC (Iven, 20 Nov 2026)."
-    ],
-    "reviewBy": "2027-08-01"
-  },
-  {
-    "datasetId": "qld-courses",
-    "owner": "Each Queensland university (course pages and admissions transparency pages)",
-    "basis": "own_words_facts",
-    "status": "cleared_pending_legal_view",
-    "evidence": [
-      {
-        "url": "https://www.qtac.edu.au/legal-privacy-policies/",
-        "readOn": "2026-11-21",
-        "note": "QTAC terms: all rights reserved, one copy for private personal use, no other rights in the content. So no QTAC content is used; facts come from the universities' own pages, re-keyed in our own words with a link."
-      }
-    ],
-    "attribution": null,
-    "conditions": [
-      "Facts only, in our own words, with a link on every fact.",
-      "Legal view on re-keyed facts outstanding (roadmap Phase 0).",
-      "No permission request to QTAC (Iven, 20 Nov 2026)."
-    ],
-    "reviewBy": "2027-08-01"
-  },
-  {
-    "datasetId": "uac-coursesearch",
-    "owner": "UAC (course search and publications)",
-    "basis": "written_permission",
-    "status": "pending",
-    "evidence": [
-      {
-        "url": "https://uac.edu.au/about/privacy-legal",
-        "readOn": "2026-11-21",
-        "note": "Reproduction needs written permission. Used only to block facts sourced from uac.edu.au pages. No request sent."
-      }
-    ],
-    "attribution": null,
-    "conditions": [],
-    "reviewBy": "2027-02-01",
-    "domains": [
-      "uac.edu.au"
-    ]
-  },
-  {
-    "datasetId": "qtac-coursesearch",
-    "owner": "QTAC (course search and website content)",
-    "basis": "written_permission",
-    "status": "pending",
-    "evidence": [
-      {
-        "url": "https://www.qtac.edu.au/legal-privacy-policies/",
-        "readOn": "2026-11-21",
-        "note": "All rights reserved; no rights beyond private personal use. Used only to block facts sourced from qtac.edu.au pages. No request sent."
-      }
-    ],
-    "attribution": null,
-    "conditions": [],
-    "reviewBy": "2027-02-01",
-    "domains": [
-      "qtac.edu.au"
-    ]
-  },
-  {
-    "datasetId": "vce-key-dates",
-    "owner": "VCAA and VTAC (key dates pages)",
-    "basis": "own_words_facts",
-    "status": "cleared_pending_legal_view",
-    "evidence": [
-      {
-        "url": "https://www.vcaa.vic.edu.au/administration/key-dates/key-dates",
-        "readOn": "2026-11-12",
-        "note": "Individual dates re-keyed in our own words with a link. VCAA terms page not yet read; request drafted (docs/permissions/vcaa.md)."
-      }
-    ],
-    "attribution": null,
-    "conditions": [
-      "VCAA terms still to be read."
+      "Links and reading checklists only; no figure, date or rule from these pages is stored, cached or logged.",
+      "Facts the assistant reads are quoted with the page link and time read, labelled as read by the assistant, and never sent back to or stored by the server.",
+      "The assistant never gets past a bot check or login.",
+      "Links are checked with `npm run sources:check`; the entries are marked unconfirmed until a person has opened each one."
     ],
     "reviewBy": "2027-02-01"
   },
   {
-    "datasetId": "vtac-preference-rules",
-    "owner": "VTAC (preferences and offers pages)",
-    "basis": "own_words_facts",
-    "status": "cleared_pending_legal_view",
+    "datasetId": "cdr-banking-links",
+    "owner": "Consumer Data Right Register and Data Standards Body (CDR banking product data)",
+    "basis": "link_only",
+    "status": "cleared",
     "evidence": [
       {
-        "url": "https://www.vtac.edu.au/offers",
-        "readOn": "2026-11-12",
-        "note": "Rules stated as individual facts in our own words with a link. VTAC asked to confirm (docs/permissions/vtac.md)."
+        "url": "https://www.cdr.gov.au/",
+        "readOn": "2026-11-27",
+        "note": "Ask Righto stores no lender product data and does not fetch it. It links to the CDR Register and Standards and describes the object structure in its own words, from a real run of 12 lenders on 17 Nov 2026."
       }
     ],
     "attribution": null,
     "conditions": [
-      "Reword, never copy; VTAC reply pending."
+      "No lender product, rate or fee is stored, cached or logged by the server.",
+      "Figures the assistant fetches are quoted with lender, product link and time fetched, labelled as read from the lender, never sent back to the server.",
+      "General information only: no ranking, suitability, approval or switching advice."
     ],
-    "reviewBy": "2027-08-01"
-  },
-  {
-    "datasetId": "vic-early-entry",
-    "owner": "Each Victorian university's early offer scheme page",
-    "basis": "own_words_facts",
-    "status": "cleared_pending_legal_view",
-    "evidence": [
-      {
-        "url": "https://www.vtac.edu.au/institutions/earlyofferprograms",
-        "readOn": "2026-11-12",
-        "note": "Scheme facts re-keyed from each university's own scheme page, linked. No eligibility verdicts."
-      }
-    ],
-    "attribution": null,
-    "conditions": [],
-    "reviewBy": "2027-08-01"
-  },
-  {
-    "datasetId": "vce-scaling",
-    "owner": "VTAC (annual scaling report)",
-    "basis": "written_permission",
-    "status": "pending",
-    "evidence": [
-      {
-        "url": "https://www.vtac.edu.au/copyright.html",
-        "readOn": "2026-11-12",
-        "note": "No reuse without written permission. Request drafted (docs/permissions/vtac.md), not sent."
-      }
-    ],
-    "attribution": null,
-    "conditions": [],
-    "reviewBy": "2027-02-01",
-    "dataGlobs": [
-      "data/vce/scaling-*"
-    ]
-  },
-  {
-    "datasetId": "vce-study-groupings",
-    "owner": "VTAC (study area groupings fact sheet)",
-    "basis": "written_permission",
-    "status": "pending",
-    "evidence": [
-      {
-        "url": "https://www.vtac.edu.au/copyright.html",
-        "readOn": "2026-11-12",
-        "note": "No reuse without written permission. Request drafted (docs/permissions/vtac.md), not sent."
-      }
-    ],
-    "attribution": null,
-    "conditions": [],
-    "reviewBy": "2027-02-01",
-    "dataGlobs": [
-      "data/vce/study-groupings-*"
-    ]
-  },
-  {
-    "datasetId": "vtac-coursesearch",
-    "owner": "VTAC (CourseSearch)",
-    "basis": "written_permission",
-    "status": "pending",
-    "evidence": [
-      {
-        "url": "https://www.vtac.edu.au/copyright.html",
-        "readOn": "2026-11-12",
-        "note": "Extraction banned without written permission. Used only to block facts sourced from vtac.edu.au pages."
-      }
-    ],
-    "attribution": null,
-    "conditions": [],
-    "reviewBy": "2027-02-01",
-    "domains": [
-      "vtac.edu.au"
-    ]
-  },
-  {
-    "datasetId": "course-seeker",
-    "owner": "Department of Education and the admissions centres (Course Seeker)",
-    "basis": "written_permission",
-    "status": "pending",
-    "evidence": [
-      {
-        "url": "https://www.courseseeker.edu.au/",
-        "readOn": "2026-11-13",
-        "note": "No open licence. Deep links are fine; copying needs permission (CourseSeeker@education.gov.au). Request drafted (docs/permissions/course-seeker.md), not sent."
-      }
-    ],
-    "attribution": null,
-    "conditions": [],
-    "reviewBy": "2027-02-01",
-    "domains": [
-      "courseseeker.edu.au"
-    ]
+    "reviewBy": "2027-02-01"
   },
   {
     "datasetId": "health-cover-products",
@@ -319,45 +135,6 @@
       "Licence of the ATO and Department of Health pages to be confirmed."
     ],
     "reviewBy": "2027-04-01"
-  },
-  {
-    "datasetId": "home-loans-cdr",
-    "owner": "Each lender, via the Consumer Data Right (banking product reference data)",
-    "basis": "cdr_rule",
-    "status": "cleared_pending_legal_view",
-    "evidence": [
-      {
-        "url": "https://cdr-support.zendesk.com/hc/en-us/articles/900004104506",
-        "readOn": "2026-11-17",
-        "note": "Product Reference Data needs no authentication. The CDR Rules simplified outline (rule 1.4) says a data holder cannot impose conditions on use of disclosed data; the operative rule number was not read."
-      }
-    ],
-    "attribution": null,
-    "conditions": [
-      "API only; comparison sites and lender web pages are not scraped.",
-      "Rates and fees shown as published, never recomputed.",
-      "Public listing needs the credit legal view (docs/home-loans-research.md section 2) and the marker docs/legal/home-loans-view.md."
-    ],
-    "reviewBy": "2027-03-01"
-  },
-  {
-    "datasetId": "rba-cash-rate",
-    "owner": "Reserve Bank of Australia",
-    "basis": "open_licence",
-    "status": "cleared_pending_legal_view",
-    "evidence": [
-      {
-        "url": "https://www.rba.gov.au/copyright/",
-        "readOn": "2026-11-17",
-        "note": "Financial data (the cash rate) may be used commercially if RBA endorsement is not stated or implied; attribute 'Source: Reserve Bank of Australia'. Statistical tables F5 and F6 are not used: third-party content not checked."
-      }
-    ],
-    "attribution": "Source: Reserve Bank of Australia 2026. The RBA does not endorse Ask Righto.",
-    "conditions": [
-      "Cash rate target only; no other RBA series.",
-      "No statement that the RBA endorses Ask Righto."
-    ],
-    "reviewBy": "2027-03-01"
   },
   {
     "datasetId": "career-outcomes",
@@ -431,5 +208,23 @@
       "The household's own readings file is the person's data, not AEMO Material, and is handled as the energy-plans entry says."
     ],
     "reviewBy": "2027-11-20"
+  },
+  {
+    "datasetId": "vce-scaling",
+    "owner": "VTAC (ATAR scaling reports)",
+    "basis": "written_permission",
+    "status": "withdrawn",
+    "evidence": [
+      {
+        "url": "https://www.vtac.edu.au/copyright.html",
+        "readOn": "2026-11-12",
+        "note": "Withdrawn 27 Nov 2026: Ask Righto no longer stores scaling data or asks VTAC for permission. It links to the most recent scaling report (see vce-admissions-links). Kept so the register shows the decision and so nothing registers this dataset again."
+      }
+    ],
+    "attribution": null,
+    "conditions": [
+      "Never stored. Links only."
+    ],
+    "reviewBy": "2027-02-01"
   }
 ]

@@ -1,6 +1,6 @@
 # Directory listing drafts: home loans (DRAFT, not submitted, not legally reviewed)
 
-Do not use any of this text until the legal view is recorded. Check each host's current category and policy text first; lending may be a higher-risk category (**unverified**).
+Home loans are index-only since 27 Nov 2026: Ask Righto holds no lender data, so any text here that says it lists or compares stored products is out of date. Do not use any of this text until it is rewritten and the legal view question is settled again. Check each host's current category and policy text first; lending may be a higher-risk category (**unverified**).
 
 ## Short description
 

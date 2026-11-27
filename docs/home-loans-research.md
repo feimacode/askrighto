@@ -1,3 +1,5 @@
+> **Superseded in approach (27 Nov 2026):** Ask Righto no longer stores home loan data, so the credit legal-view plan below is no longer a gate. Kept for the research on CDR shapes and credit law. See `openspec/changes/switch-to-index-only`.
+
 # Home loan comparison: data and regulatory research
 
 Research for the `add-home-loan-*` OpenSpec changes, 17 Nov 2026. Status: **planning only; no code**.

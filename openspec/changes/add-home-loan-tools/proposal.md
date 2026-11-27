@@ -1,3 +1,5 @@
+> **Superseded in part (27 Nov 2026) by `switch-to-index-only`:** courses and home loans no longer store source data, so the stored-data, permission and legal-view parts of this change are not built. Read the new change first.
+
 ## Why
 
 With published home loan products stored (`add-home-loan-data`), a person comparing loans needs a host assistant that can filter products on their stated needs, show each lender's published rates and fees side by side, and run the repayment arithmetic they cannot easily do alone, with every figure traceable. The same tools must stay on the information side of the regulatory line: they list and compute from published figures and never say which loan to take.
