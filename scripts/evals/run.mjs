@@ -25,6 +25,7 @@ const { values: opt } = parseArgs({
     label: { type: "string" },
     "max-turns": { type: "string", default: "8" },
     "dry-run": { type: "boolean", default: false },
+    "mock-cdr": { type: "boolean", default: false },
   },
 });
 
@@ -83,6 +84,7 @@ if (!mcpUrl) {
       ASKRIGHTO_INTERNAL_TOKEN: token,
       ASKRIGHTO_RATE_LIMIT: "100000",
       ASKRIGHTO_LOG: "off",
+      ...(opt["mock-cdr"] ? { ASKRIGHTO_CDR_MOCK: "1" } : {}),
     },
     stdio: ["ignore", "pipe", "inherit"],
   });

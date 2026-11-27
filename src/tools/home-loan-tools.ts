@@ -47,7 +47,7 @@ export const getCdrBankingGuide = defineTool({
   name: "get_cdr_banking_guide",
   title: "Guide to reading home loan data",
   description:
-    "Says where lenders publish home loan rates and fees through the Consumer Data Right, how the product objects are structured, the quirks to watch for, and the wording rules. Ask Righto holds no lender data: the assistant fetches it from the lender and says so.",
+    "Says where lenders publish home loan rates and fees through the Consumer Data Right, how the product objects are structured, the quirks to watch for, and the wording rules. Ask Righto stores no lender data: list_home_loan_lenders and get_home_loan_products fetch it live from the lender, and you say so.",
   inputSchema: z.object({
     journey: z
       .enum(JOURNEYS)

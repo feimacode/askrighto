@@ -8,8 +8,10 @@ name: Evals
 # Needs no production database. It starts a throwaway PostgreSQL service, applies the migrations and
 # loads what the repo and its test fixtures hold (VIC course index, VCE data, a sample CRICOS sheet,
 # sample health cover files) and synthetic energy plans and benchmarks (scripts/evals/load-energy-fixtures.mjs).
-# Home loan data needs live CDR payloads that this job does not load, so those prompts are not in the default
-# sets; the energy set runs on invented fixture data only, so it checks behaviour and wording, not real prices.
+# The home-loans set needs no database. By default (mock_cdr) it runs against invented lenders built into the server;
+# untick mock_cdr to read the real Register and lenders, which needs outbound internet and makes real requests. It is
+# not in the default sets. The energy set runs on
+# invented fixture data only, so it checks behaviour and wording, not real prices.
 #
 # Configured only by repository settings (Settings > Secrets and variables > Actions), the same
 # variables a local run reads:
@@ -40,6 +42,11 @@ on:
         description: 'A label for this run, e.g. "before the skill change"'
         required: false
         type: string
+      mock_cdr:
+        description: 'Home loans: use invented lenders instead of the real CDR Register (steady answers, no requests to lenders)'
+        required: true
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -111,10 +118,12 @@ jobs:
           ONLY: ${{ inputs.only }}
           REPEAT: ${{ inputs.repeat }}
           LABEL: ${{ inputs.label }}
+          MOCK_CDR: ${{ inputs.mock_cdr }}
         run: |
           ARGS=(--set "${SETS:-domestic,international,health}" --repeat "$REPEAT")
           if [ -n "$ONLY" ] && [ "$ONLY" != "all" ]; then ARGS+=(--only "$ONLY"); fi
           if [ -n "$LABEL" ]; then ARGS+=(--label "$LABEL"); fi
+          if [ "$MOCK_CDR" = "true" ]; then ARGS+=(--mock-cdr); fi
           node scripts/evals/run.mjs "${ARGS[@]}"
 
       - name: Upload the results

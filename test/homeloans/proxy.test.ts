@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Client, InMemoryTransport } from "@modelcontextprotocol/client";
 import { RetailerLimiter } from "../../src/cdr/limiter.js";
 import {
@@ -145,6 +146,51 @@ describe("proxy requests", () => {
   });
 });
 
+describe("proxy failure shapes and storage", () => {
+  const brand = parseBrands(REGISTER)[0]!;
+  const with200 = (body: string, redirect = false) =>
+    new CdrProxy({
+      limiter: new RetailerLimiter({ rps: 1000, maxInFlight: 8 }),
+      fetchImpl: (async (_u: string, init?: RequestInit) => {
+        if (redirect && init?.redirect === "error") throw new TypeError("redirect refused");
+        return new Response(body, { status: 200 });
+      }) as unknown as typeof fetch,
+    });
+  it("treats a 200 without CDR data as a bad response", async () => {
+    await expect(with200("{}").list(brand, 1, 5)).rejects.toMatchObject({ kind: "bad_response" });
+    await expect(with200("not json").list(brand, 1, 5)).rejects.toMatchObject({ kind: "bad_response" });
+  });
+  it("refuses an oversized body", async () => {
+    await expect(with200("x".repeat(2_000_001)).list(brand, 1, 5)).rejects.toMatchObject({ kind: "too_large" });
+  });
+  it("reports a refused redirect as the lender being unreachable", async () => {
+    await expect(with200("{}", true).list(brand, 1, 5)).rejects.toMatchObject({ kind: "lender_unreachable" });
+  });
+  it("makes a lender call every time: product data is not cached", async () => {
+    const { proxy, seen } = mock();
+    await proxy.list(brand, 1, 5);
+    await proxy.list(brand, 1, 5);
+    await proxy.detail(brand, "p1");
+    await proxy.detail(brand, "p1");
+    expect(seen.filter((x) => x.url.includes("/cds-au/"))).toHaveLength(4);
+  });
+  it("writes a lender response nowhere: the module has no file, database or log access, and prints nothing", async () => {
+    const marker = "UNIQUE-LENDER-MARKER-7731";
+    const logs: string[] = [];
+    const spies = (["log", "info", "warn", "error", "debug"] as const).map((k) => vi.spyOn(console, k).mockImplementation((...a) => void logs.push(a.join(" "))));
+    const src = readFileSync("src/homeloans/proxy.ts", "utf8");
+    expect(src).not.toMatch(/node:fs|from "pg"|\.\.\/db|console\./);
+    const proxy = new CdrProxy({
+      limiter: new RetailerLimiter({ rps: 1000, maxInFlight: 8 }),
+      fetchImpl: (async () => new Response(JSON.stringify({ data: { products: [{ productId: marker }] } }), { status: 200 })) as unknown as typeof fetch,
+    });
+    await proxy.list(brand, 1, 5);
+    await proxy.detail(brand, "p1");
+    expect(logs.join("\n")).not.toContain(marker);
+    spies.forEach((x) => x.mockRestore());
+  });
+});
+
 describe("proxy tools", () => {
   async function connect() {
     const set = routeSet(ALL_VERTICALS, ["home-loans"]);
@@ -177,5 +223,47 @@ describe("proxy tools", () => {
     });
     expect(r.data.found).toBe(false);
     expect(r.text).toMatch(/home loan page/);
+  });
+});
+
+describe("mock lender mode", () => {
+  it("serves invented lenders through the real proxy, including the version fallback and a failing lender", async () => {
+    const { mockCdrFetch, mockCdrEnabled } = await import("../../src/homeloans/mock-cdr.js");
+    const proxy = new CdrProxy({ fetchImpl: mockCdrFetch, limiter: new RetailerLimiter({ rps: 1000, maxInFlight: 8 }) });
+    const brands = await proxy.brands();
+    expect(brands.map((b) => b.id)).toContain("mock-westpac");
+    const westpac = resolveLender(brands, "westpac");
+    if (!westpac.ok) throw new Error("westpac not resolved");
+    const list = await proxy.list(westpac.brand, 1, 5);
+    expect(list.xVersion).toBe(4); // refuses 5, accepts 4
+    const detail = await proxy.detail(westpac.brand, "mock-westpac-var");
+    expect((detail.body as { data: { lendingRates: { rate: string }[] } }).data.lendingRates[0]!.rate).toBe("0.0599");
+    expect(resolveLender(brands, "beyond").ok).toBe(false); // two Beyond Bank brands
+    const down = resolveLender(brands, "unavailable");
+    if (!down.ok) throw new Error("unavailable lender not resolved");
+    await expect(proxy.list(down.brand, 1, 5)).rejects.toMatchObject({ kind: "bad_response", status: 503 });
+    expect(mockCdrEnabled({ ASKRIGHTO_CDR_MOCK: "1", NODE_ENV: "test" })).toBe(true);
+    expect(mockCdrEnabled({ ASKRIGHTO_CDR_MOCK: "1", NODE_ENV: "production" })).toBe(false);
+    expect(mockCdrEnabled({})).toBe(false);
+  });
+  it("the tools use the mock when ASKRIGHTO_CDR_MOCK=1, with no network", async () => {
+    vi.stubEnv("ASKRIGHTO_CDR_MOCK", "1");
+    vi.stubEnv("NODE_ENV", "test");
+    setCdrProxy(undefined);
+    const set = routeSet(ALL_VERTICALS, ["home-loans"]);
+    const server = createServer(set.tools, { route: "internal", instructions: set.instructions });
+    const client = new Client({ name: "t", version: "0" });
+    const [a, b] = InMemoryTransport.createLinkedPair();
+    await Promise.all([server.connect(a), client.connect(b)]);
+    try {
+      const r = await call(client, "get_home_loan_products", { lender: "Westpac" });
+      expect(r.data.found).toBe(true);
+      expect(r.data.data.xVersionUsed).toBe(4);
+      const down = await call(client, "get_home_loan_products", { lender: "Unavailable Credit Union" });
+      expect(down.data.found).toBe(false);
+    } finally {
+      vi.unstubAllEnvs();
+      setCdrProxy(undefined);
+    }
   });
 });

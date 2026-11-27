@@ -3,7 +3,7 @@ export const NOTICE_NOT_ADVICE =
   "This is general information, not credit advice or a recommendation. Ask Righto does not assess what suits you, whether you would be approved, or whether you should switch. Talk to the lender or a licensed broker about your own situation.";
 
 export const GUIDE_NOTICE =
-  "Ask Righto holds no lender data and has not read any lender's endpoint. Figures you read are the lender's, as published through the Consumer Data Right at the time you read them, and may differ from what a lender offers you. " +
+  "Ask Righto stores no lender data. Its list_home_loan_lenders and get_home_loan_products tools relay a lender's live answer without keeping it, and this guide is only structure and links. Figures you read are the lender's, as published through the Consumer Data Right at the time you read them, and may differ from what a lender offers you. " +
   NOTICE_NOT_ADVICE;
 
 export const CALC_NOTICE =
