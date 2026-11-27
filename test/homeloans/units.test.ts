@@ -55,10 +55,10 @@ async function connect() {
 }
 
 describe("home loan tools (index-only)", () => {
-  it("serves the guide and the calculator only, and the data tools are gone", async () => {
+  it("serves the proxy tools, guide and calculator, and the stored-data tools are gone", async () => {
     const { tools } = await (await connect()).listTools();
     const names = tools.map((t) => t.name);
-    expect(names).toEqual(expect.arrayContaining(["get_cdr_banking_guide", "calculate_home_loan_repayments"]));
+    expect(names).toEqual(expect.arrayContaining(["list_home_loan_lenders", "get_home_loan_products", "get_cdr_banking_guide", "calculate_home_loan_repayments"]));
     for (const n of ["search_home_loans", "get_home_loan", "compare_home_loans", "get_home_loan_reference_rates"])
       expect(names).not.toContain(n);
   });

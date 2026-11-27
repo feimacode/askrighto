@@ -17,8 +17,7 @@ export const CDR_LINKS = {
   register: "https://www.cdr.gov.au/find-a-provider",
   brandsApi:
     "https://api.cdr.gov.au/cdr-register/v1/banking/data-holders/brands/summary",
-  schemas:
-    "https://github.com/ConsumerDataStandardsAustralia/dsb-schema-tools",
+  schemas: "https://github.com/ConsumerDataStandardsAustralia/dsb-schema-tools",
   standards: "https://consumerdatastandardsaustralia.github.io/standards/",
 } as const;
 
@@ -27,6 +26,7 @@ export const GUIDE_SECTIONS: readonly GuideSection[] = [
     journey: "find",
     title: "Find the lenders and their product endpoints",
     steps: [
+      "Easiest route: call list_home_loan_lenders, then get_home_loan_products with a lender (and a productId for one product's full detail). Ask Righto relays the lender's own answer live, sets the version headers for you and stores nothing. Use the steps below only if those tools are unavailable.",
       `The CDR Register lists every data holder brand. Its brand summary API (${CDR_LINKS.brandsApi}, send header x-v: 2) gave each brand's publicBaseUri in a 17 Nov 2026 test. Confirm the path against the Register standards on first use.`,
       "A lender's product list is GET {publicBaseUri}/cds-au/v1/banking/products?product-category=RESIDENTIAL_MORTGAGES, with no login. Follow links.next while it is present.",
       "Each request needs an x-v header (the version). Try x-v 5 for the list; if the lender answers 406 try 4, then 3. Product detail GET {publicBaseUri}/cds-au/v1/banking/products/{productId} worked with x-v 7 on every lender tested. Send x-min-v: 1.",

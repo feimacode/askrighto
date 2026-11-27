@@ -97,6 +97,27 @@
     "reviewBy": "2027-02-01"
   },
   {
+    "datasetId": "cdr-banking-live",
+    "owner": "Australian banks and other data holders (CDR banking product reference data), via the CDR Register",
+    "basis": "cdr_rule",
+    "status": "cleared_pending_legal_view",
+    "evidence": [
+      {
+        "url": "https://www.cdr.gov.au/",
+        "readOn": "2026-11-27",
+        "note": "Product reference data is public by Consumer Data Right rule. The proxy passes each request through to the lender's own public endpoint and stores nothing."
+      }
+    ],
+    "attribution": null,
+    "conditions": [
+      "Pass-through only: nothing from a lender response is stored, cached (beyond the in-memory Register brand list) or logged.",
+      "Lender base URIs must be https, public hosts; redirects refused; responses capped at 2 MB.",
+      "Figures are quoted with lender, product link and time fetched. General information only: no ranking, suitability, approval or switching advice.",
+      "Credit legal view outstanding (AGENTS.md rule 5): public listing is blocked until it is recorded."
+    ],
+    "reviewBy": "2027-02-01"
+  },
+  {
     "datasetId": "health-cover-products",
     "owner": "Commonwealth Ombudsman (PrivateHealth.gov.au dataset, on data.gov.au)",
     "basis": "open_licence",
@@ -222,9 +243,7 @@
       }
     ],
     "attribution": null,
-    "conditions": [
-      "Never stored. Links only."
-    ],
+    "conditions": ["Never stored. Links only."],
     "reviewBy": "2027-02-01"
   }
 ]
