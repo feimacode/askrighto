@@ -81,7 +81,7 @@ Users who installed by hand update by uploading the new zip from the release (sa
 ## Pre-releases
 
 1. `npm run release:bump -- 0.2.0-beta.1` and push the tag. The release is marked pre-release; the image gets `:0.2.0-beta.1` and no `:stable`.
-2. Test the zips by hand (Claude: Customize > Plugins > Upload plugin; ChatGPT: a portal draft). There is one production instance, so test a server beta on a local or tunnel run (`docs/development.md`), not by deploying it.
+2. Test the zips by hand (Claude: Customize > Plugins > Upload plugin; ChatGPT: a portal draft). Until a directory listing is live, deploy the beta to the one production instance (`-e askrighto_version=0.2.0-beta.1`, then `npm run release:smoke -- https://askrighto.feimacode.com 0.2.0-beta.1`); it gets no `:stable` tag and uses no release number. Once a listing is live, test a server beta on a local or tunnel run (`docs/development.md`) instead, because listed hosts would see it.
 3. Fix and repeat with `-beta.2`. When it passes, release `0.2.0` from the same code.
 
 ## Checklist before tagging
