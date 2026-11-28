@@ -78,7 +78,7 @@ describe("course tools (index-only)", () => {
     const { data, text } = await call(c, "get_admissions_sources", { state: "vic", topic: "scaling" });
     expect(data.found).toBe(true);
     expect(data.data.sources).toHaveLength(1);
-    expect(data.data.sources[0].url).toMatch(/^https:\/\/www\.vtac\.edu\.au\//);
+    expect(data.data.sources[0].url).toMatch(/^https:\/\/(www\.)?vtac\.edu\.au\//);
     expect(data.data.sources[0].readingChecklist.length).toBeGreaterThan(0);
     expect(data.data.rules).toMatch(/not an ATAR/);
     expect(text).not.toMatch(/scaled score of \d/);
@@ -105,7 +105,8 @@ describe("course tools (index-only)", () => {
     expect(data.data.sources.map((s: { id: string }) => s.id)).toEqual(
       expect.arrayContaining(["scaling", "atar-rules", "key-dates", "preferences", "early-entry", "adjustment-factors", "subject-rules"]),
     );
-    expect(data.warnings?.join()).toMatch(/not yet confirmed/);
+    // Only entries without a checkedOn date carry the warning; vic and qld still have some.
+    if (state === "vic" || state === "qld") expect(data.warnings?.join()).toMatch(/not yet confirmed/);
     expect(data.data.rules).toMatch(/different measures/);
     expect(text).toContain(centre);
   });

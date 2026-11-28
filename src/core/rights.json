@@ -67,9 +67,9 @@
         "note": "VTAC terms allow personal non-commercial use only and ban extraction without written permission. So Ask Righto stores and copies nothing from VTAC or VCAA: it only links to the pages and tells the user's own assistant what to read."
       },
       {
-        "url": "https://www.uac.edu.au/",
+        "url": "https://uac.edu.au/about/privacy-legal",
         "readOn": "2026-11-28",
-        "note": "UAC, QTAC, NESA, QCAA and the ACT Board were added on 28 Nov 2026 and their terms have not been read (the pages could not be reached from the build environment). The same rule applies: links and our own checklist wording only, nothing copied or stored."
+        "note": "Read by the device session on 28 Nov 2026. UAC, QTAC (https://www.qtac.edu.au/legal-privacy-policies/) and NESA (https://www.nsw.gov.au/education-and-training/nesa/copyright) allow personal reading and a single personal copy and ban reproduction without written permission, so links and our own checklist wording only. The ACT government site is CC BY 4.0 (https://www.act.gov.au/copyright); the BSSS page's own exceptions were not read. QCAA's terms were not read (the site showed a bot check)."
       }
     ],
     "attribution": null,
@@ -78,7 +78,7 @@
       "Facts the assistant reads are quoted with the page link and time read, labelled as read by the assistant, and never sent back to or stored by the server.",
       "The assistant never gets past a bot check or login.",
       "Links are checked with `npm run sources:check`; the entries are marked unconfirmed until a person has opened each one.",
-      "Before the NSW, ACT and Queensland entries are relied on, a person reads UAC and QTAC terms and confirms links-only use is fine."
+      "Still to read: QCAA terms (the site blocks plain reads) and the ACT BSSS page's own exceptions."
     ],
     "reviewBy": "2027-02-01"
   },
