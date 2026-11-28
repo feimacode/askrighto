@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "askrighto-internal": {
+      "type": "http",
+      "url": "https://askrighto.feimacode.com/mcp-internal/${ASKRIGHTO_INTERNAL_TOKEN}"
+    }
+  }
+}

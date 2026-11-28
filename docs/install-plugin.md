@@ -15,7 +15,14 @@ Three ready-made packages are attached to every [GitHub release](https://github.
 /plugin install askrighto@askrighto
 ```
 
-(The marketplace also lists `askrighto-internal`, which is for testers; ignore it.)
+**Testers only: the internal plugin.** The marketplace also lists `askrighto-internal` (course, home loan and health cover skills, plus a connector to the internal route). Everyone else can ignore it. Set the token you were given in the environment Claude Code starts in, then install:
+
+```
+export ASKRIGHTO_INTERNAL_TOKEN=<token from Iven>
+/plugin install askrighto-internal@askrighto
+```
+
+The plugin's `.mcp.json` points at `/mcp-internal/${ASKRIGHTO_INTERNAL_TOKEN}`, so the token never sits in the repo. If the variable is unset the connector fails to start and only the skills load. Where the plugin browser does not pass the variable (Claude desktop or web), add the internal connector by hand with the full URL instead. Never share the URL or put it in a listing.
 
 **Or only the server.** Settings > Connectors > Add custom connector, URL above, no sign-in. You get the tools without the skills.
 
