@@ -33,6 +33,23 @@ const base = {
 
 const aud = (n: number) => `AUD ${Math.round(n).toLocaleString("en-AU")}`;
 const lower = (s: string | undefined) => (s ?? "").toLowerCase();
+
+/**
+ * Word matching for the course search. "artificial intelligence" and "ai" are the same term, so both find
+ * "Bachelor of Artificial Intelligence". A query word of 4 or more letters matches the start of a word
+ * ("engineer" finds "Engineering"); a shorter one (an acronym such as "ai" or "it") must be a whole word,
+ * so "ai" no longer matches "Sustainability" or "Entertainment".
+ */
+const SYNONYMS: ReadonlyArray<[RegExp, string]> = [
+  [/\bartificial intelligence\b/g, "ai"],
+];
+const normaliseText = (s: string | undefined) =>
+  SYNONYMS.reduce((t, [re, to]) => t.replace(re, to), lower(s));
+const tokens = (s: string) => s.split(/[^a-z0-9]+/).filter(Boolean);
+export const wordMatches = (haystack: string, word: string): boolean =>
+  tokens(haystack).some((t) =>
+    word.length >= 4 ? t.startsWith(word) : t === word,
+  );
 const withNotice = (t: string) => `${t}\n\n${INTL_NOTICE}`;
 
 /** Total fee over duration, only when both are published. */
@@ -213,16 +230,20 @@ export const searchIntlCourses = defineTool({
       .describe("Cursor from a previous result"),
   }),
   ...base,
-  meta: tableMeta("data_table"),
+  meta: tableMeta("listings"),
   handler: (a) =>
     withIntl<SearchData>((d) => {
-      const words = lower(a.query).split(/\s+/).filter(Boolean);
+      const words = tokens(normaliseText(a.query));
       let list = d.courses.filter((c) => !c.expired);
       const prov = (c: IntlCourse) =>
         lower(d.providers.find((p) => p.id === c.providerId)?.name);
       if (words.length)
         list = list.filter((c) =>
-          words.every((w) => lower(c.name).includes(w) || prov(c).includes(w)),
+          words.every(
+            (w) =>
+              wordMatches(normaliseText(c.name), w) ||
+              wordMatches(normaliseText(prov(c)), w),
+          ),
         );
       if (a.level) list = list.filter((c) => c.levelGroup === a.level);
       if (a.sector) list = list.filter((c) => c.sector === a.sector);
@@ -288,6 +309,17 @@ export const searchIntlCourses = defineTool({
       const limit = a.limit ?? 20;
       const start = a.cursor ? Math.max(0, parseInt(a.cursor, 10) || 0) : 0;
       const page = list.slice(start, start + limit);
+      const seen = new Set<string>();
+      const repeated = page.some((c) => {
+        const k = `${c.providerId}|${lower(c.name)}|${c.tuitionFeeTotal ?? ""}`;
+        const dup = seen.has(k);
+        seen.add(k);
+        return dup;
+      });
+      if (repeated)
+        notes.push(
+          "Some rows share a course name, provider and fee. CRICOS registers a course more than once (for example for different campuses or intakes), so they have different CRICOS codes; they are shown separately.",
+        );
       const next =
         start + limit < list.length ? String(start + limit) : undefined;
       return okResult(d, {
@@ -303,7 +335,7 @@ export const searchIntlCourses = defineTool({
   render: (d) =>
     withNotice(
       [
-        `${d.returned} of ${d.total} courses, in order of course name. ${d.matchesWithoutPublishedFee} of the matching courses have no published fee.`,
+        `${d.returned} of ${d.total} courses, in order of course name. ${d.matchesWithoutPublishedFee === 0 ? "Every matching course has a published fee." : `${d.matchesWithoutPublishedFee} of the matching courses have no published fee.`}`,
         ...d.notes,
         ...d.courses.map(
           (c) =>
@@ -315,36 +347,47 @@ export const searchIntlCourses = defineTool({
         .join("\n"),
     ),
   decorate: (result) =>
-    inkviewResult(result, () => {
-      const r = result as Found<SearchData>;
-      return inkview.table(
-        {
-          title: "Courses for international students",
-          caption: INTL_NOTICE,
-          columns: [
-            { key: "course", label: "Course" },
-            { key: "provider", label: "Provider" },
-            { key: "level", label: "Level" },
-            { key: "weeks", label: "Weeks" },
-            { key: "fee", label: "Total tuition fee (indicative)" },
-            { key: "where", label: "Locations" },
-          ],
-          rows: r.data.courses.map((c) => ({
-            course: c.name,
-            provider: c.provider,
-            level: c.level,
-            weeks: c.durationWeeks ? String(c.durationWeeks) : "Not published",
-            fee:
-              c.tuitionFeeTotal !== undefined
-                ? aud(c.tuitionFeeTotal)
-                : "Not published",
-            where: c.locations.join(", ") || "Not published",
-          })),
-          source: inkviewSource(r),
-        },
-        { limit: 50 },
-      );
-    }, { rowsKey: "courses" }),
+    inkviewResult(
+      result,
+      () => {
+        const r = result as Found<SearchData>;
+        const clip = (t: string, n: number) =>
+          t.length > n ? `${t.slice(0, n - 1)}…` : t;
+        // One card per course, in the order returned (course name, not a ranking). Fees are CRICOS's own, labelled indicative.
+        return inkview.listings(
+          {
+            title: "Courses for international students",
+            kind: "service",
+            caption: INTL_NOTICE,
+            listings: r.data.courses.map((c) => ({
+              id: c.cricosCode,
+              title: clip(c.name, 160),
+              badges: [clip(c.level, 24), `CRICOS ${c.cricosCode}`],
+              ...(c.tuitionFeeTotal !== undefined
+                ? {
+                    price: {
+                      amount: c.tuitionFeeTotal,
+                      currency: "AUD",
+                      unit: "total" as const,
+                    },
+                    priceNote: "indicative total tuition fee (CRICOS)",
+                  }
+                : { priceNote: "tuition fee not published" }),
+              detail: clip(
+                `${c.provider}. ${c.durationWeeks ? `${c.durationWeeks} weeks.` : "Duration not published."} ${c.locations.length ? `Locations: ${c.locations.join(", ")}.` : "Locations not published."}`,
+                300,
+              ),
+              ...(c.providerWebsite && /^https?:\/\//.test(c.providerWebsite)
+                ? { url: c.providerWebsite }
+                : {}),
+            })),
+            source: inkviewSource(r),
+          } as never,
+          { limit: 20 },
+        );
+      },
+      { rowsKey: "courses", maxRows: 20 },
+    ),
 });
 
 // ---------------------------------------------------------------- get_international_course

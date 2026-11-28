@@ -104,13 +104,13 @@ export const UI_MAX_ROWS = 10;
 export function inkviewResult(
   result: Grounded<unknown>,
   build: () => CallToolResult,
-  opts: { rowsKey?: string } = {},
+  opts: { rowsKey?: string; maxRows?: number } = {},
 ): Partial<CallToolResult> | undefined {
   if (!result.found) return undefined;
   // A long list is not drawn: the text and structured data still carry every row, and the host narrates them.
   if (opts.rowsKey) {
     const rows = (result.data as Record<string, unknown> | null)?.[opts.rowsKey];
-    if (Array.isArray(rows) && rows.length > UI_MAX_ROWS) return undefined;
+    if (Array.isArray(rows) && rows.length > (opts.maxRows ?? UI_MAX_ROWS)) return undefined;
   }
   try {
     const ink = build();
