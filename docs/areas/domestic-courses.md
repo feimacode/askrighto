@@ -1,16 +1,16 @@
-# University courses and VCE planning (vertical `courses-domestic`)
+# University courses and admissions planning (vertical `courses-domestic`)
 
 Rewritten 27 Nov 2026 for `switch-to-index-only`. The earlier version described the curated YAML store, the prerequisite evaluator, the aggregate calculator and eight tools; all of that was removed. See platform.md for the shared pieces.
 
 ## What it holds
 
 - The CRICOS course index (CC BY 2.5 AU) for each university with a provider file in `data/courses/<region>/`: table `courses`, `course_campuses`, `providers`, `cricos_raw`, `course_loads`.
-- Links and reading checklists in `src/courses/sources.ts` (VTAC scaling report, ATAR and aggregate rules, key dates, preferences, early entry) and the provider links in the YAML.
+- Links and reading checklists in `src/courses/sources.ts` for Victoria, NSW, the ACT and Queensland (scaling report, ATAR rules, key dates, preferences, early entry, adjustment schemes, subject rules; see [admissions-sources.md](../admissions-sources.md)) and the provider links in the YAML.
 - Nothing else: no entry figures, prerequisites, scaling, dates or rules.
 
 ## Tools (internal route only)
 
-`search_domestic_courses`, `get_domestic_course`, `get_vce_admissions_sources` (see [course-tools.md](../course-tools.md)). The vertical flag is still `courses-domestic`; the public route serves energy only.
+`search_domestic_courses`, `get_domestic_course`, `get_admissions_sources` (see [course-tools.md](../course-tools.md)). The vertical flag is still `courses-domestic`; the public route serves energy only.
 
 ## Commands
 

@@ -336,7 +336,7 @@ describe("courses loaded but internal-only", () => {
       expect.arrayContaining([
         "search_domestic_courses",
         "get_domestic_course",
-        "get_vce_admissions_sources",
+        "get_admissions_sources",
       ]),
     );
     expect(names).not.toContain("compare_domestic_courses");

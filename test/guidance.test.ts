@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { serverInstructions } from "../src/server/instructions.js";
@@ -90,11 +90,51 @@ describe("vertical skills", () => {
     expect(text).not.toMatch(/\$\s?\d/);
   });
 
-  it("keeps odds and aggregate-to-ATAR rules in the VCE skill", () => {
-    const text = readFileSync(join(INTERNAL, "vce-course-research/SKILL.md"), "utf8");
+  it("keeps odds and aggregate-to-ATAR rules in the domestic course skill", () => {
+    const text = readFileSync(join(INTERNAL, "domestic-course-research/SKILL.md"), "utf8");
     expect(text).toMatch(/will get in/);
-    expect(text).toMatch(/never convert/i);
+    expect(text).toMatch(/convert an aggregate or a rank/i);
     expect(text).toMatch(/bot check/i);
+  });
+
+  const DOMESTIC_SKILLS = [
+    "domestic-course-research",
+    "subject-prerequisite-check",
+    "course-compare",
+    "admissions-timeline",
+    "entry-pathways",
+    "scaling-reader",
+    "interstate-applicant",
+  ];
+
+  it("has the domestic course skills, each valid and each keeping the shared rules", () => {
+    for (const n of DOMESTIC_SKILLS) {
+      const text = readFileSync(join(INTERNAL, n, "SKILL.md"), "utf8");
+      expect(text, n).toMatch(new RegExp(`^---\\nname: ${n}\\ndescription: Use when `));
+      expect(text, n).toMatch(/will get in/);
+      expect(text, n).toMatch(/bot check/i);
+      expect(text, n).toMatch(/Send what you read back|send what you read back/);
+      expect(text, n).toMatch(/from memory|ask righto holds no|Ask Righto holds only/i);
+    }
+  });
+
+  it("does not leave the old VCE-only skill behind", () => {
+    expect(existsSync(join(INTERNAL, "vce-course-research"))).toBe(false);
+  });
+
+  it("keeps state notes to structure facts: no score, percentage, year or date", () => {
+    for (const f of ["README", "vce", "hsc", "act", "qce"]) {
+      const text = readFileSync(join(INTERNAL, "domestic-course-research/references", `${f}.md`), "utf8");
+      expect(text, f).not.toMatch(/\d{2,}/);
+      expect(text, f).not.toMatch(/%|\bper cent\b/i);
+    }
+  });
+
+  it("each state note says what is unconfirmed or to read the page", () => {
+    for (const f of ["vce", "hsc", "act", "qce"]) {
+      const text = readFileSync(join(INTERNAL, "domestic-course-research/references", `${f}.md`), "utf8");
+      expect(text, f).toMatch(/Unconfirmed/);
+    }
   });
 
   it("keeps the no-visa-advice rule in the international skill", () => {

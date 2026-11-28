@@ -39,17 +39,18 @@ Licence-heavy and regulated areas (domestic course facts, VTAC and VCAA data, ho
 - Condition: Fees shown as indicative, as published, with the file date.
 - Condition: No English, entry-requirement, scholarship or intake facts are stored.
 
-## vce-admissions-links
+## admissions-links
 
-- Owner: VTAC and VCAA (official admissions pages)
+- Owner: VTAC, UAC and QTAC, and the certificate authorities VCAA, NESA, the ACT Board of Senior Secondary Studies and QCAA (official admissions pages)
 - Basis: `link_only`
 - Status: `cleared`
 - Review by: 2027-02-01
-- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). VTAC terms allow personal non-commercial use only and ban extraction without written permission. So Ask Righto stores and copies nothing from VTAC or VCAA: it only links to the pages and tells the user's own assistant what to read.
+- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). VTAC terms allow personal non-commercial use only and ban extraction without written permission. So Ask Righto stores and copies nothing from VTAC or VCAA: it only links to the pages and tells the user's own assistant what to read. UAC, QTAC, NESA, QCAA and the ACT Board were added on 28 Nov 2026 and their terms have not been read (the pages could not be reached from the build environment); the same rule applies.
 - Condition: Links and reading checklists only; no figure, date or rule from these pages is stored, cached or logged.
 - Condition: Facts the assistant reads are quoted with the page link and time read, labelled as read by the assistant, and never sent back to or stored by the server.
 - Condition: The assistant never gets past a bot check or login.
 - Condition: Links are checked with `npm run sources:check`; the entries are marked unconfirmed until a person has opened each one.
+- Condition: Before the NSW, ACT and Queensland entries are relied on, a person reads UAC and QTAC terms and confirms links-only use is fine.
 
 ## cdr-banking-links
 
@@ -142,5 +143,5 @@ Licence-heavy and regulated areas (domestic course facts, VTAC and VCAA data, ho
 - Basis: `written_permission`
 - Status: `withdrawn`
 - Review by: 2027-02-01
-- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). Withdrawn 27 Nov 2026: Ask Righto no longer stores scaling data or asks VTAC for permission. It links to the most recent scaling report (see vce-admissions-links). Kept so the register shows the decision and so nothing registers this dataset again.
+- Evidence: https://www.vtac.edu.au/copyright.html (read 2026-11-12). Withdrawn 27 Nov 2026: Ask Righto no longer stores scaling data or asks VTAC for permission. It links to the most recent scaling report (see admissions-links). Kept so the register shows the decision and so nothing registers this dataset again.
 - Condition: Never stored. Links only.

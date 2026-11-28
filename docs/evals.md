@@ -1,6 +1,6 @@
 # Evals
 
-The prompt sets in `docs/use-case-comparison/`, `docs/energy-evaluation/` (energy, `E01`-`E31`) (domestic `D01`-`D20`, international `I01`-`I20`, health cover `H01`-`H20`) and `docs/home-loan-evaluation/` (home loans, `H01`-`H31`) can be run without a person pasting each one into a host. A small runner gives each prompt to a model over an OpenAI-compatible chat API with the Ask Righto tools as function tools, then scores the answer.
+The prompt sets in `docs/use-case-comparison/`, `docs/energy-evaluation/` (energy, `E01`-`E31`) (domestic `D01`-`D42`, international `I01`-`I20`, health cover `H01`-`H20`) and `docs/home-loan-evaluation/` (home loans, `H01`-`H31`) can be run without a person pasting each one into a host. A small runner gives each prompt to a model over an OpenAI-compatible chat API with the Ask Righto tools as function tools, then scores the answer.
 
 This is **not** Claude, ChatGPT or Gemini. It checks the tools, their instructions and the grounding rules behind one model, the same way each time, so it can be repeated before a change and after it. The hand protocol (`use-case-comparison/protocol.md`, the answer-review skill) stays the way to see a real host, including browsing assistants.
 
@@ -18,7 +18,7 @@ A run passes on the first two and on its row's checks (below). The "A grounded a
 
 A row may carry a fifth column, `Checks`: `arg:TOOL.KEY=VALUE` (the model called that tool with that argument, compared as text), `says:A/B` (the answer contains a phrase), `never:A/B` (it contains none) and `result:A/B` (a tool result contains one). Phrases are plain text, matched without case, with no `|`, `;` or `/` inside. A failed check fails the run and is listed in the report. `test/intl/prompts.test.ts` checks that every check parses and that `arg:` names a real tool and argument.
 
-D21 to D31 and I21 to I30 (regions, a two-state provider, ambiguous names, HSC and QCE not built, VTAC not applied to NSW, no figures for index-only courses, diplomas and VET) rely on this. They need the real CRICOS loads; against the CI fixtures they only test not-found handling. Cross-cutting checks that need no model: the public route lists no course or international tools (`test/courses/tools.test.ts`), the untraced-figure check runs on every run, and `courses:validate` and `intl:validate` run clean from the command line.
+D21 to D42 and I21 to I30 (regions, a two-state provider, ambiguous names, HSC and QCE not built, VTAC not applied to NSW, no figures for index-only courses, diplomas and VET) rely on this. They need the real CRICOS loads; against the CI fixtures they only test not-found handling. Cross-cutting checks that need no model: the public route lists no course or international tools (`test/courses/tools.test.ts`), the untraced-figure check runs on every run, and `courses:validate` and `intl:validate` run clean from the command line.
 
 ## Run it from GitHub
 

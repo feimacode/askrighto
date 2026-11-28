@@ -78,7 +78,7 @@ linked, with diagrams, and (3) the main functions and how they serve the end-to-
 | --- | --- | --- | --- |
 | Platform | [`areas/platform.md`](areas/platform.md) | n/a | HTTP and MCP server, `defineTool`, grounded envelope, registry, readiness, metrics, rights gate, verticals and release channels, DB and migrations, build and deploy |
 | Energy plans | [`areas/energy-plans.md`](areas/energy-plans.md) | yes | CDR sync into PostgreSQL, normaliser, store, cost calculator, three tools |
-| VIC uni courses and VCE planning | [`areas/vic-courses.md`](areas/vic-courses.md) | internal | CRICOS course index plus links and reading checklists (index-only, 27 Nov 2026); three tools |
+| Uni courses and admissions planning (VIC, NSW, ACT, QLD) | [`areas/domestic-courses.md`](areas/domestic-courses.md) | internal | CRICOS course index plus links and reading checklists (index-only, 27 Nov 2026); three tools |
 | International courses | [`areas/international-courses.md`](areas/international-courses.md) | internal | CRICOS higher-education courses with fees, durations and campuses; four tools |
 | Skills and plugins | [`areas/skills-and-plugins.md`](areas/skills-and-plugins.md) | public plugin: yes; internal plugin: no | grounding, energy bill, VCE course and international skills; shared rules generated from one source |
 | Private health cover | [`areas/health-cover.md`](areas/health-cover.md) | internal | PHIO monthly file into PostgreSQL, dated rebate, surcharge and loading rules in YAML, integer-cents calculator, seven tools; file layout assumed until a real ZIP is opened |
@@ -87,7 +87,7 @@ linked, with diagrams, and (3) the main functions and how they serve the end-to-
 Older topic docs stay as deeper references: [`energy-data.md`](energy-data.md),
 [`energy-estimates.md`](energy-estimates.md), [`cdr-schemas.md`](cdr-schemas.md),
 [`course-data.md`](course-data.md), [`course-tools.md`](course-tools.md),
-[`vce-admissions-data.md`](vce-admissions-data.md), [`intl-course-data.md`](intl-course-data.md),
+[`admissions-sources.md`](admissions-sources.md), [`intl-course-data.md`](intl-course-data.md),
 [`cricos-columns.md`](cricos-columns.md), [`use-case-comparison/`](use-case-comparison/protocol.md).
 
 ## 4. Layers in the code
@@ -160,7 +160,7 @@ Curated rows carry figures labelled by kind and intake year, structured prerequi
 own-words summaries (60 words at most, no banned phrases). Prerequisite checks are a pure recursive
 evaluator; the VCE aggregate is a pure function over scaling tables that are `pending` permission.
 International courses are a separate set of tables from the CRICOS register. Detail:
-[`areas/vic-courses.md`](areas/vic-courses.md), [`areas/international-courses.md`](areas/international-courses.md).
+[`areas/domestic-courses.md`](areas/domestic-courses.md), [`areas/international-courses.md`](areas/international-courses.md).
 
 ### 5.5 Release channels (canary)
 
@@ -178,7 +178,7 @@ rights gate applies on both routes in production. Promotion is a settings change
 
 Server instructions go to every host on `initialize`; skills add multi-turn intake and wording. The
 public plugin (`plugin/`) holds `ask-righto-grounding` and five energy journey skills (`energy-start`, `energy-current-plan`, `energy-readings`, `energy-compare`, `energy-plan-rates`), each generated from one source in `src/guidance/energy/` that `get_energy_guide` also serves. The internal
-plugin (`plugin-internal/`) holds `vce-course-research` and `intl-course-finder` for testers. The
+plugin (`plugin-internal/`) holds the domestic course skills (`domestic-course-research` and six more) and `intl-course-finder` for testers. The
 base rules come from one file, `src/guidance/shared.ts`, which feeds both the server instructions and
 a generated `rules.md`; CI fails if the generated copy is stale. A maintainer-only skill
 (`.claude/skills/ask-righto-answer-review`) repeats the hand protocol for checking answers, with

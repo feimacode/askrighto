@@ -70,4 +70,4 @@ export async function call(
   };
 }
 
-export const COURSES_DATASET_IDS = ["cricos-register", "vce-admissions-links"];
+export const COURSES_DATASET_IDS = ["cricos-register", "admissions-links"];

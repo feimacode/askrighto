@@ -5,7 +5,7 @@ import { createDb, dbConfig, migrate } from "../energy/db.js";
 import { parseCricos, type CricosCourse } from "./cricos.js";
 import { dataDir } from "./data-dir.js";
 import { loadCourses, mergeIndex, readProviderFiles } from "./load.js";
-import { VCE_SOURCES } from "./sources.js";
+import { SOURCES, STATE_INFO } from "./sources.js";
 
 const arg = (args: string[], name: string) => {
   const i = args.indexOf(name);
@@ -72,7 +72,9 @@ export async function cliCoursesLoad(args: string[]): Promise<void> {
 export async function cliSourcesCheck(): Promise<void> {
   const { files, errors } = readProviderFiles(dataDir());
   if (errors.length) fail(errors);
-  const urls = new Set<string>(VCE_SOURCES.map((s) => s.url));
+  const urls = new Set<string>([...SOURCES.map((s) => s.url), ...Object.values(STATE_INFO).map((i) => i.centreUrl)]);
+  const unchecked = SOURCES.filter((s) => !s.checkedOn);
+  if (unchecked.length) console.log(`${unchecked.length} of ${SOURCES.length} admissions entries have no checkedOn date (a person must open each one).`);
   for (const f of files) {
     urls.add(f.provider.coursesUrl);
     if (f.provider.searchUrl) urls.add(f.provider.searchUrl);

@@ -20,7 +20,7 @@ describe("course tools (index-only)", () => {
     const c = await connectCourses();
     const { tools } = await c.listTools();
     const names = tools.map((t) => t.name);
-    for (const n of ["search_domestic_courses", "get_domestic_course", "get_vce_admissions_sources"])
+    for (const n of ["search_domestic_courses", "get_domestic_course", "get_admissions_sources"])
       expect(names).toContain(n);
     for (const n of REMOVED) expect(names).not.toContain(n);
     for (const t of tools) {
@@ -75,7 +75,7 @@ describe("course tools (index-only)", () => {
 
   it("gives the scaling report link with a checklist, and no scaled scores", async () => {
     const c = await connectCourses();
-    const { data, text } = await call(c, "get_vce_admissions_sources", { topic: "scaling" });
+    const { data, text } = await call(c, "get_admissions_sources", { state: "vic", topic: "scaling" });
     expect(data.found).toBe(true);
     expect(data.data.sources).toHaveLength(1);
     expect(data.data.sources[0].url).toMatch(/^https:\/\/www\.vtac\.edu\.au\//);
@@ -84,11 +84,44 @@ describe("course tools (index-only)", () => {
     expect(text).not.toMatch(/scaled score of \d/);
   });
 
-  it("returns every admissions source by default and warns while links are unconfirmed", async () => {
+  it("asks which state when none is given, and calls nothing", async () => {
     const c = await connectCourses();
-    const { data } = await call(c, "get_vce_admissions_sources", {});
-    expect(data.data.sources.length).toBeGreaterThanOrEqual(4);
+    const { data } = await call(c, "get_admissions_sources", {});
+    expect(data).toMatchObject({ found: false, reason: "needs_input" });
+    expect(data.message).toMatch(/Which state/);
+  });
+
+  it.each([
+    ["vic", "VTAC", "VCE"],
+    ["nsw", "UAC", "HSC"],
+    ["act", "UAC", "ACT Senior Secondary Certificate"],
+    ["qld", "QTAC", "QCE"],
+  ])("answers for %s with its own centre and certificate and no other state's entries", async (state, centre, cert) => {
+    const c = await connectCourses();
+    const { data, text } = await call(c, "get_admissions_sources", { state });
+    expect(data.found).toBe(true);
+    expect(data.data.state).toMatchObject({ state, centre, certificate: cert });
+    expect(data.data.sources.every((s: { state: string }) => s.state === state)).toBe(true);
+    expect(data.data.sources.map((s: { id: string }) => s.id)).toEqual(
+      expect.arrayContaining(["scaling", "atar-rules", "key-dates", "preferences", "early-entry", "adjustment-factors", "subject-rules"]),
+    );
     expect(data.warnings?.join()).toMatch(/not yet confirmed/);
+    expect(data.data.rules).toMatch(/different measures/);
+    expect(text).toContain(centre);
+  });
+
+  it("filters by topic", async () => {
+    const c = await connectCourses();
+    const { data } = await call(c, "get_admissions_sources", { state: "qld", topic: "adjustment-factors" });
+    expect(data.data.sources).toHaveLength(1);
+    expect(data.data.sources[0].id).toBe("adjustment-factors");
+  });
+
+  it("names the admissions state on a course", async () => {
+    const c = await connectCourses();
+    const { data } = await call(c, "get_domestic_course", { courseId: "testu-cricos-111111a" });
+    expect(Array.isArray(data.data.admissionsStates)).toBe(true);
+    expect(data.data.userLinks.admissionsCentres.length).toBeGreaterThan(0);
   });
 
   it("reports data unavailable with no runtime", async () => {
@@ -103,7 +136,7 @@ describe("course tools (index-only)", () => {
     for (const [n, a] of [
       ["search_domestic_courses", {}],
       ["get_domestic_course", { courseId: "testu-cricos-111111a" }],
-      ["get_vce_admissions_sources", {}],
+      ["get_admissions_sources", { state: "nsw" }],
     ] as const) {
       const { text } = await call(c, n, a);
       expect(bannedIn(text.replace(/never say[^.]*\./gi, ""))).toEqual([]);

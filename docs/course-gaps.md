@@ -1,6 +1,6 @@
 # Course data gaps (domestic and international)
 
-Status as of 20 Nov 2026, from reading `docs/areas/vic-courses.md`, `docs/areas/international-courses.md`
+Status as of 20 Nov 2026, from reading `docs/areas/domestic-courses.md`, `docs/areas/international-courses.md`
 and the unticked tasks of the course OpenSpec changes. Both verticals stay internal-only until the gates in
 `promotion-checklist.md` pass.
 

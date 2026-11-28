@@ -55,7 +55,7 @@ describe("rights register", () => {
   });
   it("keeps VTAC scaling withdrawn: it is linked, never stored", () => {
     expect(rightsFor("vce-scaling")?.status).toBe("withdrawn");
-    for (const id of ["vce-admissions-links", "cdr-banking-links"]) {
+    for (const id of ["admissions-links", "cdr-banking-links"]) {
       expect(rightsFor(id)?.basis).toBe("link_only");
       expect(rightsFor(id)?.status).toBe("cleared");
     }
