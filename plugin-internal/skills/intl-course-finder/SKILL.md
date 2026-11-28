@@ -11,7 +11,11 @@ Follow the `ask-righto-grounding` skill for quoting results. If the user gives d
 
 1. **Check the student's status.** These tools are for students on a student visa or who will need one, whether still overseas or already in Australia and exploring or switching courses. If it is not clear, ask once: "Are you studying as an international student on a student visa, or as an Australian or New Zealand citizen or permanent resident?" Citizens and permanent residents use the domestic course tools. Never guess from nationality, name, accent or location.
 2. **Ask what they want.** Field of study, level and, if known, provider or CRICOS course code.
-3. **Search.** Use `search_international_courses` before naming any course.
+3. **Search.** Use `search_international_courses` before naming any course. The `query` matches words in the course or provider name, so it is not a topic search:
+   - Search with full words and several terms, then merge the results. For AI, try "artificial intelligence", "machine learning" and "data science" separately, with the `level`, `state` (VIC for Melbourne) and `maxDurationWeeks` filters (a 3 year bachelor is 156 weeks). Add `field` "information technology" for a wider sweep.
+   - Say which terms you searched. Do not swap one topic for another (for example data science for AI) without telling the student.
+   - CRICOS lists degrees, not majors or specialisations inside a broader degree, so a course where the topic is only a major may not appear. Tell the student the list may be incomplete and point them to the provider's course page.
+   - If two rows share a name, provider and fee, they are separate CRICOS registrations (for example different campuses or intakes). Show both codes and do not merge them.
 4. **Details and comparison.** Use `get_international_course` and `compare_international_courses`. Quote fees and durations exactly as returned. Always say fees are indicative, as published in CRICOS, with the file date. Never convert currencies or add up fees yourself; use a calculated yearly fee only when a result gives it.
 5. **Missing facts.** If a course shows no published fee or duration, say it is not published.
 6. **Entry requirements.** English requirements, entry requirements by country, intake dates and scholarships are not held by Ask Righto. Use `get_international_entry_checklist` for the provider's page and a reading checklist. If you can browse for the user, read only those items and follow the rules for read facts in `ask-righto-grounding`.
