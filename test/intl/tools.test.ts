@@ -61,6 +61,42 @@ describe("international tools", () => {
     expect(bannedIn(text)).toEqual([]);
   });
 
+  it("matches query words by whole word or word start, not inside a word", async () => {
+    const c = await connectIntl();
+    const names = async (query: string) => {
+      const { data } = await call(c, "search_international_courses", { query });
+      return data.found
+        ? data.data.courses.map((x: { name: string }) => x.name)
+        : [];
+    };
+    expect(await names("ar")).toEqual([]);
+    expect(await names("arts")).toEqual(["Bachelor of Arts"]);
+    expect((await names("scien")).sort()).toEqual([
+      "Bachelor of Science",
+      "Master of Data Science",
+    ]);
+  });
+
+  it("draws a search as one card per course, with the grounded result beside it", async () => {
+    const c = await connectIntl();
+    const r = await c.callTool({
+      name: "search_international_courses",
+      arguments: { query: "science" },
+    });
+    const sc = r.structuredContent as {
+      component?: string;
+      data?: { listings?: { title: string; price?: { amount: number }; detail?: string }[] };
+      grounded?: { found?: boolean };
+    };
+    expect(sc.component).toBe("listings");
+    expect(sc.data?.listings?.map((l) => l.title).sort()).toEqual([
+      "Bachelor of Science",
+      "Master of Data Science",
+    ]);
+    expect(sc.data?.listings?.[0]?.detail).toMatch(/weeks|Duration not published/);
+    expect(sc.grounded?.found).toBe(true);
+  });
+
   it("leaves expired courses out of search and shows them with a label on lookup", async () => {
     const c = await connectIntl();
     const s = await call(c, "search_international_courses", { query: "nursing" });
