@@ -54,6 +54,23 @@ export function claudeMcp(c = CONFIG) {
   return { mcpServers: { [c.serverName]: { type: "http", url: c.serverUrl } } };
 }
 
+/**
+ * Internal plugin `.mcp.json`: the internal route for testers. The token is never in the repo; Claude
+ * Code fills `${ASKRIGHTO_INTERNAL_TOKEN}` from the tester's environment. Only the internal plugin
+ * (not packaged for any directory) carries this file.
+ */
+export function internalMcp(c = CONFIG) {
+  const origin = new URL(c.serverUrl).origin;
+  return {
+    mcpServers: {
+      [`${c.serverName}-internal`]: {
+        type: "http",
+        url: `${origin}/mcp-internal/\${ASKRIGHTO_INTERNAL_TOKEN}`,
+      },
+    },
+  };
+}
+
 export function marketplace(c = CONFIG) {
   const m = c.marketplace;
   return {
@@ -147,6 +164,7 @@ export function chatgptMcp(c = CONFIG) {
 const COMMITTED = () => ({
   "plugin/.claude-plugin/plugin.json": json(claudeManifest()),
   "plugin/.mcp.json": json(claudeMcp()),
+  "plugin-internal/.mcp.json": json(internalMcp()),
   ".claude-plugin/marketplace.json": json(marketplace()),
 });
 

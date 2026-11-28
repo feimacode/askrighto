@@ -18,6 +18,7 @@ const config = JSON.parse(
 const g = gen as {
   claudeManifest: () => Record<string, unknown>;
   claudeMcp: () => Record<string, unknown>;
+  internalMcp: () => { mcpServers: Record<string, { url: string }> };
   chatgptManifest: () => Record<string, unknown>;
   chatgptMcp: () => Record<string, unknown>;
   marketplace: () => Record<string, unknown>;
@@ -82,6 +83,13 @@ describe("plugin packaging", () => {
     expect(pub).toEqual([...config.publicSkills].sort());
     const internal = readdirSync(join(ROOT, "plugin-internal/skills"));
     for (const n of internal) expect(pub).not.toContain(n);
+  });
+
+  it("gives the internal plugin a connector that reads the token from the environment", () => {
+    const url = g.internalMcp().mcpServers["askrighto-internal"]?.url;
+    expect(url).toBe(
+      `${new URL(config.serverUrl).origin}/mcp-internal/\${ASKRIGHTO_INTERNAL_TOKEN}`,
+    );
   });
 
   it("never puts an internal route or token into a package", () => {
