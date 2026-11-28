@@ -46,6 +46,11 @@ export function parseProviderFile(
     errors.push(
       `${where}${p.id}: course rows are not stored any more; keep only the provider block`,
     );
+  if (p.states !== undefined) {
+    const ok = ["vic", "nsw", "act", "qld"];
+    if (!Array.isArray(p.states) || p.states.length === 0 || p.states.some((x) => !ok.includes(x)))
+      errors.push(`${where}${p.id}: states must be a list from ${ok.join(", ")}`);
+  }
   const domains = p.domains.map((d) => d.toLowerCase());
   for (const [label, url] of [
     ["coursesUrl", p.coursesUrl],

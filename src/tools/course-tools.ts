@@ -4,7 +4,14 @@ import { found, notFound } from "../core/grounded.js";
 import { filterCourses, findCourse } from "../courses/catalogue.js";
 import { withCatalogue } from "../courses/index.js";
 import { AGGREGATE_NOTICE } from "../courses/notice.js";
-import { UNVERIFIED_WARNING, VCE_SOURCES } from "../courses/sources.js";
+import {
+  COMPARABILITY_NOTICE,
+  STATE_INFO,
+  STATES,
+  TOPICS,
+  UNVERIFIED_WARNING,
+  sourcesFor,
+} from "../courses/sources.js";
 import { REGIONS } from "../courses/types.js";
 import {
   COURSE_DATASETS,
@@ -119,41 +126,47 @@ export const getCourse = defineTool({
   render: (d) => withNotice(detailMarkdown(d)),
 });
 
-// ---------------------------------------------------------------- get_vce_admissions_sources
-const topic = z
-  .enum(["scaling", "atar-rules", "key-dates", "preferences", "early-entry", "all"])
-  .optional();
+// ---------------------------------------------------------------- get_admissions_sources
+const topic = z.enum([...TOPICS, "all"]);
 
-export const getVceAdmissionsSources = defineTool({
-  name: "get_vce_admissions_sources",
-  title: "Find VCE admissions pages",
+export const getAdmissionsSources = defineTool({
+  name: "get_admissions_sources",
+  title: "Find admissions pages for a state",
   description:
-    "Gives the official pages to read for VCE scaling (the most recent VTAC scaling report), how the ATAR and aggregate are calculated, key dates, preferences and early entry schemes, each with a reading checklist. It returns links only: Ask Righto holds no scaled scores, dates or aggregate estimates, so the assistant reads the page and does any arithmetic itself.",
+    "Gives the official pages to read for one state's university admissions: scaling (the most recent report), how the ATAR is calculated, key dates, preferences and offers, early entry, adjustment or bonus schemes and subject rules, each with a reading checklist. State is vic (VTAC and the VCE), nsw (UAC and the HSC), act (UAC and the ACT certificate) or qld (QTAC and the QCE). It returns links only: Ask Righto holds no scaled scores, dates or aggregate estimates, so the assistant reads the page and does any arithmetic the page defines itself.",
   inputSchema: z.object({
-    topic: topic.describe("What to find: scaling, atar-rules, key-dates, preferences, early-entry or all (default)"),
+    state: z.enum(STATES).optional().describe("The state the student studies senior secondary in: vic, nsw, act or qld. Ask the student if unknown."),
+    topic: topic.optional().describe("What to find: scaling, atar-rules, key-dates, preferences, early-entry, adjustment-factors, subject-rules or all (default)"),
   }),
   readOnlyHint: true,
   destructiveHint: false,
   openWorldHint: false,
-  datasets: ["vce-admissions-links"] as const,
+  datasets: ["admissions-links"] as const,
   handler: (a) => {
-    const t = a.topic ?? "all";
-    const sources = VCE_SOURCES.filter((s) => t === "all" || s.id === t);
+    if (!a.state)
+      return notFound(
+        "needs_input",
+        "Which state's admissions system applies: Victoria (VTAC), NSW (UAC), the ACT (UAC) or Queensland (QTAC)? It depends on where the student studies senior secondary, not on where they live now or which university they want. Ask the student, then call again with state.",
+        { states: [...STATES] },
+      );
+    const info = STATE_INFO[a.state];
+    const sources = sourcesFor(a.state, a.topic ?? "all");
     const unverified = sources.some((s) => !s.checkedOn);
-    const asOf = sources
-      .map((s) => s.checkedOn ?? s.indexedOn)
-      .sort()[0]!;
+    const asOf = sources.map((s) => s.checkedOn ?? s.indexedOn).sort()[0]!;
     return found({
       data: {
-        sources: [...sources],
+        state: info,
+        sources,
         rules:
           "Read the page, then quote only the checklist items with the page link and the time you read them, labelled as read by the assistant. Never send what you read back to an Ask Righto tool. Stop at a bot check or login. " +
-          AGGREGATE_NOTICE,
+          AGGREGATE_NOTICE +
+          " " +
+          COMPARABILITY_NOTICE,
         notice: "Links only: Ask Righto has not read these pages and stores nothing from them. General information, not advice.",
       },
       source: {
-        name: "VTAC and VCAA official pages (links only)",
-        url: sources[0]!.url,
+        name: `${info.centre} and ${info.authority} official pages (links only)`,
+        url: sources[0]?.url ?? info.centreUrl,
         licence: "Links only; Ask Righto stores no content from these sites",
       },
       asOf: `${asOf}T00:00:00Z`,
@@ -162,6 +175,7 @@ export const getVceAdmissionsSources = defineTool({
   },
   render: (d) =>
     [
+      `${d.state.stateName}: apply through ${d.state.centre} (${d.state.centreUrl}); certificate ${d.state.certificate} (${d.state.authority}). Entry figures here are named: ${d.state.figureKinds.join(", ")} (names as indexed, not confirmed).`,
       ...d.sources.map(
         (s) =>
           `- ${s.title} (${s.publisher}): ${s.url}\n  Read: ${s.readingChecklist.map((x, i) => `${i + 1}) ${x}`).join("; ")}`,

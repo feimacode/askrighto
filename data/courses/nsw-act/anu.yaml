@@ -5,3 +5,4 @@ provider:
   name: Australian National University
   coursesUrl: https://www.anu.edu.au/
   domains: [anu.edu.au]
+  states: [act]

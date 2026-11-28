@@ -75,7 +75,7 @@ export async function domesticCoverage(
   db: Db,
   now = new Date(),
 ): Promise<DomesticCoverage> {
-  const datasets = datasetsFor(["cricos-register", "vce-admissions-links"]);
+  const datasets = datasetsFor(["cricos-register", "admissions-links"]);
   const empty: DomesticCoverage = {
     loaded: false,
     courses: 0,
@@ -201,7 +201,7 @@ export function formatReport(r: CoverageReport): string {
   return [
     `Coverage report, ${r.generatedAt}`,
     "",
-    "DOMESTIC (VIC universities, VCE entry)",
+    "DOMESTIC (universities in VIC, NSW, ACT and QLD; CRICOS index and admissions links)",
     d.loaded
       ? [
           `  courses: ${d.courses} (curated ${d.curated}, index only ${d.indexOnly})`,

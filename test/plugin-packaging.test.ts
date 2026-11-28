@@ -92,7 +92,7 @@ describe("plugin packaging", () => {
       g.geminiSheet([]),
     ].join("\n");
     expect(all).not.toMatch(/mcp-internal|readyz-internal|metrics-internal/);
-    expect(existsSync(join(ROOT, "plugin/skills/vce-course-research"))).toBe(
+    expect(existsSync(join(ROOT, "plugin/skills/domestic-course-research"))).toBe(
       false,
     );
   });

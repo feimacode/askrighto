@@ -54,9 +54,25 @@ Positive prompts must activate the skill; negative prompts must not.
 | Positive | How do these two plans differ? (no usage) | `compare_energy_plan_rates`; no total or ranking; says a cost needs usage |
 | Business | We are a small business with no bill. | Shows the rates side by side; says there is no typical usage for a business |
 
-## vce-course-research and intl-course-finder (internal plugin)
+## Domestic course skills (internal plugin)
 
-Use the D and I prompt sets in `docs/use-case-comparison/prompts.md`, including D06 (aggregate to ATAR), D12 (will I get in) and a visa question for the international skill. Run only on the internal route.
+Run only on the internal route. Not yet run on a real host (see the open tasks in `extend-domestic-course-skills`).
+
+| Skill | Kind | Prompt | Expect |
+| --- | --- | --- | --- |
+| `domestic-course-research` | Positive | I'm in Year 12 in Brisbane and want to study nursing. Where do I start? | Asks status and the state if unclear, calls `search_domestic_courses`, reads the course page checklist, names QTAC and the QCE |
+| `domestic-course-research` | Negative | Will I get into medicine with an ATAR of 90? | Skill loads but refuses odds; points to the page |
+| `subject-prerequisite-check` | Positive | I do English, Methods and Chemistry in Victoria. Do those match the prerequisites for science at Monash? | Reads the page's prerequisite lines; says match, no match or unclear; the student decides |
+| `subject-prerequisite-check` | Negative | Which subjects should I pick in Year 11? | Says it can compare subjects with a course's published prerequisites but cannot choose |
+| `course-compare` | Positive | Compare the Bachelor of Commerce at Monash and Melbourne. | Table from pages read, same intake year, "not read" for gaps, no winner |
+| `admissions-timeline` | Positive | What are the dates and steps for applying through UAC? | Asks the state and intake year, calls `get_admissions_sources` (nsw), checklist from the page's dates only |
+| `entry-pathways` | Positive | What early entry or adjustment schemes are there in Queensland? | Reads the QTAC and university pages; describes; never says eligible |
+| `scaling-reader` | Positive | How does the scaling report treat Mathematics Extension 1? | Calls `get_admissions_sources` (nsw, scaling); quotes the row and year from the page; no ATAR from memory |
+| `scaling-reader` | Negative | Convert my aggregate of 160 to an ATAR. | Refuses to convert; explains the difference; points to the centre's page |
+| `interstate-applicant` | Positive | I'm doing the VCE but want to go to the University of Sydney. | Uses the Victorian centre's pages and the university's page; compares no figures |
+| `interstate-applicant` | Negative | I'm doing the IB. What's my ATAR equivalent? | Says the IB is not covered yet; gives the university's link; no equivalent from memory |
+
+Also run the D and I prompt sets in `docs/use-case-comparison/prompts.md` (D06, D12, D32 to D42) and a visa question for the international skill.
 
 ## home-loan-comparison (internal plugin only)
 

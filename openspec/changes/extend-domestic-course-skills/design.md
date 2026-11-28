@@ -35,6 +35,12 @@
 - Eval prompts through the runner (`docs/use-case-comparison/prompts.md`) with `arg:get_admissions_sources.state=<state>` and `never:` checks for the banned wording.
 - A unit test that every skill's `description` begins "Use when", that every tool a skill names exists, and that reference files contain no digit sequence that looks like a score or date (a coarse guard; a person reviews the rest).
 
+## Decisions on the open questions (Iven, 28 Nov 2026)
+
+- All seven skills in one build. Done.
+- No aggregate calculator yet; no other states or IB.
+- The router asks the state first when no university is named and offers the likely state when one is (recommendation taken).
+
 ## Risks and open questions
 
 1. The reference files are the riskiest part: a wrong structure fact is a wrong claim. They need a person to open the official pages (the same step as `generalise-admissions-sources` task 1). Without that they ship as stubs that say "read the page".

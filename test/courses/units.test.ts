@@ -6,7 +6,7 @@ import { filterCourses } from "../../src/courses/catalogue.js";
 import { parseCricos } from "../../src/courses/cricos.js";
 import { mergeIndex, readProviderFiles } from "../../src/courses/load.js";
 import { AGGREGATE_NOTICE, bannedIn, COURSE_NOTICE, READING_CHECKLIST } from "../../src/courses/notice.js";
-import { VCE_SOURCES } from "../../src/courses/sources.js";
+import { SOURCES, STATES, STATE_INFO, TOPICS, sourcesFor } from "../../src/courses/sources.js";
 import { parseProviderFile } from "../../src/courses/validate.js";
 import { CRICOS_CSV, FIXTURE_YAML, fixtureCatalogue } from "./helpers.js";
 
@@ -97,11 +97,20 @@ describe("wording and sources", () => {
     for (const t of [COURSE_NOTICE, AGGREGATE_NOTICE, ...READING_CHECKLIST])
       expect(bannedIn(t)).toEqual([]);
   });
-  it("every VCE source has a web address, a reading checklist and no stored content", () => {
-    for (const s of VCE_SOURCES) {
+  it("every admissions source has a web address, a reading checklist and no stored content", () => {
+    for (const s of SOURCES) {
       expect(s.url).toMatch(/^https:\/\//);
       expect(s.readingChecklist.length).toBeGreaterThan(0);
     }
-    expect(VCE_SOURCES.map((s) => s.id)).toContain("scaling");
+  });
+  it("covers every topic for every state", () => {
+    for (const st of STATES) for (const t of TOPICS) expect(sourcesFor(st, t), `${st}/${t}`).toHaveLength(1);
+  });
+  it("names each state's centre, certificate and authority, and holds no figure value", () => {
+    for (const st of STATES) {
+      const i = STATE_INFO[st];
+      expect(i.centre && i.certificate && i.authority).toBeTruthy();
+      expect(i.figureKinds.join(" ")).not.toMatch(/\d/);
+    }
   });
 });

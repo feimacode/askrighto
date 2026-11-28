@@ -30,7 +30,13 @@ Index-only. The server holds no figure, date or rule. A source entry is a link, 
 - Over-claiming NSW, ACT or QLD rules: the checklists say what to look for, never what the answer is.
 - ACT students apply through UAC but their certificate is separate from NSW's: the table above keeps them apart and task 1 confirms it.
 
-## Open questions
+## Decisions on the open questions (Iven, 28 Nov 2026)
+
+1. Rename outright, no alias. Done.
+2. No aggregate calculator yet; to be assessed later.
+3. No other states and no IB for now.
+
+## Open questions (answered above)
 
 1. Rename outright (recommended) or keep `get_vce_admissions_sources` as an alias for one release?
 2. Should the server offer a small, data-free aggregate calculator (the VCE rule of the primary four plus a share of the fifth and sixth studies, applied to scores the user or agent read)? Like the home loan repayment calculator it stores no data and needs no licence, but a state-by-state ATAR conversion would need the centre's tables and stays out. Recommend: not in this change.

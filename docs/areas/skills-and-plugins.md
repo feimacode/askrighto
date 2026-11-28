@@ -26,7 +26,7 @@ flowchart TB
     E["energy-start, energy-current-plan, energy-readings,<br/>energy-compare, energy-plan-rates<br/>(+ references/read-your-bill.md, worked-example.md)"]
   end
   subgraph INT["plugin-internal/ (name askrighto-internal, testers only)"]
-    V["vce-course-research"]
+    V["domestic-course-research + 6 course skills"]
     I["intl-course-finder"]
   end
   MKT[".claude-plugin/marketplace.json<br/>lists both plugins"] --> PUB
@@ -41,7 +41,7 @@ flowchart TB
 | Piece | Path | Notes |
 | --- | --- | --- |
 | Public plugin | `plugin/.claude-plugin/plugin.json`, `plugin/skills/` | Name `askrighto`, version 0.1.0. Skills: `ask-righto-grounding` and the five energy journey skills. Safe to list: energy is the only public vertical. |
-| Internal plugin | `plugin-internal/.claude-plugin/plugin.json`, `plugin-internal/skills/` | Name `askrighto-internal`. Skills: `vce-course-research`, `intl-course-finder`. Its manifest says it is for testers while the course tools are internal-only, to be installed alongside the public plugin. Not for public listing. |
+| Internal plugin | `plugin-internal/.claude-plugin/plugin.json`, `plugin-internal/skills/` | Name `askrighto-internal`. Skills: `domestic-course-research`, `subject-prerequisite-check`, `course-compare`, `admissions-timeline`, `entry-pathways`, `scaling-reader`, `interstate-applicant`, `intl-course-finder`. Its manifest says it is for testers while the course tools are internal-only, to be installed alongside the public plugin. Not for public listing. |
 | Marketplace | `.claude-plugin/marketplace.json` | One marketplace named `askrighto` with both plugins as relative sources (`./plugin`, `./plugin-internal`). |
 | Maintainer answer-checker | `.claude/skills/ask-righto-answer-review/SKILL.md`, `scripts/trace-numbers.mjs` | Project-level skill for people working in this repo; it is not in either plugin, so users never get it. See [`review-and-comparison.md`](review-and-comparison.md). |
 | Shared rules | `src/guidance/shared.ts` | The single source of the base rules sent as server instructions **and** written into the grounding skill's reference. |
@@ -97,7 +97,13 @@ flowchart LR
 | `energy-readings` | Interval meter readings (NEM12) to compare on their own use | `summarise_interval_readings` up to about 30 KB; `get_readings_upload_link` for long files; the sum-by-hours fallback as `assistant_readings`; never own peak hours |
 | `energy-compare` | The yearly cost of plans for the user's usage, or whether a plan costs less than their own | Choose `usageSource`; call `compare_energy_plans`; lead with the accuracy sentence; baseline wording; conditions table; follow `nextSteps` |
 | `energy-plan-rates` | Named plans to line up with no usage, or a business with no bill or readings | `compare_energy_plan_rates`; no total or ranking; say a cost needs usage |
-| `vce-course-research` (internal) | Victorian VCE student or parent asking about courses, prerequisites, entry figures, VTAC dates, early entry, aggregate | `search_domestic_courses` first; ask studies before `check_domestic_course_prerequisites`; scores only for a scored check or aggregate; quote figures with kind and intake year; an aggregate is not an ATAR; describe early entry, never say eligible; never "will get in", odds, or choosing subjects; index-only courses: links, and if browsing, read only the checklist, university page first, then Course Seeker, never VTAC; stop at a bot check. |
+| `domestic-course-research` (internal) | AU/NZ student or parent asking about uni courses, entry, ATAR, VCE, HSC or QCE, VTAC, UAC or QTAC | Status question, then ask the state once; `search_domestic_courses` first; `get_domestic_course` and read only the checklist; state notes in `references/`; hand off to the skills below; never "will get in", odds, choosing subjects, converting or comparing figures across states; stop at a bot check |
+| `subject-prerequisite-check` (internal) | Student names subjects and a target course | Read the page's prerequisite lines; say whether each matches, does not match or is unclear, using the page's names; `get_admissions_sources` topic `subject-rules` if needed; the student decides |
+| `course-compare` (internal) | Two or more courses side by side | Same checklist, intake year and kind of figure for each; "not read" for gaps; no winner |
+| `admissions-timeline` (internal) | When to apply, steps and dates | State and intake year; `get_admissions_sources` `key-dates` and `preferences`; checklist from the page's dates only |
+| `entry-pathways` (internal) | Early entry, bonus or adjustment schemes, pathway routes | Read the centre's and the university's pages; describe each scheme; never say a student is eligible |
+| `scaling-reader` (internal) | Scaling and how a study counts | `get_admissions_sources` `scaling` and `atar-rules`; quote the exact row and year; only the arithmetic the page defines, shown; never an ATAR from memory |
+| `interstate-applicant` (internal) | Studies in one state, applies in another; IB or overseas | Ask the certificate and target; read the home centre's and the university's pages; IB and other states are not covered; compare no figures |
 | `intl-course-finder` (internal) | International student or family asking about CRICOS courses, providers, fees, duration, entry checklists | `search_international_courses` first; `get_international_course` and `compare_international_courses`; fees always "indicative, as published in CRICOS" with file date; never convert currency or add fees; use `get_international_entry_checklist` for what Ask Righto does not hold; no visa, migration, work-rights or post-study advice (point to Home Affairs); no ranking. |
 
 ### 3.1 Server instructions (the other half)

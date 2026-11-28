@@ -15,6 +15,8 @@ export interface Provider {
   searchUrl?: string;
   /** Region folder the provider file lives in; set by the loader from the folder. */
   region?: Region;
+  /** States whose admissions system lists this provider, when the region folder is not enough (nsw-act covers NSW and the ACT). */
+  states?: ("vic" | "nsw" | "act" | "qld")[];
 }
 
 export interface Course {

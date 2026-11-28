@@ -16,9 +16,9 @@ const tools = routeSet(
 const known = new Set(tools.map((t) => t.name));
 
 describe("comparison prompt sets", () => {
-  it("number the prompts D01 to D31 and I01 to I30 without gaps", () => {
+  it("number the prompts D01 to D42 and I01 to I30 without gaps", () => {
     for (const [letter, n] of [
-      ["D", 31],
+      ["D", 42],
       ["I", 30],
     ] as const)
       expect(

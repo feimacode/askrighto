@@ -5,3 +5,4 @@ provider:
   name: University of Canberra
   coursesUrl: https://www.canberra.edu.au/
   domains: [canberra.edu.au]
+  states: [act]

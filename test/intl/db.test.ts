@@ -114,7 +114,7 @@ d("international store", () => {
       productionReady: true,
     });
     expect(
-      r.domestic.datasets.find((x) => x.id === "vce-admissions-links")!
+      r.domestic.datasets.find((x) => x.id === "admissions-links")!
         .productionReady,
     ).toBe(true);
     expect(

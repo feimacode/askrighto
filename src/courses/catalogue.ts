@@ -1,4 +1,5 @@
 /** The loaded CRICOS course index in memory, plus the search helpers the tools use. */
+import type { AdmissionsState } from "./sources.js";
 import type { Course, Provider } from "./types.js";
 
 export interface Catalogue {
@@ -20,6 +21,14 @@ const norm = (s: string) =>
 
 export function findCourse(cat: Catalogue, id: string): Course | undefined {
   return cat.courses.find((c) => c.id === id);
+}
+
+const REGION_STATES: Record<string, AdmissionsState[]> = { vic: ["vic"], "nsw-act": ["nsw"], qld: ["qld"] };
+
+/** The states whose admissions system applies to a provider: its `states`, or the default for its region. */
+export function admissionsStatesOf(p: Provider | undefined): AdmissionsState[] {
+  if (!p) return [];
+  return p.states?.length ? p.states : (REGION_STATES[p.region ?? "vic"] ?? []);
 }
 
 export function providerOf(cat: Catalogue, c: Course): Provider | undefined {
